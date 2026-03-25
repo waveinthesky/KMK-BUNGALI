@@ -805,6 +805,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
         <div style="display:flex;gap:8px">
           <button class="btn btn-primary" onclick="syncAllIcal()" style="padding:8px 14px">🔄 Sinhronizuj Sve</button>
           <button class="btn" onclick="showAddIcalForm()" style="padding:8px 14px;background:#28a745;color:white">+ Dodaj Link</button>
+          <button class="btn" onclick="clearAllIcalReservations()" style="padding:8px 14px;background:#dc3545;color:white">🗑️ Obriši sve iCal</button>
         </div>
       </div>
       <div id="ical-links-list"></div>
@@ -1522,7 +1523,7 @@ window.renderCal = function() {
         const nights=Math.ceil((new Date(res.checkOut)-new Date(res.checkIn))/86400000);
         const span=Math.min(nights, dim-d+1);
         const isIcal = !!res.icalLinkId;
-        const isIcalClosed = isIcal && !!(window.icalLinks||[]).find(l=>l.id===res.icalLinkId&&l.linkType==='closed');
+        const isIcalClosed = isIcal && (!!(window.icalLinks||[]).find(l=>l.id===res.icalLinkId&&l.linkType==='closed') || !!res.icalBookingClosed);
         const isManualClosed = !!res.closedManual;
         let cls;
         if (isManualClosed) cls = 'cc closed-manual';
@@ -1542,7 +1543,7 @@ window.renderCal = function() {
         const remNights=Math.ceil((new Date(res.checkOut)-new Date(ds+'T00:00:00'))/86400000);
         const span=Math.min(remNights, dim-d+1);
         const isIcal2 = !!res.icalLinkId;
-        const isIcalClosed2 = isIcal2 && !!(window.icalLinks||[]).find(l=>l.id===res.icalLinkId&&l.linkType==='closed');
+        const isIcalClosed2 = isIcal2 && (!!(window.icalLinks||[]).find(l=>l.id===res.icalLinkId&&l.linkType==='closed') || !!res.icalBookingClosed);
         const isManualClosed2 = !!res.closedManual;
         let cls;
         if (isManualClosed2) cls = 'cc closed-manual';
@@ -2854,15 +2855,19 @@ async function syncIcalLink(id, silent) {
   const statusEl = document.getElementById('ical-status');
   if (!silent && statusEl) statusEl.textContent = 'Sinhronizujem ' + (lnk.name||'') + '...';
 
-  // Fetch sa retry — pokusaj allorigins, pa fallback na corsproxy.io
-  const PROXIES = [
-    'https://api.allorigins.win/raw?url=',
-    'https://corsproxy.io/?'
+  // Fetch sa retry — pokusaj vise proxy-ja dok jedan ne prorade
+  // Booking.com blokira allorigins i corsproxy, koristimo alternativne
+  const PROXY_BUILDERS = [
+    url => 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(url),
+    url => 'https://thingproxy.freeboard.io/fetch/' + url,
+    url => 'https://yacdn.org/proxy/' + url,
+    url => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url),
   ];
   let text = null;
-  for (const proxy of PROXIES) {
+  for (const buildUrl of PROXY_BUILDERS) {
     try {
-      const resp = await fetch(proxy + encodeURIComponent(lnk.url));
+      const proxyUrl = buildUrl(lnk.url);
+      const resp = await fetch(proxyUrl, { signal: AbortSignal.timeout(8000) });
       if (!resp.ok) continue;
       const t = await resp.text();
       if (t.includes('BEGIN:VCALENDAR')) { text = t; break; }
@@ -2916,7 +2921,7 @@ async function syncIcalLink(id, silent) {
         );
         if (conflicts.length > 0) {
           const conf = conflicts[0];
-          const isConfClosed = conf.closedManual || !!(window.icalLinks||[]).find(l=>l.id===conf.icalLinkId&&l.linkType==='closed');
+          const isConfClosed = conf.closedManual || !!conf.icalBookingClosed || !!(window.icalLinks||[]).find(l=>l.id===conf.icalLinkId&&l.linkType==='closed');
           warnings.push({ type: isConfClosed && isClosedLink ? 'ok' : 'problem', ev, conf });
           skipped++;
         } else {
@@ -2944,7 +2949,7 @@ async function syncIcalLink(id, silent) {
 
     if (conflicts.length > 0) {
       const conf = conflicts[0];
-      const isConfClosed = conf.closedManual || !!(window.icalLinks||[]).find(l=>l.id===conf.icalLinkId&&l.linkType==='closed');
+      const isConfClosed = conf.closedManual || !!conf.icalBookingClosed || !!(window.icalLinks||[]).find(l=>l.id===conf.icalLinkId&&l.linkType==='closed');
       if (isConfClosed && isClosedLink) {
         warnings.push({ type: 'ok', ev, conf });
       } else {
@@ -2956,16 +2961,20 @@ async function syncIcalLink(id, silent) {
 
     // Nema preklapanja — upiši
     try {
+      // Automatski prepoznaj CLOSED/Not available kao zatvaranje
+      const isClosed = isClosedLink ||
+        /CLOSED|Not available|Unavailable|Zatvoreno/i.test(ev.name || '');
       await addDoc(collection(db,'reservations'), {
-        name: isClosedLink ? 'Zatvoreno' : 'Booking.com',
+        name: isClosed ? 'Zatvoreno' : 'Booking.com',
         phone: '', country: '',
         checkIn: ev.checkIn, checkOut: ev.checkOut,
         price: 0, channel: 'Booking.com',
         bungalovi: [{ bungalov: String(lnk.bungalov), beds: 1, adults: 1, children: 0, babies: 0, sharedBed: false, notes: '' }],
         services: { polupansion: false, fullPansion: false, lunchPaket: false },
-        notes: isClosedLink ? 'Automatski zatvoreno sa Booking.com (iCal)' : 'Automatski uvezeno sa Booking.com (iCal)',
-        confirmed: !isClosedLink, paid: false, cancelled: false,
+        notes: isClosed ? 'Automatski zatvoreno sa Booking.com (iCal)' : 'Automatski uvezeno sa Booking.com (iCal)',
+        confirmed: !isClosed, paid: false, cancelled: false,
         closedManual: false,
+        icalBookingClosed: isClosed,
         icalLinkId: id, icalUid: ev.uid,
         createdAt: new Date().toISOString(), createdBy: curUser
       });
@@ -3007,6 +3016,20 @@ async function syncIcalLink(id, silent) {
       console.log('iCal auto B'+lnk.bungalov+': +'+added+' /~'+updated+' /-'+deleted+' /upoz:'+warnings.length);
   }
 }
+
+// Obrisi sve iCal rezervacije iz baze (za reset pri greškama)
+window.clearAllIcalReservations = async () => {
+  const icalRes = reservations.filter(r => r.icalLinkId);
+  if (!icalRes.length) { alert('Nema iCal rezervacija za brisanje.'); return; }
+  if (!confirm('Obrisati ' + icalRes.length + ' iCal rezervacija iz kalendara?\n\nNakon toga klikni Sinhronizuj Sve da ih ponovo uvučeš ispravno.')) return;
+  syncUI('sy', 'Brisem iCal rezervacije...');
+  let deleted = 0;
+  for (const r of icalRes) {
+    try { await deleteDoc(doc(db,'reservations',r.id)); deleted++; } catch(e) {}
+  }
+  syncUI('ok', 'Sinhronizovano ✓');
+  alert('✅ Obrisano ' + deleted + ' iCal rezervacija.\n\nSada klikni Sinhronizuj Sve.');
+};
 
 // Rucni sync jednog linka
 window.syncOneIcal = id => syncIcalLink(id, false);
