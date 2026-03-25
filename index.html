@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Maja Karanfil Bungali v0.9.3</title>
+<title>Maja Karanfil Bungali v1.0.9</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh;padding:20px}
@@ -289,7 +289,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
       <img src="https://i.imgur.com/DzB2EDR.png" onerror="this.style.display='none'"
            alt="Logo" style="max-width:175px;margin:0 auto 10px;display:block;border-radius:10px">
       <h1>🏡 Maja Karanfil Bungali</h1>
-      <p>Prijavite se u sistem — v0.9.3</p>
+      <p>Prijavite se u sistem — v1.0.9</p>
     </div>
     <div class="login-err" id="login-err">Pogrešno korisničko ime ili lozinka!</div>
     <form class="login-form" id="login-form">
@@ -308,7 +308,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
   <div class="hdr">
     <div class="hdr-l">
       <h1>🏡 Maja Karanfil Bungali</h1>
-      <p>Sistem za upravljanje rezervacijama — v0.9.3</p>
+      <p>Sistem za upravljanje rezervacijama — v1.0.9</p>
     </div>
     <div class="hdr-r">
       <div class="user-row">
@@ -658,7 +658,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <!-- Current version -->
       <div style="background:#e8f4fd;padding:14px;border-radius:8px;margin-bottom:20px;border-left:4px solid #667eea">
-        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v0.9.3</strong>
+        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v1.0.9</strong>
       </div>
 
       <!-- Changelog -->
@@ -666,7 +666,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <div class="changelog">
         <div class="ch-version">
-          <div class="ch-ver-header">v0.9.3 <span class="ch-date">— 18.02.2026</span></div>
+          <div class="ch-ver-header">v1.0.9 <span class="ch-date">— 25.03.2026</span></div>
           <ul>
             <li><strong>About premješten:</strong> Iz floating dugmeta u Podešavanja → ℹ️ About tab — pregledniji pristup</li>
             <li><strong>Excel Export:</strong> Novo dugme "📊 Export u Excel" — preuzmi SVE rezervacije kao čistu CSV/Excel tabelu sa kompletnim detaljima (ID, status, ime, telefon, zemlja, kanal, datumi, broj noći, bungalovi, kreveti, struktura gostiju, cijena, napomene)</li>
@@ -2961,20 +2961,21 @@ async function syncIcalLink(id, silent) {
 
     // Nema preklapanja — upiši
     try {
-      // Automatski prepoznaj CLOSED/Not available kao zatvaranje
-      const isClosed = isClosedLink ||
-        /CLOSED|Not available|Unavailable|Zatvoreno/i.test(ev.name || '');
+      // Sve iCal periode tretiraj kao rezervacije gostiju (plava boja)
+      // Booking.com šalje CLOSED za sve - ne može se razlikovati iz iCal-a
+      // Zatvaranja se upisuju ručno u programu
+      const isIcalClosedType = isClosedLink;
       await addDoc(collection(db,'reservations'), {
-        name: isClosed ? 'Zatvoreno' : 'Booking.com',
+        name: isIcalClosedType ? 'Zatvoreno' : 'Booking.com',
         phone: '', country: '',
         checkIn: ev.checkIn, checkOut: ev.checkOut,
         price: 0, channel: 'Booking.com',
         bungalovi: [{ bungalov: String(lnk.bungalov), beds: 1, adults: 1, children: 0, babies: 0, sharedBed: false, notes: '' }],
         services: { polupansion: false, fullPansion: false, lunchPaket: false },
-        notes: isClosed ? 'Automatski zatvoreno sa Booking.com (iCal)' : 'Automatski uvezeno sa Booking.com (iCal)',
-        confirmed: !isClosed, paid: false, cancelled: false,
+        notes: isIcalClosedType ? 'Automatski zatvoreno sa Booking.com (iCal)' : 'Automatski uvezeno sa Booking.com (iCal)',
+        confirmed: !isIcalClosedType, paid: false, cancelled: false,
         closedManual: false,
-        icalBookingClosed: isClosed,
+        icalBookingClosed: isIcalClosedType,
         icalLinkId: id, icalUid: ev.uid,
         createdAt: new Date().toISOString(), createdBy: curUser
       });
