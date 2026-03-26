@@ -279,6 +279,17 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 .shared-bed-row input[type=checkbox] { width: 17px; height: 17px; cursor: pointer; }
 .shared-bed-row label { font-size: .87em; font-weight: 600; color: #856404; cursor: pointer; }
 </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script>
+    // Service Worker registracija za offline podrsku
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/KMK-BUNGALI/sw.js')
+          .then(reg => console.log('SW registered:', reg.scope))
+          .catch(err => console.log('SW registration failed:', err));
+      });
+    }
+  </script>
 </head>
 <body>
 
@@ -2405,9 +2416,9 @@ window.previewImport = async () => {
     // CSV - direktno citaj
     csvText = await file.text();
   } else if (name.endsWith('.xlsx') || name.endsWith('.xls')) {
-    // Excel - koristimo SheetJS
+    // Excel - koristimo SheetJS (globalni XLSX iz script taga u head)
     try {
-      const XLSX = await import('https://cdn.sheetjs.com/xlsx-0.20.1/package/xlsx.mjs');
+      if (typeof XLSX === 'undefined') { alert('SheetJS se nije učitao. Provjeri internet.'); return; }
       const buf = await file.arrayBuffer();
       const wb = XLSX.read(buf);
       const ws = wb.Sheets[wb.SheetNames[0]];
