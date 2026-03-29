@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Maja Karanfil Bungali v1.3.5</title>
+<title>Maja Karanfil Bungali v1.3.6</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh;padding:20px}
@@ -506,7 +506,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
       <img src="https://i.imgur.com/DzB2EDR.png" onerror="this.style.display='none'"
            alt="Logo" style="max-width:175px;margin:0 auto 10px;display:block;border-radius:10px">
       <h1>🏡 Maja Karanfil Bungali</h1>
-      <p>Prijavite se u sistem — v1.3.5</p>
+      <p>Prijavite se u sistem — v1.3.6</p>
     </div>
     <div class="login-err" id="login-err">Pogrešno korisničko ime ili lozinka!</div>
     <form class="login-form" id="login-form">
@@ -689,7 +689,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
   <div class="hdr">
     <div class="hdr-l">
       <h1>🏡 Maja Karanfil Bungali</h1>
-      <p>Sistem za upravljanje rezervacijama — v1.3.5</p>
+      <p>Sistem za upravljanje rezervacijama — v1.3.6</p>
     </div>
     <div class="hdr-r">
       <div class="user-row">
@@ -1122,7 +1122,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <!-- Current version -->
       <div style="background:#e8f4fd;padding:14px;border-radius:8px;margin-bottom:20px;border-left:4px solid #667eea">
-        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v1.3.5</strong>
+        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v1.3.6</strong>
       </div>
 
       <!-- Changelog -->
@@ -1130,7 +1130,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <div class="changelog">
         <div class="ch-version">
-          <div class="ch-ver-header">v1.3.5 <span class="ch-date">— 29.03.2026</span></div>
+          <div class="ch-ver-header">v1.3.6 <span class="ch-date">— 29.03.2026</span></div>
           <ul>
             <li><strong>About premješten:</strong> Iz floating dugmeta u Podešavanja → ℹ️ About tab — pregledniji pristup</li>
             <li><strong>Excel Export:</strong> Novo dugme "📊 Export u Excel" — preuzmi SVE rezervacije kao čistu CSV/Excel tabelu sa kompletnim detaljima (ID, status, ime, telefon, zemlja, kanal, datumi, broj noći, bungalovi, kreveti, struktura gostiju, cijena, napomene)</li>
@@ -3737,6 +3737,26 @@ function parseCSVLine(line) {
 }
 
 // Citanje fajla i parsiranje
+// ── Parser bungalova za import ───────────────────────────────
+function parseBungaloviImport(s) {
+  if (!s) return [];
+  s = String(s).trim();
+  // SVI BUNGALI
+  if (/svi\s*bungal/i.test(s)) return ['1','2','3','4','5','6','7','8','9','10','11','12','13'];
+  // Nadji sve B<broj> ili b<broj>
+  const nums = s.match(/[Bb]\s*(\d{1,2})/g);
+  if (nums && nums.length) {
+    return [...new Set(nums.map(n => n.replace(/[Bb]\s*/,'').trim())
+      .filter(n => parseInt(n) >= 1 && parseInt(n) <= 13))];
+  }
+  // Samo brojevi odvojeni zarezom/razmakom
+  const bare = s.match(/(\d{1,2})/g);
+  if (bare) {
+    return [...new Set(bare.filter(n => parseInt(n) >= 1 && parseInt(n) <= 13))];
+  }
+  return [];
+}
+
 window.previewImport = async () => {
   const fileEl = document.getElementById('import-file');
   if (!fileEl.files.length) { alert('Odaberi fajl prvo!'); return; }
