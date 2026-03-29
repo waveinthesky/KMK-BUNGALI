@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Maja Karanfil Bungali v1.3.1</title>
+<title>Maja Karanfil Bungali v1.3.2</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh;padding:20px}
@@ -506,7 +506,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
       <img src="https://i.imgur.com/DzB2EDR.png" onerror="this.style.display='none'"
            alt="Logo" style="max-width:175px;margin:0 auto 10px;display:block;border-radius:10px">
       <h1>🏡 Maja Karanfil Bungali</h1>
-      <p>Prijavite se u sistem — v1.3.1</p>
+      <p>Prijavite se u sistem — v1.3.2</p>
     </div>
     <div class="login-err" id="login-err">Pogrešno korisničko ime ili lozinka!</div>
     <form class="login-form" id="login-form">
@@ -689,7 +689,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
   <div class="hdr">
     <div class="hdr-l">
       <h1>🏡 Maja Karanfil Bungali</h1>
-      <p>Sistem za upravljanje rezervacijama — v1.3.1</p>
+      <p>Sistem za upravljanje rezervacijama — v1.3.2</p>
     </div>
     <div class="hdr-r">
       <div class="user-row">
@@ -1122,7 +1122,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <!-- Current version -->
       <div style="background:#e8f4fd;padding:14px;border-radius:8px;margin-bottom:20px;border-left:4px solid #667eea">
-        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v1.3.1</strong>
+        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v1.3.2</strong>
       </div>
 
       <!-- Changelog -->
@@ -1130,7 +1130,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <div class="changelog">
         <div class="ch-version">
-          <div class="ch-ver-header">v1.3.1 <span class="ch-date">— 29.03.2026</span></div>
+          <div class="ch-ver-header">v1.3.2 <span class="ch-date">— 29.03.2026</span></div>
           <ul>
             <li><strong>About premješten:</strong> Iz floating dugmeta u Podešavanja → ℹ️ About tab — pregledniji pristup</li>
             <li><strong>Excel Export:</strong> Novo dugme "📊 Export u Excel" — preuzmi SVE rezervacije kao čistu CSV/Excel tabelu sa kompletnim detaljima (ID, status, ime, telefon, zemlja, kanal, datumi, broj noći, bungalovi, kreveti, struktura gostiju, cijena, napomene)</li>
@@ -2212,7 +2212,8 @@ window.loadCalSettings = () => {
 function _setupCalDrag() {
   const grid = document.getElementById('cal-grid');
   if (!grid) return;
-  if (!_calDragEnabled) return; // Drag isključen
+  // Na mobu - poštuje postavku; na PC-u - uvijek radi
+  if (typeof isMobile === 'function' && isMobile() && !_calDragEnabled) return;
 
   function cellFromPoint(x, y) {
     const el = document.elementFromPoint(x, y);
@@ -2750,7 +2751,7 @@ window.renderStats = function() {
     f=f.filter(r=>(r.checkIn>=pFrom&&r.checkIn<=pTo)||(r.checkOut>pFrom&&r.checkOut<=pTo)||(r.checkIn<=pFrom&&r.checkOut>pTo));
   }
 
-  const active=f.filter(r=>!r.cancelled);
+  const active=f.filter(r=>!r.cancelled && !r.closedManual);
   const tot=active.length, conf=active.filter(r=>r.confirmed).length, paid=active.filter(r=>r.paid).length;
   const rev=Math.round(active.reduce((s,r)=>s+(r.paid?parseFloat(r.price||0):0),0)*100)/100;
   const exp=Math.round(active.reduce((s,r)=>s+parseFloat(r.price||0),0)*100)/100;
@@ -3743,18 +3744,14 @@ window.previewImport = async () => {
       const buf = await file.arrayBuffer();
       const wb = XLSX.read(buf, { cellDates: true });
       const ws = wb.Sheets[wb.SheetNames[0]];
-      // Koristimo sheet_to_json da izbjegnemo multiline probleme u CSV
-      const jsonRows = XLSX.utils.sheet_to_json(ws, { header: 1, raw: false, dateNF: 'yyyy-mm-dd', defval: '' });
-      // Konvertuj nazad u CSV-like format ali bez multiline problema
-      csvText = jsonRows.map(row => {
-        // Ocisti multiline iz svake celije
-        const cleaned = row.map(cell => {
-          if (cell === null || cell === undefined) return '';
-          const s = String(cell).replace(/\n/g, ' ').replace(/\r/g, '').replace(/,/g, ';');
-          return s;
-        });
-        return cleaned.join(',');
-      }).join('\n');
+      // Direktno uzmi JSON rows - zaobiđi CSV konverziju koja lomi multiline
+      window._excelJsonRows = XLSX.utils.sheet_to_json(ws, {
+        header: 1, raw: false, dateNF: 'yyyy-mm-dd', defval: ''
+      });
+      // Postavi csvText samo za prikaz broja redova
+      csvText = window._excelJsonRows.map(r => r.join(',')).join('\n');
+      // Označi da treba koristiti jsonRows u parseru
+      window._useExcelJson = true;
     } catch(e) {
       alert('Greška pri čitanju Excel fajla. Pokušaj sačuvati kao CSV i uvesti ponovo.\n\nDetalji: ' + e.message);
       return;
@@ -3784,21 +3781,33 @@ window.previewImport = async () => {
     previewEl2.style.display = 'block';
   }
 
-  // Ako ima samo 1 red — možda nema zaglavlja, pokušaj parsirati kao podatke
-  const startRow = lines.length === 1 ? 0 : 1;
+  // startRow se sada računa u sourceRows logici ispod
 
   _importRows = [];
   const errors = [];
   const warnings = [];
 
-  // Preskoci prvu liniju (zaglavlje) osim ako je samo 1 red
-  for (let i = startRow; i < lines.length; i++) {
-    const cols = parseCSVLine(lines[i]);
+  // Odaberi izvor redova: JSON array (Excel) ili CSV linije
+  const sourceRows = (window._useExcelJson && window._excelJsonRows)
+    ? window._excelJsonRows
+    : lines.map(l => parseCSVLine(l));
+  window._useExcelJson = false; // reset za sljedeći import
+  const startRowFinal = sourceRows.length === 1 ? 0 : 1;
+
+  // Preskoci prvu liniju (zaglavlje)
+  for (let i = startRowFinal; i < sourceRows.length; i++) {
+    const rawRow = sourceRows[i];
+    // JSON rows su array, CSV rows su stringovi — normalizuj
+    const cols = Array.isArray(rawRow)
+      ? rawRow.map(v => (v === null || v === undefined) ? '' : String(v).replace(/\n/g,' ').trim())
+      : parseCSVLine(rawRow);
+    // Preskoci prazne redove
+    if (!cols.some(c => c && c.trim())) continue;
     // Dinamicki odredjujemo offset na osnovu broja kolona
     // Ako fajl ima 9+ kolona, pretpostavljamo D=3 offset (A,B,C prazni)
     // Ako fajl ima manje od 9 kolona, pretpostavljamo pocinje od A=0
-    const totalCols = cols.length;
-    const off = totalCols >= 9 ? 3 : 0;  // offset: 3 za D-start, 0 za A-start
+    const totalCols = cols.filter(c => c && c.trim()).length;
+    const off = cols.length >= 9 ? 3 : 0;  // offset: 3 za D-start, 0 za A-start
     const name   = (cols[off+0]  || '').trim();
     const ciStr  = (cols[off+1]  || '').trim();
     const coStr  = (cols[off+2]  || '').trim();
