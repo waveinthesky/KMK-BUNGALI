@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Maja Karanfil Bungali v1.2.6</title>
+<title>Maja Karanfil Bungali v1.2.8</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh;padding:20px}
@@ -396,10 +396,23 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
   
   /* Kalendar scroll */
   .cal-wrap{overflow-x:auto!important;-webkit-overflow-scrolling:touch!important}
-  .cal-row{grid-template-columns:54px repeat(31,40px)!important}
-  .cal-lbl{font-size:.72em!important;padding:2px!important}
-  .cal-day{font-size:.7em!important;padding:2px!important}
-  .cc{font-size:.65em!important;padding:2px 3px!important}
+  .cal-row{grid-template-columns:52px repeat(31,46px)!important}
+  /* Sve ćelije — konzistentna visina */
+  .cc{font-size:.63em!important;padding:2px 2px!important;min-height:32px!important}
+  /* Header ćelije — dan + datum */
+  .cc.hdr{
+    min-height:42px!important;height:42px!important;
+    font-size:.7em!important;
+    display:flex!important;flex-direction:column!important;
+    align-items:center!important;justify-content:center!important;
+    padding:3px 2px!important;gap:1px!important;
+    line-height:1.2!important
+  }
+  .cc.hdr small{display:none!important}
+  /* Rezervacijske ćelije */
+  .cc.cc[class*="c1"],.cc.cc[class*="c2"],.cc.booking,.cc.closed-manual,.cc.closed-ical{
+    min-height:32px!important
+  }
   
   /* Sakrij desktop cal header, prikazi mob */
   .cal-hdr{display:none!important}
@@ -493,7 +506,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
       <img src="https://i.imgur.com/DzB2EDR.png" onerror="this.style.display='none'"
            alt="Logo" style="max-width:175px;margin:0 auto 10px;display:block;border-radius:10px">
       <h1>🏡 Maja Karanfil Bungali</h1>
-      <p>Prijavite se u sistem — v1.2.6</p>
+      <p>Prijavite se u sistem — v1.2.8</p>
     </div>
     <div class="login-err" id="login-err">Pogrešno korisničko ime ili lozinka!</div>
     <form class="login-form" id="login-form">
@@ -676,7 +689,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
   <div class="hdr">
     <div class="hdr-l">
       <h1>🏡 Maja Karanfil Bungali</h1>
-      <p>Sistem za upravljanje rezervacijama — v1.2.6</p>
+      <p>Sistem za upravljanje rezervacijama — v1.2.8</p>
     </div>
     <div class="hdr-r">
       <div class="user-row">
@@ -862,10 +875,17 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
   <!-- STATS (admin only) -->
   <div id="pane-stats" class="tab-pane">
-    <h2 style="margin-bottom:18px">📊 Statistika</h2>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+      <h2 style="margin:0">📊 Statistika</h2>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span id="stat-timestamp" style="font-size:.75em;color:#888"></span>
+        <button onclick="renderStats()" class="btn" style="padding:6px 12px;font-size:.82em;background:#667eea;color:white">🔄 Osvježi</button>
+      </div>
+    </div>
     <div class="stats-filters">
       <h3 style="margin-bottom:10px">Period</h3>
       <div class="filter-btns">
+        <button class="fb" onclick="setPeriod('all',this)">Sve</button>
         <button class="fb active" onclick="setPeriod('today',this)">Danas</button>
         <button class="fb" onclick="setPeriod('week',this)">7 Dana</button>
         <button class="fb" onclick="setPeriod('month',this)">Ovaj Mjesec</button>
@@ -1102,7 +1122,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <!-- Current version -->
       <div style="background:#e8f4fd;padding:14px;border-radius:8px;margin-bottom:20px;border-left:4px solid #667eea">
-        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v1.2.6</strong>
+        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v1.2.8</strong>
       </div>
 
       <!-- Changelog -->
@@ -1110,7 +1130,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <div class="changelog">
         <div class="ch-version">
-          <div class="ch-ver-header">v1.2.6 <span class="ch-date">— 29.03.2026</span></div>
+          <div class="ch-ver-header">v1.2.8 <span class="ch-date">— 29.03.2026</span></div>
           <ul>
             <li><strong>About premješten:</strong> Iz floating dugmeta u Podešavanja → ℹ️ About tab — pregledniji pristup</li>
             <li><strong>Excel Export:</strong> Novo dugme "📊 Export u Excel" — preuzmi SVE rezervacije kao čistu CSV/Excel tabelu sa kompletnim detaljima (ID, status, ime, telefon, zemlja, kanal, datumi, broj noći, bungalovi, kreveti, struktura gostiju, cijena, napomene)</li>
@@ -1593,6 +1613,8 @@ let _formListenersDone = false; // permanentni guard — ne resetuje se na logou
 function init() {
   if (_initDone) { renderCal(); renderResList(); renderDaily(); renderStats(); return; }
   _initDone = true;
+  // Ucitaj postavke kalendara
+  if (typeof loadCalSettings === 'function') loadCalSettings();
   addBung();
   setupFirebase();
   setupAC();
@@ -1623,8 +1645,11 @@ function setupFirebase() {
     renderCal(); renderResList(); renderDaily(); renderStats();
     // Automatska provjera konflikata pri svakoj promjeni
     if (typeof detectConflicts === 'function') detectConflicts();
-    // Mob daily refresh
-    if (typeof isMobile === 'function' && isMobile() && typeof renderMobDaily === 'function') renderMobDaily();
+    // Mob refreshi
+    if (typeof isMobile === 'function' && isMobile()) {
+      if (typeof renderMobDaily === 'function') renderMobDaily();
+      if (typeof renderMobListFiltered === 'function' && document.getElementById('mob-list-content')) renderMobListFiltered();
+    }
   }, e => syncUI('er','Greška: '+e.message));
   _histSub = onSnapshot(query(collection(db,'history'),orderBy('timestamp','desc')), snap => {
     hist = snap.docs.map(d=>({id:d.id,...d.data()}));
@@ -2115,7 +2140,7 @@ window.renderCal = function() {
         else if (isIcalClosed) label = '🔒 Booking.com';
         else if (isIcal) label = res.name && res.name !== 'Booking.com' ? escHtml(res.name)+' <small>🌐</small>' : '🌐 Booking.com';
         else label = escHtml(res.name);
-        html+=`<div class="${cls}" style="grid-column:span ${span}" onclick="if(!isMobile()||_calClickEnabled)showDet('${res.id}')">
+        html+=`<div class="${cls}" style="grid-column:span ${span}" onclick="showDet('${res.id}')">
           <div class="res-span" style="font-size:1.05em;font-weight:600;line-height:1.3">${label}</div></div>`;
         skip=d+nights; if (!isIcal) tog=!tog;
       } else if (res&&ds!==res.checkIn) {
@@ -2135,7 +2160,7 @@ window.renderCal = function() {
         else if (isIcalClosed2) label2 = '↩ 🔒 Booking.com';
         else if (isIcal2) label2 = res.name && res.name !== 'Booking.com' ? '↩ '+escHtml(res.name)+' <small>🌐</small>' : '↩ 🌐 Booking.com';
         else label2 = '↩ '+escHtml(res.name);
-        html+=`<div class="${cls}" style="grid-column:span ${span};opacity:.85" onclick="if(!isMobile()||_calClickEnabled)showDet('${res.id}')">
+        html+=`<div class="${cls}" style="grid-column:span ${span};opacity:.85" onclick="showDet('${res.id}')">
           <div class="res-span" style="font-size:.85em;font-weight:600;line-height:1.3">${label2}</div></div>`;
         skip=d+remNights; if (!isIcal2) tog=!tog;
       } else if (!res) {
@@ -2710,7 +2735,8 @@ window.renderStats = function() {
   let f=[...reservations];
   const ts=lDate(now);
 
-  if (period==='today')   f=f.filter(r=>r.checkIn<=ts&&r.checkOut>ts);
+  if (period==='all') { /* uzmi sve */ }
+  else if (period==='today')   f=f.filter(r=>r.checkIn<=ts&&r.checkOut>ts);
   else if (period==='week') {
     const wa=new Date(now); wa.setDate(wa.getDate()-7);
     const ws=lDate(wa);
@@ -2735,6 +2761,10 @@ window.renderStats = function() {
   const topCh=Object.keys(chs).sort((a,b)=>chs[b]-chs[a])[0];
   const bcnt={};active.forEach(r=>r.bungalovi?.forEach(b=>bcnt[b.bungalov]=(bcnt[b.bungalov]||0)+1));
   const topB=Object.keys(bcnt).sort((a,b)=>bcnt[b]-bcnt[a])[0];
+
+  // Prikazi timestamp azuriranja
+  const statTS = document.getElementById('stat-timestamp');
+  if (statTS) statTS.textContent = 'Azurirano: ' + new Date().toLocaleTimeString('sr-Latn');
 
   document.getElementById('stat-cards').innerHTML=[
     [tot,'Ukupno Rezervacija'],[conf,'Potvrđeno'],[paid,'Plaćeno'],[canc,'Otkazano'],
