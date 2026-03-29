@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Maja Karanfil Bungali v1.3.6</title>
+<title>Maja Karanfil Bungali v1.3.7</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh;padding:20px}
@@ -506,7 +506,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
       <img src="https://i.imgur.com/DzB2EDR.png" onerror="this.style.display='none'"
            alt="Logo" style="max-width:175px;margin:0 auto 10px;display:block;border-radius:10px">
       <h1>🏡 Maja Karanfil Bungali</h1>
-      <p>Prijavite se u sistem — v1.3.6</p>
+      <p>Prijavite se u sistem — v1.3.7</p>
     </div>
     <div class="login-err" id="login-err">Pogrešno korisničko ime ili lozinka!</div>
     <form class="login-form" id="login-form">
@@ -689,7 +689,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
   <div class="hdr">
     <div class="hdr-l">
       <h1>🏡 Maja Karanfil Bungali</h1>
-      <p>Sistem za upravljanje rezervacijama — v1.3.6</p>
+      <p>Sistem za upravljanje rezervacijama — v1.3.7</p>
     </div>
     <div class="hdr-r">
       <div class="user-row">
@@ -1122,7 +1122,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <!-- Current version -->
       <div style="background:#e8f4fd;padding:14px;border-radius:8px;margin-bottom:20px;border-left:4px solid #667eea">
-        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v1.3.6</strong>
+        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v1.3.7</strong>
       </div>
 
       <!-- Changelog -->
@@ -1130,7 +1130,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <div class="changelog">
         <div class="ch-version">
-          <div class="ch-ver-header">v1.3.6 <span class="ch-date">— 29.03.2026</span></div>
+          <div class="ch-ver-header">v1.3.7 <span class="ch-date">— 29.03.2026</span></div>
           <ul>
             <li><strong>About premješten:</strong> Iz floating dugmeta u Podešavanja → ℹ️ About tab — pregledniji pristup</li>
             <li><strong>Excel Export:</strong> Novo dugme "📊 Export u Excel" — preuzmi SVE rezervacije kao čistu CSV/Excel tabelu sa kompletnim detaljima (ID, status, ime, telefon, zemlja, kanal, datumi, broj noći, bungalovi, kreveti, struktura gostiju, cijena, napomene)</li>
@@ -2911,7 +2911,14 @@ window.restoreFile=()=>{
 };
 
 // ── HELPERS ──────────────────────────────────────────────────
-function fmtD(s) { if(!s) return ''; const d=new Date(s+'T00:00:00'); return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`; }
+function fmtD(s) {
+  if (!s) return '';
+  const [y,m,d] = s.split('-');
+  const MN = ['Jan','Feb','Mar','Apr','Maj','Jun','Jul','Avg','Sep','Okt','Nov','Dec'];
+  const mo = MN[parseInt(m,10)-1] || m;
+  const yy = y.slice(2); // "2026" -> "26"
+  return `${d}-${mo}-${yy}`;
+}
 function fmtDT(s) { if(!s) return ''; const d=new Date(s); return `${fmtD(d.toISOString().split('T')[0])} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; }
 function nights(a,b) { return Math.max(1,Math.ceil((new Date(b)-new Date(a))/86400000)); }
 function lDate(d) { return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
@@ -3664,10 +3671,12 @@ let _importRows = [];
 // i Excel datetime format (npr. "Fri May 01 2026 00:00:00 GMT+0000")
 function excelSerialToDate(n) {
   // Excel datum = broj dana od 30.12.1899
+  // Koristimo UTC getere da izbjegnemo timezone pomak (UTC+1/+2 bi pomjerio datum za -1)
   const d = new Date(Math.round((n - 25569) * 86400 * 1000));
-  // Koriguj za timezone offset
-  const utc = new Date(d.getTime() + d.getTimezoneOffset() * 60000);
-  return utc.toISOString().substring(0, 10);
+  const yr  = d.getUTCFullYear();
+  const mo  = String(d.getUTCMonth() + 1).padStart(2, '0');
+  const day = String(d.getUTCDate()).padStart(2, '0');
+  return `${yr}-${mo}-${day}`;
 }
 
 function parseImportDate(s) {
