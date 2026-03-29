@@ -1,6 +1,6 @@
 // Service Worker za Maja Karanfil Bungali — offline podrška
 // Verzija keša — promijeni ovo svaki put kad se uploaduje nova verzija index.html
-const CACHE_NAME = 'kmk-bungali-v1.2.3';
+const CACHE_NAME = 'kmk-bungali-v1.2.6';
 
 // Fajlovi koji se keširaju pri instalaciji
 const CACHE_FILES = [
