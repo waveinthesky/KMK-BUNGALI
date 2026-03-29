@@ -2424,9 +2424,7 @@ window.previewImport = async () => {
       const ws = wb.Sheets[wb.SheetNames[0]];
       csvText = XLSX.utils.sheet_to_csv(ws);
     } catch(e) {
-      alert('Greška pri čitanju Excel fajla. Pokušaj sačuvati kao CSV i uvesti ponovo.
-
-Detalji: ' + e.message);
+      alert('Greška pri čitanju Excel fajla. Pokušaj sačuvati kao CSV i uvesti ponovo.\n\nDetalji: ' + e.message);
       return;
     }
   } else {
