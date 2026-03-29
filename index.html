@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Maja Karanfil Bungali v1.3.4</title>
+<title>Maja Karanfil Bungali v1.3.5</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh;padding:20px}
@@ -506,7 +506,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
       <img src="https://i.imgur.com/DzB2EDR.png" onerror="this.style.display='none'"
            alt="Logo" style="max-width:175px;margin:0 auto 10px;display:block;border-radius:10px">
       <h1>🏡 Maja Karanfil Bungali</h1>
-      <p>Prijavite se u sistem — v1.3.4</p>
+      <p>Prijavite se u sistem — v1.3.5</p>
     </div>
     <div class="login-err" id="login-err">Pogrešno korisničko ime ili lozinka!</div>
     <form class="login-form" id="login-form">
@@ -689,7 +689,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
   <div class="hdr">
     <div class="hdr-l">
       <h1>🏡 Maja Karanfil Bungali</h1>
-      <p>Sistem za upravljanje rezervacijama — v1.3.4</p>
+      <p>Sistem za upravljanje rezervacijama — v1.3.5</p>
     </div>
     <div class="hdr-r">
       <div class="user-row">
@@ -1122,7 +1122,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <!-- Current version -->
       <div style="background:#e8f4fd;padding:14px;border-radius:8px;margin-bottom:20px;border-left:4px solid #667eea">
-        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v1.3.4</strong>
+        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v1.3.5</strong>
       </div>
 
       <!-- Changelog -->
@@ -1130,7 +1130,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <div class="changelog">
         <div class="ch-version">
-          <div class="ch-ver-header">v1.3.4 <span class="ch-date">— 29.03.2026</span></div>
+          <div class="ch-ver-header">v1.3.5 <span class="ch-date">— 29.03.2026</span></div>
           <ul>
             <li><strong>About premješten:</strong> Iz floating dugmeta u Podešavanja → ℹ️ About tab — pregledniji pristup</li>
             <li><strong>Excel Export:</strong> Novo dugme "📊 Export u Excel" — preuzmi SVE rezervacije kao čistu CSV/Excel tabelu sa kompletnim detaljima (ID, status, ime, telefon, zemlja, kanal, datumi, broj noći, bungalovi, kreveti, struktura gostiju, cijena, napomene)</li>
@@ -3779,29 +3779,50 @@ window.previewImport = async () => {
     previewEl2.style.display = 'block';
   }
 
+  // ── Odredi indekse kolona iz zaglavlja ───────────────────────
+  // Zaglavlje je rows[0] — nadji indeks svake kolone po imenu
+  const hdr = (rows[0] || []).map(v => String(v||'').toLowerCase().trim()
+    .replace(/\xa0/g,'').replace(/\s+/g,' '));
+
+  // Pokusaj naci po imenu, inace koristi default offset
+  const colIdx = {
+    name:    hdr.findIndex(h => h.includes('ime') || h.includes('prezime')),
+    ci:      hdr.findIndex(h => h.includes('chek in') || h.includes('check in') || h.includes('dolazak') || h.includes('ci')),
+    co:      hdr.findIndex(h => h.includes('chek out') || h.includes('check out') || h.includes('odlazak') || h.includes('co')),
+    bung:    hdr.findIndex(h => h.includes('bungalov') || h.includes('soba')),
+    person:  hdr.findIndex(h => h.includes('osoba') || h.includes('person') || h.includes('gost')),
+    notes:   hdr.findIndex(h => h.includes('informacij') || h.includes('napomen') || h.includes('ostalo')),
+    phone:   hdr.findIndex(h => h.includes('kontakt') || h.includes('telefon') || h.includes('phone')),
+    channel: hdr.findIndex(h => h.includes('kanal') || h.includes('channel') || h.includes('izvor')),
+  };
+
+  // Ako zaglavlje nije nadj (sve -1), koristi fiksne pozicije D-L (offset 3)
+  const hasHeader = colIdx.name >= 0 && colIdx.ci >= 0;
+  if (!hasHeader) {
+    // Fallback: SheetJS vratio sve kolone uključujuci A,B,C
+    // Kolone su D=3, E=4, F=5, G=6, H=7, I=8, J=9, K=10, L=11
+    colIdx.name = 3; colIdx.ci = 4; colIdx.co = 5;
+    colIdx.bung = 7; colIdx.person = 8; colIdx.notes = 9;
+    colIdx.phone = 10; colIdx.channel = 11;
+  }
+
   // ── Parsiraj redove ──────────────────────────────────────────
   _importRows = [];
   const errors = [];
   const warnings = [];
 
-  // Red 0 je zaglavlje — počni od reda 1
   for (let i = 1; i < rows.length; i++) {
     const cols = rows[i];
     if (!cols || !cols.some(c => c !== '' && c !== null && c !== undefined)) continue;
 
-    // Kolone: A=0,B=1,C=2 su prazne; D=3=Ime, E=4=CI, F=5=CO, G=6=Noci,
-    //         H=7=Bungalovi, I=8=Osoba, J=9=Napomene, K=10=Telefon, L=11=Kanal
-    const totalFilled = cols.filter(c => c !== '').length;
-    const off = cols.length > 9 ? 3 : 0;
-
-    const rawName   = cols[off + 0];
-    const rawCI     = cols[off + 1];
-    const rawCO     = cols[off + 2];
-    const rawBung   = cols[off + 4];
-    const rawPerson = cols[off + 5];
-    const rawNotes  = cols[off + 6];
-    const rawPhone  = cols[off + 7];
-    const rawChan   = cols[off + 8];
+    const rawName   = cols[colIdx.name];
+    const rawCI     = cols[colIdx.ci];
+    const rawCO     = cols[colIdx.co];
+    const rawBung   = cols[colIdx.bung];
+    const rawPerson = colIdx.person >= 0 ? cols[colIdx.person] : '';
+    const rawNotes  = colIdx.notes  >= 0 ? cols[colIdx.notes]  : '';
+    const rawPhone  = colIdx.phone  >= 0 ? cols[colIdx.phone]  : '';
+    const rawChan   = colIdx.channel >= 0 ? cols[colIdx.channel] : '';
 
     const name    = rawName  ? String(rawName).trim()  : '';
     const bungStr = rawBung  ? String(rawBung).trim()  : '';
