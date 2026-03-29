@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Maja Karanfil Bungali v1.2.3</title>
+<title>Maja Karanfil Bungali v1.2.6</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh;padding:20px}
@@ -457,6 +457,16 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 .conflict-banner.hidden{display:none!important}
 
 /* SHARED BED */
+/* TOGGLE SWITCH */
+.kmk-toggle { position:relative;display:inline-block;width:46px;height:24px;flex-shrink:0 }
+.kmk-toggle input { opacity:0;width:0;height:0 }
+.kmk-toggle-slider { position:absolute;cursor:pointer;inset:0;background:#ccc;
+  border-radius:24px;transition:.2s }
+.kmk-toggle-slider:before { content:"";position:absolute;width:18px;height:18px;
+  left:3px;bottom:3px;background:white;border-radius:50%;transition:.2s }
+.kmk-toggle input:checked + .kmk-toggle-slider { background:#667eea }
+.kmk-toggle input:checked + .kmk-toggle-slider:before { transform:translateX(22px) }
+
 .shared-bed-row { display: flex; align-items: center; gap: 9px; margin: 8px 0 4px;
   padding: 9px 12px; background: #fff3cd; border-radius: 8px; border: 1px solid #ffc107; }
 .shared-bed-row input[type=checkbox] { width: 17px; height: 17px; cursor: pointer; }
@@ -483,7 +493,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
       <img src="https://i.imgur.com/DzB2EDR.png" onerror="this.style.display='none'"
            alt="Logo" style="max-width:175px;margin:0 auto 10px;display:block;border-radius:10px">
       <h1>🏡 Maja Karanfil Bungali</h1>
-      <p>Prijavite se u sistem — v1.2.3</p>
+      <p>Prijavite se u sistem — v1.2.6</p>
     </div>
     <div class="login-err" id="login-err">Pogrešno korisničko ime ili lozinka!</div>
     <form class="login-form" id="login-form">
@@ -666,7 +676,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
   <div class="hdr">
     <div class="hdr-l">
       <h1>🏡 Maja Karanfil Bungali</h1>
-      <p>Sistem za upravljanje rezervacijama — v1.2.3</p>
+      <p>Sistem za upravljanje rezervacijama — v1.2.6</p>
     </div>
     <div class="hdr-r">
       <div class="user-row">
@@ -724,11 +734,12 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
         <span id="mob-cal-month-label" style="font-size:1.05em;font-weight:700;color:#333">— —</span>
         <button onclick="changeMonth(1)" style="background:#f0f0f0;border:none;border-radius:8px;padding:8px 16px;font-size:.95em;cursor:pointer;font-weight:600">→</button>
       </div>
-      <div style="display:flex;justify-content:center">
-        <button id="mob-drag-toggle" onclick="toggleCalDrag()" 
-          style="border:none;border-radius:20px;padding:5px 14px;font-size:.78em;font-weight:600;color:white;cursor:pointer;background:#6c757d">
-          👆 Drag: OFF
-        </button>
+      <!-- Mini legenda za mobilni -->
+      <div style="display:flex;gap:6px;flex-wrap:wrap;font-size:.72em">
+        <span style="display:flex;align-items:center;gap:3px"><span style="width:10px;height:10px;background:#003580;border-radius:2px;display:inline-block"></span>Booking</span>
+        <span style="display:flex;align-items:center;gap:3px"><span style="width:10px;height:10px;background:#667eea;border-radius:2px;display:inline-block"></span>Ručna</span>
+        <span style="display:flex;align-items:center;gap:3px"><span style="width:10px;height:10px;background:#333;border-radius:2px;display:inline-block"></span>Zatvoreno</span>
+        <span style="display:flex;align-items:center;gap:3px"><span style="width:10px;height:10px;background:#28a745;border-radius:2px;display:inline-block"></span>Plaćeno</span>
       </div>
     </div>
     <div class="cal-hdr">
@@ -1031,6 +1042,54 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
     <!-- ABOUT TAB -->
     <div id="set-about" style="display:none">
       <div style="padding:20px">
+
+      <!-- KALENDAR POSTAVKE -->
+      <div style="background:#f8f9fa;border-radius:12px;padding:16px;margin-bottom:22px;border:1px solid #e0e0e0">
+        <h4 style="margin:0 0 14px;color:#333;font-size:1em">📅 Postavke Kalendara</h4>
+
+        <!-- Klik na rezervaciju -->
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #eee">
+          <div>
+            <div style="font-weight:600;font-size:.9em">👆 Klik na rezervaciju (mobilno)</div>
+            <div style="font-size:.8em;color:#888;margin-top:2px">Otvara detalje rezervacije klikom na blok u kalendaru</div>
+          </div>
+          <label class="kmk-toggle">
+            <input type="checkbox" id="setting-cal-click" onchange="saveCalSettings()" checked>
+            <span class="kmk-toggle-slider"></span>
+          </label>
+        </div>
+
+        <!-- Drag za novu rezervaciju -->
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0">
+          <div>
+            <div style="font-weight:600;font-size:.9em">✋ Drag za novu rezervaciju (mobilno)</div>
+            <div style="font-size:.8em;color:#888;margin-top:2px">Prevuci po slobodnim danima da otvoriš formu za novu rezervaciju</div>
+          </div>
+          <label class="kmk-toggle">
+            <input type="checkbox" id="setting-cal-drag" onchange="saveCalSettings()">
+            <span class="kmk-toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <!-- DANGER ZONE — Brisanje podataka -->
+      <div style="background:#fff5f5;border:1px solid #fed7d7;border-radius:12px;padding:16px;margin-bottom:22px">
+        <h4 style="margin:0 0 10px;color:#c53030;font-size:.95em">⚠️ Brisanje Podataka</h4>
+        <div style="font-size:.85em;color:#666;margin-bottom:12px">
+          Obriši sve rezervacije iz baze. Koristi kada završiš sa testiranjem. <strong>Ova akcija je nepovratna.</strong>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <button onclick="deleteManualReservations()" class="btn" style="background:#dc3545;color:white;padding:9px 16px;font-size:.88em">
+            🗑️ Obriši sve RUČNE rezervacije
+          </button>
+          <div style="font-size:.78em;color:#888">Briše samo rezervacije unesene ručno — iCal (Booking.com) rezervacije ostaju.</div>
+          <button onclick="deleteAllReservations()" class="btn" style="background:#6c757d;color:white;padding:9px 16px;font-size:.88em;margin-top:6px">
+            🗑️ Obriši SVE rezervacije (ručne + iCal)
+          </button>
+          <div style="font-size:.78em;color:#888">Briše apsolutno sve rezervacije i historiju.</div>
+        </div>
+      </div>
+
       <!-- Bismillah poruka -->
       <div style="background:linear-gradient(135deg,#667eea,#764ba2);color:white;padding:20px;border-radius:12px;margin-bottom:24px;text-align:center;line-height:1.8;font-size:.95em">
         <strong style="font-size:1.15em;display:block;margin-bottom:10px">بِسْمِ ٱللَّٰهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</strong>
@@ -1043,7 +1102,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <!-- Current version -->
       <div style="background:#e8f4fd;padding:14px;border-radius:8px;margin-bottom:20px;border-left:4px solid #667eea">
-        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v1.2.3</strong>
+        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v1.2.6</strong>
       </div>
 
       <!-- Changelog -->
@@ -1051,7 +1110,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <div class="changelog">
         <div class="ch-version">
-          <div class="ch-ver-header">v1.2.3 <span class="ch-date">— 29.03.2026</span></div>
+          <div class="ch-ver-header">v1.2.6 <span class="ch-date">— 29.03.2026</span></div>
           <ul>
             <li><strong>About premješten:</strong> Iz floating dugmeta u Podešavanja → ℹ️ About tab — pregledniji pristup</li>
             <li><strong>Excel Export:</strong> Novo dugme "📊 Export u Excel" — preuzmi SVE rezervacije kao čistu CSV/Excel tabelu sa kompletnim detaljima (ID, status, ime, telefon, zemlja, kanal, datumi, broj noći, bungalovi, kreveti, struktura gostiju, cijena, napomene)</li>
@@ -2016,19 +2075,17 @@ window.renderCal = function() {
   if (mobCalLabel) mobCalLabel.textContent = `${MNAMES[mo]} ${yr}`;
   const mobCalNav = document.getElementById('mob-cal-nav');
   if (mobCalNav) mobCalNav.style.display = (typeof isMobile==='function' && isMobile()) ? 'flex' : 'none';
-  // Ažuriraj drag toggle dugme
-  const dragBtn = document.getElementById('mob-drag-toggle');
-  if (dragBtn) {
-    dragBtn.textContent = _calDragEnabled ? '✋ Drag: ON' : '👆 Drag: OFF';
-    dragBtn.style.background = _calDragEnabled ? '#28a745' : '#6c757d';
-  }
+
   const dim=new Date(yr,mo+1,0).getDate();
 
+  const DNAMES_SHORT=['N','P','U','S','Č','P','S'];
   let html='<div class="cal-row"><div class="cc hdr">Bungali/Datum</div>';
   for (let d=1;d<=dim;d++) {
     const dt=new Date(yr,mo,d);
     const past=dt<now, today=dt.getTime()===now.getTime();
+    const dayName = DNAMES_SHORT[dt.getDay()];
     html+=`<div class="cc hdr${past?' past':today?' td':''}">
+      <div style="${today?'color:#667eea;font-weight:800':''};font-size:.75em;line-height:1.2">${dayName}</div>
       <div style="${today?'color:#667eea;font-weight:800':''}">${d}</div>
       <small>${DNAMES[dt.getDay()]}</small></div>`;
   }
@@ -2058,7 +2115,7 @@ window.renderCal = function() {
         else if (isIcalClosed) label = '🔒 Booking.com';
         else if (isIcal) label = res.name && res.name !== 'Booking.com' ? escHtml(res.name)+' <small>🌐</small>' : '🌐 Booking.com';
         else label = escHtml(res.name);
-        html+=`<div class="${cls}" style="grid-column:span ${span}" onclick="showDet('${res.id}')">
+        html+=`<div class="${cls}" style="grid-column:span ${span}" onclick="if(!isMobile()||_calClickEnabled)showDet('${res.id}')">
           <div class="res-span" style="font-size:1.05em;font-weight:600;line-height:1.3">${label}</div></div>`;
         skip=d+nights; if (!isIcal) tog=!tog;
       } else if (res&&ds!==res.checkIn) {
@@ -2078,7 +2135,7 @@ window.renderCal = function() {
         else if (isIcalClosed2) label2 = '↩ 🔒 Booking.com';
         else if (isIcal2) label2 = res.name && res.name !== 'Booking.com' ? '↩ '+escHtml(res.name)+' <small>🌐</small>' : '↩ 🌐 Booking.com';
         else label2 = '↩ '+escHtml(res.name);
-        html+=`<div class="${cls}" style="grid-column:span ${span};opacity:.85" onclick="showDet('${res.id}')">
+        html+=`<div class="${cls}" style="grid-column:span ${span};opacity:.85" onclick="if(!isMobile()||_calClickEnabled)showDet('${res.id}')">
           <div class="res-span" style="font-size:.85em;font-weight:600;line-height:1.3">${label2}</div></div>`;
         skip=d+remNights; if (!isIcal2) tog=!tog;
       } else if (!res) {
@@ -2097,17 +2154,34 @@ window.changeMonth = d => { calMonth=new Date(calMonth.getFullYear(),calMonth.ge
 // ── CALENDAR DRAG ────────────────────────────────────────────
 let _dragStart=null, _dragEnd=null, _dragBung=null, _dragActive=false;
 let _calDragFill=false; // spriječi goTab da resetuje formu kad drag popunjava datume
-// Drag na kalendaru — može biti isključen na mobilnom
-let _calDragEnabled = localStorage.getItem('kmk_cal_drag') !== '0';
-window.toggleCalDrag = () => {
-  _calDragEnabled = !_calDragEnabled;
-  localStorage.setItem('kmk_cal_drag', _calDragEnabled ? '1' : '0');
-  const btn = document.getElementById('mob-drag-toggle');
-  if (btn) {
-    btn.textContent = _calDragEnabled ? '✋ Drag: ON' : '👆 Drag: OFF';
-    btn.style.background = _calDragEnabled ? '#28a745' : '#6c757d';
+
+// ── KALENDAR POSTAVKE ─────────────────────────────────────
+// Čuvamo u localStorage: cal_click i cal_drag
+let _calClickEnabled = localStorage.getItem('kmk_cal_click') !== '0'; // default ON
+let _calDragEnabled  = localStorage.getItem('kmk_cal_drag')  !== '1'; // default OFF
+
+window.saveCalSettings = () => {
+  const clickEl = document.getElementById('setting-cal-click');
+  const dragEl  = document.getElementById('setting-cal-drag');
+  if (clickEl) {
+    _calClickEnabled = clickEl.checked;
+    localStorage.setItem('kmk_cal_click', _calClickEnabled ? '1' : '0');
   }
-  alert(_calDragEnabled ? 'Drag na kalendaru UKLJUČEN — prevuci da otvoriš formu' : 'Drag na kalendaru ISKLJUČEN — klik na slobodan dan neće otvarati formu');
+  if (dragEl) {
+    _calDragEnabled = dragEl.checked;
+    localStorage.setItem('kmk_cal_drag', _calDragEnabled ? '1' : '0');
+  }
+  // Re-render kalendara da primijeni promjene
+  renderCal();
+};
+
+window.loadCalSettings = () => {
+  _calClickEnabled = localStorage.getItem('kmk_cal_click') !== '0';
+  _calDragEnabled  = localStorage.getItem('kmk_cal_drag')  === '1';
+  const clickEl = document.getElementById('setting-cal-click');
+  const dragEl  = document.getElementById('setting-cal-drag');
+  if (clickEl) clickEl.checked = _calClickEnabled;
+  if (dragEl)  dragEl.checked  = _calDragEnabled;
 };
 
 function _setupCalDrag() {
@@ -3509,6 +3583,47 @@ function renderMobConflicts() {
   if (badge) badge.textContent = count + ' konflikt' + (count > 1 ? 'a' : '');
 }
 
+// ── BRISANJE RUČNIH REZERVACIJA (admin only) ──────────────
+window.deleteManualReservations = async () => {
+  if (curRole !== 'admin') { alert('Samo admin može ovo uraditi.'); return; }
+  const manual = reservations.filter(r => !r.icalLinkId && !r.importedFromExcel);
+  if (!manual.length) { alert('Nema ručnih rezervacija za brisanje.'); return; }
+  if (!confirm('Obrisati ' + manual.length + ' rucnih rezervacija? iCal ostaju. Akcija je nepovratna!')) return;
+
+  syncUI('sy', 'Brišem ručne rezervacije...');
+  let deleted = 0;
+  for (const r of manual) {
+    try { await deleteDoc(doc(db, 'reservations', r.id)); deleted++; } catch(e) {}
+  }
+  syncUI('ok', 'Sinhronizovano ✓');
+  alert('Obrisano ' + deleted + ' rucnih rezervacija. Booking.com rezervacije su zadrzane.');
+};
+
+// ── BRISANJE SVIH REZERVACIJA (admin only) ────────────────
+window.deleteAllReservations = async () => {
+  if (curRole !== 'admin') { alert('Samo admin može obrisati sve rezervacije.'); return; }
+  const total = reservations.length;
+  if (total === 0) { alert('Nema rezervacija za brisanje.'); return; }
+  if (!confirm('⚠️ PAŽNJA!\n\nObrisati SVIH ' + total + ' rezervacija?\n\nOva akcija je NEPOVRATNA!\nUvjeri se da si napravio backup prije brisanja.')) return;
+  if (!confirm('Jesi li siguran? Ovo briše SVE rezervacije i ne može se poništiti.')) return;
+
+  syncUI('sy', 'Brišem sve rezervacije...');
+  let deleted = 0;
+  // Brišemo u serijama po 20 da ne preopteretimo Firebase
+  for (const r of reservations) {
+    try {
+      await deleteDoc(doc(db, 'reservations', r.id));
+      deleted++;
+    } catch(e) { console.warn('Greška pri brisanju:', e); }
+  }
+  // Obriši i historiju
+  for (const h of hist) {
+    try { await deleteDoc(doc(db, 'history', h.id)); } catch(e) {}
+  }
+  syncUI('ok', 'Sinhronizovano ✓');
+  alert('✅ Obrisano ' + deleted + ' rezervacija i sva historija.\n\niCal linkovi su zadržani — pokreni Sinhronizuj Sve da uvučeš Booking.com rezervacije ponovo.');
+};
+
 // ── EXCEL IMPORT ───────────────────────────────────────────────
 // Cuva parsed redove za preview -> potvrdu
 let _importRows = [];
@@ -3590,14 +3705,25 @@ window.previewImport = async () => {
   }
 
   const lines = csvText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-  if (lines.length < 2) { alert('Fajl je prazan ili sadrži samo zaglavlje.'); return; }
+  if (lines.length < 1) { alert('Fajl je prazan!'); return; }
+
+  // Debug: prikaži prve 3 linije da korisnik može provjeriti
+  const previewBodyEl = document.getElementById('import-preview-body');
+  const previewEl2 = document.getElementById('import-preview');
+  if (previewBodyEl) {
+    previewBodyEl.innerHTML = '<div style="background:#e8f4fd;padding:10px;border-radius:8px;margin-bottom:12px;font-size:.8em"><strong>Učitano:</strong> ' + lines.length + ' redova<br><strong>Primjer prvog reda:</strong> ' + escHtml(lines[0].substring(0,100)) + '</div>';
+    previewEl2.style.display = 'block';
+  }
+
+  // Ako ima samo 1 red — možda nema zaglavlja, pokušaj parsirati kao podatke
+  const startRow = lines.length === 1 ? 0 : 1;
 
   _importRows = [];
   const errors = [];
   const warnings = [];
 
-  // Preskoci prvu liniju (zaglavlje)
-  for (let i = 1; i < lines.length; i++) {
+  // Preskoci prvu liniju (zaglavlje) osim ako je samo 1 red
+  for (let i = startRow; i < lines.length; i++) {
     const cols = parseCSVLine(lines[i]);
     // Kolone su 0-indexed, D=3, E=4, F=5, G=6, H=7, I=8, J=9, K=10, L=11
     const name   = (cols[3]  || '').trim();
@@ -3918,6 +4044,7 @@ window.switchSetTab = (tab, btn) => {
   if (tab==='prices')   renderPricePeriods();
   if (tab==='channels') renderChannels();
   if (tab==='ical')     renderIcalLinks();
+  if (tab==='about')    loadCalSettings();
 };
 
 // ── USERS ─────────────────────────────────────────────────────
