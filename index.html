@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Maja Karanfil Bungali v1.2.9</title>
+<title>Maja Karanfil Bungali v1.3.1</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh;padding:20px}
@@ -506,7 +506,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
       <img src="https://i.imgur.com/DzB2EDR.png" onerror="this.style.display='none'"
            alt="Logo" style="max-width:175px;margin:0 auto 10px;display:block;border-radius:10px">
       <h1>🏡 Maja Karanfil Bungali</h1>
-      <p>Prijavite se u sistem — v1.2.9</p>
+      <p>Prijavite se u sistem — v1.3.1</p>
     </div>
     <div class="login-err" id="login-err">Pogrešno korisničko ime ili lozinka!</div>
     <form class="login-form" id="login-form">
@@ -689,7 +689,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
   <div class="hdr">
     <div class="hdr-l">
       <h1>🏡 Maja Karanfil Bungali</h1>
-      <p>Sistem za upravljanje rezervacijama — v1.2.9</p>
+      <p>Sistem za upravljanje rezervacijama — v1.3.1</p>
     </div>
     <div class="hdr-r">
       <div class="user-row">
@@ -1122,7 +1122,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <!-- Current version -->
       <div style="background:#e8f4fd;padding:14px;border-radius:8px;margin-bottom:20px;border-left:4px solid #667eea">
-        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v1.2.9</strong>
+        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v1.3.1</strong>
       </div>
 
       <!-- Changelog -->
@@ -1130,7 +1130,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <div class="changelog">
         <div class="ch-version">
-          <div class="ch-ver-header">v1.2.9 <span class="ch-date">— 29.03.2026</span></div>
+          <div class="ch-ver-header">v1.3.1 <span class="ch-date">— 29.03.2026</span></div>
           <ul>
             <li><strong>About premješten:</strong> Iz floating dugmeta u Podešavanja → ℹ️ About tab — pregledniji pristup</li>
             <li><strong>Excel Export:</strong> Novo dugme "📊 Export u Excel" — preuzmi SVE rezervacije kao čistu CSV/Excel tabelu sa kompletnim detaljima (ID, status, ime, telefon, zemlja, kanal, datumi, broj noći, bungalovi, kreveti, struktura gostiju, cijena, napomene)</li>
@@ -3741,9 +3741,20 @@ window.previewImport = async () => {
     try {
       if (typeof XLSX === 'undefined') { alert('SheetJS se nije učitao. Provjeri internet.'); return; }
       const buf = await file.arrayBuffer();
-      const wb = XLSX.read(buf);
+      const wb = XLSX.read(buf, { cellDates: true });
       const ws = wb.Sheets[wb.SheetNames[0]];
-      csvText = XLSX.utils.sheet_to_csv(ws);
+      // Koristimo sheet_to_json da izbjegnemo multiline probleme u CSV
+      const jsonRows = XLSX.utils.sheet_to_json(ws, { header: 1, raw: false, dateNF: 'yyyy-mm-dd', defval: '' });
+      // Konvertuj nazad u CSV-like format ali bez multiline problema
+      csvText = jsonRows.map(row => {
+        // Ocisti multiline iz svake celije
+        const cleaned = row.map(cell => {
+          if (cell === null || cell === undefined) return '';
+          const s = String(cell).replace(/\n/g, ' ').replace(/\r/g, '').replace(/,/g, ';');
+          return s;
+        });
+        return cleaned.join(',');
+      }).join('\n');
     } catch(e) {
       alert('Greška pri čitanju Excel fajla. Pokušaj sačuvati kao CSV i uvesti ponovo.\n\nDetalji: ' + e.message);
       return;
@@ -3825,22 +3836,45 @@ window.previewImport = async () => {
         continue;
       }
 
-      // Provjera duplikata u bazi
-      const isDupInDB = reservations.some(r =>
+      // Provjera duplikata u bazi — ako postoji, provjeri da li treba ažurirati
+      const existingInDB = reservations.find(r =>
         !r.cancelled &&
         r.name === name &&
         r.checkIn === ci &&
         r.checkOut === co &&
         r.bungalovi?.some(bv => String(bv.bungalov) === String(b))
       );
-      if (isDupInDB) {
-        warnings.push(`Red ${i+1}: Već postoji u bazi — ${name} B${b} ${ci}→${co}, preskočeno`);
+
+      if (existingInDB) {
+        // Provjeri da li ima izmjena (osoba, napomena, kanal)
+        const existBung = existingInDB.bungalovi?.find(bv => String(bv.bungalov) === String(b));
+        const hasChanges =
+          (existBung && existBung.adults !== personsN) ||
+          (existingInDB.notes || '') !== (notes || '') ||
+          (existingInDB.channel || '') !== (channel || '') ||
+          (existingInDB.phone || '') !== (phone || '');
+
+        if (hasChanges) {
+          _importRows.push({
+            rowNum: i+1,
+            name, checkIn: ci, checkOut: co,
+            bungalov: b, persons: personsN,
+            notes, phone, channel,
+            existingId: existingInDB.id,
+            overlap: null,
+            status: 'update'
+          });
+        } else {
+          // Identično — preskoci
+          warnings.push(`Red ${i+1}: Bez izmjena — ${name} B${b} ${ci}→${co}`);
+        }
         continue;
       }
 
-      // Provjera preklapanja sa postojećim rezervacijama
+      // Provjera preklapanja sa postojećim rezervacijama (samo za nove)
       const overlap = reservations.find(r =>
         !r.cancelled &&
+        r.id !== (existingInDB?.id) &&
         r.bungalovi?.some(bv => String(bv.bungalov) === String(b)) &&
         ci < r.checkOut && co > r.checkIn
       );
@@ -3850,6 +3884,7 @@ window.previewImport = async () => {
         name, checkIn: ci, checkOut: co,
         bungalov: b, persons: personsN,
         notes, phone, channel,
+        existingId: null,
         overlap: overlap ? `⚠️ PREKLAPANJE sa "${overlap.name}" (${overlap.checkIn}→${overlap.checkOut})` : null,
         status: overlap ? 'overlap' : 'ok'
       });
@@ -3890,9 +3925,11 @@ window.previewImport = async () => {
 
   // Tabela ok redova
   if (okRows.length) {
+    const updateRows = _importRows.filter(r => r.status === 'update');
     html += `<div style="background:#d4edda;border-left:4px solid #28a745;padding:10px 12px;border-radius:8px;margin-bottom:12px">
-      <strong>✅ Spremno za uvoz: ${okRows.length} rezervacija</strong>
-      ${overlapRows.length ? ` + ${overlapRows.length} sa preklapanjem` : ''}
+      <strong>✅ Novo: ${okRows.length}</strong>
+      ${updateRows.length ? ` &nbsp;|&nbsp; <strong style="color:#0d6efd">🔄 Ažuriranje: ${updateRows.length}</strong>` : ''}
+      ${overlapRows.length ? ` &nbsp;|&nbsp; <strong style="color:#fd7e14">⚠️ Preklapanje: ${overlapRows.length}</strong>` : ''}
     </div>`;
     html += `<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:.88em">
       <thead><tr style="background:#1565c0;color:white">
@@ -3913,7 +3950,7 @@ window.previewImport = async () => {
         <td style="padding:6px 10px;border-bottom:1px solid #eee"><strong>B${r.bungalov}</strong></td>
         <td style="padding:6px 10px;border-bottom:1px solid #eee">${r.persons}</td>
         <td style="padding:6px 10px;border-bottom:1px solid #eee">${escHtml(r.channel||'—')}</td>
-        <td style="padding:6px 10px;border-bottom:1px solid #eee">${r.status==='overlap'?'<span style="color:#fd7e14;font-weight:600">⚠️ Preklapanje</span>':'<span style="color:#28a745">✅ OK</span>'}</td>
+        <td style="padding:6px 10px;border-bottom:1px solid #eee">${r.status==='overlap'?'<span style="color:#fd7e14;font-weight:600">⚠️ Preklapanje</span>':r.status==='update'?'<span style="color:#0d6efd;font-weight:600">🔄 Ažuriranje</span>':'<span style="color:#28a745">✅ Novo</span>'}</td>
       </tr>`).join('')}
       </tbody></table></div>`;
   } else if (!errors.length && !warnings.length) {
@@ -3946,47 +3983,67 @@ Da li svejedno želiš uvesti SVE (uključujući preklapanja)?`
   }
 
   syncUI('sy', 'Uvozim rezervacije...');
-  let added = 0, skipped = 0;
+  let added = 0, updated = 0, skipped = 0;
 
   for (const row of _importRows) {
-    // Finalna provjera duplikata u bazi (moze se promijeniti od previewa)
-    const isDup = reservations.some(r =>
-      !r.cancelled &&
-      r.name === row.name &&
-      r.checkIn === row.checkIn &&
-      r.checkOut === row.checkOut &&
-      r.bungalovi?.some(bv => String(bv.bungalov) === String(row.bungalov))
-    );
-    if (isDup) { skipped++; continue; }
-
     try {
-      await addDoc(collection(db,'reservations'), {
-        name: row.name,
-        phone: row.phone || '',
-        country: '',
-        checkIn: row.checkIn,
-        checkOut: row.checkOut,
-        price: 0,
-        channel: row.channel || '',
-        bungalovi: [{
-          bungalov: String(row.bungalov),
-          beds: row.persons || 1,
-          adults: row.persons || 1,
-          children: 0, babies: 0,
-          sharedBed: false,
-          notes: ''
-        }],
-        services: { polupansion: false, fullPansion: false, lunchPaket: false },
-        notes: row.notes || '',
-        confirmed: true, paid: false, cancelled: false,
-        closedManual: false,
-        importedFromExcel: true,
-        createdAt: new Date().toISOString(),
-        createdBy: curUser
-      });
-      added++;
+      if (row.status === 'update' && row.existingId) {
+        // Ažuriraj postojeću rezervaciju — samo izmijenjene podatke
+        const existingRes = reservations.find(r => r.id === row.existingId);
+        if (!existingRes) { skipped++; continue; }
+        const updBungalovi = (existingRes.bungalovi || []).map(bv =>
+          String(bv.bungalov) === String(row.bungalov)
+            ? { ...bv, adults: row.persons || 1, beds: row.persons || 1 }
+            : bv
+        );
+        await updateDoc(doc(db, 'reservations', row.existingId), {
+          notes: row.notes || '',
+          channel: row.channel || '',
+          phone: row.phone || '',
+          bungalovi: updBungalovi,
+          updatedAt: new Date().toISOString(),
+          updatedBy: curUser
+        });
+        updated++;
+      } else {
+        // Nova rezervacija — finalna provjera duplikata
+        const isDup = reservations.some(r =>
+          !r.cancelled &&
+          r.name === row.name &&
+          r.checkIn === row.checkIn &&
+          r.checkOut === row.checkOut &&
+          r.bungalovi?.some(bv => String(bv.bungalov) === String(row.bungalov))
+        );
+        if (isDup) { skipped++; continue; }
+
+        await addDoc(collection(db,'reservations'), {
+          name: row.name,
+          phone: row.phone || '',
+          country: '',
+          checkIn: row.checkIn,
+          checkOut: row.checkOut,
+          price: 0,
+          channel: row.channel || '',
+          bungalovi: [{
+            bungalov: String(row.bungalov),
+            beds: row.persons || 1,
+            adults: row.persons || 1,
+            children: 0, babies: 0,
+            sharedBed: false,
+            notes: ''
+          }],
+          services: { polupansion: false, fullPansion: false, lunchPaket: false },
+          notes: row.notes || '',
+          confirmed: true, paid: false, cancelled: false,
+          closedManual: false,
+          importedFromExcel: true,
+          createdAt: new Date().toISOString(),
+          createdBy: curUser
+        });
+        added++;
+      }
     } catch(e) {
-      console.warn('Import add error:', e);
+      console.warn('Import error:', e);
       skipped++;
     }
   }
@@ -3994,7 +4051,8 @@ Da li svejedno želiš uvesti SVE (uključujući preklapanja)?`
   syncUI('ok', 'Sinhronizovano ✓');
   alert(`✅ Import završen!
 
-Uvezeno: ${added} rezervacija
+Novo: ${added}
+Ažurirano: ${updated}
 Preskočeno: ${skipped}`);
   clearImport();
   goTabDirect('list');
