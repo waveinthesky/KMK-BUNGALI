@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Maja Karanfil Bungali v1.2.0</title>
+<title>Maja Karanfil Bungali v1.2.3</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh;padding:20px}
@@ -377,6 +377,8 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 .mob-more-ico{font-size:1.3em;width:28px;text-align:center}
 
 @media(max-width:768px){
+  /* Mobilni kalendar nav — uvijek vidljiv */
+  .mob-cal-nav-wrap { display:flex !important; }
   /* Sakrij desktop elemente */
   .hdr{display:none!important}
   .tabs{display:none!important}
@@ -429,6 +431,31 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 .print-header { display: none; }
 .print-only { display: none; }
 
+/* KONFLIKTI */
+.conflict-card{background:white;border-radius:12px;padding:16px;margin-bottom:14px;
+  border-left:5px solid #dc3545;box-shadow:0 2px 8px rgba(220,53,69,.15)}
+.conflict-card .cf-title{font-weight:700;color:#dc3545;font-size:.95em;margin-bottom:10px;
+  display:flex;align-items:center;gap:8px}
+.conflict-card .cf-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px}
+.conflict-card .cf-box{background:#f8f9fa;border-radius:8px;padding:10px;font-size:.85em}
+.conflict-card .cf-box .cf-box-title{font-weight:700;margin-bottom:4px;font-size:.8em;
+  text-transform:uppercase;letter-spacing:.3px;color:#666}
+.conflict-card .cf-box.manual{border-top:3px solid #667eea}
+.conflict-card .cf-box.ical{border-top:3px solid #003580}
+.conflict-card .cf-box.import{border-top:3px solid #fd7e14}
+.conflict-card .cf-actions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.conflict-card .cf-btn{padding:7px 12px;border:none;border-radius:8px;font-size:.82em;
+  font-weight:600;cursor:pointer}
+.conflict-card .cf-btn.view{background:#e8f0fe;color:#1565c0}
+.conflicts-empty{text-align:center;padding:50px 20px;color:#28a745}
+.conflicts-empty .ce-ico{font-size:3em;margin-bottom:10px}
+.conflict-banner{display:none;position:fixed;top:0;left:0;right:0;z-index:9999;
+  background:#dc3545;color:white;padding:10px 20px;
+  display:flex;align-items:center;justify-content:space-between;
+  box-shadow:0 2px 8px rgba(0,0,0,.2);animation:slideDown .3s ease}
+@keyframes slideDown{from{transform:translateY(-100%)}to{transform:translateY(0)}}
+.conflict-banner.hidden{display:none!important}
+
 /* SHARED BED */
 .shared-bed-row { display: flex; align-items: center; gap: 9px; margin: 8px 0 4px;
   padding: 9px 12px; background: #fff3cd; border-radius: 8px; border: 1px solid #ffc107; }
@@ -456,7 +483,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
       <img src="https://i.imgur.com/DzB2EDR.png" onerror="this.style.display='none'"
            alt="Logo" style="max-width:175px;margin:0 auto 10px;display:block;border-radius:10px">
       <h1>🏡 Maja Karanfil Bungali</h1>
-      <p>Prijavite se u sistem — v1.2.0</p>
+      <p>Prijavite se u sistem — v1.2.3</p>
     </div>
     <div class="login-err" id="login-err">Pogrešno korisničko ime ili lozinka!</div>
     <form class="login-form" id="login-form">
@@ -607,6 +634,11 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
     <div style="padding:14px 20px 8px;border-bottom:1px solid #f0f0f0">
       <strong>Više opcija</strong>
     </div>
+    <div class="mob-more-item" id="mob-conflicts-item" onclick="mobGoTab('conflicts');mobCloseMore()" style="display:none;color:#dc3545">
+      <span class="mob-more-ico">⚠️</span>
+      <span>Konflikti</span>
+      <span class="mob-cf-cnt" style="margin-left:auto;background:#dc3545;color:white;border-radius:10px;padding:2px 8px;font-size:.8em;font-weight:700">0</span>
+    </div>
     <div class="mob-more-item" onclick="mobGoTab('stats');mobCloseMore()">
       <span class="mob-more-ico">📊</span>Statistika
     </div>
@@ -634,7 +666,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
   <div class="hdr">
     <div class="hdr-l">
       <h1>🏡 Maja Karanfil Bungali</h1>
-      <p>Sistem za upravljanje rezervacijama — v1.2.0</p>
+      <p>Sistem za upravljanje rezervacijama — v1.2.3</p>
     </div>
     <div class="hdr-r">
       <div class="user-row">
@@ -665,6 +697,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
     <button class="tab hidden" id="tab-stats" data-tab="stats" onclick="goTab('stats',this)">📊 Statistika</button>
     <button class="tab hidden" id="tab-hist" data-tab="history" onclick="goTab('history',this)">📜 Istorija</button>
     <button class="tab hidden" id="tab-settings" data-tab="settings" onclick="goTab('settings',this)">⚙️ Podešavanja</button>
+    <button class="tab hidden" id="tab-conflicts" data-tab="conflicts" onclick="goTab('conflicts',this)" style="background:#dc3545;color:white;border-color:#dc3545">⚠️ Konflikti <span id="conflicts-cnt" style="background:white;color:#dc3545;border-radius:10px;padding:1px 7px;font-weight:800;margin-left:4px">0</span></button>
   </div>
 
   <!-- DAILY -->
@@ -685,10 +718,18 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
   <!-- CALENDAR -->
   <div id="pane-calendar" class="tab-pane">
     <!-- Mobilna navigacija kalendara (vidljiva samo na mobu) -->
-    <div id="mob-cal-nav" style="display:none;align-items:center;justify-content:space-between;background:white;border-radius:12px;padding:10px 14px;margin-bottom:10px;box-shadow:0 1px 6px rgba(0,0,0,.08)">
-      <button onclick="changeMonth(-1)" style="background:#f0f0f0;border:none;border-radius:8px;padding:8px 16px;font-size:.95em;cursor:pointer;font-weight:600">← </button>
-      <span id="mob-cal-month-label" style="font-size:1em;font-weight:700;color:#333"></span>
-      <button onclick="changeMonth(1)" style="background:#f0f0f0;border:none;border-radius:8px;padding:8px 16px;font-size:.95em;cursor:pointer;font-weight:600"> →</button>
+    <div id="mob-cal-nav" style="display:none;flex-direction:column;gap:8px;background:white;border-radius:12px;padding:10px 14px;margin-bottom:10px;box-shadow:0 1px 6px rgba(0,0,0,.08)" class="mob-cal-nav-wrap">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <button onclick="changeMonth(-1)" style="background:#f0f0f0;border:none;border-radius:8px;padding:8px 16px;font-size:.95em;cursor:pointer;font-weight:600">←</button>
+        <span id="mob-cal-month-label" style="font-size:1.05em;font-weight:700;color:#333">— —</span>
+        <button onclick="changeMonth(1)" style="background:#f0f0f0;border:none;border-radius:8px;padding:8px 16px;font-size:.95em;cursor:pointer;font-weight:600">→</button>
+      </div>
+      <div style="display:flex;justify-content:center">
+        <button id="mob-drag-toggle" onclick="toggleCalDrag()" 
+          style="border:none;border-radius:20px;padding:5px 14px;font-size:.78em;font-weight:600;color:white;cursor:pointer;background:#6c757d">
+          👆 Drag: OFF
+        </button>
+      </div>
     </div>
     <div class="cal-hdr">
       <h2>Kalendar Zauzetosti</h2>
@@ -857,6 +898,17 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
     <div id="hist-list"></div>
   </div>
 
+  <!-- KONFLIKTI -->
+  <div id="pane-conflicts" class="tab-pane">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px">
+      <h2>⚠️ Konflikti u Kalendaru</h2>
+      <button class="btn" onclick="detectConflicts()" style="padding:8px 16px;background:#6c757d;color:white">🔄 Provjeri ponovo</button>
+    </div>
+    <div id="conflicts-body">
+      <div class="no-data">Nema konflikata — sve je u redu ✅</div>
+    </div>
+  </div>
+
   <!-- SETTINGS (admin only) -->
   <div id="pane-settings" class="tab-pane">
     <h2 style="margin-bottom:20px">⚙️ Podešavanja</h2>
@@ -991,7 +1043,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <!-- Current version -->
       <div style="background:#e8f4fd;padding:14px;border-radius:8px;margin-bottom:20px;border-left:4px solid #667eea">
-        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v1.2.0</strong>
+        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v1.2.3</strong>
       </div>
 
       <!-- Changelog -->
@@ -999,7 +1051,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <div class="changelog">
         <div class="ch-version">
-          <div class="ch-ver-header">v1.2.0 <span class="ch-date">— 29.03.2026</span></div>
+          <div class="ch-ver-header">v1.2.3 <span class="ch-date">— 29.03.2026</span></div>
           <ul>
             <li><strong>About premješten:</strong> Iz floating dugmeta u Podešavanja → ℹ️ About tab — pregledniji pristup</li>
             <li><strong>Excel Export:</strong> Novo dugme "📊 Export u Excel" — preuzmi SVE rezervacije kao čistu CSV/Excel tabelu sa kompletnim detaljima (ID, status, ime, telefon, zemlja, kanal, datumi, broj noći, bungalovi, kreveti, struktura gostiju, cijena, napomene)</li>
@@ -1328,11 +1380,11 @@ const COUNTRIES=['Albanija','Alžir','Argentina','Australija','Austrija','Azerbe
     const fu = appUsers[savedUser];
     if (!fu) return;
 
-    // Provjeri hash
+    // Provjeri hash — hash se cuva kao fu.pw u appUsers
     let valid = false;
     if (fu.nopass) {
       valid = true;
-    } else if (fu.passwordHash && fu.passwordHash === savedHash) {
+    } else if (fu.pw && fu.pw === savedHash) {
       valid = true;
     }
     if (!valid) {
@@ -1400,7 +1452,7 @@ document.getElementById('login-form').addEventListener('submit', async e => {
     if (document.getElementById('remember-me')?.checked) {
       try {
         localStorage.setItem('kmk_saved_user', u);
-        localStorage.setItem('kmk_saved_hash', matched.passwordHash || '');
+        localStorage.setItem('kmk_saved_hash', fu.pw || '');
         localStorage.setItem('kmk_remember', '1');
       } catch(e) {}
     } else {
@@ -1510,6 +1562,10 @@ function setupFirebase() {
     reservations = snap.docs.map(d=>({id:d.id,...d.data()}));
     syncUI('ok','Sinhronizovano ✓');
     renderCal(); renderResList(); renderDaily(); renderStats();
+    // Automatska provjera konflikata pri svakoj promjeni
+    if (typeof detectConflicts === 'function') detectConflicts();
+    // Mob daily refresh
+    if (typeof isMobile === 'function' && isMobile() && typeof renderMobDaily === 'function') renderMobDaily();
   }, e => syncUI('er','Greška: '+e.message));
   _histSub = onSnapshot(query(collection(db,'history'),orderBy('timestamp','desc')), snap => {
     hist = snap.docs.map(d=>({id:d.id,...d.data()}));
@@ -1960,6 +2016,12 @@ window.renderCal = function() {
   if (mobCalLabel) mobCalLabel.textContent = `${MNAMES[mo]} ${yr}`;
   const mobCalNav = document.getElementById('mob-cal-nav');
   if (mobCalNav) mobCalNav.style.display = (typeof isMobile==='function' && isMobile()) ? 'flex' : 'none';
+  // Ažuriraj drag toggle dugme
+  const dragBtn = document.getElementById('mob-drag-toggle');
+  if (dragBtn) {
+    dragBtn.textContent = _calDragEnabled ? '✋ Drag: ON' : '👆 Drag: OFF';
+    dragBtn.style.background = _calDragEnabled ? '#28a745' : '#6c757d';
+  }
   const dim=new Date(yr,mo+1,0).getDate();
 
   let html='<div class="cal-row"><div class="cc hdr">Bungali/Datum</div>';
@@ -2035,10 +2097,23 @@ window.changeMonth = d => { calMonth=new Date(calMonth.getFullYear(),calMonth.ge
 // ── CALENDAR DRAG ────────────────────────────────────────────
 let _dragStart=null, _dragEnd=null, _dragBung=null, _dragActive=false;
 let _calDragFill=false; // spriječi goTab da resetuje formu kad drag popunjava datume
+// Drag na kalendaru — može biti isključen na mobilnom
+let _calDragEnabled = localStorage.getItem('kmk_cal_drag') !== '0';
+window.toggleCalDrag = () => {
+  _calDragEnabled = !_calDragEnabled;
+  localStorage.setItem('kmk_cal_drag', _calDragEnabled ? '1' : '0');
+  const btn = document.getElementById('mob-drag-toggle');
+  if (btn) {
+    btn.textContent = _calDragEnabled ? '✋ Drag: ON' : '👆 Drag: OFF';
+    btn.style.background = _calDragEnabled ? '#28a745' : '#6c757d';
+  }
+  alert(_calDragEnabled ? 'Drag na kalendaru UKLJUČEN — prevuci da otvoriš formu' : 'Drag na kalendaru ISKLJUČEN — klik na slobodan dan neće otvarati formu');
+};
 
 function _setupCalDrag() {
   const grid = document.getElementById('cal-grid');
   if (!grid) return;
+  if (!_calDragEnabled) return; // Drag isključen
 
   function cellFromPoint(x, y) {
     const el = document.elementFromPoint(x, y);
@@ -2738,7 +2813,7 @@ function lDate(d) { return `${d.getFullYear()}-${String(d.getMonth()+1).padStart
 function escHtml(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#x27;'); }
 
 // ── TAB SWITCHING ────────────────────────────────────────────
-const TAB_IDS={daily:'pane-daily',calendar:'pane-calendar',add:'pane-add',list:'pane-list',stats:'pane-stats',history:'pane-history',settings:'pane-settings'};
+const TAB_IDS={daily:'pane-daily',calendar:'pane-calendar',add:'pane-add',list:'pane-list',stats:'pane-stats',history:'pane-history',settings:'pane-settings',conflicts:'pane-conflicts'};
 window.goTab=(name,btn)=>{
   Object.values(TAB_IDS).forEach(id=>document.getElementById(id).classList.remove('active'));
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
@@ -2782,6 +2857,7 @@ window.mobGoTab = (tab) => {
     if (tab === 'daily') renderMobDaily();
     if (tab === 'list') renderMobList();
     if (tab === 'calendar') { renderCal(); }
+    if (tab === 'conflicts') { renderConflictsPane(); }
   }
 };
 
@@ -3275,6 +3351,162 @@ function initMobileOnLogin() {
   if (!isMobile()) return;
   updateMobHeader();
   mobGoTab('daily');
+}
+
+// ══════════════════════════════════════════════════════
+// CONFLICT DETECTION — automatska provjera pri svakoj
+// promjeni rezervacija (onSnapshot)
+// ══════════════════════════════════════════════════════
+
+let _activeConflicts = []; // memorija, ne Firebase
+
+// Glavna funkcija detekcije konflikata
+window.detectConflicts = function() {
+  const active = reservations.filter(r => !r.cancelled);
+  const found = [];
+
+  for (let i = 0; i < active.length; i++) {
+    for (let j = i + 1; j < active.length; j++) {
+      const a = active[i];
+      const b = active[j];
+
+      // Provjeravamo svaki bungalov iz a prema svim bungalovima iz b
+      const bungs_a = (a.bungalovi || []).map(bv => String(bv.bungalov));
+      const bungs_b = (b.bungalovi || []).map(bv => String(bv.bungalov));
+
+      const sharedBungs = bungs_a.filter(bn => bungs_b.includes(bn));
+      if (!sharedBungs.length) continue;
+
+      // Provjeri datumski overlap
+      if (a.checkIn < b.checkOut && a.checkOut > b.checkIn) {
+        // Provjeri da li je isti konflikt već registrovan
+        const alreadyFound = found.some(cf =>
+          (cf.a.id === a.id && cf.b.id === b.id) ||
+          (cf.a.id === b.id && cf.b.id === a.id)
+        );
+        if (!alreadyFound) {
+          found.push({ a, b, bungs: sharedBungs, id: a.id + '_' + b.id });
+        }
+      }
+    }
+  }
+
+  _activeConflicts = found;
+  updateConflictUI();
+  return found;
+};
+
+// Ažuriraj UI za konflikte
+function updateConflictUI() {
+  const count = _activeConflicts.length;
+
+  // Desktop tab — sakrij/prikaži
+  const tab = document.getElementById('tab-conflicts');
+  const cnt = document.getElementById('conflicts-cnt');
+  if (tab) {
+    tab.classList.toggle('hidden', count === 0);
+    if (cnt) cnt.textContent = count;
+  }
+
+  // Mobilni badge na "Više" dugmetu
+  const mobMoreBtn = document.getElementById('mob-btn-more');
+  if (mobMoreBtn) {
+    let badge = document.getElementById('mob-conflict-badge');
+    if (count > 0) {
+      if (!badge) {
+        badge = document.createElement('span');
+        badge.id = 'mob-conflict-badge';
+        badge.style.cssText = 'position:absolute;top:2px;right:8px;background:#dc3545;color:white;border-radius:50%;width:16px;height:16px;font-size:.65em;display:flex;align-items:center;justify-content:center;font-weight:800';
+        mobMoreBtn.style.position = 'relative';
+        mobMoreBtn.appendChild(badge);
+      }
+      badge.textContent = count;
+    } else if (badge) {
+      badge.remove();
+    }
+  }
+
+  // Render Konflikti pane
+  renderConflictsPane();
+  // Ažuriraj mob "Više" sheet konflikt item
+  const mobCfItem = document.getElementById('mob-conflicts-item');
+  if (mobCfItem) {
+    mobCfItem.style.display = count > 0 ? 'flex' : 'none';
+    const badge = mobCfItem.querySelector('.mob-cf-cnt');
+    if (badge) badge.textContent = count + (count === 1 ? ' konflikt' : count < 5 ? ' konflikta' : ' konflikata');
+  }
+}
+
+// Render Konflikti pane
+function renderConflictsPane() {
+  const body = document.getElementById('conflicts-body');
+  if (!body) return;
+
+  if (!_activeConflicts.length) {
+    body.innerHTML = '<div class="conflicts-empty"><div class="ce-ico">✅</div><div style="font-size:1.1em;font-weight:700;color:#333">Nema konflikata</div><div style="color:#666;margin-top:6px">Sve rezervacije su u redu</div></div>';
+    return;
+  }
+
+  function resType(r) {
+    if (r.icalLinkId) return { label: '🌐 Booking.com (iCal)', cls: 'ical' };
+    if (r.importedFromExcel) return { label: '📥 Import Excel', cls: 'import' };
+    return { label: '✏️ Ručni unos', cls: 'manual' };
+  }
+
+  function resDetails(r) {
+    const nights = Math.ceil((new Date(r.checkOut) - new Date(r.checkIn)) / 86400000);
+    const bungs = (r.bungalovi||[]).map(b => 'B' + b.bungalov).join(', ');
+    const persons = (r.bungalovi||[]).reduce((s,b) => s + (b.adults||0) + (b.children||0) + (b.babies||0), 0);
+    return { nights, bungs, persons };
+  }
+
+  body.innerHTML = `
+    <div style="background:#fff3cd;border-left:4px solid #ffc107;padding:12px 16px;border-radius:8px;margin-bottom:18px;font-size:.88em">
+      <strong>ℹ️ Kako riješiti:</strong> Klikni "Pogledaj" da otvoriš rezervaciju i ručno je izmijeni ili otkaži.
+      Booking.com rezervacije (🌐) se ažuriraju automatski pri sljedećem iCal sync-u.
+    </div>
+    ${_activeConflicts.map(cf => {
+      const ta = resType(cf.a), tb = resType(cf.b);
+      const da = resDetails(cf.a), db2 = resDetails(cf.b);
+      return `<div class="conflict-card">
+        <div class="cf-title">
+          ⚠️ Bungalov ${cf.bungs.map(b=>'B'+b).join(', ')} — 
+          ${fmtD(cf.a.checkIn > cf.b.checkIn ? cf.b.checkIn : cf.a.checkIn)} → 
+          ${fmtD(cf.a.checkOut < cf.b.checkOut ? cf.b.checkOut : cf.a.checkOut)}
+        </div>
+        <div class="cf-row">
+          <div class="cf-box ${ta.cls}">
+            <div class="cf-box-title">${ta.label}</div>
+            <div style="font-weight:700;font-size:1em;margin-bottom:3px">${escHtml(cf.a.name || '—')}</div>
+            <div style="color:#555">📅 ${fmtD(cf.a.checkIn)} → ${fmtD(cf.a.checkOut)} (${da.nights}n)</div>
+            <div style="color:#555">🏡 ${da.bungs} · ${da.persons} os.</div>
+            ${cf.a.phone ? `<div style="color:#667eea">📞 ${escHtml(cf.a.phone)}</div>` : ''}
+          </div>
+          <div class="cf-box ${tb.cls}">
+            <div class="cf-box-title">${tb.label}</div>
+            <div style="font-weight:700;font-size:1em;margin-bottom:3px">${escHtml(cf.b.name || '—')}</div>
+            <div style="color:#555">📅 ${fmtD(cf.b.checkIn)} → ${fmtD(cf.b.checkOut)} (${db2.nights}n)</div>
+            <div style="color:#555">🏡 ${db2.bungs} · ${db2.persons} os.</div>
+            ${cf.b.phone ? `<div style="color:#667eea">📞 ${escHtml(cf.b.phone)}</div>` : ''}
+          </div>
+        </div>
+        <div class="cf-actions">
+          <button class="cf-btn view" onclick="editRes('${cf.a.id}');goTabDirect('add')">✏️ Uredi: ${escHtml((cf.a.name||'').substring(0,15))}${(cf.a.name||'').length>15?'...':''}</button>
+          <button class="cf-btn view" onclick="editRes('${cf.b.id}');goTabDirect('add')">✏️ Uredi: ${escHtml((cf.b.name||'').substring(0,15))}${(cf.b.name||'').length>15?'...':''}</button>
+        </div>
+      </div>`;
+    }).join('')}
+  `;
+}
+
+// Mobilni prikaz konflikata u "Više" sheet
+function renderMobConflicts() {
+  const item = document.getElementById('mob-conflicts-item');
+  if (!item) return;
+  const count = _activeConflicts.length;
+  item.style.display = count > 0 ? 'flex' : 'none';
+  const badge = item.querySelector('.mob-cf-cnt');
+  if (badge) badge.textContent = count + ' konflikt' + (count > 1 ? 'a' : '');
 }
 
 // ── EXCEL IMPORT ───────────────────────────────────────────────
