@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Maja Karanfil Bungali v1.1.0</title>
+<title>Maja Karanfil Bungali v1.2.0</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh;padding:20px}
@@ -456,12 +456,16 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
       <img src="https://i.imgur.com/DzB2EDR.png" onerror="this.style.display='none'"
            alt="Logo" style="max-width:175px;margin:0 auto 10px;display:block;border-radius:10px">
       <h1>🏡 Maja Karanfil Bungali</h1>
-      <p>Prijavite se u sistem — v1.1.0</p>
+      <p>Prijavite se u sistem — v1.2.0</p>
     </div>
     <div class="login-err" id="login-err">Pogrešno korisničko ime ili lozinka!</div>
     <form class="login-form" id="login-form">
-      <input type="text" id="uname" placeholder="Korisničko ime" required>
-      <input type="password" id="upass" placeholder="Lozinka" required>
+      <input type="text" id="uname" placeholder="Korisničko ime" required autocomplete="username">
+      <input type="password" id="upass" placeholder="Lozinka" autocomplete="current-password">
+      <div style="display:flex;align-items:center;gap:8px;margin:-6px 0 8px">
+        <input type="checkbox" id="remember-me" style="width:16px;height:16px;cursor:pointer">
+        <label for="remember-me" style="font-size:.88em;color:#666;cursor:pointer">Zapamti me na ovom uređaju</label>
+      </div>
       <button type="submit" class="login-btn">Prijavi se</button>
     </form>
   </div>
@@ -555,10 +559,21 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
           </div>
         </div>
         <div id="mob-nights-show" style="text-align:center;font-size:.9em;color:#667eea;font-weight:600;margin:4px 0 14px"></div>
-        <div class="mob-field">
-          <label>👥 Broj Osoba</label>
-          <input type="number" id="mob-persons" min="1" max="20" value="2">
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+          <div class="mob-field">
+            <label style="font-size:.78em">👨 Odrasli</label>
+            <input type="number" id="mob-adults" min="1" max="20" value="2" style="padding:10px;text-align:center" oninput="mobUpdateNights()">
+          </div>
+          <div class="mob-field">
+            <label style="font-size:.78em">🧒 Djeca 4-12g</label>
+            <input type="number" id="mob-children" min="0" max="20" value="0" style="padding:10px;text-align:center" oninput="mobUpdateNights()">
+          </div>
+          <div class="mob-field">
+            <label style="font-size:.78em">👶 Bebe &lt;4g</label>
+            <input type="number" id="mob-babies" min="0" max="20" value="0" style="padding:10px;text-align:center" oninput="mobUpdateNights()">
+          </div>
         </div>
+        <div id="mob-persons-summary" style="text-align:center;font-size:.82em;color:#667eea;font-weight:600;margin:-6px 0 10px"></div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
           <button onclick="mobNextStep(1)" class="btn btn-secondary" style="padding:13px;font-size:.9em;border-radius:10px">← Nazad</button>
           <button onclick="mobNextStep(3)" class="btn btn-primary" style="padding:13px;font-size:.9em;border-radius:10px">Dalje → Bungalovi</button>
@@ -619,7 +634,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
   <div class="hdr">
     <div class="hdr-l">
       <h1>🏡 Maja Karanfil Bungali</h1>
-      <p>Sistem za upravljanje rezervacijama — v1.1.0</p>
+      <p>Sistem za upravljanje rezervacijama — v1.2.0</p>
     </div>
     <div class="hdr-r">
       <div class="user-row">
@@ -669,6 +684,12 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
   <!-- CALENDAR -->
   <div id="pane-calendar" class="tab-pane">
+    <!-- Mobilna navigacija kalendara (vidljiva samo na mobu) -->
+    <div id="mob-cal-nav" style="display:none;align-items:center;justify-content:space-between;background:white;border-radius:12px;padding:10px 14px;margin-bottom:10px;box-shadow:0 1px 6px rgba(0,0,0,.08)">
+      <button onclick="changeMonth(-1)" style="background:#f0f0f0;border:none;border-radius:8px;padding:8px 16px;font-size:.95em;cursor:pointer;font-weight:600">← </button>
+      <span id="mob-cal-month-label" style="font-size:1em;font-weight:700;color:#333"></span>
+      <button onclick="changeMonth(1)" style="background:#f0f0f0;border:none;border-radius:8px;padding:8px 16px;font-size:.95em;cursor:pointer;font-weight:600"> →</button>
+    </div>
     <div class="cal-hdr">
       <h2>Kalendar Zauzetosti</h2>
       <div class="cal-nav">
@@ -970,7 +991,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <!-- Current version -->
       <div style="background:#e8f4fd;padding:14px;border-radius:8px;margin-bottom:20px;border-left:4px solid #667eea">
-        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v1.1.0</strong>
+        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v1.2.0</strong>
       </div>
 
       <!-- Changelog -->
@@ -978,7 +999,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <div class="changelog">
         <div class="ch-version">
-          <div class="ch-ver-header">v1.1.0 <span class="ch-date">— 29.03.2026</span></div>
+          <div class="ch-ver-header">v1.2.0 <span class="ch-date">— 29.03.2026</span></div>
           <ul>
             <li><strong>About premješten:</strong> Iz floating dugmeta u Podešavanja → ℹ️ About tab — pregledniji pristup</li>
             <li><strong>Excel Export:</strong> Novo dugme "📊 Export u Excel" — preuzmi SVE rezervacije kao čistu CSV/Excel tabelu sa kompletnim detaljima (ID, status, ime, telefon, zemlja, kanal, datumi, broj noći, bungalovi, kreveti, struktura gostiju, cijena, napomene)</li>
@@ -1291,6 +1312,59 @@ const COUNTRIES=['Albanija','Alžir','Argentina','Australija','Austrija','Azerbe
 'Južna Koreja','Južnoafrička Republika'].sort();
 
 // ── LOGIN ────────────────────────────────────────────────────
+// ── AUTO-LOGIN — provjeri zapamćene kredencijale ─────────────
+(async () => {
+  try {
+    const remember = localStorage.getItem('kmk_remember');
+    const savedUser = localStorage.getItem('kmk_saved_user');
+    const savedHash = localStorage.getItem('kmk_saved_hash');
+    if (!remember || !savedUser || !savedHash) return;
+
+    // Čekaj da se appUsers učita (max 5s)
+    for (let i = 0; i < 50; i++) {
+      if (Object.keys(appUsers).length > 0) break;
+      await new Promise(r => setTimeout(r, 100));
+    }
+    const fu = appUsers[savedUser];
+    if (!fu) return;
+
+    // Provjeri hash
+    let valid = false;
+    if (fu.nopass) {
+      valid = true;
+    } else if (fu.passwordHash && fu.passwordHash === savedHash) {
+      valid = true;
+    }
+    if (!valid) {
+      localStorage.removeItem('kmk_remember');
+      localStorage.removeItem('kmk_saved_user');
+      localStorage.removeItem('kmk_saved_hash');
+      return;
+    }
+
+    // Auto-login uspješan
+    curUser = savedUser; curRole = fu.role;
+    document.getElementById('cur-user').textContent = fu.displayName || savedUser;
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    if (curRole === 'admin') {
+      document.getElementById('tab-stats').classList.remove('hidden');
+      document.getElementById('tab-hist').classList.remove('hidden');
+      document.getElementById('tab-settings').classList.remove('hidden');
+      document.getElementById('bk-row').style.display = 'flex';
+      document.getElementById('notif-wrap').style.display = 'block';
+      lastLogin = localStorage.getItem('lastAdminLogin') || new Date().toISOString();
+      startAutoBackup();
+    }
+    startAutoIcalSync();
+    if (typeof isMobile === 'function' && isMobile()) {
+      updateMobHeader();
+      setTimeout(() => mobGoTab('daily'), 200);
+    }
+    init();
+  } catch(e) { console.warn('Auto-login greška:', e); }
+})();
+
 document.getElementById('login-form').addEventListener('submit', async e => {
   e.preventDefault();
   const u = document.getElementById('uname').value.trim();
@@ -1322,6 +1396,16 @@ document.getElementById('login-form').addEventListener('submit', async e => {
   if (matched) {
     curUser = u; curRole = matched.role;
     document.getElementById('cur-user').textContent = matched.displayName || u;
+    // Zapamti me
+    if (document.getElementById('remember-me')?.checked) {
+      try {
+        localStorage.setItem('kmk_saved_user', u);
+        localStorage.setItem('kmk_saved_hash', matched.passwordHash || '');
+        localStorage.setItem('kmk_remember', '1');
+      } catch(e) {}
+    } else {
+      try { localStorage.removeItem('kmk_saved_user'); localStorage.removeItem('kmk_saved_hash'); localStorage.removeItem('kmk_remember'); } catch(e) {}
+    }
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('app').style.display = 'block';
     if (curRole==='admin') {
@@ -1349,6 +1433,13 @@ document.getElementById('login-form').addEventListener('submit', async e => {
 
 window.logout = () => {
   if (curRole==='admin') localStorage.setItem('lastAdminLogin', new Date().toISOString());
+  // Obrisi auto-login samo ako korisnik eksplicitno odlazi
+  // (ne pri sesijskom logouru)
+  try {
+    localStorage.removeItem('kmk_remember');
+    localStorage.removeItem('kmk_saved_user');
+    localStorage.removeItem('kmk_saved_hash');
+  } catch(e) {}
   
   // Otkaži Firestore listenere (#01)
   if (_resSub)  { _resSub();  _resSub=null; }
@@ -1864,6 +1955,11 @@ window.renderCal = function() {
   const MNAMES=['Januar','Februar','Mart','April','Maj','Jun','Jul','Avgust','Septembar','Oktobar','Novembar','Decembar'];
   const DNAMES=['N','P','U','S','Č','P','S'];
   document.getElementById('cal-month').textContent=`${MNAMES[mo]} ${yr}`;
+  // Ažuriraj mobilni header i prikazi mob navigaciju
+  const mobCalLabel = document.getElementById('mob-cal-month-label');
+  if (mobCalLabel) mobCalLabel.textContent = `${MNAMES[mo]} ${yr}`;
+  const mobCalNav = document.getElementById('mob-cal-nav');
+  if (mobCalNav) mobCalNav.style.display = (typeof isMobile==='function' && isMobile()) ? 'flex' : 'none';
   const dim=new Date(yr,mo+1,0).getDate();
 
   let html='<div class="cal-row"><div class="cc hdr">Bungali/Datum</div>';
@@ -2762,7 +2858,9 @@ window.mobOpenQuickForm = (editResId) => {
       document.getElementById('mob-co').value = res.checkOut || '';
       document.getElementById('mob-channel').value = res.channel || '';
       _mobSelBungs = (res.bungalovi || []).map(b => String(b.bungalov));
-      document.getElementById('mob-persons').value = (res.bungalovi?.[0]?.beds) || 2;
+      document.getElementById('mob-adults').value   = (res.bungalovi?.[0]?.adults)   || 2;
+      document.getElementById('mob-children').value = (res.bungalovi?.[0]?.children) || 0;
+      document.getElementById('mob-babies').value   = (res.bungalovi?.[0]?.babies)   || 0;
       _mobSelBungs.forEach(b => {
         const btn = grid.querySelector(`[data-bung="${b}"]`);
         if (btn) btn.classList.add('sel');
@@ -2829,23 +2927,42 @@ function mobCheckOverlap() {
 function mobCalcPrice() {
   const ci = document.getElementById('mob-ci').value;
   const co = document.getElementById('mob-co').value;
-  if (!ci || !co || !_mobSelBungs.length) {
-    document.getElementById('mob-price-show').textContent = '';
-    return;
-  }
+  const priceEl = document.getElementById('mob-price-show');
+  if (!ci || !co || !_mobSelBungs.length) { priceEl.textContent = ''; return; }
   const nights = Math.ceil((new Date(co) - new Date(ci)) / 86400000);
-  if (nights <= 0) return;
-  let total = 0;
-  const adults = parseInt(document.getElementById('mob-persons').value) || 2;
-  _mobSelBungs.forEach(b => {
-    const bn = parseInt(b);
-    const base = ([6,7,8,9].includes(bn)) ? 70 : 60;
-    let price = base;
-    const extraAdults = Math.max(0, adults - 2);
-    price += extraAdults * 15;
-    total += price * nights;
+  if (nights <= 0) { priceEl.textContent = ''; return; }
+  const adults   = parseInt(document.getElementById('mob-adults')?.value)   || 2;
+  const children = parseInt(document.getElementById('mob-children')?.value) || 0;
+  const babies   = parseInt(document.getElementById('mob-babies')?.value)   || 0;
+
+  // Koristi istu calcPrice funkciju kao desktop (sa cjenovnicima i turističkom taksom)
+  const activePrices = (window.pricePeriods || []).filter(p => {
+    const now = new Date().toISOString().slice(0,10);
+    return (!p.dateFrom || ci >= p.dateFrom) && (!p.dateTo || co <= p.dateTo);
   });
-  document.getElementById('mob-price-show').textContent = '💰 Procjena: ' + total.toFixed(2) + ' €';
+
+  let grandTotal = 0;
+  let priceLines = [];
+  _mobSelBungs.forEach(b => {
+    const r = calcPrice(parseInt(b), adults, children, babies, nights, activePrices);
+    grandTotal += r.subtotal || 0;
+    priceLines.push('B' + b + ': ' + (r.subtotal||0).toFixed(2) + '€');
+  });
+
+  // Prikaz sa detaljem
+  const summaryParts = [];
+  if (adults > 0) summaryParts.push(adults + ' odraslih');
+  if (children > 0) summaryParts.push(children + ' djece');
+  if (babies > 0) summaryParts.push(babies + ' beba');
+
+  let html = '<div style="background:#f0fff4;border-radius:8px;padding:10px;font-size:.82em">';
+  html += '<div style="font-size:1.1em;font-weight:700;color:#28a745;margin-bottom:4px">💰 ' + grandTotal.toFixed(2) + ' €</div>';
+  html += '<div style="color:#555">' + summaryParts.join(' · ') + ' · ' + nights + ' noći</div>';
+  if (_mobSelBungs.length > 1) {
+    html += '<div style="color:#888;margin-top:3px;font-size:.9em">' + priceLines.join(' | ') + '</div>';
+  }
+  html += '</div>';
+  priceEl.innerHTML = html;
 }
 
 function mobUpdateNights() {
@@ -2858,15 +2975,29 @@ function mobUpdateNights() {
   } else {
     el.textContent = '';
   }
+  // Ažuriraj summary osoba
+  const adults   = parseInt(document.getElementById('mob-adults')?.value)   || 0;
+  const children = parseInt(document.getElementById('mob-children')?.value) || 0;
+  const babies   = parseInt(document.getElementById('mob-babies')?.value)   || 0;
+  const total = adults + children + babies;
+  const sumEl = document.getElementById('mob-persons-summary');
+  if (sumEl && total > 0) {
+    const parts = [];
+    if (adults > 0) parts.push(adults + ' odrasli');
+    if (children > 0) parts.push(children + ' djece');
+    if (babies > 0) parts.push(babies + ' beba');
+    sumEl.textContent = 'Ukupno: ' + total + ' · ' + parts.join(', ');
+  } else if (sumEl) {
+    sumEl.textContent = '';
+  }
   mobCalcPrice();
   mobCheckOverlap();
 }
 
-// Postavi listener na datume
+// Postavi listenere
 document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('mob-ci')?.addEventListener('change', mobUpdateNights);
-  document.getElementById('mob-co')?.addEventListener('change', mobUpdateNights);
-  document.getElementById('mob-persons')?.addEventListener('change', mobCalcPrice);
+  ['mob-ci','mob-co'].forEach(id => document.getElementById(id)?.addEventListener('change', mobUpdateNights));
+  ['mob-adults','mob-children','mob-babies'].forEach(id => document.getElementById(id)?.addEventListener('input', mobUpdateNights));
 });
 
 function mobShowStep(step) {
@@ -2930,14 +3061,27 @@ window.mobSaveReservation = async () => {
   saveBtn.textContent = '⏳ Čuvam...';
   
   try {
+    const adults2   = parseInt(document.getElementById('mob-adults')?.value)   || 2;
+    const children2 = parseInt(document.getElementById('mob-children')?.value) || 0;
+    const babies2   = parseInt(document.getElementById('mob-babies')?.value)   || 0;
+    // Izracunaj cijenu koristeci pravi engine
+    const nights2 = Math.ceil((new Date(co) - new Date(ci)) / 86400000);
+    const activePrices2 = (window.pricePeriods || []).filter(p =>
+      (!p.dateFrom || ci >= p.dateFrom) && (!p.dateTo || co <= p.dateTo)
+    );
+    let totalPrice = 0;
+    _mobSelBungs.forEach(b => {
+      const r = calcPrice(parseInt(b), adults2, children2, babies2, nights2, activePrices2);
+      totalPrice += r.subtotal || 0;
+    });
     const bungalovi = _mobSelBungs.map(b => ({
-      bungalov: String(b), beds: persons,
-      adults: persons, children: 0, babies: 0,
+      bungalov: String(b), beds: adults2 + children2,
+      adults: adults2, children: children2, babies: babies2,
       sharedBed: false, notes: ''
     }));
     const data = {
       name, phone, country: '', checkIn: ci, checkOut: co,
-      channel: channel || '', price: 0,
+      channel: channel || '', price: totalPrice,
       bungalovi,
       services: { polupansion: false, fullPansion: false, lunchPaket: false },
       notes, confirmed: true, paid: false, cancelled: false,
