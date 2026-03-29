@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Maja Karanfil Bungali v1.2.8</title>
+<title>Maja Karanfil Bungali v1.2.9</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh;padding:20px}
@@ -506,7 +506,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
       <img src="https://i.imgur.com/DzB2EDR.png" onerror="this.style.display='none'"
            alt="Logo" style="max-width:175px;margin:0 auto 10px;display:block;border-radius:10px">
       <h1>🏡 Maja Karanfil Bungali</h1>
-      <p>Prijavite se u sistem — v1.2.8</p>
+      <p>Prijavite se u sistem — v1.2.9</p>
     </div>
     <div class="login-err" id="login-err">Pogrešno korisničko ime ili lozinka!</div>
     <form class="login-form" id="login-form">
@@ -689,7 +689,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
   <div class="hdr">
     <div class="hdr-l">
       <h1>🏡 Maja Karanfil Bungali</h1>
-      <p>Sistem za upravljanje rezervacijama — v1.2.8</p>
+      <p>Sistem za upravljanje rezervacijama — v1.2.9</p>
     </div>
     <div class="hdr-r">
       <div class="user-row">
@@ -1122,7 +1122,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <!-- Current version -->
       <div style="background:#e8f4fd;padding:14px;border-radius:8px;margin-bottom:20px;border-left:4px solid #667eea">
-        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v1.2.8</strong>
+        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v1.2.9</strong>
       </div>
 
       <!-- Changelog -->
@@ -1130,7 +1130,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <div class="changelog">
         <div class="ch-version">
-          <div class="ch-ver-header">v1.2.8 <span class="ch-date">— 29.03.2026</span></div>
+          <div class="ch-ver-header">v1.2.9 <span class="ch-date">— 29.03.2026</span></div>
           <ul>
             <li><strong>About premješten:</strong> Iz floating dugmeta u Podešavanja → ℹ️ About tab — pregledniji pristup</li>
             <li><strong>Excel Export:</strong> Novo dugme "📊 Export u Excel" — preuzmi SVE rezervacije kao čistu CSV/Excel tabelu sa kompletnim detaljima (ID, status, ime, telefon, zemlja, kanal, datumi, broj noći, bungalovi, kreveti, struktura gostiju, cijena, napomene)</li>
@@ -2037,7 +2037,7 @@ window.resetForm = () => {
 };
 
 // ── DELETE ───────────────────────────────────────────────────
-window.delRes = id => { delId=id; document.getElementById('m-delete').classList.add('open'); };
+window.delRes = id => { if (curRole !== 'admin') { alert('Samo administrator može otkazati rezervacije.'); return; } delId=id; document.getElementById('m-delete').classList.add('open'); };
 window.closeDelModal = () => { document.getElementById('m-delete').classList.remove('open'); document.getElementById('del-reason').value=''; delId=null; };
 window.confirmDel = async () => {
   const r=document.getElementById('del-reason').value.trim();
@@ -2717,9 +2717,10 @@ window.showDet = id => {
       ${r.notes?`<div><strong>Napomene:</strong> ${escHtml(r.notes)}</div>`:''}
     </div>
     <div style="margin-top:18px;display:flex;gap:8px;flex-wrap:wrap">
-      ${!r.cancelled?`
-        <button class="bs bs-edit" onclick="editRes('${r.id}')">✏️ Izmijeni</button>
-        <button class="bs bs-del" onclick="delRes('${r.id}');closeDetModal()">🗑️ Otkaži</button>`:''}
+      ${curRole==='admin'?`
+        <button class="bs bs-edit" onclick="editRes('${r.id}');closeDetModal()">✏️ Izmijeni</button>
+        ${!r.cancelled?`<button class="bs bs-del" onclick="delRes('${r.id}');closeDetModal()">🗑️ Otkaži</button>`:''}
+      `:'<span style="font-size:.82em;color:#888">Samo administrator može mijenjati rezervacije.</span>'}
     </div>`;
   document.getElementById('m-details').classList.add('open');
 };
@@ -3658,18 +3659,36 @@ window.deleteAllReservations = async () => {
 // Cuva parsed redove za preview -> potvrdu
 let _importRows = [];
 
-// Parsiranje datuma — podrzava DD.MM.YYYY, DD/MM/YYYY, YYYY-MM-DD
+// Parsiranje datuma — podrzava DD.MM.YYYY, DD/MM/YYYY, YYYY-MM-DD,
+// i Excel datetime format (npr. "Fri May 01 2026 00:00:00 GMT+0000")
 function parseImportDate(s) {
   if (!s) return null;
-  s = s.trim();
+  s = String(s).trim();
   // YYYY-MM-DD
-  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+  if (/^\d{4}-\d{2}-\d{2}/.test(s)) return s.substring(0,10);
   // DD.MM.YYYY ili DD/MM/YYYY
   const m = s.match(/^(\d{1,2})[.\/](\d{1,2})[.\/](\d{4})$/);
   if (m) {
     const d = m[1].padStart(2,'0'), mo = m[2].padStart(2,'0'), y = m[3];
     return `${y}-${mo}-${d}`;
   }
+  // Excel/JS Date toString format npr "Fri May 01 2026 00:00:00..."
+  // ili ISO string "2026-05-01T00:00:00.000Z"
+  if (s.includes('T') || s.includes('GMT') || s.includes('Z')) {
+    try {
+      const dt = new Date(s);
+      if (!isNaN(dt.getTime())) {
+        return dt.toISOString().substring(0,10);
+      }
+    } catch(e) {}
+  }
+  // Pokusaj genericki Date parse
+  try {
+    const dt = new Date(s);
+    if (!isNaN(dt.getTime()) && dt.getFullYear() > 2000) {
+      return dt.toISOString().substring(0,10);
+    }
+  } catch(e) {}
   return null;
 }
 
@@ -3741,7 +3760,16 @@ window.previewImport = async () => {
   const previewBodyEl = document.getElementById('import-preview-body');
   const previewEl2 = document.getElementById('import-preview');
   if (previewBodyEl) {
-    previewBodyEl.innerHTML = '<div style="background:#e8f4fd;padding:10px;border-radius:8px;margin-bottom:12px;font-size:.8em"><strong>Učitano:</strong> ' + lines.length + ' redova<br><strong>Primjer prvog reda:</strong> ' + escHtml(lines[0].substring(0,100)) + '</div>';
+    // Pokazi prvih 3 reda i broj kolona za dijagnostiku
+    const firstDataLine = lines[lines.length > 1 ? 1 : 0] || '';
+    const firstCols = parseCSVLine(firstDataLine);
+    const debugInfo = '<div style="background:#e8f4fd;padding:10px;border-radius:8px;margin-bottom:12px;font-size:.8em">'
+      + '<strong>Učitano:</strong> ' + lines.length + ' redova, ' + firstCols.length + ' kolona<br>'
+      + '<strong>Zaglavlje:</strong> ' + escHtml(lines[0].substring(0,120)) + '<br>'
+      + (lines.length > 1 ? '<strong>1. red podataka:</strong> ' + escHtml(lines[1].substring(0,120)) : '')
+      + '<br><em style="color:#667;font-size:.9em">Kolone se čitaju od ' + (firstCols.length >= 9 ? 'D (kolona 4)' : 'A (kolona 1)') + '</em>'
+      + '</div>';
+    previewBodyEl.innerHTML = debugInfo;
     previewEl2.style.display = 'block';
   }
 
@@ -3755,16 +3783,20 @@ window.previewImport = async () => {
   // Preskoci prvu liniju (zaglavlje) osim ako je samo 1 red
   for (let i = startRow; i < lines.length; i++) {
     const cols = parseCSVLine(lines[i]);
-    // Kolone su 0-indexed, D=3, E=4, F=5, G=6, H=7, I=8, J=9, K=10, L=11
-    const name   = (cols[3]  || '').trim();
-    const ciStr  = (cols[4]  || '').trim();
-    const coStr  = (cols[5]  || '').trim();
-    const nights = (cols[6]  || '').trim();
-    const bungStr= (cols[7]  || '').trim();
-    const persons= (cols[8]  || '').trim();
-    const notes  = (cols[9]  || '').trim();
-    const phone  = (cols[10] || '').trim();
-    const channel= (cols[11] || '').trim();
+    // Dinamicki odredjujemo offset na osnovu broja kolona
+    // Ako fajl ima 9+ kolona, pretpostavljamo D=3 offset (A,B,C prazni)
+    // Ako fajl ima manje od 9 kolona, pretpostavljamo pocinje od A=0
+    const totalCols = cols.length;
+    const off = totalCols >= 9 ? 3 : 0;  // offset: 3 za D-start, 0 za A-start
+    const name   = (cols[off+0]  || '').trim();
+    const ciStr  = (cols[off+1]  || '').trim();
+    const coStr  = (cols[off+2]  || '').trim();
+    const nights = (cols[off+3]  || '').trim();
+    const bungStr= (cols[off+4]  || '').trim();
+    const persons= (cols[off+5]  || '').trim();
+    const notes  = (cols[off+6]  || '').trim();
+    const phone  = (cols[off+7]  || '').trim();
+    const channel= (cols[off+8]  || '').trim();
 
     // Preskoči prazne redove
     if (!name && !ciStr && !coStr) continue;
