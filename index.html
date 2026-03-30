@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Maja Karanfil Bungali v1.3.7</title>
+<title>Maja Karanfil Bungali v1.4.2</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh;padding:20px}
@@ -110,16 +110,17 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 .bs-restore{background:#28a745;color:white}
 
 /* CALENDAR */
-.cal-wrap{overflow-x:auto;margin-top:14px}
+.cal-wrap{overflow:auto;margin-top:14px;max-height:70vh}
 .cal-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px}
 .cal-nav{display:flex;gap:8px;align-items:center}
 .cal-nav button{padding:7px 16px;background:#667eea;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600}
 .cal-grid{display:grid;gap:1px;background:#dee2e6;border:1px solid #dee2e6;min-width:1100px}
-.cal-row{display:grid;grid-template-columns:100px repeat(31,1fr);gap:1px}
+.cal-row{display:grid;grid-template-columns:60px repeat(31,1fr);gap:1px}
 .cc{background:white;padding:5px 2px;min-height:40px;display:flex;align-items:center;justify-content:center;font-size:.76em}
-.cc.hdr{background:#f8f9fa;font-weight:700;color:#111;flex-direction:column;font-size:.78em}
+.cc.hdr{background:#f8f9fa;font-weight:700;color:#111;flex-direction:column;font-size:.78em;position:sticky;top:0;z-index:10}
 .cc.hdr small{color:#777;font-weight:400}
-.cc.bh{background:#667eea;color:white;font-weight:700;font-size:.8em}
+.cc.cc-corner{position:sticky;top:0;left:0;z-index:20;background:#f8f9fa}
+.cc.bh{background:#667eea;color:white;font-weight:700;font-size:.8em;position:sticky;left:0;z-index:4}
 .cc.past{background:#e9ecef!important}
 .cc.td{background:#fff8e1}
 .cc.c1{background:#ffc107;cursor:pointer}
@@ -469,6 +470,123 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 @keyframes slideDown{from{transform:translateY(-100%)}to{transform:translateY(0)}}
 .conflict-banner.hidden{display:none!important}
 
+/* ── MOB CALENDAR V3 — horizontalna traka dostupnosti ─────── */
+.v3-topbar{display:flex;justify-content:space-between;align-items:center;
+  padding:6px 8px;border-bottom:0.5px solid #eee;gap:6px}
+.v3-nav{background:#f0f0f0;border:none;border-radius:6px;
+  padding:5px 12px;font-size:.9em;font-weight:600;cursor:pointer}
+.v3-monthlbl{font-size:.85em;font-weight:700;color:#222;text-align:center}
+.v3-zoom{display:flex;gap:3px;padding:4px 8px;border-bottom:0.5px solid #eee}
+.v3-zb{flex:1;padding:4px 2px;border:0.5px solid #ddd;border-radius:6px;
+  font-size:.72em;text-align:center;cursor:pointer;color:#666;background:#f8f8f8;
+  -webkit-tap-highlight-color:transparent}
+.v3-zb.on{background:#667eea;color:white;border-color:#667eea}
+.v3-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;padding:4px 0 2px}
+.v3-grid{display:grid;gap:1px;padding:2px 6px;width:max-content}
+.v3-dh-row{display:contents}
+.v3-lbl{font-size:.68em;font-weight:700;color:#555;display:flex;
+  align-items:center;justify-content:center;height:18px;position:sticky;left:0;
+  background:white;z-index:5;padding:0 2px}
+.v3-dh{font-size:.62em;text-align:center;height:18px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;line-height:1.1;color:#999;min-width:18px}
+.v3-dh.vt{color:#667eea;font-weight:700}
+.v3-dh .vdn{font-size:.7em;font-weight:600}
+.v3-sep{height:3px;grid-column:1/-1}
+.v3-c{height:20px;border-radius:2px;cursor:pointer;min-width:18px;
+  -webkit-tap-highlight-color:transparent;position:relative}
+.v3-c:active{opacity:.7}
+.v3-c.vfr{background:white;border:0.5px solid #e0e0e0}
+.v3-c.vfr:active{background:#f0edff;border-color:#667eea}
+.v3-c.vmn{background:#667eea}
+.v3-c.vmn.vs{border-radius:4px 0 0 4px}
+.v3-c.vmn.ve{border-radius:0 4px 4px 0}
+.v3-c.vmn.vse{border-radius:4px}
+.v3-c.vbk{background:#003580}
+.v3-c.vbk.vs{border-radius:4px 0 0 4px}
+.v3-c.vbk.ve{border-radius:0 4px 4px 0}
+.v3-c.vbk.vse{border-radius:4px}
+.v3-c.vpd{background:#28a745}
+.v3-c.vpd.vs{border-radius:4px 0 0 4px}
+.v3-c.vpd.ve{border-radius:0 4px 4px 0}
+.v3-c.vcl{background:#888;border-radius:3px}
+.v3-c.vps{opacity:.4}
+.v3-c.vtd{outline:1.5px solid #667eea;outline-offset:-1px;z-index:1}
+.v3-c.vsel{background:#ffd700!important;border-color:#ffa500!important;outline:1px solid #ffa500}
+.v3-legend{display:flex;gap:8px;padding:4px 8px 2px;flex-wrap:wrap;
+  border-top:0.5px solid #eee}
+.v3-li{display:flex;align-items:center;gap:3px;font-size:.68em;color:#666}
+.v3-ls{width:9px;height:9px;border-radius:2px;flex-shrink:0}
+.v3-footer{background:#f0edff;padding:7px 10px;display:flex;
+  justify-content:space-between;align-items:center;
+  border-top:1px solid #d4c8ff;min-height:38px}
+.v3-foot-txt{font-size:.78em;color:#667eea;font-weight:600;flex:1}
+.v3-foot-txt.empty{color:#aaa;font-weight:400}
+.v3-foot-btn{background:#667eea;color:white;border:none;border-radius:8px;
+  padding:6px 14px;font-size:.8em;font-weight:600;cursor:pointer;white-space:nowrap}
+.v3-foot-btn:disabled{background:#ccc}
+.v3-tip{padding:4px 8px;font-size:.68em;color:#aaa;text-align:center;
+  border-top:0.5px solid #eee}
+
+/* ── MOB CALENDAR V2 ────────────────────────────────────── */
+.v2-dow-row{display:grid;grid-template-columns:repeat(7,1fr);
+  padding:6px 8px 2px;gap:2px}
+.v2-dow{font-size:.72em;text-align:center;color:#888;font-weight:600;padding:2px 0}
+.v2-day-grid{display:grid;grid-template-columns:repeat(7,1fr);
+  padding:4px 8px 10px;gap:3px}
+.v2-day{border-radius:8px;padding:4px 2px;text-align:center;
+  min-height:40px;cursor:pointer;position:relative;
+  border:1px solid transparent;-webkit-tap-highlight-color:transparent}
+.v2-day:active{transform:scale(.94)}
+.v2-day.empty{cursor:default;pointer-events:none}
+.v2-day.today{border-color:#667eea;background:#f0edff}
+.v2-day.past{opacity:.5}
+.v2-day.busy-full{background:#eef0ff}
+.v2-day.busy-partial{background:#f7f7ff}
+.v2-day.has-conflict{border-color:#dc3545!important;background:#fff5f5!important}
+.v2-dn{font-size:.82em;font-weight:600;color:#222;line-height:1.2}
+.v2-day.today .v2-dn{color:#667eea}
+.v2-day.past .v2-dn{color:#aaa}
+.v2-dots{display:flex;justify-content:center;gap:2px;margin-top:3px;min-height:6px;flex-wrap:wrap}
+.v2-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.v2-dot.manual{background:#667eea}
+.v2-dot.booking{background:#003580}
+.v2-dot.paid{background:#28a745}
+.v2-dot.closed{background:#555}
+.v2-dot.conflict{background:#dc3545}
+
+/* V2 Day Detail Sheet */
+.v2-sheet-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);
+  z-index:3000;align-items:flex-end}
+.v2-sheet-overlay.open{display:flex}
+.v2-sheet{background:white;border-radius:20px 20px 0 0;width:100%;
+  max-height:80vh;overflow-y:auto;
+  animation:slideUp .22s ease-out}
+.v2-sheet-handle{width:36px;height:4px;background:#ddd;border-radius:2px;margin:10px auto 0}
+.v2-sheet-hdr{padding:10px 16px 8px;border-bottom:1px solid #f0f0f0;
+  display:flex;align-items:center;justify-content:space-between}
+.v2-sheet-hdr h3{font-size:1em;font-weight:700;color:#222}
+.v2-sheet-close{background:none;border:none;font-size:1.3em;cursor:pointer;color:#999}
+.v2-bung-row{display:flex;align-items:center;padding:10px 16px;
+  border-bottom:1px solid #f5f5f5;gap:10px;cursor:pointer;
+  -webkit-tap-highlight-color:transparent}
+.v2-bung-row:active{background:#f5f5f5}
+.v2-bung-num{font-weight:700;font-size:.95em;color:#555;width:26px;flex-shrink:0}
+.v2-bung-info{flex:1;min-width:0}
+.v2-bung-name{font-size:.9em;font-weight:600;color:#222;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v2-bung-dates{font-size:.75em;color:#888;margin-top:1px}
+.v2-bung-badge{padding:3px 8px;border-radius:10px;font-size:.72em;font-weight:600;flex-shrink:0}
+.v2-badge-free{background:#e6f4ea;color:#1a7a3a}
+.v2-badge-manual{background:#e8f0fe;color:#1a56c4}
+.v2-badge-booking{background:#e6eeff;color:#003580}
+.v2-badge-paid{background:#e6f4ea;color:#1a7a3a}
+.v2-badge-closed{background:#eee;color:#555}
+.v2-badge-conflict{background:#fce8e6;color:#c62828}
+.v2-add-btn{display:block;margin:10px 16px;padding:11px;text-align:center;
+  background:#667eea;color:white;border:none;border-radius:10px;
+  font-size:.9em;font-weight:600;cursor:pointer;width:calc(100% - 32px);
+  -webkit-tap-highlight-color:transparent}
+
 /* SHARED BED */
 /* TOGGLE SWITCH */
 .kmk-toggle { position:relative;display:inline-block;width:46px;height:24px;flex-shrink:0 }
@@ -506,7 +624,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
       <img src="https://i.imgur.com/DzB2EDR.png" onerror="this.style.display='none'"
            alt="Logo" style="max-width:175px;margin:0 auto 10px;display:block;border-radius:10px">
       <h1>🏡 Maja Karanfil Bungali</h1>
-      <p>Prijavite se u sistem — v1.3.7</p>
+      <p>Prijavite se u sistem — v1.4.2</p>
     </div>
     <div class="login-err" id="login-err">Pogrešno korisničko ime ili lozinka!</div>
     <form class="login-form" id="login-form">
@@ -526,9 +644,16 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
 <!-- MOBILNI HEADER -->
 <div class="mob-hdr" id="mob-hdr">
-  <div>
-    <div class="mob-hdr-title">🏡 Maja Karanfil Bungali</div>
-    <div class="mob-hdr-sub" id="mob-hdr-sub">v1.1.0</div>
+  <div style="display:flex;align-items:center;gap:8px">
+    <button id="mob-back-btn" onclick="mobGoBack()" 
+      style="display:none;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.4);
+             color:white;border-radius:20px;padding:4px 10px;font-size:.78em;cursor:pointer">
+      ← Nazad
+    </button>
+    <div>
+      <div class="mob-hdr-title">🏡 Maja Karanfil Bungali</div>
+      <div class="mob-hdr-sub" id="mob-hdr-sub">v1.1.0</div>
+    </div>
   </div>
   <div class="mob-hdr-right">
     <div class="mob-hdr-bell" onclick="toggleNotif()" id="mob-notif-wrap" style="display:none">
@@ -650,6 +775,21 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
   </div>
 </div>
 
+<!-- V2 MOBILNI CALENDAR DAY SHEET -->
+<div class="v2-sheet-overlay" id="v2-day-overlay" onclick="v2CloseSheet(event)">
+  <div class="v2-sheet">
+    <div class="v2-sheet-handle"></div>
+    <div class="v2-sheet-hdr">
+      <h3 id="v2-sheet-date">—</h3>
+      <button class="v2-sheet-close" onclick="v2CloseSheet()">✕</button>
+    </div>
+    <div id="v2-sheet-body"></div>
+    <button class="v2-add-btn" id="v2-add-btn" onclick="v2AddFromSheet()">
+      ➕ Nova rezervacija za ovaj dan
+    </button>
+  </div>
+</div>
+
 <!-- MOBILNI "VIŠE" SHEET -->
 <div class="mob-quick-overlay" id="mob-more-overlay" onclick="mobCloseMore(event)">
   <div class="mob-more-sheet">
@@ -689,7 +829,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
   <div class="hdr">
     <div class="hdr-l">
       <h1>🏡 Maja Karanfil Bungali</h1>
-      <p>Sistem za upravljanje rezervacijama — v1.3.7</p>
+      <p>Sistem za upravljanje rezervacijama — v1.4.2</p>
     </div>
     <div class="hdr-r">
       <div class="user-row">
@@ -747,14 +887,45 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
         <span id="mob-cal-month-label" style="font-size:1.05em;font-weight:700;color:#333">— —</span>
         <button onclick="changeMonth(1)" style="background:#f0f0f0;border:none;border-radius:8px;padding:8px 16px;font-size:.95em;cursor:pointer;font-weight:600">→</button>
       </div>
-      <!-- Mini legenda za mobilni -->
-      <div style="display:flex;gap:6px;flex-wrap:wrap;font-size:.72em">
-        <span style="display:flex;align-items:center;gap:3px"><span style="width:10px;height:10px;background:#003580;border-radius:2px;display:inline-block"></span>Booking</span>
-        <span style="display:flex;align-items:center;gap:3px"><span style="width:10px;height:10px;background:#667eea;border-radius:2px;display:inline-block"></span>Ručna</span>
-        <span style="display:flex;align-items:center;gap:3px"><span style="width:10px;height:10px;background:#333;border-radius:2px;display:inline-block"></span>Zatvoreno</span>
-        <span style="display:flex;align-items:center;gap:3px"><span style="width:10px;height:10px;background:#28a745;border-radius:2px;display:inline-block"></span>Plaćeno</span>
+      <div style="display:flex;gap:6px;justify-content:center">
+        <button id="mob-cal-v1-btn" onclick="mobSetCalView('v1')"
+          style="flex:1;padding:5px;border:1.5px solid #667eea;border-radius:8px;
+                 background:#667eea;color:white;font-size:.78em;font-weight:600;cursor:pointer">
+          V1 Grid
+        </button>
+        <button id="mob-cal-v2-btn" onclick="mobSetCalView('v2')"
+          style="flex:1;padding:5px;border:1.5px solid #667eea;border-radius:8px;
+                 background:white;color:#667eea;font-size:.78em;font-weight:600;cursor:pointer">
+          V2 Mjesec
+        </button>
+        <button id="mob-cal-v3-btn" onclick="mobSetCalView('v3')"
+          style="flex:1;padding:5px;border:1.5px solid #667eea;border-radius:8px;
+                 background:white;color:#667eea;font-size:.78em;font-weight:600;cursor:pointer">
+          V3 Traka
+        </button>
+      </div>
+      <!-- Mini legenda za mobilni — sklopiva -->
+      <div style="font-size:.75em">
+        <button onclick="mobToggleLegend()" id="mob-legend-toggle"
+          style="background:none;border:none;color:#667eea;font-size:.9em;cursor:pointer;
+                 padding:2px 0;font-weight:600;width:100%;text-align:left">
+          + Legenda boja
+        </button>
+        <div id="mob-legend-body" style="display:none;margin-top:5px;
+          display:none;flex-wrap:wrap;gap:6px">
+          <span style="display:flex;align-items:center;gap:3px"><span style="width:10px;height:10px;background:#003580;border-radius:2px;display:inline-block"></span>Booking</span>
+          <span style="display:flex;align-items:center;gap:3px"><span style="width:10px;height:10px;background:#667eea;border-radius:2px;display:inline-block"></span>Ručna</span>
+          <span style="display:flex;align-items:center;gap:3px"><span style="width:10px;height:10px;background:#333;border-radius:2px;display:inline-block"></span>Zatvoreno</span>
+          <span style="display:flex;align-items:center;gap:3px"><span style="width:10px;height:10px;background:#28a745;border-radius:2px;display:inline-block"></span>Plaćeno</span>
+        </div>
       </div>
     </div>
+    <!-- V2 mobilni kalendar — vertikalni prikaz po danima -->
+    <div id="mob-cal-v2" style="display:none"></div>
+
+    <!-- V3 mobilni kalendar — horizontalna traka dostupnosti -->
+    <div id="mob-cal-v3" style="display:none"></div>
+
     <div class="cal-hdr">
       <h2>Kalendar Zauzetosti</h2>
       <div class="cal-nav">
@@ -1122,7 +1293,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <!-- Current version -->
       <div style="background:#e8f4fd;padding:14px;border-radius:8px;margin-bottom:20px;border-left:4px solid #667eea">
-        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v1.3.7</strong>
+        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v1.4.2</strong>
       </div>
 
       <!-- Changelog -->
@@ -1130,7 +1301,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <div class="changelog">
         <div class="ch-version">
-          <div class="ch-ver-header">v1.3.7 <span class="ch-date">— 29.03.2026</span></div>
+          <div class="ch-ver-header">v1.4.2 <span class="ch-date">— 29.03.2026</span></div>
           <ul>
             <li><strong>About premješten:</strong> Iz floating dugmeta u Podešavanja → ℹ️ About tab — pregledniji pristup</li>
             <li><strong>Excel Export:</strong> Novo dugme "📊 Export u Excel" — preuzmi SVE rezervacije kao čistu CSV/Excel tabelu sa kompletnim detaljima (ID, status, ime, telefon, zemlja, kanal, datumi, broj noći, bungalovi, kreveti, struktura gostiju, cijena, napomene)</li>
@@ -1643,18 +1814,37 @@ function setupFirebase() {
     reservations = snap.docs.map(d=>({id:d.id,...d.data()}));
     syncUI('ok','Sinhronizovano ✓');
     renderCal(); renderResList(); renderDaily(); renderStats();
-    // Automatska provjera konflikata pri svakoj promjeni
     if (typeof detectConflicts === 'function') detectConflicts();
-    // Mob refreshi
     if (typeof isMobile === 'function' && isMobile()) {
       if (typeof renderMobDaily === 'function') renderMobDaily();
       if (typeof renderMobListFiltered === 'function' && document.getElementById('mob-list-content')) renderMobListFiltered();
+      // Refresh V2 kalendara ako je aktivan i kalendar tab je otvoren
+      if (_mobCurrentTab === 'calendar' && typeof _mobCalView !== 'undefined') {
+        if (_mobCalView === 'v2' && typeof renderMobCalV2 === 'function') renderMobCalV2();
+        else if (_mobCalView === 'v3' && typeof renderMobCalV3 === 'function') renderMobCalV3();
+      }
     }
   }, e => syncUI('er','Greška: '+e.message));
   _histSub = onSnapshot(query(collection(db,'history'),orderBy('timestamp','desc')), snap => {
     hist = snap.docs.map(d=>({id:d.id,...d.data()}));
     renderHist(); checkNotifs();
   });
+  // Worker edit notifikacije za admina
+  if (curRole === 'admin') {
+    onSnapshot(
+      query(collection(db,'notifications'), orderBy('timestamp','desc')),
+      snap => {
+        const unread = snap.docs.map(d=>({id:d.id,...d.data()})).filter(n=>!n.read);
+        unread.forEach(n => {
+          if (n.type === 'worker_edit') {
+            addNotif('⚙️ ' + n.message);
+            // Označi kao pročitano
+            updateDoc(doc(db,'notifications',n.id),{read:true}).catch(()=>{});
+          }
+        });
+      }
+    );
+  }
 }
 
 function syncUI(s,t) { document.getElementById('sync-ind').className='si '+s; document.getElementById('sync-txt').textContent=t; }
@@ -1972,6 +2162,20 @@ document.getElementById('res-form').addEventListener('submit', async e => {
       const updateData = { ...data, updatedAt: new Date().toISOString(), updatedBy: curUser };
       await updateDoc(doc(db,'reservations',editId), updateData);
       await logH('modified', { ...updateData, id: editId }, old);
+      // Notificiraj admina ako je worker editovao
+      if (curRole !== 'admin') {
+        try {
+          await addDoc(collection(db,'notifications'), {
+            type: 'worker_edit',
+            message: `✏️ ${curUser} je izmijenio rezervaciju: ${data.name} (${data.checkIn} → ${data.checkOut})`,
+            resId: editId,
+            resName: data.name,
+            editedBy: curUser,
+            timestamp: new Date().toISOString(),
+            read: false
+          });
+        } catch(e) { console.warn('Notif error:', e); }
+      }
       editId=null; // null tek nakon što oba awaita uspiju
     } else {
       const newData = { ...data, createdAt: new Date().toISOString(), createdBy: curUser };
@@ -2104,7 +2308,7 @@ window.renderCal = function() {
   const dim=new Date(yr,mo+1,0).getDate();
 
   const DNAMES_SHORT=['N','P','U','S','Č','P','S'];
-  let html='<div class="cal-row"><div class="cc hdr">Bungali/Datum</div>';
+  let html='<div class="cal-row"><div class="cc hdr cc-label cc-corner">Bungalovi<br><span style="font-weight:400;font-size:.9em;color:#888">Datum</span></div>';
   for (let d=1;d<=dim;d++) {
     const dt=new Date(yr,mo,d);
     const past=dt<now, today=dt.getTime()===now.getTime();
@@ -2174,7 +2378,17 @@ window.renderCal = function() {
   _setupCalDrag();
 };
 
-window.changeMonth = d => { calMonth=new Date(calMonth.getFullYear(),calMonth.getMonth()+d,1); renderCal(); };
+window.changeMonth = d => {
+  calMonth = new Date(calMonth.getFullYear(), calMonth.getMonth()+d, 1);
+  renderCal(); // uvijek refresh V1 (desktop i mob-V1)
+  if (typeof isMobile === 'function' && isMobile()) {
+    if (_mobCalView === 'v2') renderMobCalV2();
+    else if (_mobCalView === 'v3') {
+      _v3SelBung = null; _v3SelStart = null; _v3SelEnd = null;
+      renderMobCalV3();
+    }
+  }
+};
 
 // ── CALENDAR DRAG ────────────────────────────────────────────
 let _dragStart=null, _dragEnd=null, _dragBung=null, _dragActive=false;
@@ -2718,10 +2932,10 @@ window.showDet = id => {
       ${r.notes?`<div><strong>Napomene:</strong> ${escHtml(r.notes)}</div>`:''}
     </div>
     <div style="margin-top:18px;display:flex;gap:8px;flex-wrap:wrap">
-      ${curRole==='admin'?`
-        <button class="bs bs-edit" onclick="editRes('${r.id}');closeDetModal()">✏️ Izmijeni</button>
-        ${!r.cancelled?`<button class="bs bs-del" onclick="delRes('${r.id}');closeDetModal()">🗑️ Otkaži</button>`:''}
-      `:'<span style="font-size:.82em;color:#888">Samo administrator može mijenjati rezervacije.</span>'}
+       <button class="bs bs-edit" onclick="editRes('${r.id}');closeDetModal()">✏️ Izmijeni</button>
+       ${curRole==='admin'?`
+         ${!r.cancelled?`<button class="bs bs-del" onclick="delRes('${r.id}');closeDetModal()">🗑️ Otkaži</button>`:''}
+       `:''}
     </div>`;
   document.getElementById('m-details').classList.add('open');
 };
@@ -2948,9 +3162,36 @@ window.goTab=(name,btn)=>{
 // Detekcija mobilnog
 function isMobile() { return window.innerWidth <= 768; }
 
+// Mob legenda toggle
+window.mobToggleLegend = () => {
+  const body = document.getElementById('mob-legend-body');
+  const btn  = document.getElementById('mob-legend-toggle');
+  if (!body || !btn) return;
+  const open = body.style.display === 'flex';
+  body.style.display = open ? 'none' : 'flex';
+  btn.textContent = open ? '+ Legenda boja' : '− Legenda boja';
+};
+
+// Mob Back — vraća na prethodni tab
+let _mobTabHistory = ['daily'];
+window.mobGoBack = () => {
+  if (_mobTabHistory.length > 1) {
+    _mobTabHistory.pop(); // ukloni trenutni
+    const prev = _mobTabHistory[_mobTabHistory.length - 1];
+    mobGoTab(prev);
+  } else {
+    mobGoTab('daily');
+  }
+};
+
 // Mobilna navigacija
 let _mobCurrentTab = 'daily';
 window.mobGoTab = (tab) => {
+  // Prati historiju tabova za Back dugme
+  if (tab !== _mobCurrentTab) {
+    _mobTabHistory.push(tab);
+    if (_mobTabHistory.length > 10) _mobTabHistory.shift();
+  }
   _mobCurrentTab = tab;
   // Aktiviraj tab u desktop-u
   const tabBtn = document.querySelector(`.tab[data-tab="${tab}"]`);
@@ -2962,14 +3203,17 @@ window.mobGoTab = (tab) => {
     if (btn) btn.classList.toggle('active', t === tab);
   });
   const moreBtn = document.getElementById('mob-btn-more');
-  if (moreBtn) moreBtn.classList.toggle('active', ['stats','history','settings'].includes(tab));
+  if (moreBtn) moreBtn.classList.toggle('active', ['stats','history','settings','conflicts'].includes(tab));
+  // Back dugme - prikaži kad nisi na Daily
+  const backBtn = document.getElementById('mob-back-btn');
+  if (backBtn) backBtn.style.display = (tab === 'daily') ? 'none' : 'inline-block';
   // Scroll na vrh
   window.scrollTo(0, 0);
   // Renderuj mobilne prikaze
   if (isMobile()) {
     if (tab === 'daily') renderMobDaily();
     if (tab === 'list') renderMobList();
-    if (tab === 'calendar') { renderCal(); }
+    if (tab === 'calendar') { _updateCalViewButtons(); _applyCalView(); }
     if (tab === 'conflicts') { renderConflictsPane(); }
   }
 };
@@ -3007,11 +3251,14 @@ window.mobOpenQuickForm = (editResId) => {
   document.getElementById('mob-name').value = '';
   document.getElementById('mob-phone').value = '';
   document.getElementById('mob-notes').value = '';
-  document.getElementById('mob-persons').value = '2';
+  document.getElementById('mob-adults').value   = '2';
+  document.getElementById('mob-children').value = '0';
+  document.getElementById('mob-babies').value   = '0';
   document.getElementById('mob-ci').value = '';
   document.getElementById('mob-co').value = '';
   document.getElementById('mob-nights-show').textContent = '';
-  document.getElementById('mob-price-show').textContent = '';
+  document.getElementById('mob-price-show').innerHTML = '';
+  document.getElementById('mob-persons-summary').textContent = '';
   document.getElementById('mob-overlap-warn').style.display = 'none';
   
   // Popuni kanale
@@ -3040,20 +3287,27 @@ window.mobOpenQuickForm = (editResId) => {
   if (_mobEditId) {
     const res = reservations.find(r => r.id === _mobEditId);
     if (res) {
-      document.getElementById('mob-name').value = res.name || '';
+      document.getElementById('mob-name').value  = res.name || '';
       document.getElementById('mob-phone').value = res.phone || '';
       document.getElementById('mob-notes').value = res.notes || '';
-      document.getElementById('mob-ci').value = res.checkIn || '';
-      document.getElementById('mob-co').value = res.checkOut || '';
-      document.getElementById('mob-channel').value = res.channel || '';
+      document.getElementById('mob-ci').value    = res.checkIn || '';
+      document.getElementById('mob-co').value    = res.checkOut || '';
+      document.getElementById('mob-adults').value   = (res.bungalovi?.[0]?.adults)   ?? 2;
+      document.getElementById('mob-children').value = (res.bungalovi?.[0]?.children) ?? 0;
+      document.getElementById('mob-babies').value   = (res.bungalovi?.[0]?.babies)   ?? 0;
+      // Channel setTimeout — select mora biti popunjen prvo
+      const _ch = res.channel || '';
+      setTimeout(() => {
+        const sel = document.getElementById('mob-channel');
+        if (sel) sel.value = _ch;
+      }, 30);
       _mobSelBungs = (res.bungalovi || []).map(b => String(b.bungalov));
-      document.getElementById('mob-adults').value   = (res.bungalovi?.[0]?.adults)   || 2;
-      document.getElementById('mob-children').value = (res.bungalovi?.[0]?.children) || 0;
-      document.getElementById('mob-babies').value   = (res.bungalovi?.[0]?.babies)   || 0;
       _mobSelBungs.forEach(b => {
         const btn = grid.querySelector(`[data-bung="${b}"]`);
         if (btn) btn.classList.add('sel');
       });
+      // Ažuriraj noći i cijenu
+      setTimeout(() => { mobUpdateNights(); }, 50);
     }
     document.getElementById('mob-form-title').textContent = '✏️ Izmijeni Rezervaciju';
   } else {
@@ -3225,7 +3479,7 @@ window.mobSaveReservation = async () => {
   const ci = document.getElementById('mob-ci').value;
   const co = document.getElementById('mob-co').value;
   const notes = document.getElementById('mob-notes').value.trim();
-  const persons = parseInt(document.getElementById('mob-persons').value) || 2;
+  const persons = parseInt(document.getElementById('mob-adults')?.value) || 2;
   
   if (!name) { alert('Unesite ime!'); mobShowStep(1); return; }
   if (!ci || !co) { alert('Unesite datume!'); mobShowStep(2); return; }
@@ -3661,6 +3915,593 @@ window.deleteAllReservations = async () => {
   }
   syncUI('ok', 'Sinhronizovano ✓');
   alert('✅ Obrisano ' + deleted + ' rezervacija i sva historija.\n\niCal linkovi su zadržani — pokreni Sinhronizuj Sve da uvučeš Booking.com rezervacije ponovo.');
+};
+
+// ══════════════════════════════════════════════════════════
+// MOB CALENDAR V2 — vertikalni prikaz po danima
+// Potpuno odvojen od renderCal() — ne mijenja V1 logiku
+// ══════════════════════════════════════════════════════════
+
+let _mobCalView = localStorage.getItem('kmk_cal_view') || 'v1';
+let _v2SelectedDate = null; // datum koji je tapnut u V2
+
+// Postavi V1 ili V2 prikaz
+window.mobSetCalView = (view) => {
+  _mobCalView = view;
+  localStorage.setItem('kmk_cal_view', view);
+  _updateCalViewButtons();
+  _applyCalView();
+};
+
+function _updateCalViewButtons() {
+  const b1 = document.getElementById('mob-cal-v1-btn');
+  const b2 = document.getElementById('mob-cal-v2-btn');
+  const b3 = document.getElementById('mob-cal-v3-btn');
+  const btns = [b1, b2, b3];
+  const views = ['v1', 'v2', 'v3'];
+  btns.forEach((btn, i) => {
+    if (!btn) return;
+    if (_mobCalView === views[i]) {
+      btn.style.background = '#667eea'; btn.style.color = 'white';
+    } else {
+      btn.style.background = 'white'; btn.style.color = '#667eea';
+    }
+  });
+}
+
+function _applyCalView() {
+  if (!isMobile()) return;
+  const calWrap = document.querySelector('#pane-calendar .cal-wrap');
+  const calHdr  = document.querySelector('#pane-calendar .cal-hdr');
+  const legend  = document.querySelector('#pane-calendar .legend');
+  const v2div   = document.getElementById('mob-cal-v2');
+  const v3div   = document.getElementById('mob-cal-v3');
+
+  // Sakrij sve
+  if (calWrap) calWrap.style.display = 'none';
+  if (calHdr)  calHdr.style.display  = 'none';
+  if (legend)  legend.style.display  = 'none';
+  if (v2div)   v2div.style.display   = 'none';
+  if (v3div)   v3div.style.display   = 'none';
+
+  // Prikaži odabrani
+  if (_mobCalView === 'v2') {
+    if (v2div) v2div.style.display = 'block';
+    renderMobCalV2();
+  } else if (_mobCalView === 'v3') {
+    if (v3div) v3div.style.display = 'block';
+    renderMobCalV3();
+  } else {
+    // V1 — default
+    if (calWrap) calWrap.style.display = '';
+    if (calHdr)  calHdr.style.display  = '';
+    if (legend)  legend.style.display  = '';
+    renderCal();
+  }
+}
+
+// ── Render V2 ─────────────────────────────────────────────
+function renderMobCalV2() {
+  const v2div = document.getElementById('mob-cal-v2');
+  if (!v2div) return;
+
+  const yr  = calMonth.getFullYear();
+  const mo  = calMonth.getMonth();
+  const dim = new Date(yr, mo + 1, 0).getDate();
+  const firstDay = new Date(yr, mo, 1).getDay(); // 0=Sun
+  // Pomjeri: ponedjeljak kao prvi dan (P=0)
+  const offset = (firstDay + 6) % 7;
+
+  const todayStr = lDate(new Date());
+  const DAYS = ['P','U','S','Č','P','S','N'];
+  const MNAMES_SHORT = ['Jan','Feb','Mar','Apr','Maj','Jun','Jul','Avg','Sep','Okt','Nov','Dec'];
+
+  // Izgradi mapu zauzetosti po datumu i bungalovu
+  const activeRes = reservations.filter(r => !r.cancelled);
+
+  // Za svaki dan u mjesecu: lista rezervacija
+  function getDayRes(ds) {
+    return activeRes.filter(r => ds >= r.checkIn && ds < r.checkOut);
+  }
+
+  // Dani u tjednu header
+  let html = '<div class="v2-dow-row">';
+  DAYS.forEach(d => { html += `<div class="v2-dow">${d}</div>`; });
+  html += '</div><div class="v2-day-grid">';
+
+  // Prazni dani na početku
+  for (let i = 0; i < offset; i++) {
+    html += '<div class="v2-day empty"><div class="v2-dn">&nbsp;</div></div>';
+  }
+
+  // Dani u mjesecu
+  for (let d = 1; d <= dim; d++) {
+    const ds = `${yr}-${String(mo+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const dayRes = getDayRes(ds);
+    const isPast = ds < todayStr;
+    const isToday = ds === todayStr;
+
+    // Boje tačkica
+    let hasManual=false, hasBooking=false, hasPaid=false, hasClosed=false, hasConflict=false;
+    dayRes.forEach(r => {
+      if (r.closedManual) { hasClosed = true; return; }
+      if (r.icalLinkId)   { hasBooking = true; return; }
+      if (r.paid)         { hasPaid = true; return; }
+      hasManual = true;
+    });
+    // Provjeri konflikte za ovaj dan
+    if (_activeConflicts && _activeConflicts.some(cf =>
+      ds >= cf.a.checkIn && ds < cf.a.checkOut ||
+      ds >= cf.b.checkIn && ds < cf.b.checkOut)) {
+      hasConflict = true;
+    }
+
+    const busy = dayRes.length;
+    let cls = 'v2-day';
+    if (!dayRes.length && !isPast) cls += '';
+    else if (busy >= 6) cls += ' busy-full';
+    else if (busy > 0) cls += ' busy-partial';
+    if (isToday) cls += ' today';
+    if (isPast)  cls += ' past';
+    if (hasConflict) cls += ' has-conflict';
+
+    let dots = '';
+    if (hasConflict) dots += '<div class="v2-dot conflict"></div>';
+    else {
+      if (hasBooking) dots += '<div class="v2-dot booking"></div>';
+      if (hasManual)  dots += '<div class="v2-dot manual"></div>';
+      if (hasPaid)    dots += '<div class="v2-dot paid"></div>';
+      if (hasClosed)  dots += '<div class="v2-dot closed"></div>';
+    }
+
+    html += `<div class="${cls}" onclick="v2TapDay('${ds}')">
+      <div class="v2-dn">${d}</div>
+      <div class="v2-dots">${dots}</div>
+    </div>`;
+  }
+  html += '</div>';
+
+  // Legenda
+  html += `<div style="padding:4px 10px 8px;display:flex;gap:8px;flex-wrap:wrap;font-size:.72em;color:#666">
+    <span style="display:flex;align-items:center;gap:3px"><span style="width:8px;height:8px;border-radius:50%;background:#667eea;display:inline-block"></span>Ručna</span>
+    <span style="display:flex;align-items:center;gap:3px"><span style="width:8px;height:8px;border-radius:50%;background:#003580;display:inline-block"></span>Booking</span>
+    <span style="display:flex;align-items:center;gap:3px"><span style="width:8px;height:8px;border-radius:50%;background:#28a745;display:inline-block"></span>Plaćeno</span>
+    <span style="display:flex;align-items:center;gap:3px"><span style="width:8px;height:8px;border-radius:50%;background:#555;display:inline-block"></span>Zatvoreno</span>
+    <span style="display:flex;align-items:center;gap:3px"><span style="width:8px;height:8px;border-radius:50%;background:#dc3545;display:inline-block"></span>Konflikt</span>
+  </div>`;
+
+  v2div.innerHTML = html;
+}
+
+// ── Tap na dan → otvori sheet ─────────────────────────────
+window.v2TapDay = (ds) => {
+  _v2SelectedDate = ds;
+  const overlay = document.getElementById('v2-day-overlay');
+  const dateEl  = document.getElementById('v2-sheet-date');
+  const bodyEl  = document.getElementById('v2-sheet-body');
+  if (!overlay || !dateEl || !bodyEl) return;
+
+  // Format datuma za header
+  const [y, m, d] = ds.split('-');
+  const MN = ['Jan','Feb','Mar','Apr','Maj','Jun','Jul','Avg','Sep','Okt','Nov','Dec'];
+  const DN = ['Ned','Pon','Uto','Sri','Čet','Pet','Sub'];
+  const dt = new Date(parseInt(y), parseInt(m)-1, parseInt(d));
+  dateEl.textContent = `${DN[dt.getDay()]}, ${d}-${MN[parseInt(m)-1]}-${y.slice(2)}`;
+
+  // Sve aktivne rezervacije za taj dan
+  const dayRes = reservations.filter(r => !r.cancelled && ds >= r.checkIn && ds < r.checkOut);
+  const occupiedBungs = new Set();
+  dayRes.forEach(r => r.bungalovi?.forEach(b => occupiedBungs.add(String(b.bungalov))));
+
+  let html = '';
+  // Svih 13 bungalova
+  for (let bn = 1; bn <= 13; bn++) {
+    const bStr = String(bn);
+    const res = dayRes.find(r => r.bungalovi?.some(b => String(b.bungalov) === bStr));
+    if (res) {
+      let badgeCls = 'v2-badge-manual';
+      let badgeTxt = 'Rezervisano';
+      if (res.closedManual) { badgeCls = 'v2-badge-closed'; badgeTxt = 'Zatvoreno'; }
+      else if (res.icalLinkId) { badgeCls = 'v2-badge-booking'; badgeTxt = 'Booking'; }
+      else if (res.paid) { badgeCls = 'v2-badge-paid'; badgeTxt = 'Plaćeno'; }
+      // Konflikt?
+      const inConflict = _activeConflicts?.some(cf =>
+        (cf.a.id === res.id || cf.b.id === res.id));
+      if (inConflict) { badgeCls = 'v2-badge-conflict'; badgeTxt = '⚠️ Konflikt'; }
+
+      const nights = Math.ceil((new Date(res.checkOut) - new Date(res.checkIn)) / 86400000);
+      html += `<div class="v2-bung-row" onclick="showDet('${res.id}');v2CloseSheet()">
+        <span class="v2-bung-num">B${bn}</span>
+        <div class="v2-bung-info">
+          <div class="v2-bung-name">${escHtml(res.name || '—')}</div>
+          <div class="v2-bung-dates">${fmtD(res.checkIn)} → ${fmtD(res.checkOut)} · ${nights}n</div>
+        </div>
+        <span class="v2-bung-badge ${badgeCls}">${badgeTxt}</span>
+      </div>`;
+    } else {
+      html += `<div class="v2-bung-row" style="opacity:.5;cursor:default">
+        <span class="v2-bung-num">B${bn}</span>
+        <div class="v2-bung-info"><div class="v2-bung-name" style="color:#aaa">Slobodan</div></div>
+        <span class="v2-bung-badge v2-badge-free">Slobodan</span>
+      </div>`;
+    }
+  }
+
+  bodyEl.innerHTML = html;
+  overlay.classList.add('open');
+};
+
+window.v2CloseSheet = (e) => {
+  if (!e || e.target === document.getElementById('v2-day-overlay')) {
+    document.getElementById('v2-day-overlay')?.classList.remove('open');
+  }
+};
+
+// Nova rezervacija iz V2 sheet — pre-popuni datum i otvori mob formu
+window.v2AddFromSheet = () => {
+  document.getElementById('v2-day-overlay')?.classList.remove('open');
+  if (_v2SelectedDate) {
+    // Otvori mob formu sa pre-popunjenim datumom
+    mobOpenQuickForm(null);
+    setTimeout(() => {
+      const ciEl = document.getElementById('mob-ci');
+      const coEl = document.getElementById('mob-co');
+      if (ciEl) ciEl.value = _v2SelectedDate;
+      // Check-out = sljedeći dan
+      const dt = new Date(_v2SelectedDate);
+      dt.setDate(dt.getDate() + 1);
+      if (coEl) coEl.value = lDate(dt);
+      mobUpdateNights();
+    }, 80);
+  }
+};
+
+// ══════════════════════════════════════════════════════════
+// MOB CALENDAR V3 — horizontalna traka dostupnosti
+// Svi bungalovi vidljivi, bijelo=slobodno, boja=zauzeto
+// Potpuno odvojen od V1 i V2 logike
+// ══════════════════════════════════════════════════════════
+
+let _v3Days = 14;          // trenutni zoom: 7, 14, 30, 0=cijeli
+let _v3SelBung = null;     // odabrani bungalov pri swipe
+let _v3SelStart = null;    // start datum selekcije
+let _v3SelEnd = null;      // end datum selekcije
+let _v3Touching = false;   // touch u toku
+
+// Renderuj V3 kalendar
+function renderMobCalV3() {
+  const v3div = document.getElementById('mob-cal-v3');
+  if (!v3div) return;
+
+  const now = new Date();
+  now.setHours(0,0,0,0);
+  const todayStr = lDate(now);
+
+  // Odredi opseg dana
+  const yr  = calMonth.getFullYear();
+  const mo  = calMonth.getMonth();
+  const dim = new Date(yr, mo + 1, 0).getDate();
+  const numDays = _v3Days === 0 ? dim : Math.min(_v3Days, dim);
+
+  // Početni datum: ako je calMonth trenutni — počni od danas, inače od 1.
+  let startDate;
+  if (yr === now.getFullYear() && mo === now.getMonth() && _v3Days !== 0) {
+    startDate = new Date(now);
+  } else {
+    startDate = new Date(yr, mo, 1);
+  }
+
+  const MNAMES_S = ['Jan','Feb','Mar','Apr','Maj','Jun','Jul','Avg','Sep','Okt','Nov','Dec'];
+  const DNAMES_S = ['N','P','U','S','Č','P','S'];
+
+  // Generiraj listu datuma
+  const dates = [];
+  for (let i = 0; i < numDays; i++) {
+    const d = new Date(startDate);
+    d.setDate(startDate.getDate() + i);
+    if (d.getMonth() !== mo) break;
+    dates.push(lDate(d));
+  }
+
+  const colCount = dates.length;
+  const cellW = _v3Days === 0 ? 16 : (_v3Days <= 7 ? 34 : _v3Days <= 14 ? 24 : 18);
+  const BUNGS = [1,2,3,4,5,6,7,8,9,10,11,12,13];
+  const activeRes = reservations.filter(r => !r.cancelled);
+
+  // Helper: tip rezervacije za bungalov na datum
+  function getCell(bn, ds) {
+    const r = activeRes.find(r2 =>
+      r2.bungalovi?.some(b => String(b.bungalov) === String(bn)) &&
+      ds >= r2.checkIn && ds < r2.checkOut
+    );
+    if (!r) return null;
+    if (r.closedManual) return { type: 'cl', res: r };
+    if (r.paid)        return { type: 'pd', res: r };
+    if (r.icalLinkId)  return { type: 'bk', res: r };
+    return { type: 'mn', res: r };
+  }
+
+  // Helper: CSS klasa sa start/end zaobljenjem
+  function cellCls(bn, ds, type) {
+    const prev = dates[dates.indexOf(ds) - 1];
+    const next = dates[dates.indexOf(ds) + 1];
+    const prevSame = prev ? getCell(bn, prev)?.res?.id === getCell(bn, ds)?.res?.id : false;
+    const nextSame = next ? getCell(bn, next)?.res?.id === getCell(bn, ds)?.res?.id : false;
+    let cls = `v3-c v${type}`;
+    if (!prevSame && !nextSame) cls += ' vse';
+    else if (!prevSame) cls += ' vs';
+    else if (!nextSame) cls += ' ve';
+    if (ds < todayStr) cls += ' vps';
+    if (ds === todayStr) cls += ' vtd';
+    if (_v3SelBung === bn && _v3SelStart && _v3SelEnd) {
+      const lo = _v3SelStart <= _v3SelEnd ? _v3SelStart : _v3SelEnd;
+      const hi = _v3SelStart <= _v3SelEnd ? _v3SelEnd : _v3SelStart;
+      if (ds >= lo && ds <= hi) cls += ' vsel';
+    }
+    return cls;
+  }
+
+  // Gradi HTML
+  const gridCols = `28px repeat(${colCount}, ${cellW}px)`;
+
+  let html = `
+    <div class="v3-topbar">
+      <button class="v3-nav" onclick="changeMonth(-1)">←</button>
+      <span class="v3-monthlbl">${MNAMES_S[mo]} ${yr}</span>
+      <button class="v3-nav" onclick="changeMonth(1)">→</button>
+    </div>
+    <div class="v3-zoom">
+      <div class="v3-zb${_v3Days===7?' on':''}" onclick="v3SetZoom(7)">7d</div>
+      <div class="v3-zb${_v3Days===14?' on':''}" onclick="v3SetZoom(14)">14d</div>
+      <div class="v3-zb${_v3Days===30?' on':''}" onclick="v3SetZoom(30)">30d</div>
+      <div class="v3-zb${_v3Days===0?' on':''}" onclick="v3SetZoom(0)">Cijeli</div>
+    </div>
+    <div class="v3-scroll" id="v3-scroll-area">
+      <div class="v3-grid" id="v3-inner-grid"
+        style="grid-template-columns:${gridCols}">
+
+        <div class="v3-lbl" style="font-size:.6em;color:#aaa;height:18px"></div>
+        ${dates.map(ds => {
+          const dt = new Date(ds+'T00:00:00');
+          const isToday = ds === todayStr;
+          return `<div class="v3-dh${isToday?' vt':''}">
+            <div style="font-size:.6em">${DNAMES_S[dt.getDay()]}</div>
+            <div class="vdn">${dt.getDate()}</div>
+          </div>`;
+        }).join('')}
+  `;
+
+  // Redovi bungalova
+  const groups = [[1,2,3,4,5],[6,7,8,9],[10,11,12,13]];
+  groups.forEach((grp, gi) => {
+    grp.forEach(bn => {
+      html += `<div class="v3-lbl" style="background:white">B${bn}</div>`;
+      dates.forEach(ds => {
+        const cell = getCell(bn, ds);
+        if (cell) {
+          const cls = cellCls(bn, ds, cell.type);
+          html += `<div class="${cls}"
+            onclick="v3TapCell('${bn}','${ds}','${cell.res.id}')"
+            ontouchstart="v3TouchStart('${bn}','${ds}',event)"
+            ontouchmove="v3TouchMove(event)"
+            ontouchend="v3TouchEnd('${bn}','${ds}',event)"></div>`;
+        } else {
+          let cls = 'v3-c vfr';
+          if (ds < todayStr) cls += ' vps';
+          if (ds === todayStr) cls += ' vtd';
+          if (_v3SelBung === bn && _v3SelStart && _v3SelEnd) {
+            const lo = _v3SelStart <= _v3SelEnd ? _v3SelStart : _v3SelEnd;
+            const hi = _v3SelStart <= _v3SelEnd ? _v3SelEnd : _v3SelStart;
+            if (ds >= lo && ds <= hi) cls += ' vsel';
+          }
+          html += `<div class="${cls}"
+            onclick="v3TapFree('${bn}','${ds}')"
+            ontouchstart="v3TouchStart('${bn}','${ds}',event)"
+            ontouchmove="v3TouchMove(event)"
+            ontouchend="v3TouchEnd('${bn}','${ds}',event)"></div>`;
+        }
+      });
+    });
+    if (gi < groups.length - 1) {
+      html += `<div class="v3-sep"></div>`;
+    }
+  });
+
+  html += `
+      </div>
+    </div>
+    <div class="v3-legend">
+      <div class="v3-li"><div class="v3-ls" style="background:white;border:0.5px solid #ccc"></div>Slobodan</div>
+      <div class="v3-li"><div class="v3-ls" style="background:#667eea"></div>Ručna</div>
+      <div class="v3-li"><div class="v3-ls" style="background:#003580"></div>Booking</div>
+      <div class="v3-li"><div class="v3-ls" style="background:#28a745"></div>Plaćeno</div>
+      <div class="v3-li"><div class="v3-ls" style="background:#888"></div>Zatvoreno</div>
+    </div>
+    <div class="v3-footer" id="v3-footer">
+      <div class="v3-foot-txt empty" id="v3-foot-txt">Tap slobodnu ćeliju za rezervaciju</div>
+      <button class="v3-foot-btn" id="v3-foot-btn" disabled onclick="v3Book()">Rezerviši</button>
+    </div>
+    <div class="v3-tip">Prevuci po slobodnim ćelijama da odabereš period</div>
+  `;
+
+  v3div.innerHTML = html;
+  v3UpdateFooter();
+}
+
+// Zoom
+window.v3SetZoom = (days) => {
+  _v3Days = days;
+  _v3SelBung = null; _v3SelStart = null; _v3SelEnd = null;
+  renderMobCalV3();
+};
+
+// Tap na slobodnu ćeliju
+window.v3TapFree = (bn, ds) => {
+  if (_v3Touching) return;
+  if (_v3SelBung === String(bn) && _v3SelStart) {
+    // Drugi tap — postavi end
+    _v3SelEnd = ds;
+    if (_v3SelEnd < _v3SelStart) {
+      const tmp = _v3SelStart; _v3SelStart = _v3SelEnd; _v3SelEnd = tmp;
+    }
+  } else {
+    // Prvi tap — postavi bungalov i start
+    _v3SelBung = String(bn);
+    _v3SelStart = ds;
+    _v3SelEnd = ds;
+  }
+  renderMobCalV3();
+  v3UpdateFooter();
+};
+
+// Tap na zauzetu ćeliju → otvori detalje
+window.v3TapCell = (bn, ds, resId) => {
+  if (_v3Touching) return;
+  _v3SelBung = null; _v3SelStart = null; _v3SelEnd = null;
+  showDet(resId);
+};
+
+// Touch start — za swipe selekciju
+window.v3TouchStart = (bn, ds, e) => {
+  _v3Touching = false;
+  _v3SelBung = String(bn);
+  _v3SelStart = ds;
+  _v3SelEnd = ds;
+};
+
+window.v3TouchMove = (e) => {
+  _v3Touching = true;
+  const touch = e.touches[0];
+  const el = document.elementFromPoint(touch.clientX, touch.clientY);
+  if (!el) return;
+  // Nađi datum iz onclick atributa
+  const onclick = el.getAttribute('onclick') || '';
+  const matchFree = onclick.match(/v3TapFree\('(\d+)','(\d{4}-\d{2}-\d{2})'\)/);
+  const matchCell = onclick.match(/v3TapCell\('(\d+)','(\d{4}-\d{2}-\d{2})'/);
+  const match = matchFree || matchCell;
+  if (match && String(match[1]) === String(_v3SelBung)) {
+    _v3SelEnd = match[2];
+    if (_v3SelEnd < _v3SelStart) {
+      // Ažuriraj samo selektirane ćelije vizuelno
+      const lo = _v3SelEnd, hi = _v3SelStart;
+      document.querySelectorAll('.v3-c').forEach(c => {
+        c.classList.remove('vsel');
+      });
+      // Re-render samo footer
+    }
+    v3UpdateFooter();
+    // Lagani re-render samo selekcije
+    v3HighlightSel();
+  }
+};
+
+window.v3TouchEnd = (bn, ds, e) => {
+  setTimeout(() => { _v3Touching = false; }, 100);
+  if (_v3SelStart && _v3SelEnd && _v3SelStart !== _v3SelEnd) {
+    if (_v3SelEnd < _v3SelStart) {
+      const tmp = _v3SelStart; _v3SelStart = _v3SelEnd; _v3SelEnd = tmp;
+    }
+    // Provjeri da u odabranom periodu nema zauzecih za ovaj bungalov
+    const activeRes = reservations.filter(r => !r.cancelled);
+    const conflict = activeRes.find(r =>
+      r.bungalovi?.some(b => String(b.bungalov) === String(_v3SelBung)) &&
+      _v3SelStart < r.checkOut && _v3SelEnd >= r.checkIn
+    );
+    if (conflict) {
+      // Skrati period do konflikta
+      const prevDay = new Date(conflict.checkIn);
+      prevDay.setDate(prevDay.getDate() - 1);
+      _v3SelEnd = lDate(prevDay);
+      if (_v3SelEnd < _v3SelStart) {
+        _v3SelBung = null; _v3SelStart = null; _v3SelEnd = null;
+      }
+    }
+    v3UpdateFooter();
+    v3HighlightSel();
+  }
+};
+
+// Highlight selekcija bez full re-render
+function v3HighlightSel() {
+  if (!_v3SelBung || !_v3SelStart || !_v3SelEnd) return;
+  const lo = _v3SelStart <= _v3SelEnd ? _v3SelStart : _v3SelEnd;
+  const hi = _v3SelStart <= _v3SelEnd ? _v3SelEnd : _v3SelStart;
+  // Selektuj ćelije u DOM-u prema onclick atributima
+  document.querySelectorAll('#v3-inner-grid .v3-c').forEach(el => {
+    const oc = el.getAttribute('onclick') || '';
+    const ot = el.getAttribute('ontouchstart') || '';
+    const src = oc || ot;
+    const m = src.match(/'(\d+)','(\d{4}-\d{2}-\d{2})'/);
+    if (m && String(m[1]) === String(_v3SelBung) && m[2] >= lo && m[2] <= hi) {
+      el.classList.add('vsel');
+    } else {
+      el.classList.remove('vsel');
+    }
+  });
+}
+
+// Ažuriraj footer sa informacijama o selekciji
+function v3UpdateFooter() {
+  const txtEl = document.getElementById('v3-foot-txt');
+  const btnEl = document.getElementById('v3-foot-btn');
+  if (!txtEl || !btnEl) return;
+
+  if (!_v3SelBung || !_v3SelStart) {
+    txtEl.textContent = 'Tap slobodnu ćeliju za rezervaciju';
+    txtEl.className = 'v3-foot-txt empty';
+    btnEl.disabled = true;
+    return;
+  }
+
+  const lo = (!_v3SelEnd || _v3SelStart <= _v3SelEnd) ? _v3SelStart : _v3SelEnd;
+  const hi = (!_v3SelEnd || _v3SelStart <= _v3SelEnd) ? (_v3SelEnd || _v3SelStart) : _v3SelStart;
+
+  // Checkout = dan nakon hi
+  const hiDate = new Date(hi + 'T00:00:00');
+  hiDate.setDate(hiDate.getDate() + 1);
+  const checkout = lDate(hiDate);
+
+  const numNights = Math.ceil((new Date(hi) - new Date(lo)) / 86400000) + 1;
+
+  // Izračunaj cijenu
+  const bNum = parseInt(_v3SelBung);
+  const activePrices = (window.pricePeriods || []).filter(p =>
+    (!p.dateFrom || lo >= p.dateFrom) && (!p.dateTo || checkout <= p.dateTo)
+  );
+  const priceResult = calcPrice(bNum, 2, 0, 0, numNights, activePrices);
+  const price = priceResult ? priceResult.subtotal || 0 : 0;
+
+  txtEl.innerHTML = `<strong>B${_v3SelBung}</strong> · ${fmtD(lo)}${lo !== hi ? ' → '+fmtD(hi) : ''} · ${numNights}n · ~${price.toFixed(0)}€`;
+  txtEl.className = 'v3-foot-txt';
+  btnEl.disabled = numNights < 1;
+}
+
+// Rezerviši iz V3
+window.v3Book = () => {
+  if (!_v3SelBung || !_v3SelStart) return;
+  const lo = (!_v3SelEnd || _v3SelStart <= _v3SelEnd) ? _v3SelStart : _v3SelEnd;
+  const hi = (!_v3SelEnd || _v3SelStart <= _v3SelEnd) ? (_v3SelEnd || _v3SelStart) : _v3SelStart;
+  const hiDate = new Date(hi + 'T00:00:00');
+  hiDate.setDate(hiDate.getDate() + 1);
+  const checkout = lDate(hiDate);
+
+  // Otvori mob formu sa pre-popunjenim podacima
+  mobOpenQuickForm(null);
+  setTimeout(() => {
+    const ciEl = document.getElementById('mob-ci');
+    const coEl = document.getElementById('mob-co');
+    if (ciEl) ciEl.value = lo;
+    if (coEl) coEl.value = checkout;
+    // Selektuj bungalov u gridu
+    const bungBtn = document.querySelector(`#mob-bung-grid [data-bung="${_v3SelBung}"]`);
+    if (bungBtn) {
+      bungBtn.classList.add('sel');
+      _mobSelBungs = [String(_v3SelBung)];
+    }
+    mobUpdateNights();
+  }, 80);
+  // Reset selekcije
+  _v3SelBung = null; _v3SelStart = null; _v3SelEnd = null;
 };
 
 // ── EXCEL IMPORT ───────────────────────────────────────────────
