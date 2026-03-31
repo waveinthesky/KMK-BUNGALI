@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Maja Karanfil Bungali v1.5.9</title>
+<title>Maja Karanfil Bungali v1.6.0</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh;padding:20px}
@@ -728,7 +728,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
       <img src="https://i.imgur.com/DzB2EDR.png" onerror="this.style.display='none'"
            alt="Logo" style="max-width:175px;margin:0 auto 10px;display:block;border-radius:10px">
       <h1>🏡 Maja Karanfil Bungali</h1>
-      <p>Prijavite se u sistem — v1.5.9</p>
+      <p>Prijavite se u sistem — v1.6.0</p>
     </div>
     <div class="login-err" id="login-err">Pogrešno korisničko ime ili lozinka!</div>
     <form class="login-form" id="login-form">
@@ -1180,6 +1180,26 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
       </div>
     </div>
     <div class="stat-cards" id="stat-cards"></div>
+    <!-- OSOBA-NOĆENJA SEKCIJA -->
+    <div id="st-person-nights-wrap" style="margin:18px 0 0">
+      <hr class="divider" style="margin-bottom:16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:12px">
+        <h3 style="margin:0;font-size:1em">🧮 Osoba-noćenja</h3>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <div style="display:flex;align-items:center;gap:6px;font-size:.85em">
+            <label style="color:#555;white-space:nowrap">Od:</label>
+            <input type="date" id="pn-from" style="padding:5px 8px;border:1px solid #ddd;border-radius:6px;font-size:.9em">
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;font-size:.85em">
+            <label style="color:#555;white-space:nowrap">Do:</label>
+            <input type="date" id="pn-to" style="padding:5px 8px;border:1px solid #ddd;border-radius:6px;font-size:.9em">
+          </div>
+          <button onclick="renderPersonNights()" class="btn btn-primary" style="padding:5px 12px;font-size:.82em">Izračunaj</button>
+        </div>
+      </div>
+      <div id="st-person-nights-cards" style="display:flex;gap:12px;flex-wrap:wrap"></div>
+    </div>
+
     <hr class="divider">
     <div class="stats-sub-btns">
       <button class="ssb active" onclick="switchStTab('guests',this)">👥 Struktura Gostiju</button>
@@ -1493,7 +1513,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <!-- Current version -->
       <div style="background:#e8f4fd;padding:14px;border-radius:8px;margin-bottom:20px;border-left:4px solid #667eea">
-        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v1.5.9</strong>
+        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v1.6.0</strong>
       </div>
 
       <!-- Changelog -->
@@ -1501,7 +1521,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <div class="changelog">
         <div class="ch-version">
-          <div class="ch-ver-header">v1.5.9 <span class="ch-date">— 30.03.2026</span></div>
+          <div class="ch-ver-header">v1.6.0 <span class="ch-date">— 30.03.2026</span></div>
           <ul>
             <li><strong>About premješten:</strong> Iz floating dugmeta u Podešavanja → ℹ️ About tab — pregledniji pristup</li>
             <li><strong>Excel Export:</strong> Novo dugme "📊 Export u Excel" — preuzmi SVE rezervacije kao čistu CSV/Excel tabelu sa kompletnim detaljima (ID, status, ime, telefon, zemlja, kanal, datumi, broj noći, bungalovi, kreveti, struktura gostiju, cijena, napomene)</li>
@@ -3488,6 +3508,104 @@ window.renderStats = function() {
   document.getElementById('st-countries-body').innerHTML=cRows
     ?`<table class="stbl"><thead><tr><th>Država</th><th>👥 Gostiju</th><th>🌙 Noćenja</th><th>📊 Udio</th></tr></thead><tbody>${cRows}</tbody></table>`
     :'<div class="no-data">Nema podataka. Unesite zemlju pri rezervaciji.</div>';
+
+  // Ažuriraj osoba-noćenja (init datumi pa izračunaj)
+  _initPersonNightsDates();
+  renderPersonNights();
+};
+
+
+// ══════════════════════════════════════════════════════════
+// OSOBA-NOĆENJA STATISTIKA
+// Potpuno izolovana od postojeće renderStats logike
+// ══════════════════════════════════════════════════════════
+
+function _initPersonNightsDates() {
+  const now = new Date();
+  const firstDay = lDate(new Date(now.getFullYear(), now.getMonth(), 1));
+  const today    = lDate(now);
+  const fromEl = document.getElementById('pn-from');
+  const toEl   = document.getElementById('pn-to');
+  if (fromEl && !fromEl.value) fromEl.value = firstDay;
+  if (toEl   && !toEl.value)   toEl.value   = today;
+}
+
+function calcPersonNights(from, to) {
+  // Validacija
+  if (!from || !to || from > to) return { total: 0, adults: 0, children: 0, babies: 0 };
+
+  const result = { total: 0, adults: 0, children: 0, babies: 0 };
+
+  reservations
+    .filter(r => !r.cancelled && !r.closedManual)
+    .forEach(r => {
+      if (!r.checkIn || !r.checkOut) return;
+
+      // Izračunaj overlap između rezervacije i odabranog perioda
+      // checkOut je dan odlaska (ne računa se kao noćenje)
+      const overlapStart = r.checkIn  > from ? r.checkIn  : from;
+      const overlapEnd   = r.checkOut < to   ? r.checkOut : to;
+
+      // Dodaj 1 dan na 'to' jer 'to' je zadnji dan koji uključujemo
+      // Npr. filter Do: 30 Apr → checkOut 30 Apr = 0 noći, ali checkOut 1 May = 1 noć u Aprilu
+      const toInclusive = new Date(to);
+      toInclusive.setDate(toInclusive.getDate() + 1);
+      const toInclusiveStr = lDate(toInclusive);
+
+      const oStart = r.checkIn  > from           ? r.checkIn  : from;
+      const oEnd   = r.checkOut < toInclusiveStr ? r.checkOut : toInclusiveStr;
+
+      if (oStart >= oEnd) return; // Nema overlapa
+
+      const nightsInRange = Math.ceil(
+        (new Date(oEnd) - new Date(oStart)) / 86400000
+      );
+      if (nightsInRange <= 0) return;
+
+      // Saberi po bungalovima (svaki bungalov ima svoje osobe)
+      (r.bungalovi || []).forEach(b => {
+        const ad = parseInt(b.adults   || 0);
+        const ch = parseInt(b.children || 0);
+        const bb = parseInt(b.babies   || 0);
+        result.adults   += ad * nightsInRange;
+        result.children += ch * nightsInRange;
+        result.babies   += bb * nightsInRange;
+        result.total    += (ad + ch + bb) * nightsInRange;
+      });
+    });
+
+  return result;
+}
+
+window.renderPersonNights = () => {
+  _initPersonNightsDates();
+  const from = document.getElementById('pn-from')?.value;
+  const to   = document.getElementById('pn-to')?.value;
+  const el   = document.getElementById('st-person-nights-cards');
+  if (!el) return;
+
+  if (!from || !to) {
+    el.innerHTML = '<div style="color:#888;font-size:.9em">Unesite period.</div>';
+    return;
+  }
+  if (from > to) {
+    el.innerHTML = '<div style="color:#dc3545;font-size:.9em">❌ Datum Od mora biti prije Do.</div>';
+    return;
+  }
+
+  const r = calcPersonNights(from, to);
+
+  const card = (val, lbl, color) =>
+    `<div class="stat-card" style="flex:1;min-width:120px;background:${color}">
+       <div class="sv">${val}</div>
+       <div class="sl">${lbl}</div>
+     </div>`;
+
+  el.innerHTML =
+    card(r.total,    'Ukupno osoba-noćenja',  'linear-gradient(135deg,#667eea,#764ba2)') +
+    card(r.adults,   '👨 Odrasli',            'linear-gradient(135deg,#20c997,#0d7a5f)') +
+    card(r.children, '🧒 Djeca',              'linear-gradient(135deg,#fd7e14,#c75500)') +
+    card(r.babies,   '👶 Bebe',               'linear-gradient(135deg,#6c757d,#495057)');
 };
 
 // ── HISTORY ──────────────────────────────────────────────────
