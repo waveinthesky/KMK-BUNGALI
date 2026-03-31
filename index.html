@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Maja Karanfil Bungali v1.4.2</title>
+<title>Maja Karanfil Bungali v1.5.0</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh;padding:20px}
@@ -227,6 +227,9 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 .sync{position:fixed;bottom:16px;right:16px;background:white;padding:9px 16px;border-radius:30px;box-shadow:0 4px 16px rgba(0,0,0,.18);display:flex;align-items:center;gap:7px;font-weight:600;font-size:.87em;z-index:100}
 .si{width:10px;height:10px;border-radius:50%;background:#28a745;animation:pulse 2s infinite}
 .si.sy{background:#ffc107}.si.er{background:#dc3545}
+.si.of{background:#6c757d}
+.offline-banner{display:none;position:fixed;top:0;left:0;right:0;z-index:9999;background:#dc3545;color:white;text-align:center;padding:8px 16px;font-size:.85em;font-weight:600;box-shadow:0 2px 8px rgba(0,0,0,.3)}
+.offline-banner.show{display:block}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 
 /* SETTINGS */
@@ -470,6 +473,34 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 @keyframes slideDown{from{transform:translateY(-100%)}to{transform:translateY(0)}}
 .conflict-banner.hidden{display:none!important}
 
+/* ── GUESTBOOK ───────────────────────────────────────────── */
+.gb-search-wrap{position:relative}
+.gb-suggestions{position:absolute;top:100%;left:0;right:0;background:white;
+  border:1px solid #ddd;border-radius:0 0 8px 8px;z-index:100;max-height:200px;
+  overflow-y:auto;box-shadow:0 4px 12px rgba(0,0,0,.15)}
+.gb-sug-item{padding:10px 14px;cursor:pointer;border-bottom:0.5px solid #f0f0f0;
+  transition:background .15s}
+.gb-sug-item:hover{background:#f0edff}
+.gb-sug-name{font-weight:600;font-size:.9em;color:#222}
+.gb-sug-meta{font-size:.78em;color:#888;margin-top:2px}
+.gb-history-card{background:#f8f9fa;border-radius:10px;padding:12px;margin-top:8px;
+  border-left:3px solid #667eea}
+.gb-history-row{display:flex;justify-content:space-between;align-items:center;
+  padding:6px 0;border-bottom:0.5px solid #eee;font-size:.85em}
+.gb-history-row:last-child{border-bottom:none}
+.gb-badge{padding:2px 8px;border-radius:10px;font-size:.75em;font-weight:600}
+.gb-badge.paid{background:#e6f4ea;color:#1a7a3a}
+.gb-badge.unpaid{background:#fff3cd;color:#856404}
+
+/* ── OCCUPANCY DASHBOARD ─────────────────────────────────── */
+.occ-card{background:white;border-radius:10px;padding:12px 16px;
+  border:1px solid #e8e8e8;flex:1;min-width:140px;text-align:center}
+.occ-card-num{font-size:1.6em;font-weight:700;color:#667eea;line-height:1.1}
+.occ-card-lbl{font-size:.78em;color:#888;margin-top:3px}
+.occ-card-sub{font-size:.82em;color:#555;margin-top:4px;font-weight:500}
+.occ-bar{height:6px;background:#e9ecef;border-radius:3px;margin-top:6px;overflow:hidden}
+.occ-bar-fill{height:100%;background:#667eea;border-radius:3px;transition:width .4s}
+
 /* ── MOB CALENDAR V3 — horizontalna traka dostupnosti ─────── */
 .v3-topbar{display:flex;justify-content:space-between;align-items:center;
   padding:6px 8px;border-bottom:0.5px solid #eee;gap:6px}
@@ -587,6 +618,15 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
   font-size:.9em;font-weight:600;cursor:pointer;width:calc(100% - 32px);
   -webkit-tap-highlight-color:transparent}
 
+
+/* UNDO DELETE TOAST */
+.undo-toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);
+  background:#333;color:white;padding:12px 20px;border-radius:10px;
+  display:flex;align-items:center;gap:12px;z-index:9999;
+  transition:transform .3s ease;font-size:.9em;box-shadow:0 4px 16px rgba(0,0,0,.3)}
+.undo-toast.show{transform:translateX(-50%) translateY(0)}
+.undo-toast button{background:#f0c040;color:#333;border:none;border-radius:6px;
+  padding:5px 12px;font-weight:700;cursor:pointer;font-size:.85em}
 /* SHARED BED */
 /* TOGGLE SWITCH */
 .kmk-toggle { position:relative;display:inline-block;width:46px;height:24px;flex-shrink:0 }
@@ -616,6 +656,17 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
   </script>
 </head>
 <body>
+<!-- Undo delete toast -->
+<div class="undo-toast" id="undo-toast">
+  <span id="undo-toast-txt">Rezervacija otkazana</span>
+  <button onclick="undoDelete()">↩ Poništi</button>
+</div>
+
+<!-- Offline banner — prikazuje se kad nema interneta -->
+<div class="offline-banner" id="offline-banner">
+  📵 Nema internetske veze — podaci se prikazuju iz keša, ali promjene neće biti sačuvane dok se veza ne vrati.
+</div>
+
 
 <!-- LOGIN -->
 <div class="login-wrap" id="login-screen">
@@ -624,7 +675,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
       <img src="https://i.imgur.com/DzB2EDR.png" onerror="this.style.display='none'"
            alt="Logo" style="max-width:175px;margin:0 auto 10px;display:block;border-radius:10px">
       <h1>🏡 Maja Karanfil Bungali</h1>
-      <p>Prijavite se u sistem — v1.4.2</p>
+      <p>Prijavite se u sistem — v1.5.0</p>
     </div>
     <div class="login-err" id="login-err">Pogrešno korisničko ime ili lozinka!</div>
     <form class="login-form" id="login-form">
@@ -829,7 +880,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
   <div class="hdr">
     <div class="hdr-l">
       <h1>🏡 Maja Karanfil Bungali</h1>
-      <p>Sistem za upravljanje rezervacijama — v1.4.2</p>
+      <p>Sistem za upravljanje rezervacijama — v1.5.0</p>
     </div>
     <div class="hdr-r">
       <div class="user-row">
@@ -872,6 +923,9 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
         <button class="btn no-print" onclick="printSimple()" style="padding:9px 18px;background:#28a745;color:white">🧹 Za Higijeničara</button>
       </div>
     </div>
+    <!-- Occupancy mini dashboard -->
+    <div id="occupancy-dash" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px"></div>
+
     <div class="ov-grid" id="daily-ov"></div>
 
     <!-- PRINT TEMPLATE (hidden, shown only on print) -->
@@ -925,6 +979,9 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
     <!-- V3 mobilni kalendar — horizontalna traka dostupnosti -->
     <div id="mob-cal-v3" style="display:none"></div>
+
+    <!-- Popunjenost bar -->
+    <div id="occ-bar"></div>
 
     <div class="cal-hdr">
       <h2>Kalendar Zauzetosti</h2>
@@ -1126,6 +1183,23 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
     <!-- USERS TAB -->
     <div id="set-users">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+        <!-- Export CSV backup -->
+        <div style="margin-bottom:20px;padding:14px;background:#f8f9fa;border-radius:10px;border:1px solid #e0e0e0">
+          <h3 style="margin:0 0 6px">📥 Export & Backup</h3>
+          <p style="font-size:.83em;color:#666;margin-bottom:10px">Izvezi sve rezervacije u CSV (Excel). Preporučuje se sedmično kao kopija van Firebase-a.</p>
+          <button class="btn btn-primary" onclick="exportToXLSX()">📊 Izvezi u Excel (.xlsx)</button>
+        <button class="btn btn-secondary" onclick="exportReservationsCSV()">📥 Izvezi (CSV)</button>
+        </div>
+
+        <h3>Upravljanje Gostima</h3>
+        <div style="margin-bottom:16px">
+          <button class="btn btn-secondary" onclick="showGuestBook()">👥 Pregled svih gostiju</button>
+        </div>
+        <div id="guestbook-panel" style="display:none;margin-bottom:20px">
+          <input type="text" id="guestbook-search" placeholder="Pretraži po imenu ili telefonu..."
+            oninput="filterGuestBook()" style="width:100%;margin-bottom:10px">
+          <div id="guestbook-list"></div>
+        </div>
         <h3>Upravljanje Korisnicima</h3>
         <button class="btn btn-primary" onclick="showAddUserForm()" style="padding:8px 16px">+ Novi Korisnik</button>
       </div>
@@ -1293,7 +1367,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <!-- Current version -->
       <div style="background:#e8f4fd;padding:14px;border-radius:8px;margin-bottom:20px;border-left:4px solid #667eea">
-        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v1.4.2</strong>
+        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v1.5.0</strong>
       </div>
 
       <!-- Changelog -->
@@ -1301,7 +1375,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <div class="changelog">
         <div class="ch-version">
-          <div class="ch-ver-header">v1.4.2 <span class="ch-date">— 29.03.2026</span></div>
+          <div class="ch-ver-header">v1.5.0 <span class="ch-date">— 30.03.2026</span></div>
           <ul>
             <li><strong>About premješten:</strong> Iz floating dugmeta u Podešavanja → ℹ️ About tab — pregledniji pristup</li>
             <li><strong>Excel Export:</strong> Novo dugme "📊 Export u Excel" — preuzmi SVE rezervacije kao čistu CSV/Excel tabelu sa kompletnim detaljima (ID, status, ime, telefon, zemlja, kanal, datumi, broj noći, bungalovi, kreveti, struktura gostiju, cijena, napomene)</li>
@@ -1503,7 +1577,12 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
   <div class="mc">
     <div class="mh"><h2>Razlog Otkazivanja</h2><button class="cm" onclick="closeDelModal()">×</button></div>
     <p style="margin-bottom:12px">Zašto otkazujete ovu rezervaciju?</p>
-    <div class="fg"><textarea id="del-reason" rows="4" placeholder="Unesite razlog..." style="width:100%"></textarea></div>
+    <div class="fg"><textarea id="del-reason" rows="3" placeholder="Unesite razlog..." style="width:100%"></textarea></div>
+    <div class="fg" style="margin-top:10px">
+      <label style="font-size:.85em;color:#dc3545;font-weight:600">Za potvrdu upišite ime gosta:</label>
+      <input type="text" id="del-confirm-name" placeholder="Ime gosta..." style="width:100%;margin-top:4px">
+      <div id="del-name-err" style="color:#dc3545;font-size:.8em;display:none;margin-top:4px">❌ Ime se ne poklapa</div>
+    </div>
     <div style="display:flex;gap:10px;margin-top:12px">
       <button class="btn btn-primary" onclick="confirmDel()">Potvrdi Otkazivanje</button>
       <button class="btn btn-secondary" onclick="closeDelModal()">Odustani</button>
@@ -1540,10 +1619,24 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
 import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, setDoc,
          onSnapshot, query, orderBy, getDocs
-} from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
+, initializeFirestore, persistentLocalCache, persistentMultipleTabManager } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
 
 const FB = { apiKey:"AIzaSyCvaBrbaeijdQeVg4vQ-8Lm_SSM0inN8MI", authDomain:"rezervacije-bungalova.firebaseapp.com", projectId:"rezervacije-bungalova", storageBucket:"rezervacije-bungalova.firebasestorage.app", messagingSenderId:"349345983685", appId:"1:349345983685:web:6c1588acd201f7aa0214ac" };
-const db = getFirestore(initializeApp(FB));
+const _fbApp = initializeApp(FB);
+// Offline persistence: Firestore kešira podatke u IndexedDB
+// Offline write-ovi se automatski sinhroniziraju čim internet vrati
+let db;
+try {
+  db = initializeFirestore(_fbApp, {
+    localCache: persistentLocalCache({
+      tabManager: persistentMultipleTabManager()
+    })
+  });
+} catch(e) {
+  // Fallback: ako browser ne podržava IndexedDB (npr. private mode)
+  console.warn('[Offline] IndexedDB nije dostupan, koristim in-memory Firestore:', e.message);
+  db = getFirestore(_fbApp);
+}
 
 // ── UČITAJ KORISNIKE ODMAH (potrebno za login) ───────────────
 // appUsers mora biti popunjen PRIJE prvog login pokušaja.
@@ -1570,7 +1663,8 @@ let period='today', pFrom=null, pTo=null;
 let bungCount=1, autoBackupTimer=null, lastLogin=null, notifs=[];
 let priceManual=false;
 let _initDone=false;                  // #01 guard
-let _resSub=null, _histSub=null;      // #01 Firestore unsubscribe handles
+let _resSub=null, _histSub=null, _notifSub=null; // #01 Firestore unsubscribe handles
+let _undoDeleteData=null, _undoDeleteTimer=null; // soft delete undo
 let _formSubmitting=false;            // #02 double-submit guard
 
 // NAPOMENA: Hardcodirani USERS dict je uklonjen (#04/#10).
@@ -1688,12 +1782,43 @@ document.getElementById('login-form').addEventListener('submit', async e => {
     }
   }
 
+  // Brute force zaštita — max 5 pokušaja, lockout 5 min
+  const _now = Date.now();
+  const _attKey = 'kmk_att_' + u;
+  let _att = JSON.parse(localStorage.getItem(_attKey) || '{"count":0,"lockedUntil":0}');
+  if (_att.lockedUntil > _now) {
+    const minLeft = Math.ceil((_att.lockedUntil - _now) / 60000);
+    document.getElementById('login-err').textContent = `⛔ Previše pokušaja. Pokušajte za ${minLeft} min.`;
+    document.getElementById('login-err').style.display = 'block';
+    return;
+  }
+
   const fu = appUsers[u];
   let matched = null;
   if (fu) {
     const ok = fu.nopass || await verifyPassword(p, fu.pw);
     if (ok) matched = { username: u, role: fu.role, displayName: fu.name };
   }
+
+  if (!matched) {
+    // Neuspješan pokušaj — inkrementiraj counter
+    _att.count = (_att.count || 0) + 1;
+    if (_att.count >= 5) {
+      _att.lockedUntil = _now + 5 * 60 * 1000;
+      _att.count = 0;
+      document.getElementById('login-err').textContent = '⛔ 5 neuspješnih pokušaja. Nalog je zaključan 5 minuta.';
+    } else {
+      document.getElementById('login-err').textContent = `❌ Pogrešni podaci. Preostalo pokušaja: ${5 - _att.count}`;
+    }
+    document.getElementById('login-err').style.display = 'block';
+    localStorage.setItem(_attKey, JSON.stringify(_att));
+    return;
+  }
+
+  // Uspješan login — resetuj counter
+  localStorage.removeItem(_attKey);
+  // Pokreni session timeout timer
+  if (typeof _resetSessionTimer === 'function') _resetSessionTimer();
 
   if (matched) {
     curUser = u; curRole = matched.role;
@@ -1744,8 +1869,9 @@ window.logout = () => {
   } catch(e) {}
   
   // Otkaži Firestore listenere (#01)
-  if (_resSub)  { _resSub();  _resSub=null; }
-  if (_histSub) { _histSub(); _histSub=null; }
+  if (_resSub)   { _resSub();   _resSub=null; }
+  if (_histSub)  { _histSub();  _histSub=null; }
+  if (_notifSub) { _notifSub(); _notifSub=null; }
   _initDone = false;
   _formSubmitting = false;
 
@@ -1794,8 +1920,23 @@ function init() {
   // Form listeneri — samo jednom, guard sprečava duplikate pri logout→login
   if (!_formListenersDone) {
     _formListenersDone = true;
-    document.getElementById('f-checkin').addEventListener('change', recalc);
-    document.getElementById('f-checkout').addEventListener('change', recalc);
+    const _ciInput = document.getElementById('f-checkin');
+    const _coInput = document.getElementById('f-checkout');
+    _ciInput.addEventListener('change', () => {
+      // Postavi min za checkout = checkin + 1 dan
+      if (_ciInput.value) {
+        const minCo = new Date(_ciInput.value + 'T00:00:00');
+        minCo.setDate(minCo.getDate() + 1);
+        const minCoStr = minCo.toISOString().slice(0,10);
+        _coInput.min = minCoStr;
+        // Ako je checkout prazan ili manji od novog min — postavi na min
+        if (!_coInput.value || _coInput.value <= _ciInput.value) {
+          _coInput.value = minCoStr;
+        }
+      }
+      recalc();
+    });
+    _coInput.addEventListener('change', recalc);
     document.getElementById('f-price').addEventListener('input', () => { priceManual=true; });
     const ciEl = document.getElementById('f-checkin');
     const coEl = document.getElementById('f-checkout');
@@ -1810,6 +1951,7 @@ function init() {
 
 function setupFirebase() {
   syncUI('sy','Povezivanje...');
+  _resetSessionTimer(); // Startaj session timeout timer
   _resSub = onSnapshot(query(collection(db,'reservations'),orderBy('createdAt','desc')), snap => {
     reservations = snap.docs.map(d=>({id:d.id,...d.data()}));
     syncUI('ok','Sinhronizovano ✓');
@@ -1828,10 +1970,11 @@ function setupFirebase() {
   _histSub = onSnapshot(query(collection(db,'history'),orderBy('timestamp','desc')), snap => {
     hist = snap.docs.map(d=>({id:d.id,...d.data()}));
     renderHist(); checkNotifs();
+    if (curRole === 'admin') checkIcalHealth();
   });
   // Worker edit notifikacije za admina
   if (curRole === 'admin') {
-    onSnapshot(
+    _notifSub = onSnapshot(
       query(collection(db,'notifications'), orderBy('timestamp','desc')),
       snap => {
         const unread = snap.docs.map(d=>({id:d.id,...d.data()})).filter(n=>!n.read);
@@ -1974,7 +2117,7 @@ window.validateG = function(item) {
 
 function calcPrice(bungNum, adults, children, babies, numNights, activePrices) {
   const cfg = B_CFG[parseInt(bungNum)];
-  if (!cfg) return { total: 0, lines: [] };
+  if (!cfg) return { total: 0, subtotal: 0, lines: [] };
 
   let basePrice = cfg.p, adultExtra = 15, childPrice = 10;
   if (activePrices?.length) {
@@ -2029,7 +2172,7 @@ function calcPrice(bungNum, adults, children, babies, numNights, activePrices) {
   }
 
   lines.push(`<span class="pb-total">&nbsp;&nbsp;Ukupno B${bungNum}: ${sub.toFixed(2)} €</span>`);
-  return { total: sub, lines };
+  return { total: sub, subtotal: sub, lines };
 }
 
 function getActivePrices(dateStr) {
@@ -2101,6 +2244,12 @@ function setupAC() {
 document.getElementById('res-form').addEventListener('submit', async e => {
   e.preventDefault();
   if (_formSubmitting) return;
+
+  // Offline provjera — Firebase ne može primiti podatke bez interneta
+  if (typeof isOffline === 'function' && isOffline()) {
+    alert('❌ Nema internetske veze.\n\nRezervacija ne može biti sačuvana dok se internet ne vrati.\n\nPodaci su prikazani iz keša — pokušajte ponovo čim se veza uspostavi.');
+    return;
+  }
 
   // ── VALIDACIJA (prije zaključavanja forme) ────────────────
   const bItems=[...document.querySelectorAll('.bung-item')];
@@ -2241,17 +2390,45 @@ window.resetForm = () => {
 };
 
 // ── DELETE ───────────────────────────────────────────────────
-window.delRes = id => { if (curRole !== 'admin') { alert('Samo administrator može otkazati rezervacije.'); return; } delId=id; document.getElementById('m-delete').classList.add('open'); };
+window.delRes = id => {
+  if (curRole !== 'admin') { alert('Samo administrator može otkazati rezervacije.'); return; }
+  delId = id;
+  // Reset potvrda polja
+  const cn = document.getElementById('del-confirm-name');
+  const er = document.getElementById('del-name-err');
+  const dr = document.getElementById('del-reason');
+  if (cn) cn.value = '';
+  if (er) er.style.display = 'none';
+  if (dr) dr.value = '';
+  document.getElementById('m-delete').classList.add('open');
+};
 window.closeDelModal = () => { document.getElementById('m-delete').classList.remove('open'); document.getElementById('del-reason').value=''; delId=null; };
 window.confirmDel = async () => {
   const r=document.getElementById('del-reason').value.trim();
   if (!r) { alert('Unesite razlog!'); return; }
+
+  // Provjera imena gosta — sigurnosna potvrda
+  const res = reservations.find(x=>x.id===delId);
+  const confirmNameEl = document.getElementById('del-confirm-name');
+  const errEl = document.getElementById('del-name-err');
+  if (confirmNameEl && res) {
+    const typed = (confirmNameEl.value || '').trim().toLowerCase();
+    const actual = (res.name || '').trim().toLowerCase();
+    if (!typed || !actual.includes(typed) && !typed.includes(actual.split(' ')[0].toLowerCase())) {
+      if (errEl) errEl.style.display = 'block';
+      confirmNameEl.focus();
+      return;
+    }
+    if (errEl) errEl.style.display = 'none';
+  }
   syncUI('sy','Otkazujem...');
   try {
     const res=reservations.find(x=>x.id===delId);
     await updateDoc(doc(db,'reservations',delId),{cancelled:true});
-    // V4: čuvaj snapshot sa cancelled:true da historija bude konzistentna
     await logH('deleted',{...res,cancelled:true},null,r);
+    // Soft delete — sačuvaj za undo
+    _undoDeleteData = {...res, id: delId};
+    _showUndoToast(res?.name);
     closeDelModal();
     syncUI('ok','Sinhronizovano ✓');
   } catch(err) { console.error(err); alert('Greška: '+err.message); syncUI('er','Greška'); }
@@ -2294,6 +2471,7 @@ async function logH(action,res,old=null,reason=null) {
 
 // ── CALENDAR ────────────────────────────────────────────────
 window.renderCal = function() {
+  renderOccupancyBar();
   const yr=calMonth.getFullYear(), mo=calMonth.getMonth();
   const now=new Date(); now.setHours(0,0,0,0);
   const MNAMES=['Januar','Februar','Mart','April','Maj','Jun','Jul','Avgust','Septembar','Oktobar','Novembar','Decembar'];
@@ -2539,7 +2717,92 @@ function _setupCalDrag() {
 }
 
 // ── DAILY OVERVIEW ──────────────────────────────────────────
+
+// ── OCCUPANCY DASHBOARD ────────────────────────────────────
+function renderOccupancyDash() {
+  const el = document.getElementById('occupancy-dash');
+  if (!el) return;
+
+  const today = lDate(new Date());
+  const TOTAL_BUNGS = 13;
+  const active = reservations.filter(r => !r.cancelled);
+
+  // Danas zauzeto
+  const todayOcc = new Set();
+  active.forEach(r => {
+    if (today >= r.checkIn && today < r.checkOut) {
+      (r.bungalovi||[]).forEach(b => todayOcc.add(String(b.bungalov)));
+    }
+  });
+
+  // Sljedecih 7 dana
+  const next7 = [];
+  for (let i=1; i<=7; i++) {
+    const d = new Date(); d.setDate(d.getDate()+i);
+    const ds = lDate(d);
+    const occ = new Set();
+    active.forEach(r => {
+      if (ds >= r.checkIn && ds < r.checkOut)
+        (r.bungalovi||[]).forEach(b => occ.add(String(b.bungalov)));
+    });
+    next7.push(occ.size);
+  }
+  const avg7 = next7.reduce((s,x)=>s+x,0) / 7;
+
+  // Ovaj mjesec
+  const now = new Date();
+  const mo = now.getMonth(), yr = now.getFullYear();
+  const dim = new Date(yr, mo+1, 0).getDate();
+  let moOccDays = 0;
+  for (let d=1; d<=dim; d++) {
+    const ds = `${yr}-${String(mo+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const occ = new Set();
+    active.forEach(r => {
+      if (ds >= r.checkIn && ds < r.checkOut)
+        (r.bungalovi||[]).forEach(b => occ.add(String(b.bungalov)));
+    });
+    moOccDays += occ.size;
+  }
+  const moPct = Math.round(moOccDays / (TOTAL_BUNGS * dim) * 100);
+
+  // Prihodi ovaj mjesec
+  const moIncome = active
+    .filter(r => r.checkIn && r.checkIn.startsWith(`${yr}-${String(mo+1).padStart(2,'0')}`))
+    .reduce((s,r) => s+(r.price||0), 0);
+
+  const todayPct = Math.round(todayOcc.size / TOTAL_BUNGS * 100);
+  const avg7Pct = Math.round(avg7 / TOTAL_BUNGS * 100);
+
+  const MNAMES_S = ['Jan','Feb','Mar','Apr','Maj','Jun','Jul','Avg','Sep','Okt','Nov','Dec'];
+
+  el.innerHTML = `
+    <div class="occ-card">
+      <div class="occ-card-num">${todayOcc.size}/${TOTAL_BUNGS}</div>
+      <div class="occ-card-lbl">Danas zauzeto</div>
+      <div class="occ-bar"><div class="occ-bar-fill" style="width:${todayPct}%"></div></div>
+      <div class="occ-card-sub">${todayPct}% popunjenost</div>
+    </div>
+    <div class="occ-card">
+      <div class="occ-card-num">${avg7.toFixed(1)}</div>
+      <div class="occ-card-lbl">Prosjek/dan (7d)</div>
+      <div class="occ-bar"><div class="occ-bar-fill" style="width:${avg7Pct}%"></div></div>
+      <div class="occ-card-sub">${avg7Pct}% u narednih 7 dana</div>
+    </div>
+    <div class="occ-card">
+      <div class="occ-card-num">${moPct}%</div>
+      <div class="occ-card-lbl">Popunjenost ${MNAMES_S[mo]}</div>
+      <div class="occ-bar"><div class="occ-bar-fill" style="width:${moPct}%"></div></div>
+      <div class="occ-card-sub">${moOccDays} bungalov-dana</div>
+    </div>
+    <div class="occ-card">
+      <div class="occ-card-num">${moIncome.toFixed(0)}€</div>
+      <div class="occ-card-lbl">Prihod ${MNAMES_S[mo]}</div>
+      <div class="occ-card-sub">${active.filter(r=>r.checkIn?.startsWith(`${yr}-${String(mo+1).padStart(2,'0')}`)).length} rezervacija</div>
+    </div>`;
+}
+
 window.renderDaily = function() {
+  renderOccupancyDash();
   const now=new Date();
   const ts=lDate(now);
   document.getElementById('daily-date').textContent=fmtD(ts);
@@ -3148,7 +3411,10 @@ window.goTab=(name,btn)=>{
   btn?.classList.add('active');
   if(name==='daily')    renderDaily();
   if(name==='calendar') renderCal();
-  if(name==='add')      { if(!editId && !_calDragFill) resetForm(); } // Auto-reset samo ako nije edit mode ili drag fill
+  if(name==='add')      {
+    if(!editId && !_calDragFill) resetForm();
+    setTimeout(_setupGuestAutocomplete, 100); // Setup autocomplete pri otvaranju
+  } // Auto-reset samo ako nije edit mode ili drag fill
   if(name==='list')     renderResList();
   if(name==='stats')    renderStats();
   if(name==='history')  renderHist();
@@ -3378,11 +3644,10 @@ function mobCalcPrice() {
   const children = parseInt(document.getElementById('mob-children')?.value) || 0;
   const babies   = parseInt(document.getElementById('mob-babies')?.value)   || 0;
 
-  // Koristi istu calcPrice funkciju kao desktop (sa cjenovnicima i turističkom taksom)
-  const activePrices = (window.pricePeriods || []).filter(p => {
-    const now = new Date().toISOString().slice(0,10);
-    return (!p.dateFrom || ci >= p.dateFrom) && (!p.dateTo || co <= p.dateTo);
-  });
+  // Koristi isti getActivePrices() kao desktop — po checkIn datumu
+  const activePrices = (typeof getActivePrices === 'function')
+    ? getActivePrices(ci)
+    : (window.pricePeriods || []).filter(p => ci >= p.dateFrom && ci <= p.dateTo);
 
   let grandTotal = 0;
   let priceLines = [];
@@ -3439,8 +3704,30 @@ function mobUpdateNights() {
 
 // Postavi listenere
 document.addEventListener('DOMContentLoaded', () => {
-  ['mob-ci','mob-co'].forEach(id => document.getElementById(id)?.addEventListener('change', mobUpdateNights));
-  ['mob-adults','mob-children','mob-babies'].forEach(id => document.getElementById(id)?.addEventListener('input', mobUpdateNights));
+  const mobCiEl = document.getElementById('mob-ci');
+  const mobCoEl = document.getElementById('mob-co');
+
+  // CI change: postavi min na CO i pomjeri CO ako treba
+  mobCiEl?.addEventListener('change', () => {
+    if (mobCiEl.value) {
+      const minCo = new Date(mobCiEl.value + 'T00:00:00');
+      minCo.setDate(minCo.getDate() + 1);
+      const minCoStr = minCo.toISOString().slice(0,10);
+      if (mobCoEl) {
+        mobCoEl.min = minCoStr;
+        // Ako CO prazno ili nije poslije CI — postavi na sutra
+        if (!mobCoEl.value || mobCoEl.value <= mobCiEl.value) {
+          mobCoEl.value = minCoStr;
+        }
+      }
+    }
+    mobUpdateNights();
+  });
+
+  mobCoEl?.addEventListener('change', mobUpdateNights);
+  ['mob-adults','mob-children','mob-babies'].forEach(id =>
+    document.getElementById(id)?.addEventListener('input', mobUpdateNights)
+  );
 });
 
 function mobShowStep(step) {
@@ -3484,6 +3771,12 @@ window.mobSaveReservation = async () => {
   if (!name) { alert('Unesite ime!'); mobShowStep(1); return; }
   if (!ci || !co) { alert('Unesite datume!'); mobShowStep(2); return; }
   if (!_mobSelBungs.length) { alert('Odaberite barem jedan bungalov!'); return; }
+
+  // Offline provjera
+  if (typeof isOffline === 'function' && isOffline()) {
+    alert('❌ Nema internetske veze.\n\nRezervacija ne može biti sačuvana dok se internet ne vrati.');
+    return;
+  }
   
   // Provjeri preklapanja
   let hasOverlap = false;
@@ -3509,9 +3802,9 @@ window.mobSaveReservation = async () => {
     const babies2   = parseInt(document.getElementById('mob-babies')?.value)   || 0;
     // Izracunaj cijenu koristeci pravi engine
     const nights2 = Math.ceil((new Date(co) - new Date(ci)) / 86400000);
-    const activePrices2 = (window.pricePeriods || []).filter(p =>
-      (!p.dateFrom || ci >= p.dateFrom) && (!p.dateTo || co <= p.dateTo)
-    );
+    const activePrices2 = (typeof getActivePrices === 'function')
+      ? getActivePrices(ci)
+      : (window.pricePeriods || []).filter(p => ci >= p.dateFrom && ci <= p.dateTo);
     let totalPrice = 0;
     _mobSelBungs.forEach(b => {
       const r = calcPrice(parseInt(b), adults2, children2, babies2, nights2, activePrices2);
@@ -4465,9 +4758,7 @@ function v3UpdateFooter() {
 
   // Izračunaj cijenu
   const bNum = parseInt(_v3SelBung);
-  const activePrices = (window.pricePeriods || []).filter(p =>
-    (!p.dateFrom || lo >= p.dateFrom) && (!p.dateTo || checkout <= p.dateTo)
-  );
+  const activePrices = (typeof getActivePrices === 'function') ? getActivePrices(lo) : (window.pricePeriods || []).filter(p => lo >= p.dateFrom && lo <= p.dateTo);
   const priceResult = calcPrice(bNum, 2, 0, 0, numNights, activePrices);
   const price = priceResult ? priceResult.subtotal || 0 : 0;
 
@@ -4503,6 +4794,404 @@ window.v3Book = () => {
   // Reset selekcije
   _v3SelBung = null; _v3SelStart = null; _v3SelEnd = null;
 };
+
+// ══════════════════════════════════════════════════════════
+// GUEST MANAGEMENT — autocomplete + historija gosta
+// ══════════════════════════════════════════════════════════
+
+// Vrati sve jedinstvene goste iz rezervacija
+function getGuestList() {
+  const map = {};
+  reservations.forEach(r => {
+    if (!r.name) return;
+    const key = r.name.trim().toLowerCase();
+    if (!map[key]) {
+      map[key] = {
+        name: r.name.trim(),
+        phone: r.phone || '',
+        country: r.country || '',
+        visits: 0,
+        totalSpent: 0,
+        lastVisit: ''
+      };
+    }
+    const g = map[key];
+    g.visits++;
+    g.totalSpent += (r.price || 0);
+    if (!r.cancelled && r.checkIn > g.lastVisit) g.lastVisit = r.checkIn;
+  });
+  return Object.values(map).sort((a,b) => b.visits - a.visits);
+}
+
+// Historija rezervacija konkretnog gosta
+function getGuestHistory(name) {
+  const key = name.trim().toLowerCase();
+  return reservations
+    .filter(r => r.name && r.name.trim().toLowerCase() === key)
+    .sort((a,b) => b.checkIn.localeCompare(a.checkIn));
+}
+
+// Autocomplete na desktop f-name polju
+function _setupGuestAutocomplete() {
+  const nameEl = document.getElementById('f-name');
+  if (!nameEl || nameEl._gbSetup) return;
+  nameEl._gbSetup = true;
+
+  // Kreiraj suggestion kontejner
+  const wrap = nameEl.parentElement;
+  wrap.style.position = 'relative';
+  const sug = document.createElement('div');
+  sug.className = 'gb-suggestions';
+  sug.style.display = 'none';
+  wrap.appendChild(sug);
+
+  nameEl.addEventListener('input', () => {
+    const val = nameEl.value.trim().toLowerCase();
+    if (val.length < 2) { sug.style.display = 'none'; return; }
+    const matches = getGuestList().filter(g =>
+      g.name.toLowerCase().includes(val) ||
+      (g.phone && g.phone.includes(val))
+    ).slice(0, 6);
+    if (!matches.length) { sug.style.display = 'none'; return; }
+    sug.innerHTML = matches.map(g => `
+      <div class="gb-sug-item" data-name="${escHtml(g.name)}"
+        data-phone="${escHtml(g.phone)}" data-country="${escHtml(g.country)}">
+        <div class="gb-sug-name">${escHtml(g.name)}</div>
+        <div class="gb-sug-meta">
+          ${g.phone ? '📞 '+escHtml(g.phone)+' · ' : ''}
+          ${g.visits} posjeta · ukupno ${g.totalSpent.toFixed(0)}€
+          ${g.lastVisit ? ' · zadnji: '+fmtD(g.lastVisit) : ''}
+        </div>
+      </div>`).join('');
+    sug.style.display = 'block';
+    sug.querySelectorAll('.gb-sug-item').forEach(el => {
+      el.addEventListener('mousedown', e => {
+        e.preventDefault();
+        nameEl.value = el.dataset.name;
+        const phoneEl = document.getElementById('f-phone');
+        const countryEl = document.getElementById('f-country');
+        if (phoneEl && el.dataset.phone) phoneEl.value = el.dataset.phone;
+        if (countryEl && el.dataset.country) countryEl.value = el.dataset.country;
+        sug.style.display = 'none';
+        _showGuestHistory(el.dataset.name);
+      });
+    });
+  });
+
+  nameEl.addEventListener('blur', () => {
+    setTimeout(() => { sug.style.display = 'none'; }, 200);
+  });
+
+  nameEl.addEventListener('focus', () => {
+    if (nameEl.value.trim().length >= 2) nameEl.dispatchEvent(new Event('input'));
+  });
+}
+
+// Prikaži historiju gosta ispod forme
+function _showGuestHistory(name) {
+  const hist = getGuestHistory(name);
+  let histEl = document.getElementById('guest-history-panel');
+  if (!histEl) {
+    histEl = document.createElement('div');
+    histEl.id = 'guest-history-panel';
+    const fName = document.getElementById('fg-name');
+    if (fName) fName.parentElement.insertBefore(histEl, fName.nextSibling);
+  }
+  if (!hist.length) { histEl.innerHTML = ''; return; }
+  const total = hist.reduce((s,r) => s+(r.price||0), 0);
+  histEl.innerHTML = `
+    <div class="gb-history-card">
+      <div style="font-weight:700;font-size:.9em;margin-bottom:6px;color:#667eea">
+        👤 ${escHtml(name)} — ${hist.length} posjeta · ukupno ${total.toFixed(0)}€
+      </div>
+      ${hist.slice(0,5).map(r => `
+        <div class="gb-history-row">
+          <span>${fmtD(r.checkIn)} → ${fmtD(r.checkOut)}</span>
+          <span style="color:#555">${(r.bungalovi||[]).map(b=>'B'+b.bungalov).join(', ')}</span>
+          <span>${(r.price||0).toFixed(0)}€</span>
+          <span class="gb-badge ${r.paid?'paid':'unpaid'}">${r.paid?'Plaćeno':'Nije plaćeno'}</span>
+        </div>`).join('')}
+      ${hist.length > 5 ? `<div style="font-size:.78em;color:#aaa;margin-top:4px">+ još ${hist.length-5} starijih</div>` : ''}
+    </div>`;
+}
+
+// Pokretanje autocomplete-a čim je forma dostupna
+document.addEventListener('DOMContentLoaded', () => {
+  // Setup odmah pa i pri tab promjenama
+  setTimeout(_setupGuestAutocomplete, 500);
+});
+
+
+window.showGuestBook = () => {
+  const panel = document.getElementById('guestbook-panel');
+  if (!panel) return;
+  panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+  if (panel.style.display === 'block') filterGuestBook();
+};
+
+window.filterGuestBook = () => {
+  const search = (document.getElementById('guestbook-search')?.value || '').toLowerCase();
+  const listEl = document.getElementById('guestbook-list');
+  if (!listEl) return;
+  const guests = getGuestList().filter(g =>
+    !search || g.name.toLowerCase().includes(search) ||
+    (g.phone && g.phone.includes(search))
+  );
+  if (!guests.length) { listEl.innerHTML = '<p style="color:#aaa;text-align:center">Nema gostiju</p>'; return; }
+  listEl.innerHTML = guests.map(g => `
+    <div class="gb-history-card" style="cursor:pointer;margin-bottom:8px"
+      onclick="goTab('add');setTimeout(()=>{const el=document.getElementById('f-name');if(el){el.value='${escHtml(g.name).replace(/'/g,"\'")}';_showGuestHistory('${escHtml(g.name).replace(/'/g,"\'")}');}},200)">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div style="font-weight:700;font-size:.9em">${escHtml(g.name)}</div>
+          <div style="font-size:.78em;color:#888">
+            ${g.phone ? '📞 '+escHtml(g.phone) : ''} 
+            ${g.country ? '· 🌍 '+escHtml(g.country) : ''}
+          </div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-weight:600;color:#667eea">${g.visits} posjeta</div>
+          <div style="font-size:.82em;color:#555">${g.totalSpent.toFixed(0)}€ ukupno</div>
+          <div style="font-size:.75em;color:#aaa">${g.lastVisit ? 'Zadnji: '+fmtD(g.lastVisit) : ''}</div>
+        </div>
+      </div>
+    </div>`).join('');
+};
+
+// ══════════════════════════════════════════════════════════
+// OFFLINE / ONLINE DETECTION
+// ══════════════════════════════════════════════════════════
+let _isOffline = !navigator.onLine;
+
+function _updateOfflineUI() {
+  const banner = document.getElementById('offline-banner');
+  const syncEl = document.getElementById('sync-ind');
+  const syncTxt = document.getElementById('sync-txt');
+  if (_isOffline) {
+    if (banner) banner.classList.add('show');
+    if (syncEl) { syncEl.className = 'si of'; }
+    if (syncTxt) syncTxt.textContent = '📵 Offline';
+  } else {
+    if (banner) banner.classList.remove('show');
+    // Online stanje će syncUI preuzeti čim Firebase odgovori
+  }
+}
+
+window.addEventListener('offline', () => {
+  _isOffline = true;
+  _updateOfflineUI();
+  console.log('[Offline] Internet veza izgubljena');
+});
+
+window.addEventListener('online', () => {
+  _isOffline = false;
+  _updateOfflineUI();
+  syncUI('sy', 'Reconnecting...');
+  console.log('[Online] Internet veza vraćena — Firebase će automatski sinhronizirati');
+});
+
+// Provjeri stanje pri startu
+if (_isOffline) _updateOfflineUI();
+
+// Izloži globalnu provjeru za save akcije
+window.isOffline = () => _isOffline;
+
+// ══════════════════════════════════════════════════════════
+// SESSION TIMEOUT — auto logout nakon neaktivnosti
+// ══════════════════════════════════════════════════════════
+const SESSION_TIMEOUT_MS = 2 * 60 * 60 * 1000; // 2 sata
+const SESSION_WARNING_MS = 5 * 60 * 1000;       // upozorenje 5 min prije
+let _sessionTimer = null;
+let _sessionWarnTimer = null;
+
+function _resetSessionTimer() {
+  clearTimeout(_sessionTimer);
+  clearTimeout(_sessionWarnTimer);
+  if (!curUser) return; // Samo za prijavljene korisnike
+
+  _sessionWarnTimer = setTimeout(() => {
+    if (curUser) {
+      syncUI('sy', '⚠️ Sesija ističe za 5 min');
+    }
+  }, SESSION_TIMEOUT_MS - SESSION_WARNING_MS);
+
+  _sessionTimer = setTimeout(() => {
+    if (curUser) {
+      alert('⏱️ Sesija je istekla zbog neaktivnosti.\nBit ćete odjavljeni.');
+      logout();
+    }
+  }, SESSION_TIMEOUT_MS);
+}
+
+// Resetuj timer na svaku korisničku akciju
+['click','keydown','touchstart','mousemove'].forEach(ev => {
+  document.addEventListener(ev, _resetSessionTimer, { passive: true });
+});
+
+// ══════════════════════════════════════════════════════════
+// SOFT DELETE — UNDO OPCIJA (30 sekundi)
+// ══════════════════════════════════════════════════════════
+window.undoDelete = async () => {
+  if (!_undoDeleteData) return;
+  clearTimeout(_undoDeleteTimer);
+  document.getElementById('undo-toast').classList.remove('show');
+  try {
+    syncUI('sy', 'Poništavam...');
+    await updateDoc(doc(db,'reservations',_undoDeleteData.id), { cancelled: false });
+    await logH('restored', _undoDeleteData, null, 'Undo delete');
+    syncUI('ok', 'Sinhronizovano ✓');
+  } catch(e) {
+    alert('Greška pri poništavanju: ' + e.message);
+  }
+  _undoDeleteData = null;
+};
+
+function _showUndoToast(resName) {
+  const toast = document.getElementById('undo-toast');
+  const txt = document.getElementById('undo-toast-txt');
+  if (!toast) return;
+  if (txt) txt.textContent = '🗑️ "' + (resName||'Rezervacija') + '" otkazana';
+  toast.classList.add('show');
+  clearTimeout(_undoDeleteTimer);
+  _undoDeleteTimer = setTimeout(() => {
+    toast.classList.remove('show');
+    _undoDeleteData = null;
+  }, 30000);
+}
+
+// ══════════════════════════════════════════════════════════
+// LOKALNI EXPORT — backup van Firebase (Excel/CSV)
+// ══════════════════════════════════════════════════════════
+window.exportReservationsCSV = () => {
+  if (!reservations.length) { alert('Nema rezervacija za export.'); return; }
+
+  const headers = ['ID','Ime','Telefon','Drzava','CheckIn','CheckOut','Noci',
+    'Bungalovi','Odrasli','Djeca','Bebe','Cijena','Kanal','Potvrdjeno',
+    'Placeno','Otkazano','Zatvoreno','Napomene','Kreirao','KreiraoKad'];
+
+  const rows = reservations.map(r => {
+    const bungs = (r.bungalovi||[]).map(b=>b.bungalov).join('+');
+    const adults = (r.bungalovi||[]).reduce((s,b)=>s+(b.adults||0),0);
+    const children = (r.bungalovi||[]).reduce((s,b)=>s+(b.children||0),0);
+    const babies = (r.bungalovi||[]).reduce((s,b)=>s+(b.babies||0),0);
+    const nights = r.checkIn&&r.checkOut
+      ? Math.ceil((new Date(r.checkOut)-new Date(r.checkIn))/86400000) : '';
+    const escCsv = v => {
+      const s = String(v||'').replace(/"/g,'""');
+      return s.includes(',') || s.includes('"') || s.includes('\n') ? `"${s}"` : s;
+    };
+    return [
+      r.id, r.name, r.phone, r.country, r.checkIn, r.checkOut, nights,
+      bungs, adults, children, babies, r.price, r.channel,
+      r.confirmed?'DA':'NE', r.paid?'DA':'NE',
+      r.cancelled?'DA':'NE', r.closedManual?'DA':'NE',
+      r.notes, r.createdBy, r.createdAt
+    ].map(escCsv).join(',');
+  });
+
+  const csvContent = [headers.join(','), ...rows].join('\n');
+  const bom = '﻿'; // BOM za Excel UTF-8
+  const blob = new Blob([bom + csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const today = new Date().toISOString().slice(0,10);
+  a.href = url;
+  a.download = `kmk-rezervacije-${today}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  console.log(`Export: ${reservations.length} rezervacija sačuvano`);
+};
+
+// ══════════════════════════════════════════════════════════
+// POPUNJENOST DASHBOARD — mini stats iznad kalendara
+// ══════════════════════════════════════════════════════════
+function renderOccupancyBar() {
+  const el = document.getElementById('occ-bar');
+  if (!el) return;
+  const now = new Date(); now.setHours(0,0,0,0);
+  const todayStr = lDate(now);
+
+  // Sljedećih 7 dana
+  let occ7 = 0, total7 = 0;
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(now); d.setDate(d.getDate() + i);
+    const ds = lDate(d);
+    for (let bn = 1; bn <= 13; bn++) {
+      total7++;
+      const taken = reservations.some(r =>
+        !r.cancelled && ds >= r.checkIn && ds < r.checkOut &&
+        r.bungalovi?.some(b => b.bungalov == bn)
+      );
+      if (taken) occ7++;
+    }
+  }
+
+  // Tekući mjesec
+  const yr = now.getFullYear(), mo = now.getMonth();
+  const dim = new Date(yr, mo+1, 0).getDate();
+  let occMo = 0, totalMo = 0;
+  for (let d = 1; d <= dim; d++) {
+    const ds = `${yr}-${String(mo+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    for (let bn = 1; bn <= 13; bn++) {
+      totalMo++;
+      const taken = reservations.some(r =>
+        !r.cancelled && ds >= r.checkIn && ds < r.checkOut &&
+        r.bungalovi?.some(b => b.bungalov == bn)
+      );
+      if (taken) occMo++;
+    }
+  }
+
+  // Slobodni danas
+  const freeToday = [];
+  for (let bn = 1; bn <= 13; bn++) {
+    const taken = reservations.some(r =>
+      !r.cancelled && todayStr >= r.checkIn && todayStr < r.checkOut &&
+      r.bungalovi?.some(b => b.bungalov == bn)
+    );
+    if (!taken) freeToday.push('B'+bn);
+  }
+
+  const pct7  = total7  ? Math.round(occ7/total7*100)  : 0;
+  const pctMo = totalMo ? Math.round(occMo/totalMo*100) : 0;
+  const MN = ['Jan','Feb','Mar','Apr','Maj','Jun','Jul','Avg','Sep','Okt','Nov','Dec'];
+
+  el.innerHTML = `
+    <div style="display:flex;gap:10px;flex-wrap:wrap;padding:8px 12px;
+      background:#f8f9fa;border-radius:10px;margin-bottom:12px;
+      font-size:.82em;align-items:center;border:1px solid #e8e8e8">
+      <span style="font-weight:700;color:#555">📊 Popunjenost:</span>
+      <span style="background:#667eea;color:white;padding:3px 10px;border-radius:12px;font-weight:600">
+        7 dana: ${pct7}%
+      </span>
+      <span style="background:${pctMo>=80?'#28a745':pctMo>=50?'#ffc107':'#6c757d'};color:white;padding:3px 10px;border-radius:12px;font-weight:600">
+        ${MN[mo]}: ${pctMo}%
+      </span>
+      <span style="color:#28a745;font-weight:600">
+        ✅ Slobodno danas: ${freeToday.length ? freeToday.join(', ') : 'Sve zauzeto'}
+      </span>
+    </div>
+  `;
+}
+
+// ══════════════════════════════════════════════════════════
+// iCAL SYNC HEALTH CHECK — upozorenje ako sync ne radi 24h
+// ══════════════════════════════════════════════════════════
+function checkIcalSyncHealth() {
+  if (!window.icalLinks || !window.icalLinks.length) return;
+  if (curRole !== 'admin') return;
+  const now = new Date();
+  const stale = window.icalLinks.filter(lnk => {
+    if (!lnk.lastSync) return true; // nikad nije syncovano
+    const last = new Date(lnk.lastSync);
+    const hoursAgo = (now - last) / 3600000;
+    return hoursAgo > 24;
+  });
+  if (stale.length > 0) {
+    const names = stale.map(l => (l.name||'B'+l.bungalov)).join(', ');
+    addNotif('⚠️ iCal sync nije radio >24h za: ' + names + ' — provjeri vezu i linkove!');
+  }
+}
 
 // ── EXCEL IMPORT ───────────────────────────────────────────────
 // Cuva parsed redove za preview -> potvrdu
@@ -4921,6 +5610,88 @@ window.clearImport = () => {
 };
 
 // ── EXCEL EXPORT ─────────────────────────────────────────────
+window.exportToXLSX = () => {
+  if (!reservations.length) { alert('Nema rezervacija za export!'); return; }
+  if (typeof XLSX === 'undefined') { alert('Excel biblioteka se učitava, pokušajte za sekundu.'); return; }
+
+  const active = reservations.filter(r => !r.cancelled).sort((a,b) => a.checkIn.localeCompare(b.checkIn));
+  const cancelled = reservations.filter(r => r.cancelled);
+
+  function buildRows(list) {
+    return list.map(r => {
+      const bungs = (r.bungalovi||[]).map(b=>b.bungalov).join(', ');
+      const adults = (r.bungalovi||[]).reduce((s,b)=>s+(b.adults||0),0);
+      const children = (r.bungalovi||[]).reduce((s,b)=>s+(b.children||0),0);
+      const babies = (r.bungalovi||[]).reduce((s,b)=>s+(b.babies||0),0);
+      const nights = r.checkIn && r.checkOut
+        ? Math.ceil((new Date(r.checkOut)-new Date(r.checkIn))/86400000) : 0;
+      return {
+        'Ime gosta': r.name || '',
+        'Telefon': r.phone || '',
+        'Zemlja': r.country || '',
+        'Kanal': r.channel || '',
+        'Check-in': r.checkIn || '',
+        'Check-out': r.checkOut || '',
+        'Noći': nights,
+        'Bungalovi': bungs,
+        'Odrasli': adults,
+        'Djeca': children,
+        'Bebe': babies,
+        'Cijena (€)': r.price || 0,
+        'Potvrđeno': r.confirmed ? 'Da' : 'Ne',
+        'Plaćeno': r.paid ? 'Da' : 'Ne',
+        'Napomene': r.notes || '',
+        'Kreirao': r.createdBy || '',
+        'Datum unosa': r.createdAt ? r.createdAt.slice(0,10) : ''
+      };
+    });
+  }
+
+  const wb = XLSX.utils.book_new();
+  // Sheet 1: Aktivne rezervacije
+  const ws1 = XLSX.utils.json_to_sheet(buildRows(active));
+  ws1['!cols'] = [{wch:22},{wch:14},{wch:12},{wch:14},{wch:12},{wch:12},
+    {wch:6},{wch:14},{wch:8},{wch:6},{wch:6},{wch:10},{wch:10},{wch:10},{wch:30},{wch:12},{wch:12}];
+  XLSX.utils.book_append_sheet(wb, ws1, 'Aktivne rezervacije');
+
+  // Sheet 2: Otkazane rezervacije
+  if (cancelled.length) {
+    const ws2 = XLSX.utils.json_to_sheet(buildRows(cancelled));
+    XLSX.utils.book_append_sheet(wb, ws2, 'Otkazane');
+  }
+
+  // Sheet 3: Finansijski pregled po bungalovu
+  const byBung = {};
+  active.forEach(r => {
+    (r.bungalovi||[]).forEach(b => {
+      const bn = 'B' + b.bungalov;
+      if (!byBung[bn]) byBung[bn] = { bungalov: bn, rezervacija: 0, prihod: 0, noci: 0 };
+      byBung[bn].rezervacija++;
+      byBung[bn].prihod += (r.price || 0) / (r.bungalovi?.length || 1);
+      byBung[bn].noci += r.checkIn && r.checkOut
+        ? Math.ceil((new Date(r.checkOut)-new Date(r.checkIn))/86400000) : 0;
+    });
+  });
+  const finRows = Object.values(byBung).sort((a,b) => a.bungalov.localeCompare(b.bungalov));
+  finRows.push({ bungalov: 'UKUPNO',
+    rezervacija: finRows.reduce((s,r)=>s+r.rezervacija,0),
+    prihod: finRows.reduce((s,r)=>s+r.prihod,0),
+    noci: finRows.reduce((s,r)=>s+r.noci,0) });
+  const ws3 = XLSX.utils.json_to_sheet(finRows.map(r=>({
+    'Bungalov': r.bungalov,
+    'Br. rezervacija': r.rezervacija,
+    'Ukupan prihod (€)': Math.round(r.prihod),
+    'Ukupno noći': r.noci
+  })));
+  ws3['!cols'] = [{wch:12},{wch:16},{wch:20},{wch:14}];
+  XLSX.utils.book_append_sheet(wb, ws3, 'Finansije po bungalovu');
+
+  const today = new Date().toISOString().slice(0,10);
+  XLSX.writeFile(wb, 'KMK-Bungali-Export-' + today + '.xlsx');
+  console.log('Export XLSX: ' + active.length + ' aktivnih, ' + cancelled.length + ' otkazanih');
+};
+
+
 window.exportToExcel = () => {
   if (!reservations.length) { alert('Nema rezervacija za export!'); return; }
   
@@ -5479,19 +6250,32 @@ function parseIcal(text) {
 // ── iCAL SYNC JEZGRO — jedna funkcija za i rucni i auto sync ──────
 // silent=false → prikazuje alert sa rezultatom (rucni sync)
 // silent=true  → tiho, samo loguje u konzolu (auto sync)
+let _icalSyncing = false; // lock za sprečavanje istovremenog sync-a
+
 async function syncIcalLink(id, silent) {
   const lnk = (window.icalLinks||[]).find(x=>x.id===id);
   if (!lnk) return;
+  if (_icalSyncing) {
+    if (!silent) console.log('iCal sync već u toku, preskačem');
+    return;
+  }
+  _icalSyncing = true;
+  try {
   const statusEl = document.getElementById('ical-status');
   if (!silent && statusEl) statusEl.textContent = 'Sinhronizujem ' + (lnk.name||'') + '...';
 
   // Fetch sa retry — pokusaj vise proxy-ja dok jedan ne prorade
   // Booking.com blokira allorigins i corsproxy, koristimo alternativne
+  // Proxy lista — Cloudflare Workers worker je najpouzdaniji (ako postoji),
+  // ostali su javni besplatni servisi koji mogu biti nedostupni
   const PROXY_BUILDERS = [
+    // Cloudflare Worker (vlastiti — najbrži i najpouzdaniji)
+    url => 'https://kmk-ical-proxy.waveinthesky.workers.dev/?url=' + encodeURIComponent(url),
+    // Javni proxy-ji kao fallback
+    url => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url),
     url => 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(url),
     url => 'https://thingproxy.freeboard.io/fetch/' + url,
     url => 'https://yacdn.org/proxy/' + url,
-    url => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url),
   ];
   let text = null;
   for (const buildUrl of PROXY_BUILDERS) {
@@ -5641,6 +6425,9 @@ async function syncIcalLink(id, silent) {
     if (deleted || added || updated || warnings.length)
       console.log('iCal auto B'+lnk.bungalov+': +'+added+' /~'+updated+' /-'+deleted+' /upoz:'+warnings.length);
   }
+  } finally {
+    _icalSyncing = false;
+  }
 }
 
 // Obrisi sve iCal rezervacije iz baze (za reset pri greškama)
@@ -5666,7 +6453,11 @@ window.syncAllIcal = async () => {
   if (!links.length) { alert('Nema sacuvanih iCal linkova.'); return; }
   const statusEl = document.getElementById('ical-status');
   if (statusEl) statusEl.textContent = 'Sinhronizujem sve linkove...';
-  await Promise.all(links.map(lnk => syncIcalLink(lnk.id, false).catch(e => console.warn('sync error', e))));
+  // Serijalni sync — sprečava race condition između linkova koji dijele bungalov
+  for (const lnk of links) {
+    try { await syncIcalLink(lnk.id, true); }
+    catch(e) { console.warn('sync error', lnk.id, e); }
+  }
   if (statusEl) statusEl.textContent = '';
 };
 
@@ -5675,6 +6466,23 @@ let _icalSyncTimer = null;
 let _icalCountdownTimer = null;
 let _icalNextSync = null;
 const ICAL_INTERVAL_MS = 3 * 60 * 1000; // 3 minute
+
+// ── iCAL HEALTH CHECK — upozori admina ako sync nije radio 24h ──
+function checkIcalHealth() {
+  if (curRole !== 'admin') return;
+  const links = window.icalLinks || [];
+  if (!links.length) return;
+  const now = new Date();
+  const WARN_AFTER_MS = 24 * 60 * 60 * 1000;
+  const stale = links.filter(lnk => {
+    if (!lnk.lastSync) return true;
+    return (now - new Date(lnk.lastSync)) > WARN_AFTER_MS;
+  });
+  if (stale.length) {
+    const names = stale.map(l => l.name || 'B'+l.bungalov).join(', ');
+    addNotif('⚠️ iCal sync nije radio 24h za: ' + names + '. Provjeri vezu!');
+  }
+}
 
 function startAutoIcalSync() {
   stopAutoIcalSync(); // ocisti stari timer ako postoji
