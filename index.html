@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Maja Karanfil Bungali v1.6.1</title>
+<title>Maja Karanfil Bungali v1.6.2</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh;padding:20px}
@@ -729,7 +729,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
       <img src="https://i.imgur.com/DzB2EDR.png" onerror="this.style.display='none'"
            alt="Logo" style="max-width:175px;margin:0 auto 10px;display:block;border-radius:10px">
       <h1>🏡 Maja Karanfil Bungali</h1>
-      <p>Prijavite se u sistem — v1.6.1</p>
+      <p>Prijavite se u sistem — v1.6.2</p>
     </div>
     <div class="login-err" id="login-err">Pogrešno korisničko ime ili lozinka!</div>
     <form class="login-form" id="login-form">
@@ -1530,7 +1530,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <!-- Current version -->
       <div style="background:#e8f4fd;padding:14px;border-radius:8px;margin-bottom:20px;border-left:4px solid #667eea">
-        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v1.6.1</strong>
+        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v1.6.2</strong>
       </div>
 
       <!-- Changelog -->
@@ -1538,7 +1538,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <div class="changelog">
         <div class="ch-version">
-          <div class="ch-ver-header">v1.6.1 <span class="ch-date">— 30.03.2026</span></div>
+          <div class="ch-ver-header">v1.6.2 <span class="ch-date">— 30.03.2026</span></div>
           <ul>
             <li><strong>About premješten:</strong> Iz floating dugmeta u Podešavanja → ℹ️ About tab — pregledniji pristup</li>
             <li><strong>Excel Export:</strong> Novo dugme "📊 Export u Excel" — preuzmi SVE rezervacije kao čistu CSV/Excel tabelu sa kompletnim detaljima (ID, status, ime, telefon, zemlja, kanal, datumi, broj noći, bungalovi, kreveti, struktura gostiju, cijena, napomene)</li>
@@ -3551,25 +3551,34 @@ function _gdBackupTodayDone() {
 
 // Inicijalizuj Google Identity Services i traži token
 window.startGDriveBackup = () => {
-  if (!window.google?.accounts?.oauth2) {
-    console.warn('[GDrive] Google Identity library nije učitana');
-    return;
-  }
-  const client = google.accounts.oauth2.initTokenClient({
+  // Koristi redirect flow umjesto popup (GitHub Pages blokira popup OAuth)
+  const params = new URLSearchParams({
     client_id: GD_CLIENT_ID,
+    redirect_uri: window.location.origin + window.location.pathname,
+    response_type: 'token',
     scope: GD_SCOPE,
-    callback: async (resp) => {
-      if (resp.error) {
-        console.warn('[GDrive] Auth greška:', resp.error);
-        _updateGDriveStatus('error', '❌ Nije moguće spojiti na Google Drive');
-        return;
-      }
-      _gdToken = resp.access_token;
-      await _gdDoBackup();
-    }
+    include_granted_scopes: 'true',
+    state: 'gdrive_backup'
   });
-  client.requestAccessToken({ prompt: _gdToken ? '' : 'consent' });
+  window.location.href = 'https://accounts.google.com/o/oauth2/v2/auth?' + params.toString();
 };
+
+// Provjeri da li smo se vratili sa OAuth redirect-a
+function _gdCheckRedirectToken() {
+  const hash = window.location.hash;
+  if (!hash) return;
+  const params = new URLSearchParams(hash.substring(1));
+  const token = params.get('access_token');
+  const state = params.get('state');
+  if (token && state === 'gdrive_backup') {
+    _gdToken = token;
+    // Očisti hash iz URL-a
+    history.replaceState(null, '', window.location.pathname);
+    _updateGDriveStatus('progress', '⏳ Backup na Google Drive...');
+    console.log('[GDrive] Token dobijen via redirect, pokrećem backup...');
+    _gdDoBackup();
+  }
+}
 
 // Uradi backup na Drive
 async function _gdDoBackup() {
@@ -4206,6 +4215,8 @@ function mobUpdateNights() {
 
 // Postavi listenere
 document.addEventListener('DOMContentLoaded', () => {
+  // Provjeri Google Drive OAuth redirect token
+  _gdCheckRedirectToken();
   const mobCiEl = document.getElementById('mob-ci');
   const mobCoEl = document.getElementById('mob-co');
 
