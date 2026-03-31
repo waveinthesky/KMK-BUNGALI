@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Maja Karanfil Bungali v1.5.0</title>
+<title>Maja Karanfil Bungali v1.5.2</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh;padding:20px}
@@ -473,6 +473,25 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 @keyframes slideDown{from{transform:translateY(-100%)}to{transform:translateY(0)}}
 .conflict-banner.hidden{display:none!important}
 
+/* ── BULK SELECT ─────────────────────────────────────────── */
+.bulk-toolbar{display:none;position:sticky;top:0;z-index:50;
+  background:#667eea;color:white;border-radius:10px;padding:10px 14px;
+  margin-bottom:10px;align-items:center;justify-content:space-between;gap:10px;
+  box-shadow:0 3px 12px rgba(102,126,234,.4)}
+.bulk-toolbar.show{display:flex}
+.bulk-toolbar-info{font-size:.9em;font-weight:600}
+.bulk-toolbar-btns{display:flex;gap:8px;flex-wrap:wrap}
+.bulk-cancel-btn{background:white;color:#667eea;border:none;border-radius:7px;
+  padding:6px 14px;font-size:.85em;font-weight:700;cursor:pointer;
+  transition:background .15s}
+.bulk-cancel-btn:hover{background:#f0edff}
+.bulk-clear-btn{background:rgba(255,255,255,.2);color:white;border:1px solid rgba(255,255,255,.4);
+  border-radius:7px;padding:6px 12px;font-size:.85em;cursor:pointer}
+.res-card-check{position:absolute;top:10px;right:10px;width:18px;height:18px;
+  cursor:pointer;accent-color:#667eea;z-index:2}
+.res-card{position:relative}
+.res-card.bulk-selected{border:2px solid #667eea!important;background:#f0edff!important}
+
 /* ── GUESTBOOK ───────────────────────────────────────────── */
 .gb-search-wrap{position:relative}
 .gb-suggestions{position:absolute;top:100%;left:0;right:0;background:white;
@@ -675,7 +694,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
       <img src="https://i.imgur.com/DzB2EDR.png" onerror="this.style.display='none'"
            alt="Logo" style="max-width:175px;margin:0 auto 10px;display:block;border-radius:10px">
       <h1>🏡 Maja Karanfil Bungali</h1>
-      <p>Prijavite se u sistem — v1.5.0</p>
+      <p>Prijavite se u sistem — v1.5.2</p>
     </div>
     <div class="login-err" id="login-err">Pogrešno korisničko ime ili lozinka!</div>
     <form class="login-form" id="login-form">
@@ -1080,6 +1099,14 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
   <!-- LIST -->
   <div id="pane-list" class="tab-pane">
     <h2 style="margin-bottom:16px">📋 Sve Rezervacije</h2>
+    <!-- Bulk select toolbar -->
+    <div class="bulk-toolbar" id="bulk-toolbar">
+      <span class="bulk-toolbar-info" id="bulk-toolbar-info">0 označeno</span>
+      <div class="bulk-toolbar-btns">
+        <button class="bulk-cancel-btn" onclick="bulkCancelSelected()">🗑️ Otkaži označene</button>
+        <button class="bulk-clear-btn" onclick="bulkClearSelection()">✕ Poništi</button>
+      </div>
+    </div>
     <div class="filter-bar">
       <div class="filter-row">
         <select id="fl-status" onchange="filterRes()">
@@ -1200,6 +1227,53 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
             oninput="filterGuestBook()" style="width:100%;margin-bottom:10px">
           <div id="guestbook-list"></div>
         </div>
+        <h3>🔐 Zaštita pri Otkazivanju</h3>
+        <div style="background:#f8f9fa;border-radius:10px;padding:14px;margin-bottom:20px;border:1px solid #e0e0e0">
+          <p style="font-size:.85em;color:#666;margin-bottom:12px">
+            Odaberite kako se potvrđuje otkazivanje rezervacije:
+          </p>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px">
+            <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:.9em">
+              <input type="radio" name="del-protect-mode" value="off"
+                onchange="saveDelProtectMode(this.value)"
+                style="width:16px;height:16px">
+              <span><strong>Isključeno</strong> — otkaži bez dodatne potvrde</span>
+            </label>
+            <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:.9em">
+              <input type="radio" name="del-protect-mode" value="name"
+                onchange="saveDelProtectMode(this.value)"
+                style="width:16px;height:16px">
+              <span><strong>Ime gosta</strong> — mora upisati ime gosta</span>
+            </label>
+            <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:.9em">
+              <input type="radio" name="del-protect-mode" value="password"
+                onchange="saveDelProtectMode(this.value)"
+                style="width:16px;height:16px">
+              <span><strong>Lozinka</strong> — mora upisati određenu lozinku</span>
+            </label>
+          </div>
+          <div id="del-password-setting" style="display:none">
+            <label style="font-size:.85em;font-weight:600;color:#333;display:block;margin-bottom:6px">
+              Lozinka za otkazivanje:
+            </label>
+            <div style="display:flex;gap:8px">
+              <input type="text" id="del-password-input"
+                placeholder="npr. DELETE123 ili brisanje"
+                style="flex:1;padding:8px 10px;border:1px solid #ddd;border-radius:6px;font-size:.9em">
+              <button class="btn btn-primary" onclick="saveDelPassword()"
+                style="padding:8px 14px;white-space:nowrap">Sačuvaj</button>
+            </div>
+            <div id="del-password-saved-msg"
+              style="font-size:.8em;color:#28a745;margin-top:5px;display:none">
+              ✅ Lozinka sačuvana
+            </div>
+          </div>
+          <div id="del-protect-status"
+            style="margin-top:10px;font-size:.82em;padding:8px 12px;
+                   border-radius:6px;background:#e8f4fd;color:#1a5276">
+          </div>
+        </div>
+
         <h3>Upravljanje Korisnicima</h3>
         <button class="btn btn-primary" onclick="showAddUserForm()" style="padding:8px 16px">+ Novi Korisnik</button>
       </div>
@@ -1367,7 +1441,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <!-- Current version -->
       <div style="background:#e8f4fd;padding:14px;border-radius:8px;margin-bottom:20px;border-left:4px solid #667eea">
-        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v1.5.0</strong>
+        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v1.5.2</strong>
       </div>
 
       <!-- Changelog -->
@@ -1375,7 +1449,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <div class="changelog">
         <div class="ch-version">
-          <div class="ch-ver-header">v1.5.0 <span class="ch-date">— 30.03.2026</span></div>
+          <div class="ch-ver-header">v1.5.2 <span class="ch-date">— 30.03.2026</span></div>
           <ul>
             <li><strong>About premješten:</strong> Iz floating dugmeta u Podešavanja → ℹ️ About tab — pregledniji pristup</li>
             <li><strong>Excel Export:</strong> Novo dugme "📊 Export u Excel" — preuzmi SVE rezervacije kao čistu CSV/Excel tabelu sa kompletnim detaljima (ID, status, ime, telefon, zemlja, kanal, datumi, broj noći, bungalovi, kreveti, struktura gostiju, cijena, napomene)</li>
@@ -1578,10 +1652,10 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
     <div class="mh"><h2>Razlog Otkazivanja</h2><button class="cm" onclick="closeDelModal()">×</button></div>
     <p style="margin-bottom:12px">Zašto otkazujete ovu rezervaciju?</p>
     <div class="fg"><textarea id="del-reason" rows="3" placeholder="Unesite razlog..." style="width:100%"></textarea></div>
-    <div class="fg" style="margin-top:10px">
-      <label style="font-size:.85em;color:#dc3545;font-weight:600">Za potvrdu upišite ime gosta:</label>
+    <div class="fg" id="del-confirm-wrap" style="margin-top:10px;display:none">
+      <label id="del-confirm-label" style="font-size:.85em;color:#dc3545;font-weight:600">Za potvrdu upišite ime gosta:</label>
       <input type="text" id="del-confirm-name" placeholder="Ime gosta..." style="width:100%;margin-top:4px">
-      <div id="del-name-err" style="color:#dc3545;font-size:.8em;display:none;margin-top:4px">❌ Ime se ne poklapa</div>
+      <div id="del-name-err" style="color:#dc3545;font-size:.8em;display:none;margin-top:4px">❌ Netačna vrijednost</div>
     </div>
     <div style="display:flex;gap:10px;margin-top:12px">
       <button class="btn btn-primary" onclick="confirmDel()">Potvrdi Otkazivanje</button>
@@ -2393,13 +2467,30 @@ window.resetForm = () => {
 window.delRes = id => {
   if (curRole !== 'admin') { alert('Samo administrator može otkazati rezervacije.'); return; }
   delId = id;
-  // Reset potvrda polja
+
+  // Reset polja
   const cn = document.getElementById('del-confirm-name');
   const er = document.getElementById('del-name-err');
   const dr = document.getElementById('del-reason');
+  const wrap = document.getElementById('del-confirm-wrap');
+  const lbl  = document.getElementById('del-confirm-label');
   if (cn) cn.value = '';
   if (er) er.style.display = 'none';
   if (dr) dr.value = '';
+
+  // Postavi polje prema odabranom načinu zaštite
+  const mode = getDelProtectMode();
+  if (wrap) {
+    wrap.style.display = (mode === 'off') ? 'none' : 'block';
+    if (mode === 'name') {
+      if (lbl) lbl.textContent = 'Za potvrdu upišite ime gosta:';
+      if (cn) cn.placeholder = 'Ime gosta...';
+    } else if (mode === 'password') {
+      if (lbl) lbl.textContent = 'Za potvrdu upišite lozinku za otkazivanje:';
+      if (cn) cn.placeholder = 'Lozinka...';
+    }
+  }
+
   document.getElementById('m-delete').classList.add('open');
 };
 window.closeDelModal = () => { document.getElementById('m-delete').classList.remove('open'); document.getElementById('del-reason').value=''; delId=null; };
@@ -2407,20 +2498,39 @@ window.confirmDel = async () => {
   const r=document.getElementById('del-reason').value.trim();
   if (!r) { alert('Unesite razlog!'); return; }
 
-  // Provjera imena gosta — sigurnosna potvrda
-  const res = reservations.find(x=>x.id===delId);
+  // Provjera prema odabranom načinu zaštite
+  const mode = getDelProtectMode();
   const confirmNameEl = document.getElementById('del-confirm-name');
   const errEl = document.getElementById('del-name-err');
-  if (confirmNameEl && res) {
-    const typed = (confirmNameEl.value || '').trim().toLowerCase();
-    const actual = (res.name || '').trim().toLowerCase();
-    if (!typed || !actual.includes(typed) && !typed.includes(actual.split(' ')[0].toLowerCase())) {
-      if (errEl) errEl.style.display = 'block';
-      confirmNameEl.focus();
+
+  if (mode === 'name') {
+    const res = reservations.find(x=>x.id===delId);
+    if (confirmNameEl && res) {
+      const typed  = (confirmNameEl.value || '').trim().toLowerCase();
+      const actual = (res.name || '').trim().toLowerCase();
+      const firstName = actual.split(' ')[0];
+      if (!typed || (!actual.includes(typed) && !typed.includes(firstName))) {
+        if (errEl) { errEl.textContent = '❌ Ime se ne poklapa'; errEl.style.display = 'block'; }
+        confirmNameEl.focus();
+        return;
+      }
+      if (errEl) errEl.style.display = 'none';
+    }
+  } else if (mode === 'password') {
+    const savedPw = getDelPassword();
+    if (!savedPw) {
+      alert('⚠️ Lozinka za otkazivanje nije postavljena.\nIdite u Podešavanja → Zaštita pri Otkazivanju.');
+      return;
+    }
+    const typed = (confirmNameEl?.value || '').trim();
+    if (typed !== savedPw) {
+      if (errEl) { errEl.textContent = '❌ Netačna lozinka'; errEl.style.display = 'block'; }
+      if (confirmNameEl) confirmNameEl.focus();
       return;
     }
     if (errEl) errEl.style.display = 'none';
   }
+  // mode === 'off' — nema provjere, nastavlja
   syncUI('sy','Otkazujem...');
   try {
     const res=reservations.find(x=>x.id===delId);
@@ -3041,6 +3151,7 @@ window.printSimple = function() {
 
 window.renderResList = function() {
   // Primijeni trenutni filter umjesto da uvijek prikazuje samo aktivne
+  if (typeof bulkClearSelection === 'function') bulkClearSelection(); // reset selekcije
   filterRes();
 };
 
@@ -3063,7 +3174,10 @@ function renderResListData(list) {
       return `B${b.bungalov}(${b.beds}kr${g?', '+g:''})`;
     }).join(' + ')||'';
     const svc=[r.services?.polupansion&&'Polupansion',r.services?.fullPansion&&'Full Pansion',r.services?.lunchPaket&&'Lunch'].filter(Boolean).join(', ');
-    return `<div class="res-card ${cls}">
+    return `<div class="res-card ${cls}" id="rc-${r.id}">
+      ${curRole==='admin'&&!r.cancelled?`<input type="checkbox" class="res-card-check"
+        id="chk-${r.id}" title="Označi za grupno otkazivanje"
+        onclick="toggleBulkSelect('${r.id}',this)" onchange="return false">`:'' }
       <div class="res-hdr">
         <div class="res-name">${escHtml(r.name)}${r.country?` <span style="font-size:.82em;color:#888">🌍 ${escHtml(r.country)}</span>`:''}</div>
         <div class="badges">
@@ -3418,7 +3532,7 @@ window.goTab=(name,btn)=>{
   if(name==='list')     renderResList();
   if(name==='stats')    renderStats();
   if(name==='history')  renderHist();
-  if(name==='settings') renderSettings();
+  if(name==='settings') { renderSettings(); setTimeout(_updateDelProtectUI, 50); }
 };
 
 // ══════════════════════════════════════════════════════
@@ -4996,6 +5110,165 @@ if (_isOffline) _updateOfflineUI();
 // Izloži globalnu provjeru za save akcije
 window.isOffline = () => _isOffline;
 
+// ══════════════════════════════════════════════════════════
+// BULK SELECT — grupno otkazivanje rezervacija
+// ══════════════════════════════════════════════════════════
+
+let _bulkSelected = new Set(); // Set ID-eva označenih rezervacija
+
+window.toggleBulkSelect = (id, chkEl) => {
+  if (chkEl && chkEl.checked) {
+    _bulkSelected.add(id);
+  } else {
+    _bulkSelected.delete(id);
+  }
+  // Vizuelno označi karticu
+  const card = document.getElementById('rc-' + id);
+  if (card) card.classList.toggle('bulk-selected', _bulkSelected.has(id));
+  _updateBulkToolbar();
+};
+
+window.bulkClearSelection = () => {
+  _bulkSelected.forEach(id => {
+    const chk = document.getElementById('chk-' + id);
+    if (chk) chk.checked = false;
+    const card = document.getElementById('rc-' + id);
+    if (card) card.classList.remove('bulk-selected');
+  });
+  _bulkSelected.clear();
+  _updateBulkToolbar();
+};
+
+function _updateBulkToolbar() {
+  const toolbar = document.getElementById('bulk-toolbar');
+  const info    = document.getElementById('bulk-toolbar-info');
+  const n = _bulkSelected.size;
+  if (toolbar) toolbar.classList.toggle('show', n > 0);
+  if (info) info.textContent = n + ' označeno';
+}
+
+// Bulk otkazivanje — otvara jedan modal sa zajedničkim razlogom
+window.bulkCancelSelected = () => {
+  if (!_bulkSelected.size) return;
+  const n = _bulkSelected.size;
+  const ids = [..._bulkSelected];
+
+  // Provjeri zaštitu
+  const mode = getDelProtectMode();
+  let confirmValue = '';
+
+  if (mode === 'password') {
+    const savedPw = getDelPassword();
+    if (!savedPw) {
+      alert('⚠️ Lozinka za otkazivanje nije postavljena.\nIdite u Podešavanja → Zaštita pri Otkazivanju.');
+      return;
+    }
+    confirmValue = prompt(`🔐 Unesite lozinku za otkazivanje ${n} rezervacija:`);
+    if (confirmValue === null) return; // korisnik kliknuo Cancel
+    if (confirmValue !== savedPw) { alert('❌ Netačna lozinka.'); return; }
+  } else if (mode === 'name') {
+    // Za grupno: traži lozinku ili samo potvrdu
+    const ok = confirm(`Otkazati ${n} označenih rezervacija?\n\nOva akcija se ne može poništiti.`);
+    if (!ok) return;
+  } else {
+    // mode === 'off'
+    const ok = confirm(`Otkazati ${n} označenih rezervacija?`);
+    if (!ok) return;
+  }
+
+  const reason = prompt('Razlog otkazivanja (obavezno):');
+  if (!reason || !reason.trim()) { alert('Unesite razlog!'); return; }
+
+  // Pokreni otkazivanje
+  _bulkDoCancelAll(ids, reason.trim());
+};
+
+async function _bulkDoCancelAll(ids, reason) {
+  syncUI('sy', 'Otkazujem ' + ids.length + ' rezervacija...');
+  let done = 0, failed = 0;
+
+  for (const id of ids) {
+    try {
+      const res = reservations.find(x => x.id === id);
+      await updateDoc(doc(db, 'reservations', id), { cancelled: true });
+      await logH('deleted', { ...(res||{}), id, cancelled: true }, null, reason);
+      done++;
+    } catch(e) {
+      console.warn('Bulk cancel error:', id, e);
+      failed++;
+    }
+  }
+
+  syncUI('ok', 'Sinhronizovano ✓');
+  bulkClearSelection();
+
+  const msg = done + ' rezervacija otkazano' + (failed ? ', ' + failed + ' greška' : '') + '.';
+  alert('✅ ' + msg);
+}
+
+// ══════════════════════════════════════════════════════════
+// DELETE PROTECTION SETTINGS
+// ══════════════════════════════════════════════════════════
+
+function getDelProtectMode() {
+  return localStorage.getItem('kmk_del_protect') || 'name'; // default: ime gosta
+}
+
+function getDelPassword() {
+  return localStorage.getItem('kmk_del_password') || '';
+}
+
+window.saveDelProtectMode = (mode) => {
+  localStorage.setItem('kmk_del_protect', mode);
+  _updateDelProtectUI();
+};
+
+window.saveDelPassword = () => {
+  const val = (document.getElementById('del-password-input')?.value || '').trim();
+  if (!val) { alert('Unesite lozinku!'); return; }
+  localStorage.setItem('kmk_del_password', val);
+  const msg = document.getElementById('del-password-saved-msg');
+  if (msg) { msg.style.display = 'block'; setTimeout(() => msg.style.display = 'none', 2000); }
+  _updateDelProtectUI();
+};
+
+function _updateDelProtectUI() {
+  const mode = getDelProtectMode();
+  const pw   = getDelPassword();
+
+  // Postavi radio dugme
+  document.querySelectorAll('input[name="del-protect-mode"]').forEach(r => {
+    r.checked = (r.value === mode);
+  });
+
+  // Prikaži/sakrij password polje
+  const pwSetting = document.getElementById('del-password-setting');
+  if (pwSetting) pwSetting.style.display = (mode === 'password') ? 'block' : 'none';
+
+  // Popuni password input ako postoji
+  const pwInput = document.getElementById('del-password-input');
+  if (pwInput && pw) pwInput.value = pw;
+
+  // Status poruka
+  const status = document.getElementById('del-protect-status');
+  if (status) {
+    if (mode === 'off') {
+      status.textContent = '⚠️ Zaštita isključena — otkazivanje se vrši bez dodatne potvrde.';
+      status.style.background = '#ffeeba'; status.style.color = '#856404';
+    } else if (mode === 'name') {
+      status.textContent = '🔐 Aktivno: mora se upisati ime gosta da bi se otkazala rezervacija.';
+      status.style.background = '#e8f4fd'; status.style.color = '#1a5276';
+    } else if (mode === 'password') {
+      status.textContent = pw
+        ? '🔐 Aktivno: lozinka je postavljena.'
+        : '⚠️ Lozinka nije postavljena — unesite je gore.';
+      status.style.background = pw ? '#e8f4fd' : '#ffeeba';
+      status.style.color = pw ? '#1a5276' : '#856404';
+    }
+  }
+}
+
+// Inicijalizuj settings UI kad se otvori settings tab
 // ══════════════════════════════════════════════════════════
 // SESSION TIMEOUT — auto logout nakon neaktivnosti
 // ══════════════════════════════════════════════════════════
