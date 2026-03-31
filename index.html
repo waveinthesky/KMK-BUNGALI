@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Maja Karanfil Bungali v1.5.6</title>
+<title>Maja Karanfil Bungali v1.5.7</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh;padding:20px}
@@ -132,6 +132,18 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 .cc:hover.c1,.cc:hover.c2{opacity:.8}
 .cc.booking{background:#003580;color:white;cursor:pointer}
 .cc.booking:hover{opacity:.85}
+.cc.ch-airbnb{background:#FF5A5F!important;color:white!important}
+.cc.ch-airbnb:hover{opacity:.88!important}
+.cc.ch-viber{background:#7360F2!important;color:white!important}
+.cc.ch-viber:hover{opacity:.88!important}
+.cc.ch-whatsapp{background:#25D366!important;color:#075E54!important}
+.cc.ch-whatsapp:hover{opacity:.88!important}
+.cc.ch-facebook{background:#1877F2!important;color:white!important}
+.cc.ch-facebook:hover{opacity:.88!important}
+.cc.ch-instagram{background:#E1306C!important;color:white!important}
+.cc.ch-instagram:hover{opacity:.88!important}
+.cc.ch-direktno{background:#20c997!important;color:#0a3d2e!important}
+.cc.ch-telefon{background:#6c757d!important;color:white!important}
 .cc.closed-manual{background:#1a1a1a;color:white;cursor:pointer}
 .cc.closed-manual:hover{opacity:.85}
 .cc.closed-ical{background:#555;color:white;cursor:pointer}
@@ -716,7 +728,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
       <img src="https://i.imgur.com/DzB2EDR.png" onerror="this.style.display='none'"
            alt="Logo" style="max-width:175px;margin:0 auto 10px;display:block;border-radius:10px">
       <h1>🏡 Maja Karanfil Bungali</h1>
-      <p>Prijavite se u sistem — v1.5.6</p>
+      <p>Prijavite se u sistem — v1.5.7</p>
     </div>
     <div class="login-err" id="login-err">Pogrešno korisničko ime ili lozinka!</div>
     <form class="login-form" id="login-form">
@@ -1481,7 +1493,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <!-- Current version -->
       <div style="background:#e8f4fd;padding:14px;border-radius:8px;margin-bottom:20px;border-left:4px solid #667eea">
-        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v1.5.6</strong>
+        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v1.5.7</strong>
       </div>
 
       <!-- Changelog -->
@@ -1489,7 +1501,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <div class="changelog">
         <div class="ch-version">
-          <div class="ch-ver-header">v1.5.6 <span class="ch-date">— 30.03.2026</span></div>
+          <div class="ch-ver-header">v1.5.7 <span class="ch-date">— 30.03.2026</span></div>
           <ul>
             <li><strong>About premješten:</strong> Iz floating dugmeta u Podešavanja → ℹ️ About tab — pregledniji pristup</li>
             <li><strong>Excel Export:</strong> Novo dugme "📊 Export u Excel" — preuzmi SVE rezervacije kao čistu CSV/Excel tabelu sa kompletnim detaljima (ID, status, ime, telefon, zemlja, kanal, datumi, broj noći, bungalovi, kreveti, struktura gostiju, cijena, napomene)</li>
@@ -2623,6 +2635,20 @@ async function logH(action,res,old=null,reason=null) {
 }
 
 // ── CALENDAR ────────────────────────────────────────────────
+// ── KANAL STILOVI ZA KALENDAR ────────────────────────────
+function getChannelStyle(channelName) {
+  if (!channelName) return null;
+  const ch = channelName.toLowerCase();
+  if (ch.includes('airbnb'))    return { cls: 'ch-airbnb',   icon: '🏠' };
+  if (ch.includes('viber'))     return { cls: 'ch-viber',    icon: '📲' };
+  if (ch.includes('whatsapp') || ch.includes('whats app')) return { cls: 'ch-whatsapp', icon: '💬' };
+  if (ch.includes('facebook') || ch.includes('fb')) return { cls: 'ch-facebook', icon: '👤' };
+  if (ch.includes('instagram') || ch.includes('insta')) return { cls: 'ch-instagram', icon: '📸' };
+  if (ch.includes('direktno') || ch.includes('direct')) return { cls: 'ch-direktno', icon: '🤝' };
+  if (ch.includes('telefon') || ch.includes('phone') || ch.includes('call')) return { cls: 'ch-telefon', icon: '📞' };
+  return null;
+}
+
 window.renderCal = function() {
   renderOccupancyBar();
   const yr=calMonth.getFullYear(), mo=calMonth.getMonth();
@@ -2669,12 +2695,22 @@ window.renderCal = function() {
         if (isManualClosed) cls = 'cc closed-manual';
         else if (isIcalClosed) cls = 'cc closed-ical';
         else if (isIcal) cls = 'cc booking';
-        else { cls = `cc ${tog?'c1':'c2'}`; if (res.paid) cls+=' paid'; else if (res.confirmed) cls+=' conf'; }
+        else {
+          cls = `cc ${tog?'c1':'c2'}`;
+          if (res.paid) cls+=' paid'; else if (res.confirmed) cls+=' conf';
+          // Provjeri kanal i dodaj CSS klasu za boju
+          const chStyle = getChannelStyle(res.channel);
+          if (chStyle) cls += ' ' + chStyle.cls;
+        }
         let label;
         if (isManualClosed) label = '🔒 ' + (res.name && res.name !== 'Zatvoreno' ? escHtml(res.name) : 'Zatvoreno');
         else if (isIcalClosed) label = '🔒 Booking.com';
         else if (isIcal) label = res.name && res.name !== 'Booking.com' ? escHtml(res.name)+' <small>🌐</small>' : '🌐 Booking.com';
-        else label = escHtml(res.name);
+        else {
+          const chStyle = getChannelStyle(res.channel);
+          const chIcon = chStyle ? `<small style="opacity:.85">${chStyle.icon}</small> ` : '';
+          label = chIcon + escHtml(res.name);
+        }
         html+=`<div class="${cls}" style="grid-column:span ${span};position:relative" onclick="showDet('${res.id}')">
           ${curRole==='admin'&&!res.cancelled&&!res.icalLinkId?`<input type="checkbox" class="cal-res-chk"
             id="calchk-${res.id}" title="Označi za grupno otkazivanje"
@@ -5175,8 +5211,15 @@ function _showGuestHistory(name) {
   if (!histEl) {
     histEl = document.createElement('div');
     histEl.id = 'guest-history-panel';
-    const fName = document.getElementById('fg-name');
-    if (fName) fName.parentElement.insertBefore(histEl, fName.nextSibling);
+    histEl.style.cssText = 'margin-top:16px;margin-bottom:8px';
+    // Ubaci na kraj forme - ispred submit dugmeta
+    const formEl = document.getElementById('res-form');
+    const submitBtn = formEl ? formEl.querySelector('button[type="submit"]') : null;
+    if (submitBtn && submitBtn.parentElement) {
+      submitBtn.parentElement.insertBefore(histEl, submitBtn);
+    } else if (formEl) {
+      formEl.appendChild(histEl);
+    }
   }
   if (!hist.length) { histEl.innerHTML = ''; return; }
   const total = hist.reduce((s,r) => s+(r.price||0), 0);
