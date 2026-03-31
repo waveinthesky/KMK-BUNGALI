@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Maja Karanfil Bungali v1.5.4</title>
+<title>Maja Karanfil Bungali v1.5.6</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh;padding:20px}
@@ -716,7 +716,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
       <img src="https://i.imgur.com/DzB2EDR.png" onerror="this.style.display='none'"
            alt="Logo" style="max-width:175px;margin:0 auto 10px;display:block;border-radius:10px">
       <h1>🏡 Maja Karanfil Bungali</h1>
-      <p>Prijavite se u sistem — v1.5.4</p>
+      <p>Prijavite se u sistem — v1.5.6</p>
     </div>
     <div class="login-err" id="login-err">Pogrešno korisničko ime ili lozinka!</div>
     <form class="login-form" id="login-form">
@@ -1481,7 +1481,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <!-- Current version -->
       <div style="background:#e8f4fd;padding:14px;border-radius:8px;margin-bottom:20px;border-left:4px solid #667eea">
-        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v1.5.4</strong>
+        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v1.5.6</strong>
       </div>
 
       <!-- Changelog -->
@@ -1489,7 +1489,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <div class="changelog">
         <div class="ch-version">
-          <div class="ch-ver-header">v1.5.4 <span class="ch-date">— 30.03.2026</span></div>
+          <div class="ch-ver-header">v1.5.6 <span class="ch-date">— 30.03.2026</span></div>
           <ul>
             <li><strong>About premješten:</strong> Iz floating dugmeta u Podešavanja → ℹ️ About tab — pregledniji pristup</li>
             <li><strong>Excel Export:</strong> Novo dugme "📊 Export u Excel" — preuzmi SVE rezervacije kao čistu CSV/Excel tabelu sa kompletnim detaljima (ID, status, ime, telefon, zemlja, kanal, datumi, broj noći, bungalovi, kreveti, struktura gostiju, cijena, napomene)</li>
@@ -2501,6 +2501,9 @@ window.resetForm = () => {
   if (priceSec) priceSec.style.display = '';
   const guestFields = document.getElementById('f-guest-fields');
   if (guestFields) guestFields.style.display = '';
+  // Ukloni guest history panel ako postoji
+  const ghPanel = document.getElementById('guest-history-panel');
+  if (ghPanel) ghPanel.innerHTML = '';
 };
 
 // ── DELETE ───────────────────────────────────────────────────
@@ -3315,6 +3318,10 @@ window.editRes = id => {
     validateG(last);
   });
   document.getElementById('form-title').textContent='✏️ Izmijeni Rezervaciju';
+  // Prikaži historiju gosta u formi
+  if (typeof _showGuestHistory === 'function' && r.name) {
+    setTimeout(() => _showGuestHistory(r.name), 120);
+  }
   // Postavi closed mode ako je zatvaranje
   const closedChk = document.getElementById('f-closed');
   if (closedChk) {
@@ -4314,8 +4321,8 @@ function renderConflictsPane() {
           </div>
         </div>
         <div class="cf-actions">
-          <button class="cf-btn view" onclick="editRes('${cf.a.id}');goTabDirect('add')">✏️ Uredi: ${escHtml((cf.a.name||'').substring(0,15))}${(cf.a.name||'').length>15?'...':''}</button>
-          <button class="cf-btn view" onclick="editRes('${cf.b.id}');goTabDirect('add')">✏️ Uredi: ${escHtml((cf.b.name||'').substring(0,15))}${(cf.b.name||'').length>15?'...':''}</button>
+          <button class="cf-btn view" onclick="editRes('${cf.a.id}')">✏️ Uredi: ${escHtml((cf.a.name||'').substring(0,15))}${(cf.a.name||'').length>15?'...':''}</button>
+          <button class="cf-btn view" onclick="editRes('${cf.b.id}')">✏️ Uredi: ${escHtml((cf.b.name||'').substring(0,15))}${(cf.b.name||'').length>15?'...':''}</button>
         </div>
       </div>`;
     }).join('')}
@@ -5059,8 +5066,7 @@ window.guestProfileEdit = () => {
   const hist = getGuestHistory(_gpCurrentName);
   const last = hist.filter(r=>!r.cancelled).sort((a,b)=>b.checkIn.localeCompare(a.checkIn))[0];
   if (last) {
-    editRes(last.id);
-    goTabDirect('add');
+    editRes(last.id); // editRes interno poziva goTabDirect
   } else {
     goTab('add', document.querySelector('.tab[data-tab="add"]'));
     setTimeout(() => {
@@ -6222,9 +6228,15 @@ window.switchSetTab = (tab, btn) => {
     const el = document.getElementById('set-' + t);
     if (el) el.style.display = (t === tab) ? 'block' : 'none';
   });
-  // Specijalni init pri otvaranju
+  // Render funkcije pri otvaranju svakog taba
+  if (tab === 'users')    setTimeout(renderUsers, 50);
+  if (tab === 'channels') setTimeout(renderChannels, 50);
+  if (tab === 'ical')     setTimeout(renderIcalLinks, 50);
+  if (tab === 'prices')   setTimeout(renderPricePeriods, 50);
   if (tab === 'security') setTimeout(_updateDelProtectUI, 50);
-  if (tab === 'guests')   setTimeout(() => { if(document.getElementById('guestbook-panel')?.style.display==='block') filterGuestBook(); }, 50);
+  if (tab === 'guests')   setTimeout(() => {
+    if (document.getElementById('guestbook-panel')?.style.display === 'block') filterGuestBook();
+  }, 50);
 };
 
 // ── USERS ─────────────────────────────────────────────────────
