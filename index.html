@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Maja Karanfil Bungali v1.5.2</title>
+<title>Maja Karanfil Bungali v1.5.3</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh;padding:20px}
@@ -694,7 +694,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
       <img src="https://i.imgur.com/DzB2EDR.png" onerror="this.style.display='none'"
            alt="Logo" style="max-width:175px;margin:0 auto 10px;display:block;border-radius:10px">
       <h1>🏡 Maja Karanfil Bungali</h1>
-      <p>Prijavite se u sistem — v1.5.2</p>
+      <p>Prijavite se u sistem — v1.5.3</p>
     </div>
     <div class="login-err" id="login-err">Pogrešno korisničko ime ili lozinka!</div>
     <form class="login-form" id="login-form">
@@ -942,8 +942,8 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
         <button class="btn no-print" onclick="printSimple()" style="padding:9px 18px;background:#28a745;color:white">🧹 Za Higijeničara</button>
       </div>
     </div>
-    <!-- Occupancy mini dashboard -->
-    <div id="occupancy-dash" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px"></div>
+    <!-- Occupancy mini dashboard — samo za admina -->
+    <div id="occupancy-dash" style="display:none;gap:10px;flex-wrap:wrap;margin-bottom:14px"></div>
 
     <div class="ov-grid" id="daily-ov"></div>
 
@@ -1099,14 +1099,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
   <!-- LIST -->
   <div id="pane-list" class="tab-pane">
     <h2 style="margin-bottom:16px">📋 Sve Rezervacije</h2>
-    <!-- Bulk select toolbar -->
-    <div class="bulk-toolbar" id="bulk-toolbar">
-      <span class="bulk-toolbar-info" id="bulk-toolbar-info">0 označeno</span>
-      <div class="bulk-toolbar-btns">
-        <button class="bulk-cancel-btn" onclick="bulkCancelSelected()">🗑️ Otkaži označene</button>
-        <button class="bulk-clear-btn" onclick="bulkClearSelection()">✕ Poništi</button>
-      </div>
-    </div>
+
     <div class="filter-bar">
       <div class="filter-row">
         <select id="fl-status" onchange="filterRes()">
@@ -1441,7 +1434,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <!-- Current version -->
       <div style="background:#e8f4fd;padding:14px;border-radius:8px;margin-bottom:20px;border-left:4px solid #667eea">
-        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v1.5.2</strong>
+        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v1.5.3</strong>
       </div>
 
       <!-- Changelog -->
@@ -1449,7 +1442,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <div class="changelog">
         <div class="ch-version">
-          <div class="ch-ver-header">v1.5.2 <span class="ch-date">— 30.03.2026</span></div>
+          <div class="ch-ver-header">v1.5.3 <span class="ch-date">— 30.03.2026</span></div>
           <ul>
             <li><strong>About premješten:</strong> Iz floating dugmeta u Podešavanja → ℹ️ About tab — pregledniji pristup</li>
             <li><strong>Excel Export:</strong> Novo dugme "📊 Export u Excel" — preuzmi SVE rezervacije kao čistu CSV/Excel tabelu sa kompletnim detaljima (ID, status, ime, telefon, zemlja, kanal, datumi, broj noći, bungalovi, kreveti, struktura gostiju, cijena, napomene)</li>
@@ -2632,7 +2625,13 @@ window.renderCal = function() {
         else if (isIcalClosed) label = '🔒 Booking.com';
         else if (isIcal) label = res.name && res.name !== 'Booking.com' ? escHtml(res.name)+' <small>🌐</small>' : '🌐 Booking.com';
         else label = escHtml(res.name);
-        html+=`<div class="${cls}" style="grid-column:span ${span}" onclick="showDet('${res.id}')">
+        html+=`<div class="${cls}" style="grid-column:span ${span};position:relative" onclick="showDet('${res.id}')">
+          ${curRole==='admin'&&!res.cancelled&&!res.icalLinkId?`<input type="checkbox" class="cal-res-chk"
+            id="calchk-${res.id}" title="Označi za grupno otkazivanje"
+            onclick="event.stopPropagation();toggleBulkSelect('${res.id}',this)"
+            onchange="return false"
+            style="position:absolute;top:3px;right:3px;width:14px;height:14px;
+                   cursor:pointer;accent-color:white;z-index:5">`:'' }
           <div class="res-span" style="font-size:1.05em;font-weight:600;line-height:1.3">${label}</div></div>`;
         skip=d+nights; if (!isIcal) tog=!tog;
       } else if (res&&ds!==res.checkIn) {
@@ -2832,6 +2831,9 @@ function _setupCalDrag() {
 function renderOccupancyDash() {
   const el = document.getElementById('occupancy-dash');
   if (!el) return;
+  // Samo admin vidi dashboard
+  if (curRole !== 'admin') { el.style.display = 'none'; return; }
+  el.style.display = 'flex';
 
   const today = lDate(new Date());
   const TOTAL_BUNGS = 13;
@@ -5122,9 +5124,16 @@ window.toggleBulkSelect = (id, chkEl) => {
   } else {
     _bulkSelected.delete(id);
   }
-  // Vizuelno označi karticu
+  const selected = _bulkSelected.has(id);
+  // Vizuelno označi karticu u listi
   const card = document.getElementById('rc-' + id);
-  if (card) card.classList.toggle('bulk-selected', _bulkSelected.has(id));
+  if (card) card.classList.toggle('bulk-selected', selected);
+  // Sinkroniziraj checkbox u kalendaru (ako postoji)
+  const calChk = document.getElementById('calchk-' + id);
+  if (calChk) calChk.checked = selected;
+  // Sinkroniziraj checkbox u listi (ako poziv dolazi iz kalendara)
+  const listChk = document.getElementById('chk-' + id);
+  if (listChk) listChk.checked = selected;
   _updateBulkToolbar();
 };
 
@@ -6809,6 +6818,17 @@ function stopAutoIcalSync() {
 ['m-delete','m-restore','m-details'].forEach(id=>{ document.getElementById(id).addEventListener('click',e=>{ if(e.target.id===id){ if(id==='m-delete') closeDelModal(); else if(id==='m-restore') closeRestModal(); else closeDetModal(); } }); });
 document.addEventListener('click',e=>{ const p=document.getElementById('notif-panel'),b=document.querySelector('.notif-bell'); if(p&&b&&!p.contains(e.target)&&!b.contains(e.target)) p.classList.remove('open'); });
 </script>
+
+<!-- GLOBALNI BULK TOOLBAR — prikazuje se na listi i kalendaru -->
+<div class="bulk-toolbar" id="bulk-toolbar" style="position:fixed;bottom:20px;left:50%;
+  transform:translateX(-50%);max-width:500px;width:calc(100% - 32px);
+  border-radius:14px;box-shadow:0 4px 20px rgba(102,126,234,.5)">
+  <span class="bulk-toolbar-info" id="bulk-toolbar-info">0 označeno</span>
+  <div class="bulk-toolbar-btns">
+    <button class="bulk-cancel-btn" onclick="bulkCancelSelected()">🗑️ Otkaži označene</button>
+    <button class="bulk-clear-btn" onclick="bulkClearSelection()">✕ Poništi</button>
+  </div>
+</div>
 
 </body>
 </html>
