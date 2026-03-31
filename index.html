@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Maja Karanfil Bungali v1.5.7</title>
+<title>Maja Karanfil Bungali v1.5.9</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh;padding:20px}
@@ -728,7 +728,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
       <img src="https://i.imgur.com/DzB2EDR.png" onerror="this.style.display='none'"
            alt="Logo" style="max-width:175px;margin:0 auto 10px;display:block;border-radius:10px">
       <h1>🏡 Maja Karanfil Bungali</h1>
-      <p>Prijavite se u sistem — v1.5.7</p>
+      <p>Prijavite se u sistem — v1.5.9</p>
     </div>
     <div class="login-err" id="login-err">Pogrešno korisničko ime ili lozinka!</div>
     <form class="login-form" id="login-form">
@@ -1493,7 +1493,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <!-- Current version -->
       <div style="background:#e8f4fd;padding:14px;border-radius:8px;margin-bottom:20px;border-left:4px solid #667eea">
-        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v1.5.7</strong>
+        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v1.5.9</strong>
       </div>
 
       <!-- Changelog -->
@@ -1501,7 +1501,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <div class="changelog">
         <div class="ch-version">
-          <div class="ch-ver-header">v1.5.7 <span class="ch-date">— 30.03.2026</span></div>
+          <div class="ch-ver-header">v1.5.9 <span class="ch-date">— 30.03.2026</span></div>
           <ul>
             <li><strong>About premješten:</strong> Iz floating dugmeta u Podešavanja → ℹ️ About tab — pregledniji pristup</li>
             <li><strong>Excel Export:</strong> Novo dugme "📊 Export u Excel" — preuzmi SVE rezervacije kao čistu CSV/Excel tabelu sa kompletnim detaljima (ID, status, ime, telefon, zemlja, kanal, datumi, broj noći, bungalovi, kreveti, struktura gostiju, cijena, napomene)</li>
@@ -2636,16 +2636,25 @@ async function logH(action,res,old=null,reason=null) {
 
 // ── CALENDAR ────────────────────────────────────────────────
 // ── KANAL STILOVI ZA KALENDAR ────────────────────────────
+// SVG logo paths: simpleicons.org (CC0 / brand guidelines)
+const CHANNEL_LOGOS = {
+  airbnb:    '<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAYAAAAfSC3RAAABpUlEQVR4nG2SzWtTURDFf3M/8rXQTSlKq2ZX3QqKYq1/tPgHiGLAnRRBpLSpUKJ9TZqGSN7re/cdFy9tkuKsZu7MuWfmzFiWZZLEhkngfeOnGmyVMjMk4f4LCgFb5FieQ/DN221amBmBuxYCNp/T/TxA3pO/eYW6XajrDbBbx5iEWpHWt0Py1y8pXjynffgdtVuYBLbqeYNRMeL/nGNVSTweIgRFgc/G1PfvQUq3tW6DLQTi8RDabRQDeI86bcLJEMXYsN4FKgT8eIItFizeHeBHv/HjCfnBPm4+x0+n6EbpjVYlMLCyJJyd4RcLaolw+guKAjm3oa6dZ5lYDl73esSTIWE0otjbwwzij59U/cek7W2sLLG6RmY4JHAOKwpaR0f4ySXV7i7dLwOsuKZ69hSfXdD5+KnRAQOJQC3UjnQGX4mnQ+xqRtraAu/ovf+AhQDXJTUCZ+Rv93F5TsAMS4my/wgcKETSwwfY9Ar3d07a2cFmM9zFmNR/gqWEzNZmDKERYPkRZsi5VaF3UCWsqpAZgeXtqSyxG39tV2J54xLmHLIm/gd9BN4JqCcLgwAAAABJRU5ErkJggg==" width="14" height="14" style="vertical-align:middle;margin-right:2px;border-radius:2px">',
+  viber:     '<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAYAAAAfSC3RAAABCGlDQ1BJQ0MgUHJvZmlsZQAAeJxjYGA8wQAELAYMDLl5JUVB7k4KEZFRCuwPGBiBEAwSk4sLGHADoKpv1yBqL+viUYcLcKakFicD6Q9ArFIEtBxopAiQLZIOYWuA2EkQtg2IXV5SUAJkB4DYRSFBzkB2CpCtkY7ETkJiJxcUgdT3ANk2uTmlyQh3M/Ck5oUGA2kOIJZhKGYIYnBncAL5H6IkfxEDg8VXBgbmCQixpJkMDNtbGRgkbiHEVBYwMPC3MDBsO48QQ4RJQWJRIliIBYiZ0tIYGD4tZ2DgjWRgEL7AwMAVDQsIHG5TALvNnSEfCNMZchhSgSKeDHkMyQx6QJYRgwGDIYMZAKbWPz9HbOBQAAABVElEQVR4nJ2Su0pDQRCGv9m4R2O8BGJQ8AqGKHbesBW18gHsfQVfxHewttNCSwsFEYJFwGA60YiQgxA9eDu7YxGJiUYF/2KLWb6Z+ZlfoihS/qGOdkXV+qOACIjI36B6JWENNrAAxG+O+NUhRn4GVZUgaXkInwgrVbzzZIb7SWdTvDy/tkxugOqVoMtyXapyuHNGeFujL9PN/d0j65tLzK7meIqeMQkDgGmeZjsCjveKLKxNMb+WJ+iyjM8McnpwAbR6bYAAikc9nOwXsUGCsFIjrNQAcM5Bk80WEJThyQylsyvK5zdsbC0zMTNEsqeTwFrUf15OGndU6h1V2N0+4rJwzfTiGNmRNHMrOXoHunGxa6wrzQHwXkmmAsqFGzpTltF8FlVwscPFvsWjfE2OqmKMYBKG+M2h2j4E3wIgIqiH2NfXahOa9mCdBuEH4kPm199f9A6GRIfIiBgoBAAAAABJRU5ErkJggg==" width="14" height="14" style="vertical-align:middle;margin-right:2px;border-radius:2px">',
+  whatsapp:  '<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAYAAAAfSC3RAAACJ0lEQVR4nF3SvUuVYRzG8e/9u5/nsaNSKRUYieSJzAoMKgi0JaGhIaIx6F8oaIqgf6ChqVoKCRpbo6C5QpKwIM3B7EVOejJQzvv93uAhpPVaLvjyUfV6PRVFgXMOyYQQAiJCSgkApRQxRrTWRB/J8xxrLcoYk5xz5FlOETIQRYoJpQQAUtzeQsJlHucdeZ6TWecoshzrLa/yN/yIa3jtMckAkEtOkQpG8iEuuLP0ZD1Y58h0JmRBeCFveeyfIwjDaoiTchSF4ltc5Uv6SoiRII4rYZqQCeJDABGWzQq23WDKT3DJT7LeqrDerjDlJ7gap/HtJstmBSWCDwHR3RDOGfbaPsZTmQW7RDu0eNd6z8PaDAO+n6N+hJZrklJCiyApJUSEhqlRTsPMNz9yWA0zKaf5U6vSbNWZbc5R5hBt00R1j7rpwDtL3WwxyB6eVGdQEW7vu8nl3ot0bBPrDc51UAoSIChFSoksCgu1RfYzwEaryr3V+/xsfKfVqXG+dI7ZzVmyIMSYEKXIYgioQtFq1+nzOSd6j3PrwA2qrsovs86Z/lN82JxjceszxwbLKK0INpBprSHCeGmM19WX3F26w2+zwZHeUUq6xKPqAyq2QoyB8sFRiKC1RtUb9dSTFXSc4dnaUz5tzbNLSnRih5gSvbqEoBjbPc61oeuU8hLGm//IqQIECPAvWwT09maxO8hZS1EUWGfx2hNcF3nYgdx3kYdIkRdYa/kL7YAzJZrkA8cAAAAASUVORK5CYII=" width="14" height="14" style="vertical-align:middle;margin-right:2px;border-radius:2px">',
+  facebook:  '<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAYAAAAfSC3RAAABvElEQVR4nG2Su25TURBF13ldx0US5DgCIgS9RQUFRKIAOgpK6PgD+AxKinyIe9q0gQJRRMgoEiKJFPGUcuHa9zxmKK6dOCjVOcWsPXu0t6nrWquqIqWE955SCtZaRBRRnf8LwXtyzoQQiDFi2rbV/6EiQi84fLAgShFl1mb8EuxTSjjnzqEi9CrH0feG8e4xX781PN2+xuO712mmEe/dwl2n4pxDRDDWkLKwMz5gb/8nG+s96qlgkblwwXuPL6WcQ8bQC5Y2CQfHNfdHA968ukOMiWkUQM/c+e74DgLDya8Zn49OMcZQ1PBh8oONtYrNK30ARLrNVlW7IVH6K563eye83PmIASaHp7x4/Z79LzW9ylGkm1VVTNM0CqAKVbBMjv7w7tNvxruHDNcqnmxv8eD2kOF6IGXFGACwCwVrDW0sjG6t8vzhFgBXB32ePbrJYNWTsmDtfJsx2IXnxTuLhbopWAO5CCllUtELMyKCXc5QRHDWAsrfWSFmxRmw1pxBixT8cobWda2pguPeaMCNzT6KQUVxbi7sHDnnyyunqqxUDlGljUtu5lAIARtjJIRwsT3G0LSZNsqlUIyRf637LnmjLhy/AAAAAElFTkSuQmCC" width="14" height="14" style="vertical-align:middle;margin-right:2px;border-radius:2px">',
+  instagram: '<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAYAAAAfSC3RAAAB10lEQVR4nHWSMWtTURiGn++cm+bexrRJaaNQLQgVNIoOVbF/oOKP0EEQHNz0P7i6CC4qugji4KgiboIgqKUigkKlIEiNGko9TeK953XIbVMHv/l9eJ/vO8dCCKIcRVGtGQ6jAIQBQogiAFbmJJJtKBYizYzlpzkvb24xtdFnEpHVPIeu1Nh3tkoeBB7MDAshSAIziBI35n+QrgeOnq5QN6HXgWw65cjn/ZjBdjYpu/Gp0f2Yc6D3i6X7U4xvbpLkkXipzs9rHYrVFkm7CiEiGKniHNbtc/hUDneX2Xy+Sm1vneTqCRrtP9jGACwFhqqjHTHGyJnxHSa6X0luLWCNFB59ImZNCoqd64yOIwAjcQMa4QvVxXF07xmWG1po4ztdIgXChuh2o5kQHm89Uq0BLSxfh1hBWY7TAIjsnh1VyXDpb3x7Dd6uUFy8gPk67s4L1GyDRqoj0IBoWNaDY99gagL/+Dq8b8HB40AO+k8jhdDkJFZ5g87fhqUt+D5GVAt3+Qk0zmG7YEdZaUUf7ZlDszP49Qe4+THcmYLk3UM0DZprQr9Apa3t/FVF5FNc9xVJWIFsFooBfOiQTywST7axXh+c+xeUytf0GcKB8nIZBy5ivQGYoWGQv/JQzuGTlM/0AAAAAElFTkSuQmCC" width="14" height="14" style="vertical-align:middle;margin-right:2px;border-radius:2px">'
+};
+
 function getChannelStyle(channelName) {
   if (!channelName) return null;
   const ch = channelName.toLowerCase();
-  if (ch.includes('airbnb'))    return { cls: 'ch-airbnb',   icon: '🏠' };
-  if (ch.includes('viber'))     return { cls: 'ch-viber',    icon: '📲' };
-  if (ch.includes('whatsapp') || ch.includes('whats app')) return { cls: 'ch-whatsapp', icon: '💬' };
-  if (ch.includes('facebook') || ch.includes('fb')) return { cls: 'ch-facebook', icon: '👤' };
-  if (ch.includes('instagram') || ch.includes('insta')) return { cls: 'ch-instagram', icon: '📸' };
-  if (ch.includes('direktno') || ch.includes('direct')) return { cls: 'ch-direktno', icon: '🤝' };
-  if (ch.includes('telefon') || ch.includes('phone') || ch.includes('call')) return { cls: 'ch-telefon', icon: '📞' };
+  if (ch.includes('airbnb'))    return { cls: 'ch-airbnb',   svg: CHANNEL_LOGOS.airbnb };
+  if (ch.includes('viber'))     return { cls: 'ch-viber',    svg: CHANNEL_LOGOS.viber };
+  if (ch.includes('whatsapp') || ch.includes('whats app')) return { cls: 'ch-whatsapp', svg: CHANNEL_LOGOS.whatsapp };
+  if (ch.includes('facebook') || ch.includes('fb')) return { cls: 'ch-facebook', svg: CHANNEL_LOGOS.facebook };
+  if (ch.includes('instagram') || ch.includes('insta')) return { cls: 'ch-instagram', svg: CHANNEL_LOGOS.instagram };
+  if (ch.includes('direktno') || ch.includes('direct')) return { cls: 'ch-direktno',  svg: '🤝' };
+  if (ch.includes('telefon') || ch.includes('phone') || ch.includes('call')) return { cls: 'ch-telefon', svg: '📞' };
   return null;
 }
 
@@ -2708,7 +2717,7 @@ window.renderCal = function() {
         else if (isIcal) label = res.name && res.name !== 'Booking.com' ? escHtml(res.name)+' <small>🌐</small>' : '🌐 Booking.com';
         else {
           const chStyle = getChannelStyle(res.channel);
-          const chIcon = chStyle ? `<small style="opacity:.85">${chStyle.icon}</small> ` : '';
+          const chIcon = chStyle ? chStyle.svg : '';
           label = chIcon + escHtml(res.name);
         }
         html+=`<div class="${cls}" style="grid-column:span ${span};position:relative" onclick="showDet('${res.id}')">
