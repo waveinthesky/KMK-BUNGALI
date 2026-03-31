@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Maja Karanfil Bungali v1.5.3</title>
+<title>Maja Karanfil Bungali v1.5.4</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh;padding:20px}
@@ -489,6 +489,10 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
   border-radius:7px;padding:6px 12px;font-size:.85em;cursor:pointer}
 .res-card-check{position:absolute;top:10px;right:10px;width:18px;height:18px;
   cursor:pointer;accent-color:#667eea;z-index:2}
+.cal-res-chk{opacity:0;transition:opacity .2s;position:absolute;
+  top:3px;right:3px;width:14px;height:14px;cursor:pointer;
+  accent-color:white;z-index:5}
+.cc:hover .cal-res-chk, .cal-res-chk:checked{opacity:1!important}
 .res-card{position:relative}
 .res-card.bulk-selected{border:2px solid #667eea!important;background:#f0edff!important}
 
@@ -676,6 +680,24 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 </head>
 <body>
 <!-- Undo delete toast -->
+<!-- GUEST PROFILE MODAL -->
+<div class="modal" id="m-guest-profile">
+  <div class="mc" style="max-width:600px;max-height:85vh;overflow-y:auto">
+    <div class="mh">
+      <h2 id="gp-title">👤 Profil Gosta</h2>
+      <div style="display:flex;align-items:center;gap:8px">
+        <button class="btn btn-primary" id="gp-edit-btn" onclick="guestProfileEdit()"
+          style="padding:6px 14px;font-size:.85em">✏️ Izmijeni</button>
+        <button class="cm" onclick="closeGuestProfile()">×</button>
+      </div>
+    </div>
+    <div id="gp-stats" style="display:flex;gap:10px;flex-wrap:wrap;padding:14px 0;border-bottom:1px solid #eee;margin-bottom:14px"></div>
+    <div id="gp-details" style="margin-bottom:16px;padding:12px;background:#f8f9fa;border-radius:10px;font-size:.9em"></div>
+    <h4 style="margin-bottom:10px;font-size:.9em;color:#555">📋 Historija rezervacija</h4>
+    <div id="gp-history"></div>
+  </div>
+</div>
+
 <div class="undo-toast" id="undo-toast">
   <span id="undo-toast-txt">Rezervacija otkazana</span>
   <button onclick="undoDelete()">↩ Poništi</button>
@@ -694,7 +716,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
       <img src="https://i.imgur.com/DzB2EDR.png" onerror="this.style.display='none'"
            alt="Logo" style="max-width:175px;margin:0 auto 10px;display:block;border-radius:10px">
       <h1>🏡 Maja Karanfil Bungali</h1>
-      <p>Prijavite se u sistem — v1.5.3</p>
+      <p>Prijavite se u sistem — v1.5.4</p>
     </div>
     <div class="login-err" id="login-err">Pogrešno korisničko ime ili lozinka!</div>
     <form class="login-form" id="login-form">
@@ -1191,83 +1213,23 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
   <!-- SETTINGS (admin only) -->
   <div id="pane-settings" class="tab-pane">
     <h2 style="margin-bottom:20px">⚙️ Podešavanja</h2>
-    <div class="stats-sub-btns">
+    <div class="stats-sub-btns" style="flex-wrap:wrap;gap:6px">
       <button class="ssb active" onclick="switchSetTab('users',this)">👤 Korisnici</button>
-      <button class="ssb" onclick="switchSetTab('prices',this)">💰 Cjenovnik po Periodima</button>
+      <button class="ssb" onclick="switchSetTab('guests',this)">🏨 Gosti</button>
+      <button class="ssb" onclick="switchSetTab('security',this)">🔒 Sigurnost</button>
+      <button class="ssb" onclick="switchSetTab('prices',this)">💰 Cjenovnik</button>
       <button class="ssb" onclick="switchSetTab('channels',this)">📡 Kanali</button>
+      <button class="ssb" onclick="switchSetTab('calendar-set',this)">📅 Kalendar</button>
+      <button class="ssb" onclick="switchSetTab('backup',this)">💾 Backup</button>
+      <button class="ssb" onclick="switchSetTab('ical',this)">🔄 iCal Sync</button>
+      <button class="ssb" onclick="switchSetTab('import',this)">📥 Import</button>
       <button class="ssb" onclick="switchSetTab('about',this)">ℹ️ About</button>
-      <button class="ssb" onclick="switchSetTab('ical',this)">📅 iCal Sync</button>
-      <button class="ssb" onclick="switchSetTab('import',this)">📥 Import Excel</button>
     </div>
 
     <!-- USERS TAB -->
     <div id="set-users">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-        <!-- Export CSV backup -->
-        <div style="margin-bottom:20px;padding:14px;background:#f8f9fa;border-radius:10px;border:1px solid #e0e0e0">
-          <h3 style="margin:0 0 6px">📥 Export & Backup</h3>
-          <p style="font-size:.83em;color:#666;margin-bottom:10px">Izvezi sve rezervacije u CSV (Excel). Preporučuje se sedmično kao kopija van Firebase-a.</p>
-          <button class="btn btn-primary" onclick="exportToXLSX()">📊 Izvezi u Excel (.xlsx)</button>
-        <button class="btn btn-secondary" onclick="exportReservationsCSV()">📥 Izvezi (CSV)</button>
-        </div>
-
-        <h3>Upravljanje Gostima</h3>
-        <div style="margin-bottom:16px">
-          <button class="btn btn-secondary" onclick="showGuestBook()">👥 Pregled svih gostiju</button>
-        </div>
-        <div id="guestbook-panel" style="display:none;margin-bottom:20px">
-          <input type="text" id="guestbook-search" placeholder="Pretraži po imenu ili telefonu..."
-            oninput="filterGuestBook()" style="width:100%;margin-bottom:10px">
-          <div id="guestbook-list"></div>
-        </div>
-        <h3>🔐 Zaštita pri Otkazivanju</h3>
-        <div style="background:#f8f9fa;border-radius:10px;padding:14px;margin-bottom:20px;border:1px solid #e0e0e0">
-          <p style="font-size:.85em;color:#666;margin-bottom:12px">
-            Odaberite kako se potvrđuje otkazivanje rezervacije:
-          </p>
-          <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px">
-            <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:.9em">
-              <input type="radio" name="del-protect-mode" value="off"
-                onchange="saveDelProtectMode(this.value)"
-                style="width:16px;height:16px">
-              <span><strong>Isključeno</strong> — otkaži bez dodatne potvrde</span>
-            </label>
-            <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:.9em">
-              <input type="radio" name="del-protect-mode" value="name"
-                onchange="saveDelProtectMode(this.value)"
-                style="width:16px;height:16px">
-              <span><strong>Ime gosta</strong> — mora upisati ime gosta</span>
-            </label>
-            <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:.9em">
-              <input type="radio" name="del-protect-mode" value="password"
-                onchange="saveDelProtectMode(this.value)"
-                style="width:16px;height:16px">
-              <span><strong>Lozinka</strong> — mora upisati određenu lozinku</span>
-            </label>
-          </div>
-          <div id="del-password-setting" style="display:none">
-            <label style="font-size:.85em;font-weight:600;color:#333;display:block;margin-bottom:6px">
-              Lozinka za otkazivanje:
-            </label>
-            <div style="display:flex;gap:8px">
-              <input type="text" id="del-password-input"
-                placeholder="npr. DELETE123 ili brisanje"
-                style="flex:1;padding:8px 10px;border:1px solid #ddd;border-radius:6px;font-size:.9em">
-              <button class="btn btn-primary" onclick="saveDelPassword()"
-                style="padding:8px 14px;white-space:nowrap">Sačuvaj</button>
-            </div>
-            <div id="del-password-saved-msg"
-              style="font-size:.8em;color:#28a745;margin-top:5px;display:none">
-              ✅ Lozinka sačuvana
-            </div>
-          </div>
-          <div id="del-protect-status"
-            style="margin-top:10px;font-size:.82em;padding:8px 12px;
-                   border-radius:6px;background:#e8f4fd;color:#1a5276">
-          </div>
-        </div>
-
-        <h3>Upravljanje Korisnicima</h3>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <h3 style="margin:0">👤 Korisnici Sistema</h3>
         <button class="btn btn-primary" onclick="showAddUserForm()" style="padding:8px 16px">+ Novi Korisnik</button>
       </div>
 
@@ -1301,6 +1263,120 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <!-- Users list -->
       <div id="users-list"></div>
+    </div>
+
+    <!-- GUESTS TAB -->
+    <div id="set-guests" style="display:none">
+      <h3 style="margin-bottom:16px">🏨 Upravljanje Gostima</h3>
+      <div style="margin-bottom:16px">
+        <button class="btn btn-secondary" onclick="showGuestBook()">👥 Pregled svih gostiju</button>
+      </div>
+      <div id="guestbook-panel" style="display:none;margin-bottom:20px">
+        <input type="text" id="guestbook-search" placeholder="Pretraži po imenu ili telefonu..."
+          oninput="filterGuestBook()" style="width:100%;margin-bottom:10px">
+        <div id="guestbook-list"></div>
+      </div>
+    </div>
+
+    <!-- SECURITY TAB -->
+    <div id="set-security" style="display:none">
+      <h3 style="margin-bottom:16px">🔒 Sigurnost</h3>
+      <div style="background:#f8f9fa;border-radius:10px;padding:16px;margin-bottom:20px;border:1px solid #e0e0e0">
+        <h4 style="margin:0 0 12px;font-size:.95em">🔐 Zaštita pri Otkazivanju</h4>
+        <p style="font-size:.85em;color:#666;margin-bottom:12px">
+          Odaberite kako se potvrđuje otkazivanje rezervacije:
+        </p>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px">
+          <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:.9em">
+            <input type="radio" name="del-protect-mode" value="off"
+              onchange="saveDelProtectMode(this.value)" style="width:16px;height:16px">
+            <span><strong>Isključeno</strong> — otkaži bez dodatne potvrde</span>
+          </label>
+          <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:.9em">
+            <input type="radio" name="del-protect-mode" value="name"
+              onchange="saveDelProtectMode(this.value)" style="width:16px;height:16px">
+            <span><strong>Ime gosta</strong> — mora upisati ime gosta</span>
+          </label>
+          <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:.9em">
+            <input type="radio" name="del-protect-mode" value="password"
+              onchange="saveDelProtectMode(this.value)" style="width:16px;height:16px">
+            <span><strong>Lozinka</strong> — mora upisati određenu lozinku</span>
+          </label>
+        </div>
+        <div id="del-password-setting" style="display:none">
+          <label style="font-size:.85em;font-weight:600;color:#333;display:block;margin-bottom:6px">
+            Lozinka za otkazivanje:
+          </label>
+          <div style="display:flex;gap:8px">
+            <input type="text" id="del-password-input"
+              placeholder="npr. DELETE123 ili brisanje"
+              style="flex:1;padding:8px 10px;border:1px solid #ddd;border-radius:6px;font-size:.9em">
+            <button class="btn btn-primary" onclick="saveDelPassword()"
+              style="padding:8px 14px;white-space:nowrap">Sačuvaj</button>
+          </div>
+          <div id="del-password-saved-msg"
+            style="font-size:.8em;color:#28a745;margin-top:5px;display:none">
+            ✅ Lozinka sačuvana
+          </div>
+        </div>
+        <div id="del-protect-status"
+          style="margin-top:10px;font-size:.82em;padding:8px 12px;
+                 border-radius:6px;background:#e8f4fd;color:#1a5276">
+        </div>
+      </div>
+    </div>
+
+    <!-- CALENDAR SETTINGS TAB -->
+    <div id="set-calendar-set" style="display:none">
+      <h3 style="margin-bottom:16px">📅 Postavke Kalendara</h3>
+      <div style="background:#f8f9fa;border-radius:12px;padding:16px;border:1px solid #e0e0e0">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #eee">
+          <div>
+            <div style="font-weight:600;font-size:.9em">👆 Klik na rezervaciju (mobilno)</div>
+            <div style="font-size:.8em;color:#888;margin-top:2px">Otvara detalje rezervacije klikom na blok u kalendaru</div>
+          </div>
+          <label class="kmk-toggle">
+            <input type="checkbox" id="setting-cal-click" onchange="saveCalSettings()" checked>
+            <span class="kmk-toggle-slider"></span>
+          </label>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0">
+          <div>
+            <div style="font-weight:600;font-size:.9em">✋ Drag za novu rezervaciju (mobilno)</div>
+            <div style="font-size:.8em;color:#888;margin-top:2px">Prevuci po slobodnim danima da otvoriš formu za novu rezervaciju</div>
+          </div>
+          <label class="kmk-toggle">
+            <input type="checkbox" id="setting-cal-drag" onchange="saveCalSettings()">
+            <span class="kmk-toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- BACKUP TAB -->
+    <div id="set-backup" style="display:none">
+      <h3 style="margin-bottom:16px">💾 Backup & Export</h3>
+      <div style="background:#f8f9fa;border-radius:10px;padding:16px;margin-bottom:16px;border:1px solid #e0e0e0">
+        <h4 style="margin:0 0 8px;font-size:.95em">💾 Backup Firebase</h4>
+        <p style="font-size:.83em;color:#666;margin-bottom:12px">
+          Pravi potpunu kopiju svih rezervacija i historije. Čuva se i lokalno (preuzimanje) i u Firebase-u.
+          <strong>Preporučuje se sedmično.</strong>
+        </p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="bk-btn" onclick="downloadBackup()">💾 Preuzmi Backup</button>
+          <button class="bk-btn" onclick="showRestoreModal()">📤 Vrati Backup</button>
+        </div>
+      </div>
+      <div style="background:#f8f9fa;border-radius:10px;padding:16px;border:1px solid #e0e0e0">
+        <h4 style="margin:0 0 8px;font-size:.95em">📊 Export podataka</h4>
+        <p style="font-size:.83em;color:#666;margin-bottom:12px">
+          Izvezi rezervacije za pregled u Excelu. Nije namijenjen za vraćanje podataka.
+        </p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-primary" onclick="exportToXLSX()">📊 Izvezi u Excel (.xlsx)</button>
+          <button class="btn btn-secondary" onclick="exportReservationsCSV()">📥 Izvezi (CSV)</button>
+        </div>
+      </div>
     </div>
 
     <!-- PRICES TAB -->
@@ -1375,35 +1451,6 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
     <div id="set-about" style="display:none">
       <div style="padding:20px">
 
-      <!-- KALENDAR POSTAVKE -->
-      <div style="background:#f8f9fa;border-radius:12px;padding:16px;margin-bottom:22px;border:1px solid #e0e0e0">
-        <h4 style="margin:0 0 14px;color:#333;font-size:1em">📅 Postavke Kalendara</h4>
-
-        <!-- Klik na rezervaciju -->
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #eee">
-          <div>
-            <div style="font-weight:600;font-size:.9em">👆 Klik na rezervaciju (mobilno)</div>
-            <div style="font-size:.8em;color:#888;margin-top:2px">Otvara detalje rezervacije klikom na blok u kalendaru</div>
-          </div>
-          <label class="kmk-toggle">
-            <input type="checkbox" id="setting-cal-click" onchange="saveCalSettings()" checked>
-            <span class="kmk-toggle-slider"></span>
-          </label>
-        </div>
-
-        <!-- Drag za novu rezervaciju -->
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0">
-          <div>
-            <div style="font-weight:600;font-size:.9em">✋ Drag za novu rezervaciju (mobilno)</div>
-            <div style="font-size:.8em;color:#888;margin-top:2px">Prevuci po slobodnim danima da otvoriš formu za novu rezervaciju</div>
-          </div>
-          <label class="kmk-toggle">
-            <input type="checkbox" id="setting-cal-drag" onchange="saveCalSettings()">
-            <span class="kmk-toggle-slider"></span>
-          </label>
-        </div>
-      </div>
-
       <!-- DANGER ZONE — Brisanje podataka -->
       <div style="background:#fff5f5;border:1px solid #fed7d7;border-radius:12px;padding:16px;margin-bottom:22px">
         <h4 style="margin:0 0 10px;color:#c53030;font-size:.95em">⚠️ Brisanje Podataka</h4>
@@ -1434,7 +1481,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <!-- Current version -->
       <div style="background:#e8f4fd;padding:14px;border-radius:8px;margin-bottom:20px;border-left:4px solid #667eea">
-        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v1.5.3</strong>
+        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v1.5.4</strong>
       </div>
 
       <!-- Changelog -->
@@ -1442,7 +1489,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <div class="changelog">
         <div class="ch-version">
-          <div class="ch-ver-header">v1.5.3 <span class="ch-date">— 30.03.2026</span></div>
+          <div class="ch-ver-header">v1.5.4 <span class="ch-date">— 30.03.2026</span></div>
           <ul>
             <li><strong>About premješten:</strong> Iz floating dugmeta u Podešavanja → ℹ️ About tab — pregledniji pristup</li>
             <li><strong>Excel Export:</strong> Novo dugme "📊 Export u Excel" — preuzmi SVE rezervacije kao čistu CSV/Excel tabelu sa kompletnim detaljima (ID, status, ime, telefon, zemlja, kanal, datumi, broj noći, bungalovi, kreveti, struktura gostiju, cijena, napomene)</li>
@@ -4912,6 +4959,118 @@ window.v3Book = () => {
 };
 
 // ══════════════════════════════════════════════════════════
+// GUEST PROFILE MODAL
+// ══════════════════════════════════════════════════════════
+
+let _gpCurrentName = null; // ime trenutno otvorenog gosta
+
+window.showGuestProfile = (name) => {
+  _gpCurrentName = name;
+  const modal = document.getElementById('m-guest-profile');
+  if (!modal) return;
+
+  const all = getGuestHistory(name);
+  const active = all.filter(r => !r.cancelled);
+  const cancelled = all.filter(r => r.cancelled);
+  const totalSpent = active.reduce((s,r) => s+(r.price||0), 0);
+  const totalNights = active.reduce((s,r) => {
+    if (!r.checkIn || !r.checkOut) return s;
+    return s + Math.ceil((new Date(r.checkOut)-new Date(r.checkIn))/86400000);
+  }, 0);
+  const allBungs = [...new Set(active.flatMap(r => (r.bungalovi||[]).map(b=>'B'+b.bungalov)))];
+  const lastRes = active.sort((a,b)=>b.checkIn.localeCompare(a.checkIn))[0];
+  const guest = getGuestList().find(g=>g.name.trim().toLowerCase()===name.trim().toLowerCase());
+
+  // Title
+  document.getElementById('gp-title').textContent = '👤 ' + name;
+
+  // Edit dugme — samo admin
+  const editBtn = document.getElementById('gp-edit-btn');
+  if (editBtn) editBtn.style.display = curRole==='admin' ? 'block' : 'none';
+
+  // Statistika kartice
+  document.getElementById('gp-stats').innerHTML = `
+    <div class="occ-card" style="flex:1;min-width:100px">
+      <div class="occ-card-num" style="font-size:1.3em">${active.length}</div>
+      <div class="occ-card-lbl">Rezervacija</div>
+    </div>
+    <div class="occ-card" style="flex:1;min-width:100px">
+      <div class="occ-card-num" style="font-size:1.3em">${totalNights}</div>
+      <div class="occ-card-lbl">Ukupno noći</div>
+    </div>
+    <div class="occ-card" style="flex:1;min-width:100px">
+      <div class="occ-card-num" style="font-size:1.3em">${totalSpent.toFixed(0)}€</div>
+      <div class="occ-card-lbl">Ukupno plaćeno</div>
+    </div>
+    ${cancelled.length ? `<div class="occ-card" style="flex:1;min-width:100px">
+      <div class="occ-card-num" style="font-size:1.3em;color:#dc3545">${cancelled.length}</div>
+      <div class="occ-card-lbl">Otkazano</div>
+    </div>` : ''}`;
+
+  // Detalji gosta
+  document.getElementById('gp-details').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <div><span style="color:#888;font-size:.85em">📞 Telefon</span><br>
+        <strong>${escHtml(guest?.phone||'—')}</strong></div>
+      <div><span style="color:#888;font-size:.85em">🌍 Zemlja</span><br>
+        <strong>${escHtml(guest?.country||'—')}</strong></div>
+      <div><span style="color:#888;font-size:.85em">🏠 Bungalovi</span><br>
+        <strong>${allBungs.join(', ')||'—'}</strong></div>
+      <div><span style="color:#888;font-size:.85em">📅 Zadnji boravak</span><br>
+        <strong>${lastRes ? fmtD(lastRes.checkIn)+' → '+fmtD(lastRes.checkOut) : '—'}</strong></div>
+    </div>`;
+
+  // Historija
+  const sorted = [...all].sort((a,b)=>b.checkIn.localeCompare(a.checkIn));
+  document.getElementById('gp-history').innerHTML = sorted.map(r => {
+    const nights = r.checkIn&&r.checkOut
+      ? Math.ceil((new Date(r.checkOut)-new Date(r.checkIn))/86400000) : 0;
+    const bungs = (r.bungalovi||[]).map(b=>'B'+b.bungalov).join(', ');
+    const adults = (r.bungalovi||[]).reduce((s,b)=>s+(b.adults||0),0);
+    const children = (r.bungalovi||[]).reduce((s,b)=>s+(b.children||0),0);
+    const persons = [adults&&adults+'odr.', children&&children+'dj.'].filter(Boolean).join(', ');
+    return `<div class="gb-history-row" style="cursor:pointer;padding:8px 0"
+        onclick="showDet('${r.id}');closeGuestProfile()">
+      <div style="flex:1">
+        <div style="font-size:.85em;font-weight:600">${fmtD(r.checkIn)} → ${fmtD(r.checkOut)} · ${nights}n</div>
+        <div style="font-size:.78em;color:#888">${bungs} · ${persons} · ${(r.price||0).toFixed(0)}€</div>
+      </div>
+      <div style="display:flex;gap:6px;align-items:center">
+        ${r.cancelled?'<span class="gb-badge" style="background:#fce8e6;color:#c62828">Otkazano</span>':''}
+        ${r.paid?'<span class="gb-badge paid">Plaćeno</span>':''}
+        ${!r.paid&&!r.cancelled?'<span class="gb-badge unpaid">Nije plaćeno</span>':''}
+      </div>
+    </div>`;
+  }).join('') || '<p style="color:#aaa;text-align:center">Nema rezervacija</p>';
+
+  modal.classList.add('open');
+  modal.onclick = (e) => { if (e.target === modal) closeGuestProfile(); };
+};
+
+window.closeGuestProfile = () => {
+  document.getElementById('m-guest-profile')?.classList.remove('open');
+};
+
+// Otvori edit formu za gosta — pre-popuni f-name i idi na add tab
+window.guestProfileEdit = () => {
+  if (!_gpCurrentName) return;
+  closeGuestProfile();
+  // Nađi zadnju rezervaciju ovog gosta
+  const hist = getGuestHistory(_gpCurrentName);
+  const last = hist.filter(r=>!r.cancelled).sort((a,b)=>b.checkIn.localeCompare(a.checkIn))[0];
+  if (last) {
+    editRes(last.id);
+    goTabDirect('add');
+  } else {
+    goTab('add', document.querySelector('.tab[data-tab="add"]'));
+    setTimeout(() => {
+      const el = document.getElementById('f-name');
+      if (el) { el.value = _gpCurrentName; _showGuestHistory(_gpCurrentName); }
+    }, 200);
+  }
+};
+
+// ══════════════════════════════════════════════════════════
 // GUEST MANAGEMENT — autocomplete + historija gosta
 // ══════════════════════════════════════════════════════════
 
@@ -5056,7 +5215,7 @@ window.filterGuestBook = () => {
   if (!guests.length) { listEl.innerHTML = '<p style="color:#aaa;text-align:center">Nema gostiju</p>'; return; }
   listEl.innerHTML = guests.map(g => `
     <div class="gb-history-card" style="cursor:pointer;margin-bottom:8px"
-      onclick="goTab('add');setTimeout(()=>{const el=document.getElementById('f-name');if(el){el.value='${escHtml(g.name).replace(/'/g,"\'")}';_showGuestHistory('${escHtml(g.name).replace(/'/g,"\'")}');}},200)">
+      onclick="showGuestProfile('${escHtml(g.name)}')">
       <div style="display:flex;justify-content:space-between;align-items:center">
         <div>
           <div style="font-weight:700;font-size:.9em">${escHtml(g.name)}</div>
@@ -6058,17 +6217,14 @@ window.renderSettings = function() { renderUsers(); };
 window.switchSetTab = (tab, btn) => {
   document.querySelectorAll('#pane-settings .ssb').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
-  document.getElementById('set-users').style.display    = tab==='users'    ? 'block' : 'none';
-  document.getElementById('set-prices').style.display   = tab==='prices'   ? 'block' : 'none';
-  document.getElementById('set-channels').style.display = tab==='channels' ? 'block' : 'none';
-  document.getElementById('set-about').style.display    = tab==='about'    ? 'block' : 'none';
-  document.getElementById('set-ical').style.display     = tab==='ical'     ? 'block' : 'none';
-  document.getElementById('set-import').style.display   = tab==='import'   ? 'block' : 'none';
-  if (tab==='users')    renderUsers();
-  if (tab==='prices')   renderPricePeriods();
-  if (tab==='channels') renderChannels();
-  if (tab==='ical')     renderIcalLinks();
-  if (tab==='about')    loadCalSettings();
+  const tabs = ['users','guests','security','prices','channels','calendar-set','backup','ical','import','about'];
+  tabs.forEach(t => {
+    const el = document.getElementById('set-' + t);
+    if (el) el.style.display = (t === tab) ? 'block' : 'none';
+  });
+  // Specijalni init pri otvaranju
+  if (tab === 'security') setTimeout(_updateDelProtectUI, 50);
+  if (tab === 'guests')   setTimeout(() => { if(document.getElementById('guestbook-panel')?.style.display==='block') filterGuestBook(); }, 50);
 };
 
 // ── USERS ─────────────────────────────────────────────────────
