@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Maja Karanfil Bungali v1.7.1</title>
+<title>Maja Karanfil Bungali v1.7.4</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh;padding:20px}
@@ -119,6 +119,11 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 .cal-nav button{padding:7px 16px;background:#667eea;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600}
 .cal-grid{display:grid;gap:1px;background:#dee2e6;border:1px solid #dee2e6;min-width:1100px}
 .cal-row{display:grid;grid-template-columns:60px repeat(31,1fr);gap:1px}
+.cal-wrap{overflow:auto;max-height:72vh;position:relative}
+.cal-row-hdr{position:sticky;top:0;z-index:20;background:#dee2e6}
+.cal-row-hdr .cc.hdr{position:sticky;top:0;z-index:20}
+.cal-col-bung{position:sticky;left:0;z-index:15;background:white}
+.cal-row-hdr .cal-col-bung{z-index:25}
 .cc{background:white;padding:5px 2px;min-height:40px;display:flex;align-items:center;justify-content:center;font-size:.76em}
 .cc.hdr{background:#f8f9fa;font-weight:700;color:#111;flex-direction:column;font-size:.78em;position:sticky;top:0;z-index:10}
 .cc.hdr small{color:#777;font-weight:400}
@@ -735,7 +740,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
       <img src="https://i.imgur.com/DzB2EDR.png" onerror="this.style.display='none'"
            alt="Logo" style="max-width:175px;margin:0 auto 10px;display:block;border-radius:10px">
       <h1>🏡 Maja Karanfil Bungali</h1>
-      <p>Prijavite se u sistem — v1.7.1</p>
+      <p>Prijavite se u sistem — v1.7.4</p>
     </div>
     <div class="login-err" id="login-err">Pogrešno korisničko ime ili lozinka!</div>
     <form class="login-form" id="login-form">
@@ -999,8 +1004,14 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
       <div style="display:flex;align-items:center;justify-content:space-between">
         <button onclick="changeMonth(-1)" style="background:#f0f0f0;border:none;border-radius:8px;padding:8px 16px;font-size:.95em;cursor:pointer;font-weight:600">←</button>
         <span id="mob-cal-month-label" style="font-size:1.05em;font-weight:700;color:#333">— —</span>
-        <button onclick="changeMonth(1)" style="background:#f0f0f0;border:none;border-radius:8px;padding:8px 16px;font-size:.95em;cursor:pointer;font-weight:600">→</button>
+        <div style="display:flex;align-items:center;gap:6px">
+          <button onclick="changeMonth(1)" style="background:#f0f0f0;border:none;border-radius:8px;padding:8px 16px;font-size:.95em;cursor:pointer;font-weight:600">→</button>
+          <button id="mob-nav-collapse-btn" onclick="mobToggleNavPanel()"
+            style="background:#f0f0f0;border:none;border-radius:8px;padding:8px 12px;font-size:1em;cursor:pointer;font-weight:700;color:#667eea;line-height:1"
+            title="Sakrij/prikaži panel">−</button>
+        </div>
       </div>
+      <div id="mob-nav-collapsible">
       <div style="display:flex;gap:6px;justify-content:center">
         <button id="mob-cal-v1-btn" onclick="mobSetCalView('v1')"
           style="flex:1;padding:5px;border:1.5px solid #667eea;border-radius:8px;
@@ -1033,6 +1044,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
           <span style="display:flex;align-items:center;gap:3px"><span style="width:10px;height:10px;background:#28a745;border-radius:2px;display:inline-block"></span>Plaćeno</span>
         </div>
       </div>
+      </div><!-- /mob-nav-collapsible -->
     </div>
     <!-- V2 mobilni kalendar — vertikalni prikaz po danima -->
     <div id="mob-cal-v2" style="display:none"></div>
@@ -1065,7 +1077,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
       <div class="legend-i"><div class="lc" style="background:#555"></div>Zatvoreno (Booking.com)</div>
       <div class="legend-i" style="color:#667eea;font-style:italic">✋ Prevuci po slobodnim danima = nova rezervacija</div>
     </div>
-    <div class="cal-wrap"><div id="cal-grid" class="cal-grid"></div></div>
+    <div class="cal-wrap" id="cal-wrap-outer"><div id="cal-grid" class="cal-grid"></div></div>
   </div>
 
   <!-- ADD / EDIT -->
@@ -1582,7 +1594,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <!-- Current version -->
       <div style="background:#e8f4fd;padding:14px;border-radius:8px;margin-bottom:20px;border-left:4px solid #667eea">
-        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v1.7.1</strong>
+        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v1.7.4</strong>
       </div>
 
       <!-- Changelog -->
@@ -1590,7 +1602,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <div class="changelog">
         <div class="ch-version">
-          <div class="ch-ver-header">v1.7.1 <span class="ch-date">— 30.03.2026</span></div>
+          <div class="ch-ver-header">v1.7.4 <span class="ch-date">— 30.03.2026</span></div>
           <ul>
             <li><strong>About premješten:</strong> Iz floating dugmeta u Podešavanja → ℹ️ About tab — pregledniji pristup</li>
             <li><strong>Excel Export:</strong> Novo dugme "📊 Export u Excel" — preuzmi SVE rezervacije kao čistu CSV/Excel tabelu sa kompletnim detaljima (ID, status, ime, telefon, zemlja, kanal, datumi, broj noći, bungalovi, kreveti, struktura gostiju, cijena, napomene)</li>
@@ -1972,6 +1984,7 @@ const COUNTRIES=['Albanija','Alžir','Argentina','Australija','Austrija','Azerbe
     if (typeof isMobile === 'function' && isMobile()) {
       updateMobHeader();
       setTimeout(() => mobGoTab('daily'), 200);
+      _restoreMobNavState();
     }
     init();
   } catch(e) { console.warn('Auto-login greška:', e); }
@@ -2381,11 +2394,11 @@ function calcPrice(bungNum, adults, children, babies, numNights, activePrices) {
   }
   if (babies > 0) lines.push(`&nbsp;&nbsp;Djeca do 4g (${babies}): besplatno`);
 
-  const taxPersons = adults + children;
-  if (taxPersons > 0 && n > 0) {
-    const tax = taxPersons * n;
+  // Turistička taksa: samo odrasli × noći × 1€ (djeca i bebe ne plaćaju)
+  if (adults > 0 && n > 0) {
+    const tax = adults * n;
     sub += tax;
-    lines.push(`&nbsp;&nbsp;Tur. taksa (${taxPersons}os × ${n}noći × 1€): +${tax.toFixed(2)}€`);
+    lines.push(`&nbsp;&nbsp;Tur. taksa (${adults} odraslih × ${n}noći × 1€): +${tax.toFixed(2)}€`);
   }
 
   lines.push(`<span class="pb-total">&nbsp;&nbsp;Ukupno B${bungNum}: ${sub.toFixed(2)} €</span>`);
@@ -2574,12 +2587,13 @@ window.toggleClosedMode = function() {
     document.getElementById('form-title').textContent = '🔒 Zatvaranje Bungalova';
   } else {
     nameEl.setAttribute('required', '');
-    nameEl.value = '';
+    // Briši ime SAMO ako nije edit mode — u edit modu ime je već postavljeno iz rezervacije
+    if (!editId) nameEl.value = '';
     if (fgName) fgName.style.display = '';
     if (svcSec) svcSec.style.display = '';
     if (priceSec) priceSec.style.display = '';
     if (guestFields) guestFields.style.display = '';
-    document.getElementById('form-title').textContent = '➕ Nova Rezervacija';
+    if (!editId) document.getElementById('form-title').textContent = '➕ Nova Rezervacija';
   }
 };
 
@@ -2792,7 +2806,7 @@ window.renderCal = function() {
   const dim=new Date(yr,mo+1,0).getDate();
 
   const DNAMES_SHORT=['N','P','U','S','Č','P','S'];
-  let html='<div class="cal-row"><div class="cc hdr cc-label cc-corner">Bungalovi<br><span style="font-weight:400;font-size:.9em;color:#888">Datum</span></div>';
+  let html='<div class="cal-row cal-row-hdr"><div class="cc hdr cc-label cc-corner cal-col-bung">Bungalovi<br><span style="font-weight:400;font-size:.9em;color:#888">Datum</span></div>';
   for (let d=1;d<=dim;d++) {
     const dt=new Date(yr,mo,d);
     const past=dt<now, today=dt.getTime()===now.getTime();
@@ -2805,7 +2819,7 @@ window.renderCal = function() {
   html+='</div>';
 
   for (let bn=1;bn<=13;bn++) {
-    html+=`<div class="cal-row"><div class="cc bh">B${bn}</div>`;
+    html+=`<div class="cal-row"><div class="cc bh cal-col-bung">B${bn}</div>`;
     let skip=0, tog=true;
     for (let d=1;d<=dim;d++) {
       if (d<skip) continue;
@@ -3812,12 +3826,34 @@ async function _gdAutoBackupOnLogin() {
 
 function _initPersonNightsDates() {
   const now = new Date();
-  const firstDay = lDate(new Date(now.getFullYear(), now.getMonth(), 1));
-  const today    = lDate(now);
   const fromEl = document.getElementById('pn-from');
   const toEl   = document.getElementById('pn-to');
-  if (fromEl && !fromEl.value) fromEl.value = firstDay;
-  if (toEl   && !toEl.value)   toEl.value   = today;
+
+  // Sinhronizuj sa globalnim period filterom iz Statistike
+  if (period === 'today') {
+    const ts = lDate(now);
+    if (fromEl) fromEl.value = ts;
+    if (toEl)   toEl.value   = ts;
+  } else if (period === 'week') {
+    const wa = new Date(now); wa.setDate(wa.getDate()-7);
+    if (fromEl) fromEl.value = lDate(wa);
+    if (toEl)   toEl.value   = lDate(now);
+  } else if (period === 'month') {
+    if (fromEl) fromEl.value = lDate(new Date(now.getFullYear(), now.getMonth(), 1));
+    if (toEl)   toEl.value   = lDate(now);
+  } else if (period === 'custom' && pFrom && pTo) {
+    if (fromEl) fromEl.value = pFrom;
+    if (toEl)   toEl.value   = pTo;
+  } else if (period === 'all') {
+    // Sve - od prve rezervacije do danas
+    const firstRes = [...reservations].filter(r=>!r.cancelled).sort((a,b)=>a.checkIn.localeCompare(b.checkIn))[0];
+    if (fromEl) fromEl.value = firstRes ? firstRes.checkIn : lDate(new Date(now.getFullYear(), now.getMonth(), 1));
+    if (toEl)   toEl.value   = lDate(now);
+  } else {
+    // Default: tekući mjesec
+    if (fromEl && !fromEl.value) fromEl.value = lDate(new Date(now.getFullYear(), now.getMonth(), 1));
+    if (toEl   && !toEl.value)   toEl.value   = lDate(now);
+  }
 }
 
 function calcPersonNights(from, to) {
@@ -3995,14 +4031,13 @@ function renderAccounting() {
     <!-- Sumarne kartice -->
     <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px">
       ${[
-        ['€'+totNaplac.toFixed(2),  'Ukupno naplaćeno',      '#28a745'],
-        ['€'+totTaksa.toFixed(2),   'Boravišna taksa (1€/os/noć)', '#1565c0'],
-        ['€'+totBezTakse.toFixed(2),'Prihod bez takse',      '#667eea'],
-        ['€'+totDug.toFixed(2),     'Neplaćeno',             '#dc3545'],
-        ['€'+totPrihod.toFixed(2),  'Ukupno ugovoreno',      '#6c757d'],
-        [totRez,                     'Rezervacija',           '#6c757d'],
-        [totNoci,                    'Noćenja',               '#6c757d'],
-        [totOdrasli,                 'Odraslih (taksa)',      '#fd7e14'],
+        ['€'+totNaplac.toFixed(2),   'Ukupno naplaćeno',           '#28a745'],
+        ['€'+totTaksa.toFixed(2),    'Boravišna taksa (1€/os/noć)','#1565c0'],
+        ['€'+totBezTakse.toFixed(2), 'Prihod bez takse',           '#667eea'],
+        ['€'+totDug.toFixed(2),      'Neplaćeno',                  '#dc3545'],
+        ['€'+totPrihod.toFixed(2),   'Ukupno ugovoreno',           '#6c757d'],
+        [totRez,                      'Rezervacija',                '#6c757d'],
+        [totNoci,                     'Noćenja',                    '#6c757d'],
       ].map(([v,l,c])=>`<div class="stat-card" style="flex:1;min-width:120px;background:linear-gradient(135deg,${c},${c}bb)">
         <div class="sv" style="font-size:1.3em">${v}</div>
         <div class="sl" style="font-size:.75em">${l}</div>
@@ -4059,51 +4094,97 @@ window.accSetYear = () => {
 
 // Grafici računovodstva
 let _accCharts = {};
-function _renderAccountingCharts(reservations, accFrom, accTo) {
+let _accAllData = {};
+
+function _renderAccountingCharts(resv, accFrom, accTo) {
   const el = document.getElementById('st-accounting-charts');
   if (!el || typeof Chart === 'undefined') return;
 
-  // Destroy existing charts
   Object.values(_accCharts).forEach(c => { try { c.destroy(); } catch(e){} });
   _accCharts = {};
 
-  el.innerHTML = `
-    <div style="display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap">
-      <span style="font-weight:600;font-size:.95em">📈 Grafici</span>
-      <button onclick="accShowChart('revenue')" id="btn-ch-revenue" class="btn btn-primary" style="padding:4px 12px;font-size:.8em">Prihod po mj.</button>
-      <button onclick="accShowChart('occupancy')" id="btn-ch-occupancy" class="btn" style="padding:4px 12px;font-size:.8em">Popunjenost</button>
-      <button onclick="accShowChart('channels')" id="btn-ch-channels" class="btn" style="padding:4px 12px;font-size:.8em">Kanali</button>
-    </div>
-    <div style="background:white;border-radius:12px;padding:16px;border:1px solid #e0e0e0;max-width:700px">
-      <canvas id="acc-chart-canvas" height="280"></canvas>
-    </div>`;
+  // Pripremi sve podatke
+  const now = new Date();
+  const prevMonthFrom = lDate(new Date(now.getFullYear(), now.getMonth()-1, 1));
+  const prevMonthTo   = lDate(new Date(now.getFullYear(), now.getMonth(), 0));
+  const prevYearFrom  = `${now.getFullYear()-1}-01-01`;
+  const prevYearTo    = `${now.getFullYear()-1}-12-31`;
 
-  // Pripremi podatke
-  // 1. Prihod po mjesecima
+  function filterPeriod(from, to) {
+    const toIncl = lDate(new Date(new Date(to).getTime()+86400000));
+    return reservations.filter(r => !r.cancelled && !r.closedManual && r.checkIn < toIncl && r.checkOut > from);
+  }
+
+  function calcTaxLocal(r) {
+    const n = Math.ceil((new Date(r.checkOut)-new Date(r.checkIn))/86400000);
+    return (r.bungalovi||[]).reduce((s,b)=>s+(b.adults||0),0) * n * 1;
+  }
+
+  function getMetrics(list) {
+    const paid = list.filter(r=>r.paid);
+    const naplac    = paid.reduce((s,r)=>s+(r.price||0),0);
+    const taksa     = paid.reduce((s,r)=>s+calcTaxLocal(r),0);
+    return {
+      naplac,
+      taksa,
+      bezTakse: naplac - taksa,
+      dug:      list.filter(r=>!r.paid).reduce((s,r)=>s+(r.price||0),0),
+      ugovoreno:list.reduce((s,r)=>s+(r.price||0),0),
+      rez:      list.length,
+      noci:     list.reduce((s,r)=>s+Math.ceil((new Date(r.checkOut)-new Date(r.checkIn))/86400000),0),
+    };
+  }
+
+  // Podaci po mjesecima za prihod chart
   const monthlyData = {};
-  reservations.filter(r=>r.paid).forEach(r => {
-    const mo = r.checkIn.substring(0,7); // YYYY-MM
+  resv.filter(r=>r.paid).forEach(r => {
+    const mo = r.checkIn.substring(0,7);
     monthlyData[mo] = (monthlyData[mo]||0) + (r.price||0);
   });
   const months = Object.keys(monthlyData).sort();
 
-  // 2. Popunjenost po bungalovima
+  // Podaci po bungalovima
   const bungData = {};
-  reservations.forEach(r => {
+  resv.forEach(r => {
     (r.bungalovi||[]).forEach(b => {
       const bn = 'B'+b.bungalov;
       bungData[bn] = (bungData[bn]||0) + Math.ceil((new Date(r.checkOut)-new Date(r.checkIn))/86400000);
     });
   });
 
-  // 3. Kanali
+  // Podaci po kanalima
   const chData = {};
-  reservations.forEach(r => {
-    const ch = r.channel || 'Ostalo';
-    chData[ch] = (chData[ch]||0) + 1;
-  });
+  resv.forEach(r => { const ch=r.channel||'Ostalo'; chData[ch]=(chData[ch]||0)+1; });
 
-  window._accChartData = { monthlyData, months, bungData, chData };
+  // Prethodni periodi za poređenje
+  const curMetrics  = getMetrics(resv);
+  const prevMonth   = getMetrics(filterPeriod(prevMonthFrom, prevMonthTo));
+  const prevYear    = getMetrics(filterPeriod(prevYearFrom, prevYearTo));
+
+  window._accAllData = { monthlyData, months, bungData, chData, curMetrics, prevMonth, prevYear, accFrom, accTo };
+
+  el.innerHTML = `
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:14px;flex-wrap:wrap">
+      <span style="font-weight:600;font-size:.9em">📈 Grafik:</span>
+      <select id="acc-chart-metric" onchange="accShowChart(this.value)"
+        style="padding:5px 10px;border:1px solid #ddd;border-radius:6px;font-size:.85em">
+        <option value="revenue">Prihod po mjesecima</option>
+        <option value="occupancy">Noćenja po bungalovima</option>
+        <option value="channels">Rezervacije po kanalima</option>
+        <option value="compare_month">Poređenje — ovaj vs prošli mjesec</option>
+        <option value="compare_year">Poređenje — ova vs prošla godina</option>
+        <option value="metric_naplac">Metrika: Ukupno naplaćeno</option>
+        <option value="metric_taksa">Metrika: Boravišna taksa</option>
+        <option value="metric_bezTakse">Metrika: Prihod bez takse</option>
+        <option value="metric_dug">Metrika: Neplaćeno</option>
+        <option value="metric_rez">Metrika: Rezervacije</option>
+        <option value="metric_noci">Metrika: Noćenja</option>
+      </select>
+    </div>
+    <div style="background:white;border-radius:12px;padding:16px;border:1px solid #e0e0e0;max-width:720px">
+      <canvas id="acc-chart-canvas" height="260"></canvas>
+    </div>`;
+
   accShowChart('revenue');
 }
 
@@ -4112,81 +4193,106 @@ window.accShowChart = (type) => {
   const canvas = document.getElementById('acc-chart-canvas');
   if (!canvas) return;
 
-  // Ažuriraj dugmad
-  ['revenue','occupancy','channels'].forEach(t => {
-    const btn = document.getElementById('btn-ch-'+t);
-    if (btn) btn.className = t===type ? 'btn btn-primary' : 'btn';
-  });
+  const sel = document.getElementById('acc-chart-metric');
+  if (sel && sel.value !== type) sel.value = type;
 
   Object.values(_accCharts).forEach(c => { try { c.destroy(); } catch(e){} });
   _accCharts = {};
 
-  const d = window._accChartData || {};
+  const d = window._accAllData || {};
   const COLORS = ['#667eea','#28a745','#FF5A5F','#fd7e14','#7360F2','#1877F2','#E1306C','#003580','#20c997','#6c757d'];
-
   const MN = ['Jan','Feb','Mar','Apr','Maj','Jun','Jul','Avg','Sep','Okt','Nov','Dec'];
 
+  // Prihod po mjesecima
   if (type === 'revenue') {
-    const labels = (d.months||[]).map(m => {
-      const [y,mo] = m.split('-');
-      return MN[parseInt(mo)-1] + ' ' + y.substring(2);
-    });
-    _accCharts.revenue = new Chart(canvas, {
+    const labels = (d.months||[]).map(m => { const [y,mo]=m.split('-'); return MN[parseInt(mo)-1]+' '+y.substring(2); });
+    _accCharts.c = new Chart(canvas, {
       type: 'bar',
-      data: {
-        labels,
-        datasets: [{
-          label: 'Prihod (€)',
-          data: (d.months||[]).map(m => d.monthlyData[m]||0),
-          backgroundColor: '#667eea',
-          borderRadius: 6,
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: { legend: { display: false }, title: { display: true, text: 'Naplaćeni prihod po mjesecima' }},
-        scales: { y: { beginAtZero: true, ticks: { callback: v => '€'+v }}}
-      }
+      data: { labels, datasets: [{ label:'Naplaćeno (€)', data:(d.months||[]).map(m=>d.monthlyData[m]||0), backgroundColor:'#667eea', borderRadius:6 }] },
+      options: { responsive:true, plugins:{legend:{display:false},title:{display:true,text:'Naplaćeni prihod po mjesecima'}}, scales:{y:{beginAtZero:true,ticks:{callback:v=>'€'+v}}} }
     });
+
+  // Noćenja po bungalovima
   } else if (type === 'occupancy') {
     const entries = Object.entries(d.bungData||{}).sort((a,b)=>a[0].localeCompare(b[0],undefined,{numeric:true}));
-    _accCharts.occ = new Chart(canvas, {
+    _accCharts.c = new Chart(canvas, {
       type: 'bar',
-      data: {
-        labels: entries.map(e=>e[0]),
-        datasets: [{
-          label: 'Noćenja',
-          data: entries.map(e=>e[1]),
-          backgroundColor: entries.map((_,i)=>COLORS[i%COLORS.length]),
-          borderRadius: 4,
-        }]
-      },
-      options: {
-        indexAxis: 'y',
-        responsive: true,
-        plugins: { legend: { display: false }, title: { display: true, text: 'Noćenja po bungalovima' }},
-        scales: { x: { beginAtZero: true }}
-      }
+      data: { labels:entries.map(e=>e[0]), datasets:[{ label:'Noćenja', data:entries.map(e=>e[1]), backgroundColor:entries.map((_,i)=>COLORS[i%COLORS.length]), borderRadius:4 }] },
+      options: { indexAxis:'y', responsive:true, plugins:{legend:{display:false},title:{display:true,text:'Noćenja po bungalovima'}}, scales:{x:{beginAtZero:true}} }
     });
+
+  // Kanali
   } else if (type === 'channels') {
     const entries = Object.entries(d.chData||{}).sort((a,b)=>b[1]-a[1]);
-    _accCharts.ch = new Chart(canvas, {
+    _accCharts.c = new Chart(canvas, {
       type: 'doughnut',
-      data: {
-        labels: entries.map(e=>e[0]),
-        datasets: [{
-          data: entries.map(e=>e[1]),
-          backgroundColor: COLORS,
-          borderWidth: 2,
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: { position: 'right' },
-          title: { display: true, text: 'Rezervacije po kanalima' }
-        }
-      }
+      data: { labels:entries.map(e=>e[0]), datasets:[{data:entries.map(e=>e[1]),backgroundColor:COLORS,borderWidth:2}] },
+      options: { responsive:true, plugins:{legend:{position:'right'},title:{display:true,text:'Rezervacije po kanalima'}} }
+    });
+
+  // Poređenje ovaj vs prošli mjesec
+  } else if (type === 'compare_month') {
+    const now = new Date();
+    const curLabel  = MN[now.getMonth()] + ' ' + now.getFullYear();
+    const prevLabel = MN[now.getMonth()===0?11:now.getMonth()-1] + ' ' + (now.getMonth()===0?now.getFullYear()-1:now.getFullYear());
+    const cur  = d.curMetrics  || {};
+    const prev = d.prevMonth   || {};
+    const metrics = ['Naplaćeno','Taksa','Bez takse','Neplaćeno','Ugovoreno'];
+    const curVals  = [cur.naplac||0,  cur.taksa||0,  cur.bezTakse||0,  cur.dug||0,  cur.ugovoreno||0];
+    const prevVals = [prev.naplac||0, prev.taksa||0, prev.bezTakse||0, prev.dug||0, prev.ugovoreno||0];
+    _accCharts.c = new Chart(canvas, {
+      type: 'bar',
+      data: { labels:metrics, datasets:[
+        { label:curLabel,  data:curVals,  backgroundColor:'#667eea', borderRadius:4 },
+        { label:prevLabel, data:prevVals, backgroundColor:'#ccc',    borderRadius:4 }
+      ]},
+      options: { responsive:true, plugins:{title:{display:true,text:'Poređenje: '+curLabel+' vs '+prevLabel}}, scales:{y:{beginAtZero:true,ticks:{callback:v=>'€'+v}}} }
+    });
+
+  // Poređenje ova vs prošla godina
+  } else if (type === 'compare_year') {
+    const now = new Date();
+    const cur  = d.curMetrics || {};
+    const prev = d.prevYear   || {};
+    const metrics = ['Naplaćeno','Taksa','Bez takse','Neplaćeno','Ugovoreno','Rezervacije','Noćenja'];
+    const curVals  = [cur.naplac||0,  cur.taksa||0,  cur.bezTakse||0,  cur.dug||0,  cur.ugovoreno||0, cur.rez||0,  cur.noci||0];
+    const prevVals = [prev.naplac||0, prev.taksa||0, prev.bezTakse||0, prev.dug||0, prev.ugovoreno||0,prev.rez||0, prev.noci||0];
+    _accCharts.c = new Chart(canvas, {
+      type: 'bar',
+      data: { labels:metrics, datasets:[
+        { label:String(now.getFullYear()),   data:curVals,  backgroundColor:'#28a745', borderRadius:4 },
+        { label:String(now.getFullYear()-1), data:prevVals, backgroundColor:'#ccc',    borderRadius:4 }
+      ]},
+      options: { responsive:true, plugins:{title:{display:true,text:'Poređenje: '+now.getFullYear()+' vs '+(now.getFullYear()-1)}}, scales:{y:{beginAtZero:true}} }
+    });
+
+  // Pojedinačna metrika kroz mjesece
+  } else if (type.startsWith('metric_')) {
+    const key = type.replace('metric_','');
+    const labels_map = { naplac:'Naplaćeno (€)', taksa:'Boravišna taksa (€)', bezTakse:'Prihod bez takse (€)', dug:'Neplaćeno (€)', rez:'Rezervacije', noci:'Noćenja' };
+    const color_map  = { naplac:'#28a745', taksa:'#1565c0', bezTakse:'#667eea', dug:'#dc3545', rez:'#fd7e14', noci:'#6c757d' };
+    const label = labels_map[key] || key;
+    const color = color_map[key]  || '#667eea';
+    const isMoney = ['naplac','taksa','bezTakse','dug'].includes(key);
+
+    // Grupiši po mjesecima
+    const moData = {};
+    reservations.filter(r=>!r.cancelled&&!r.closedManual).forEach(r => {
+      const mo = r.checkIn.substring(0,7);
+      if (!moData[mo]) moData[mo] = {naplac:0,taksa:0,bezTakse:0,dug:0,rez:0,noci:0};
+      const n = Math.ceil((new Date(r.checkOut)-new Date(r.checkIn))/86400000);
+      const adults = (r.bungalovi||[]).reduce((s,b)=>s+(b.adults||0),0);
+      const tax = adults*n*1;
+      if (r.paid) { moData[mo].naplac+=(r.price||0); moData[mo].taksa+=tax; moData[mo].bezTakse+=(r.price||0)-tax; }
+      else moData[mo].dug+=(r.price||0);
+      moData[mo].rez++; moData[mo].noci+=n;
+    });
+    const mos = Object.keys(moData).sort();
+    const moLabels = mos.map(m => { const [y,mo]=m.split('-'); return MN[parseInt(mo)-1]+' '+y.substring(2); });
+    _accCharts.c = new Chart(canvas, {
+      type: 'line',
+      data: { labels:moLabels, datasets:[{ label, data:mos.map(m=>moData[m][key]||0), borderColor:color, backgroundColor:color+'33', fill:true, tension:0.3, pointRadius:4 }] },
+      options: { responsive:true, plugins:{legend:{display:false},title:{display:true,text:label+' — trend po mjesecima'}}, scales:{y:{beginAtZero:true,ticks:{callback:v=>isMoney?'€'+v:v}}} }
     });
   }
 };
@@ -4467,6 +4573,29 @@ window.mobGoBack = () => {
 
 // Mobilna navigacija
 let _mobCurrentTab = 'daily';
+
+// Mob nav panel collapse/expand
+window.mobToggleNavPanel = () => {
+  const panel = document.getElementById('mob-nav-collapsible');
+  const btn   = document.getElementById('mob-nav-collapse-btn');
+  if (!panel) return;
+  const isOpen = panel.style.display !== 'none';
+  panel.style.display = isOpen ? 'none' : 'block';
+  if (btn) btn.textContent = isOpen ? '+' : '−';
+  localStorage.setItem('kmk_mob_nav_open', isOpen ? '0' : '1');
+};
+
+// Vrati stanje collapse panela
+function _restoreMobNavState() {
+  const saved = localStorage.getItem('kmk_mob_nav_open');
+  if (saved === '0') {
+    const panel = document.getElementById('mob-nav-collapsible');
+    const btn   = document.getElementById('mob-nav-collapse-btn');
+    if (panel) panel.style.display = 'none';
+    if (btn)   btn.textContent = '+';
+  }
+}
+
 window.mobGoTab = (tab) => {
   // Prati historiju tabova za Back dugme
   if (tab !== _mobCurrentTab) {
