@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Maja Karanfil Bungali v1.8.0</title>
+<title>Maja Karanfil Bungali v1.8.2</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh;padding:20px}
@@ -746,7 +746,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
       <img src="https://i.imgur.com/DzB2EDR.png" onerror="this.style.display='none'"
            alt="Logo" style="max-width:175px;margin:0 auto 10px;display:block;border-radius:10px">
       <h1>🏡 Maja Karanfil Bungali</h1>
-      <p>Prijavite se u sistem — v1.8.0</p>
+      <p>Prijavite se u sistem — v1.8.2</p>
     </div>
     <div class="login-err" id="login-err">Pogrešno korisničko ime ili lozinka!</div>
     <form class="login-form" id="login-form">
@@ -1606,9 +1606,208 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
         <p style="margin:12px 0 0 0;font-weight:700;font-size:1.05em">Apsolutna vlast pripada samo Allahu!</p>
       </div>
 
-      <!-- Current version -->
-      <div style="background:#e8f4fd;padding:14px;border-radius:8px;margin-bottom:20px;border-left:4px solid #667eea">
-        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v1.8.0</strong>
+      <!-- Trenutna verzija -->
+      <div style="background:#e8f4fd;padding:14px;border-radius:8px;margin-bottom:24px;border-left:4px solid #667eea">
+        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v1.8.2</strong>
+        <div style="font-size:.85em;color:#555;margin-top:4px">Firebase Firestore · GitHub Pages · Single-file aplikacija</div>
+      </div>
+
+      <!-- O programu -->
+      <h3 style="margin:0 0 14px;color:#333;border-bottom:2px solid #667eea;padding-bottom:8px">📋 O Programu</h3>
+      <div style="font-size:.9em;line-height:1.8;color:#444;margin-bottom:24px">
+        <p style="margin:0 0 10px">
+          <strong>Maja Karanfil Bungali</strong> je sistem za upravljanje rezervacijama bungalova razvijen specijalno za objekat sa 13 bungalova
+          (B1–B13), sa direktnom integracijom sa Booking.com putem iCal sinhronizacije.
+          Program radi kao jedna HTML datoteka sa Firebase Firestore bazom podataka u pozadini.
+        </p>
+        <p style="margin:0">
+          Podržava višekorisničko okruženje (admin + radnici), radi na svim uređajima (desktop i mobilni),
+          te funkcioniše i bez interneta zahvaljujući offline podršci.
+        </p>
+      </div>
+
+      <!-- Šta program sadrži -->
+      <h3 style="margin:0 0 14px;color:#333;border-bottom:2px solid #667eea;padding-bottom:8px">📦 Što Program Sadrži</h3>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-bottom:24px">
+
+        <!-- Rezervacije -->
+        <div style="background:#f8f9fa;border-radius:10px;padding:14px;border-left:4px solid #667eea">
+          <div style="font-weight:700;margin-bottom:8px;color:#333">📅 Rezervacije</div>
+          <ul style="margin:0;padding-left:16px;font-size:.85em;line-height:2;color:#555">
+            <li>Kreiranje, izmjena i otkazivanje rezervacija</li>
+            <li>Automatski obračun cijene (osnova + odrasli + djeca)</li>
+            <li>Boravišna taksa: odrasli × noći × 1€</li>
+            <li>Sezonske cijene po periodima i tipu bungalova</li>
+            <li>Višebungalovske rezervacije (npr. B1+B2+B3)</li>
+            <li>Struktura gostiju: odrasli / djeca (4–12g) / bebe</li>
+            <li>Kanali rezervacije sa logotipovima</li>
+            <li>Napomene, usluge (polupansion, full pansion, lunch)</li>
+            <li>Zaštita od duplikata i preklapanja termina</li>
+            <li>Soft delete — undo otkazivanja 30 sekundi</li>
+            <li>Grupno otkazivanje (bulk select)</li>
+          </ul>
+        </div>
+
+        <!-- Kalendar -->
+        <div style="background:#f8f9fa;border-radius:10px;padding:14px;border-left:4px solid #28a745">
+          <div style="font-weight:700;margin-bottom:8px;color:#333">🗓️ Kalendar</div>
+          <ul style="margin:0;padding-left:16px;font-size:.85em;line-height:2;color:#555">
+            <li>Desktop: Grid prikaz svih 13 bungalova × 31 dan</li>
+            <li>Sticky header (datumi) i sticky lijeva kolona (B1–B13)</li>
+            <li>Drag-and-drop za kreiranje novih rezervacija</li>
+            <li>Mobilni V1: isti grid, horizontalni scroll</li>
+            <li>Mobilni V2: kalendar po danima sa tačkicama zauzetosti</li>
+            <li>Mobilni V3: horizontalna traka dostupnosti (zoom 7/14/30 dana)</li>
+            <li>Navigacija po mjesecima</li>
+            <li>Boje po statusu: rezervisano, potvrđeno, plaćeno, Booking.com, zatvoreno</li>
+            <li>Popunjenost: postotak za 7 dana i tekući mjesec</li>
+            <li>Slobodni bungalovi danas — odmah vidljivo</li>
+          </ul>
+        </div>
+
+        <!-- Booking.com iCal -->
+        <div style="background:#f8f9fa;border-radius:10px;padding:14px;border-left:4px solid #003580">
+          <div style="font-weight:700;margin-bottom:8px;color:#333">🌐 Booking.com iCal Sync</div>
+          <ul style="margin:0;padding-left:16px;font-size:.85em;line-height:2;color:#555">
+            <li>Automatska sinhronizacija svakih 3 minute</li>
+            <li>Poseban iCal link po bungalovu</li>
+            <li>Dodavanje, izmjena i brisanje iCal linkova</li>
+            <li>Cloudflare Worker proxy (vlastiti, najpouzdaniji)</li>
+            <li>3 fallback proxy-ja ako Worker ne radi</li>
+            <li>Detekcija i upozorenje za preklapanja</li>
+            <li>Automatsko ažuriranje izmijenjenih termina</li>
+            <li>Brisanje otkazanih rezervacija iz Booking.com</li>
+            <li>Countdown timer do sljedećeg sync-a</li>
+            <li>Health check — upozorenje ako sync ne radi 24h</li>
+          </ul>
+        </div>
+
+        <!-- Statistika i Računovodstvo -->
+        <div style="background:#f8f9fa;border-radius:10px;padding:14px;border-left:4px solid #fd7e14">
+          <div style="font-weight:700;margin-bottom:8px;color:#333">📊 Statistika i Računovodstvo</div>
+          <ul style="margin:0;padding-left:16px;font-size:.85em;line-height:2;color:#555">
+            <li>Period filter: Danas / 7 dana / Ovaj mj. / Custom</li>
+            <li>Kartice: rezervacije, plaćeno, očekivano, noćenja, top kanal</li>
+            <li>Gosti po bungalovima: odrasli/djeca/bebe</li>
+            <li>Gosti po državama sa udjelom (%)</li>
+            <li>Osoba-noćenja: odrasli / djeca / bebe (vlastiti period Od–Do)</li>
+            <li>Računovodstvo (admin): naplaćeno, taksa, prihod bez takse, dug</li>
+            <li>Tabela prihoda po bungalovima</li>
+            <li>Lista neplaćenih rezervacija</li>
+            <li>10 grafika: prihod po mj., popunjenost, kanali, poređenje mj./god., 6 trend metrika</li>
+            <li>Brzi setteri: Ovaj mj. / Prošli mj. / Ova god.</li>
+            <li>Excel export računovodstva (2 sheeta)</li>
+          </ul>
+        </div>
+
+        <!-- Gosti i Historija -->
+        <div style="background:#f8f9fa;border-radius:10px;padding:14px;border-left:4px solid #20c997">
+          <div style="font-weight:700;margin-bottom:8px;color:#333">👥 Gosti i Historija</div>
+          <ul style="margin:0;padding-left:16px;font-size:.85em;line-height:2;color:#555">
+            <li>Knjiga gostiju: svi gosti sa brojem posjeta i ukupnom potrošnjom</li>
+            <li>Profil gosta: statistike, detalji, historija rezervacija</li>
+            <li>Autocomplete pri unosu imena (predlaže postojeće goste)</li>
+            <li>Historija rezervacija gosta prikazana u formi pri editovanju</li>
+            <li>Log svih izmjena: ko je šta i kada uradio</li>
+            <li>Historija filtrovana po tipu akcije (dodano/izmijenjeno/obrisano)</li>
+            <li>Vraćanje otkazane rezervacije iz historije</li>
+          </ul>
+        </div>
+
+        <!-- Sigurnost i Korisnici -->
+        <div style="background:#f8f9fa;border-radius:10px;padding:14px;border-left:4px solid #dc3545">
+          <div style="font-weight:700;margin-bottom:8px;color:#333">🔐 Sigurnost i Korisnici</div>
+          <ul style="margin:0;padding-left:16px;font-size:.85em;line-height:2;color:#555">
+            <li>Uloge: Administrator (puni pristup) i Radnik (ograničen)</li>
+            <li>Lozinke hešovane SHA-256 u Firestore bazi</li>
+            <li>Brute force zaštita: 5 pokušaja → lockout 5 minuta</li>
+            <li>Session timeout: automatski logout nakon 2h neaktivnosti</li>
+            <li>Upozorenje 5 minuta prije isteka sesije</li>
+            <li>Zaštita pri otkazivanju: ime gosta / lozinka / isključeno</li>
+            <li>"Zapamti me" opcija</li>
+            <li>Notifikacije adminu kad radnik izmijeni rezervaciju</li>
+            <li>Admin vidi sve izmjene svih korisnika</li>
+          </ul>
+        </div>
+
+        <!-- Backup i Podaci -->
+        <div style="background:#f8f9fa;border-radius:10px;padding:14px;border-left:4px solid #6c757d">
+          <div style="font-weight:700;margin-bottom:8px;color:#333">💾 Backup i Podaci</div>
+          <ul style="margin:0;padding-left:16px;font-size:.85em;line-height:2;color:#555">
+            <li>Automatski Firebase backup svakih 6 sati (čuva 10 najnovijih)</li>
+            <li>Ručni backup — preuzmi JSON fajl odmah</li>
+            <li>Vraćanje iz backup-a (Firebase ili JSON fajl)</li>
+            <li>Google Drive backup: ručni dnevni, jednim klikom</li>
+            <li>Import iz Excel (.xlsx / .xls) i CSV fajlova</li>
+            <li>Export svih rezervacija u Excel (3 sheeta)</li>
+            <li>Export CSV kompatibilan sa Google Sheets</li>
+            <li>Detekcija duplikata i preklapanja pri importu</li>
+          </ul>
+        </div>
+
+        <!-- Offline i Tehničko -->
+        <div style="background:#f8f9fa;border-radius:10px;padding:14px;border-left:4px solid #17a2b8">
+          <div style="font-weight:700;margin-bottom:8px;color:#333">⚡ Offline i Tehničko</div>
+          <ul style="margin:0;padding-left:16px;font-size:.85em;line-height:2;color:#555">
+            <li>Firebase offline persistence — radi i bez interneta</li>
+            <li>Service Worker — aplikacija radi kao PWA</li>
+            <li>Offline banner i sync indikator</li>
+            <li>Blokada save akcija dok nema interneta</li>
+            <li>Real-time sync između svih uređaja istovremeno</li>
+            <li>Conflict detection — automatska detekcija preklapanja</li>
+            <li>Dnevni pregled: ko dolazi, ko odlazi, ko je u objektu</li>
+            <li>Štampa dnevnog pregleda (full i pojednostavljena za čišćenje)</li>
+            <li>Višejezična podrška za države (80+ zemalja autocomplete)</li>
+          </ul>
+        </div>
+
+      </div>
+
+      <!-- Gdje se što nalazi -->
+      <h3 style="margin:0 0 14px;color:#333;border-bottom:2px solid #667eea;padding-bottom:8px">🗺️ Gdje Se Što Nalazi</h3>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-bottom:24px;font-size:.85em">
+        ${[
+          ['🏠','Dnevni Pregled','Ko dolazi i odlazi danas, ko je u objektu, popunjenost, štampa'],
+          ['📅','Kalendar','Grid svih 13 bungalova, V1/V2/V3 na mobu, drag za novu rezervaciju'],
+          ['➕','Nova Rezervacija','Forma za unos/izmjenu, automatski obračun cijene, historija gosta'],
+          ['📋','Lista','Sve rezervacije sa filterom po statusu, bungalovu i imenu'],
+          ['📊','Statistika','Kartice, gosti po bungalovima i državama, osoba-noćenja, računovodstvo, grafici'],
+          ['📜','Historija','Log svih izmjena, vraćanje otkazanih rezervacija'],
+          ['⚙️','Podešavanja → Korisnici','Dodavanje i upravljanje korisnicima (admin only)'],
+          ['⚙️','Podešavanja → Gosti','Knjiga gostiju, profili, historija po gostu'],
+          ['⚙️','Podešavanja → Sigurnost','Zaštita pri otkazivanju, session postavke'],
+          ['⚙️','Podešavanja → Cjenovnik','Sezonski periodi cijena po tipu bungalova'],
+          ['⚙️','Podešavanja → Kanali','Kanali rezervacije sa logotipovima'],
+          ['⚙️','Podešavanja → Kalendar','Opcije klika i drag-and-drop na kalendaru'],
+          ['⚙️','Podešavanja → Backup','Ručni/automatski backup i vraćanje podataka'],
+          ['⚙️','Podešavanja → iCal','Booking.com iCal linkovi, sync, status'],
+          ['⚙️','Podešavanja → Import','Import iz Excel/CSV fajlova'],
+          ['⚙️','Podešavanja → About','Ova stranica — opis programa i changelog'],
+        ].map(([ico,tab,desc]) => `
+          <div style="background:#f8f9fa;border-radius:8px;padding:10px 12px">
+            <div style="font-weight:700;color:#333;margin-bottom:3px">${ico} ${tab}</div>
+            <div style="color:#666;font-size:.9em">${desc}</div>
+          </div>`).join('')}
+      </div>
+
+      <!-- Tehnički detalji -->
+      <h3 style="margin:0 0 14px;color:#333;border-bottom:2px solid #667eea;padding-bottom:8px">🔧 Tehničke Specifikacije</h3>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-bottom:28px;font-size:.84em">
+        ${[
+          ['Firebase','Firestore + offline persistence (IndexedDB)','#667eea'],
+          ['Hosting','GitHub Pages — waveinthesky.github.io/KMK-BUNGALI','#28a745'],
+          ['Baza rezervacija','Firebase projekt: rezervacije-bungalova','#fd7e14'],
+          ['iCal Proxy','Cloudflare Worker: kmk-ical-proxy.isko-rado.workers.dev','#003580'],
+          ['Biblioteke','SheetJS (Excel), Chart.js (grafici), Firebase v10.8.0','#6c757d'],
+          ['Arhitektura','Single-file HTML + JS module, bez build sistema','#17a2b8'],
+          ['Bungalovi','13 bungalova: B1–B5 (max 4 kr, 60€), B6–B9 (max 6 kr, 70€), B10–B13 (max 2–4 kr, 60€)','#dc3545'],
+          ['Cijena','Osnova 2 osobe + 15€/odrasla iznad 2 + 10€/dijete iznad 2 + taksa 1€/odrasli/noć','#856404'],
+        ].map(([label,val,color]) => `
+          <div style="background:#f8f9fa;border-radius:8px;padding:10px 12px;border-top:3px solid ${color}">
+            <div style="font-weight:700;color:#333;margin-bottom:3px">${label}</div>
+            <div style="color:#666">${val}</div>
+          </div>`).join('')}
       </div>
 
       <!-- Changelog -->
@@ -1616,7 +1815,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <div class="changelog">
         <div class="ch-version">
-          <div class="ch-ver-header">v1.8.0 <span class="ch-date">— 30.03.2026</span></div>
+          <div class="ch-ver-header">v1.8.2 <span class="ch-date">— 30.03.2026</span></div>
           <ul>
             <li><strong>About premješten:</strong> Iz floating dugmeta u Podešavanja → ℹ️ About tab — pregledniji pristup</li>
             <li><strong>Excel Export:</strong> Novo dugme "📊 Export u Excel" — preuzmi SVE rezervacije kao čistu CSV/Excel tabelu sa kompletnim detaljima (ID, status, ime, telefon, zemlja, kanal, datumi, broj noći, bungalovi, kreveti, struktura gostiju, cijena, napomene)</li>
@@ -3600,7 +3799,7 @@ window.renderStats = function() {
   const tot=active.length, conf=active.filter(r=>r.confirmed).length, paid=active.filter(r=>r.paid).length;
   const rev=Math.round(active.reduce((s,r)=>s+(r.paid?parseFloat(r.price||0):0),0)*100)/100;
   const exp=Math.round(active.reduce((s,r)=>s+parseFloat(r.price||0),0)*100)/100;
-  const totalNights=active.reduce((s,r)=>s+nights(r.checkIn,r.checkOut),0);
+  const totalNights=active.reduce((s,r)=>s+nightsExact(r.checkIn,r.checkOut),0);
   const cur=active.filter(r=>r.checkIn<=ts&&r.checkOut>ts).length;
   const upc=active.filter(r=>r.checkIn>ts).length;
   const canc=f.filter(r=>r.cancelled).length;
@@ -4492,6 +4691,8 @@ function fmtD(s) {
 }
 function fmtDT(s) { if(!s) return ''; const d=new Date(s); return `${fmtD(d.toISOString().split('T')[0])} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; }
 function nights(a,b) { return Math.max(1,Math.ceil((new Date(b)-new Date(a))/86400000)); }
+// Za statistiku i finansije — bez Math.max(1), vraća 0 za isti dan
+function nightsExact(a,b) { return Math.max(0,Math.ceil((new Date(b)-new Date(a))/86400000)); }
 function lDate(d) { return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
 // #14: XSS zaštita — koristi za sve user-provided stringove u innerHTML
 function escHtml(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#x27;'); }
