@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Maja Karanfil Bungali v1.6.4</title>
+<title>Maja Karanfil Bungali v1.8.0</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh;padding:20px}
@@ -119,6 +119,11 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 .cal-nav button{padding:7px 16px;background:#667eea;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600}
 .cal-grid{display:grid;gap:1px;background:#dee2e6;border:1px solid #dee2e6;min-width:1100px}
 .cal-row{display:grid;grid-template-columns:60px repeat(31,1fr);gap:1px}
+.cal-wrap{overflow:auto;max-height:72vh;position:relative}
+.cal-row-hdr{position:sticky;top:0;z-index:20;background:#dee2e6}
+.cal-row-hdr .cc.hdr{position:sticky;top:0;z-index:20}
+.cal-col-bung{position:sticky;left:0;z-index:15;background:white}
+.cal-row-hdr .cal-col-bung{z-index:25}
 .cc{background:white;padding:5px 2px;min-height:40px;display:flex;align-items:center;justify-content:center;font-size:.76em}
 .cc.hdr{background:#f8f9fa;font-weight:700;color:#111;flex-direction:column;font-size:.78em;position:sticky;top:0;z-index:10}
 .cc.hdr small{color:#777;font-weight:400}
@@ -146,6 +151,8 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 .cc.ch-instagram{background:#E1306C!important;color:white!important}
 .cc.ch-instagram:hover{opacity:.88!important}
 .cc.ch-direktno{background:#20c997!important;color:#0a3d2e!important}
+.cc.ch-booking{background:#003580!important;color:white!important}
+.cc.ch-booking:hover{opacity:.88!important}
 .cc.ch-telefon{background:#6c757d!important;color:white!important}
 .cc.closed-manual{background:#1a1a1a;color:white;cursor:pointer}
 .cc.closed-manual:hover{opacity:.85}
@@ -153,6 +160,10 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 .cc.closed-ical:hover{opacity:.85}
 .res-span{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:.85em;text-align:center;padding:2px 4px;line-height:1.3;word-break:break-word}
 .legend{display:flex;gap:10px;margin-top:12px;padding:10px 14px;background:#f8f9fa;border-radius:8px;flex-wrap:wrap;font-size:.82em}
+@media(max-width:700px){
+  .legend{display:none!important}
+  #occ-bar{display:none!important}
+}
 .legend-i{display:flex;align-items:center;gap:4px}
 .lc{width:20px;height:14px;border-radius:3px}
 
@@ -435,6 +446,8 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
   
   /* Sakrij desktop cal header, prikazi mob */
   .cal-hdr{display:none!important}
+  #occ-bar{display:none!important}
+  #occupancy-dash{display:none!important}
   
   /* Forma na mobu */
   .form-wrap{display:none!important}
@@ -693,6 +706,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
     }
   </script>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 </head>
 <body>
 <!-- Undo delete toast -->
@@ -732,7 +746,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
       <img src="https://i.imgur.com/DzB2EDR.png" onerror="this.style.display='none'"
            alt="Logo" style="max-width:175px;margin:0 auto 10px;display:block;border-radius:10px">
       <h1>🏡 Maja Karanfil Bungali</h1>
-      <p>Prijavite se u sistem — v1.6.4</p>
+      <p>Prijavite se u sistem — v1.8.0</p>
     </div>
     <div class="login-err" id="login-err">Pogrešno korisničko ime ili lozinka!</div>
     <form class="login-form" id="login-form">
@@ -992,44 +1006,60 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
   <!-- CALENDAR -->
   <div id="pane-calendar" class="tab-pane">
     <!-- Mobilna navigacija kalendara (vidljiva samo na mobu) -->
-    <div id="mob-cal-nav" style="display:none;flex-direction:column;gap:8px;background:white;border-radius:12px;padding:10px 14px;margin-bottom:10px;box-shadow:0 1px 6px rgba(0,0,0,.08)" class="mob-cal-nav-wrap">
-      <div style="display:flex;align-items:center;justify-content:space-between">
-        <button onclick="changeMonth(-1)" style="background:#f0f0f0;border:none;border-radius:8px;padding:8px 16px;font-size:.95em;cursor:pointer;font-weight:600">←</button>
+    <div id="mob-cal-nav" style="display:none;flex-direction:column;gap:0;background:white;border-radius:12px;overflow:hidden;margin-bottom:10px;box-shadow:0 1px 6px rgba(0,0,0,.08)" class="mob-cal-nav-wrap">
+
+      <!-- RED 1: Navigacija mjeseca — uvijek vidljiv -->
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px">
+        <button onclick="changeMonth(-1)" style="background:#f0f0f0;border:none;border-radius:8px;padding:8px 14px;font-size:.95em;cursor:pointer;font-weight:600">←</button>
         <span id="mob-cal-month-label" style="font-size:1.05em;font-weight:700;color:#333">— —</span>
-        <button onclick="changeMonth(1)" style="background:#f0f0f0;border:none;border-radius:8px;padding:8px 16px;font-size:.95em;cursor:pointer;font-weight:600">→</button>
+        <button onclick="changeMonth(1)" style="background:#f0f0f0;border:none;border-radius:8px;padding:8px 14px;font-size:.95em;cursor:pointer;font-weight:600">→</button>
       </div>
-      <div style="display:flex;gap:6px;justify-content:center">
+
+      <!-- RED 2: V1/V2/V3 — uvijek vidljiv -->
+      <div style="display:flex;gap:6px;padding:0 14px 10px">
         <button id="mob-cal-v1-btn" onclick="mobSetCalView('v1')"
-          style="flex:1;padding:5px;border:1.5px solid #667eea;border-radius:8px;
-                 background:#667eea;color:white;font-size:.78em;font-weight:600;cursor:pointer">
+          style="flex:1;padding:6px;border:1.5px solid #667eea;border-radius:8px;
+                 background:#667eea;color:white;font-size:.8em;font-weight:600;cursor:pointer">
           V1 Grid
         </button>
         <button id="mob-cal-v2-btn" onclick="mobSetCalView('v2')"
-          style="flex:1;padding:5px;border:1.5px solid #667eea;border-radius:8px;
-                 background:white;color:#667eea;font-size:.78em;font-weight:600;cursor:pointer">
+          style="flex:1;padding:6px;border:1.5px solid #667eea;border-radius:8px;
+                 background:white;color:#667eea;font-size:.8em;font-weight:600;cursor:pointer">
           V2 Mjesec
         </button>
         <button id="mob-cal-v3-btn" onclick="mobSetCalView('v3')"
-          style="flex:1;padding:5px;border:1.5px solid #667eea;border-radius:8px;
-                 background:white;color:#667eea;font-size:.78em;font-weight:600;cursor:pointer">
+          style="flex:1;padding:6px;border:1.5px solid #667eea;border-radius:8px;
+                 background:white;color:#667eea;font-size:.8em;font-weight:600;cursor:pointer">
           V3 Traka
         </button>
+        <!-- Collapse dugme uz V3 -->
+        <button id="mob-nav-collapse-btn" onclick="mobToggleNavPanel()"
+          style="padding:6px 10px;border:1.5px solid #e0e0e0;border-radius:8px;
+                 background:#f8f9fa;color:#667eea;font-size:.9em;cursor:pointer;
+                 font-weight:700;line-height:1;white-space:nowrap"
+          title="Sakrij/prikaži info">−</button>
       </div>
-      <!-- Mini legenda za mobilni — sklopiva -->
-      <div style="font-size:.75em">
-        <button onclick="mobToggleLegend()" id="mob-legend-toggle"
-          style="background:none;border:none;color:#667eea;font-size:.9em;cursor:pointer;
-                 padding:2px 0;font-weight:600;width:100%;text-align:left">
-          + Legenda boja
-        </button>
-        <div id="mob-legend-body" style="display:none;margin-top:5px;
-          display:none;flex-wrap:wrap;gap:6px">
-          <span style="display:flex;align-items:center;gap:3px"><span style="width:10px;height:10px;background:#003580;border-radius:2px;display:inline-block"></span>Booking</span>
-          <span style="display:flex;align-items:center;gap:3px"><span style="width:10px;height:10px;background:#667eea;border-radius:2px;display:inline-block"></span>Ručna</span>
-          <span style="display:flex;align-items:center;gap:3px"><span style="width:10px;height:10px;background:#333;border-radius:2px;display:inline-block"></span>Zatvoreno</span>
-          <span style="display:flex;align-items:center;gap:3px"><span style="width:10px;height:10px;background:#28a745;border-radius:2px;display:inline-block"></span>Plaćeno</span>
+
+      <!-- KOLAPSIBILNI DIO: Popunjenost + Legenda -->
+      <div id="mob-nav-collapsible" style="border-top:1px solid #f0f0f0;padding:10px 14px;display:flex;flex-direction:column;gap:8px">
+
+        <!-- Popunjenost bar -->
+        <div id="mob-occ-bar-inner" style="font-size:.8em"></div>
+
+        <!-- Legenda boja — kompletna -->
+        <div style="display:flex;flex-wrap:wrap;gap:5px;font-size:.73em;color:#444">
+          <span style="display:flex;align-items:center;gap:3px"><span style="width:11px;height:11px;background:#ffc107;border-radius:2px;display:inline-block"></span>Rezervacija 1</span>
+          <span style="display:flex;align-items:center;gap:3px"><span style="width:11px;height:11px;background:#fd7e14;border-radius:2px;display:inline-block"></span>Rezervacija 2</span>
+          <span style="display:flex;align-items:center;gap:3px"><span style="width:11px;height:11px;background:#28a745;border-radius:2px;display:inline-block"></span>Potvrđeno 1</span>
+          <span style="display:flex;align-items:center;gap:3px"><span style="width:11px;height:11px;background:#20c997;border-radius:2px;display:inline-block"></span>Potvrđeno 2</span>
+          <span style="display:flex;align-items:center;gap:3px"><span style="width:11px;height:11px;background:#17a2b8;border-radius:2px;display:inline-block"></span>Plaćeno 1</span>
+          <span style="display:flex;align-items:center;gap:3px"><span style="width:11px;height:11px;background:#6610f2;border-radius:2px;display:inline-block"></span>Plaćeno 2</span>
+          <span style="display:flex;align-items:center;gap:3px"><span style="width:11px;height:11px;background:#003580;border-radius:2px;display:inline-block"></span>Booking.com</span>
+          <span style="display:flex;align-items:center;gap:3px"><span style="width:11px;height:11px;background:#1a1a1a;border-radius:2px;display:inline-block"></span>Zatvoreno</span>
+          <span style="display:flex;align-items:center;gap:3px"><span style="width:11px;height:11px;background:#e9ecef;border:1px solid #ccc;border-radius:2px;display:inline-block"></span>Prošlo</span>
         </div>
-      </div>
+
+      </div><!-- /mob-nav-collapsible -->
     </div>
     <!-- V2 mobilni kalendar — vertikalni prikaz po danima -->
     <div id="mob-cal-v2" style="display:none"></div>
@@ -1062,7 +1092,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
       <div class="legend-i"><div class="lc" style="background:#555"></div>Zatvoreno (Booking.com)</div>
       <div class="legend-i" style="color:#667eea;font-style:italic">✋ Prevuci po slobodnim danima = nova rezervacija</div>
     </div>
-    <div class="cal-wrap"><div id="cal-grid" class="cal-grid"></div></div>
+    <div class="cal-wrap" id="cal-wrap-outer"><div id="cal-grid" class="cal-grid"></div></div>
   </div>
 
   <!-- ADD / EDIT -->
@@ -1186,22 +1216,21 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
     <div class="stat-cards" id="stat-cards"></div>
     <!-- OSOBA-NOĆENJA SEKCIJA -->
     <div id="st-person-nights-wrap" style="margin:18px 0 0">
-      <hr class="divider" style="margin-bottom:16px">
-      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:12px">
+      <hr class="divider" style="margin-bottom:12px">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:12px">
         <h3 style="margin:0;font-size:1em">🧮 Osoba-noćenja</h3>
-        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-          <div style="display:flex;align-items:center;gap:6px;font-size:.85em">
-            <label style="color:#555;white-space:nowrap">Od:</label>
-            <input type="date" id="pn-from" style="padding:5px 8px;border:1px solid #ddd;border-radius:6px;font-size:.9em">
-          </div>
-          <div style="display:flex;align-items:center;gap:6px;font-size:.85em">
-            <label style="color:#555;white-space:nowrap">Do:</label>
-            <input type="date" id="pn-to" style="padding:5px 8px;border:1px solid #ddd;border-radius:6px;font-size:.9em">
-          </div>
-          <button onclick="renderPersonNights()" class="btn btn-primary" style="padding:5px 12px;font-size:.82em">Izračunaj</button>
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:.85em">
+          <label style="color:#555">Od:</label>
+          <input type="date" id="pn-from" onchange="renderPersonNights()"
+            style="padding:4px 8px;border:1px solid #ddd;border-radius:6px;font-size:.9em">
+          <label style="color:#555">Do:</label>
+          <input type="date" id="pn-to" onchange="renderPersonNights()"
+            style="padding:4px 8px;border:1px solid #ddd;border-radius:6px;font-size:.9em">
+          <button onclick="renderPersonNights()" class="btn btn-primary"
+            style="padding:4px 10px;font-size:.82em">Izračunaj</button>
         </div>
       </div>
-      <div id="st-person-nights-cards" style="display:flex;gap:12px;flex-wrap:wrap"></div>
+      <div id="st-person-nights-cards" style="display:flex;gap:10px;flex-wrap:wrap"></div>
     </div>
 
     <hr class="divider">
@@ -1227,7 +1256,24 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
           📊 Izvezi u Excel
         </button>
       </div>
+      <!-- Period filter za računovodstvo -->
+      <div style="background:#f8f9fa;border-radius:10px;padding:12px 16px;margin-bottom:16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+        <span style="font-size:.88em;font-weight:600;color:#555">📅 Period:</span>
+        <div style="display:flex;align-items:center;gap:6px;font-size:.85em">
+          <label style="color:#555">Od:</label>
+          <input type="date" id="acc-from" onchange="renderAccounting()" style="padding:4px 8px;border:1px solid #ddd;border-radius:6px;font-size:.9em">
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;font-size:.85em">
+          <label style="color:#555">Do:</label>
+          <input type="date" id="acc-to" onchange="renderAccounting()" style="padding:4px 8px;border:1px solid #ddd;border-radius:6px;font-size:.9em">
+        </div>
+        <button onclick="accSetMonth(0)" class="btn" style="padding:4px 10px;font-size:.8em">Ovaj mj.</button>
+        <button onclick="accSetMonth(-1)" class="btn" style="padding:4px 10px;font-size:.8em">Prošli mj.</button>
+        <button onclick="accSetYear()" class="btn" style="padding:4px 10px;font-size:.8em">Ova god.</button>
+      </div>
       <div id="st-accounting-body"></div>
+      <!-- Grafici -->
+      <div id="st-accounting-charts" style="margin-top:20px"></div>
     </div>
   </div>
 
@@ -1423,13 +1469,16 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
           Fajl se zove <em>backup-DATUM.json</em>.
         </p>
         <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-          <button class="bk-btn" onclick="startGDriveBackup()"
+          <button class="bk-btn" id="gdrive-backup-btn" onclick="startGDriveBackup()"
             style="background:#4285f4;border-color:#4285f4;color:white">
             ☁️ Backup na Google Drive
           </button>
         </div>
         <div id="gdrive-backup-status"
           style="margin-top:8px;font-size:.82em;color:#555;min-height:18px"></div>
+        <div style="margin-top:6px;font-size:.78em;color:#888">
+          Klikni jednom dnevno. Token se osvježava automatski nakon klika.
+        </div>
       </div>
       <div style="background:#f8f9fa;border-radius:10px;padding:16px;border:1px solid #e0e0e0">
         <h4 style="margin:0 0 8px;font-size:.95em">📊 Export podataka</h4>
@@ -1501,7 +1550,21 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
         <h4 id="ch-form-title">Novi Kanal</h4>
         <div class="grid2">
           <div class="fg"><label>Naziv *</label><input type="text" id="chf-name"></div>
-          <div class="fg"><label>Ikona</label><input type="text" id="chf-icon" maxlength="4"></div>
+          <div class="fg"><label>Ikona (emoji)</label><input type="text" id="chf-icon" maxlength="4" placeholder="npr. 📞"></div>
+          <div class="fg" style="grid-column:1/-1">
+            <label>Logo (slika) — opcionalno</label>
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+              <input type="file" id="chf-logo-file" accept="image/*"
+                onchange="previewChannelLogo(this)"
+                style="font-size:.85em;flex:1">
+              <div id="chf-logo-preview" style="display:none;align-items:center;gap:6px">
+                <img id="chf-logo-img" width="28" height="28" style="border-radius:4px;object-fit:contain">
+                <button type="button" onclick="clearChannelLogo()"
+                  style="font-size:.8em;color:#dc3545;background:none;border:none;cursor:pointer">✕ Ukloni</button>
+              </div>
+            </div>
+            <input type="hidden" id="chf-logo-data">
+          </div>
         </div>
         <div style="display:flex;gap:10px;margin-top:10px">
           <button class="btn btn-primary" onclick="saveChannel()">💾 Sačuvaj</button>
@@ -1545,7 +1608,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <!-- Current version -->
       <div style="background:#e8f4fd;padding:14px;border-radius:8px;margin-bottom:20px;border-left:4px solid #667eea">
-        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v1.6.4</strong>
+        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v1.8.0</strong>
       </div>
 
       <!-- Changelog -->
@@ -1553,7 +1616,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <div class="changelog">
         <div class="ch-version">
-          <div class="ch-ver-header">v1.6.4 <span class="ch-date">— 30.03.2026</span></div>
+          <div class="ch-ver-header">v1.8.0 <span class="ch-date">— 30.03.2026</span></div>
           <ul>
             <li><strong>About premješten:</strong> Iz floating dugmeta u Podešavanja → ℹ️ About tab — pregledniji pristup</li>
             <li><strong>Excel Export:</strong> Novo dugme "📊 Export u Excel" — preuzmi SVE rezervacije kao čistu CSV/Excel tabelu sa kompletnim detaljima (ID, status, ime, telefon, zemlja, kanal, datumi, broj noći, bungalovi, kreveti, struktura gostiju, cijena, napomene)</li>
@@ -1935,6 +1998,7 @@ const COUNTRIES=['Albanija','Alžir','Argentina','Australija','Austrija','Azerbe
     if (typeof isMobile === 'function' && isMobile()) {
       updateMobHeader();
       setTimeout(() => mobGoTab('daily'), 200);
+      _restoreMobNavState();
     }
     init();
   } catch(e) { console.warn('Auto-login greška:', e); }
@@ -2344,11 +2408,11 @@ function calcPrice(bungNum, adults, children, babies, numNights, activePrices) {
   }
   if (babies > 0) lines.push(`&nbsp;&nbsp;Djeca do 4g (${babies}): besplatno`);
 
-  const taxPersons = adults + children;
-  if (taxPersons > 0 && n > 0) {
-    const tax = taxPersons * n;
+  // Turistička taksa: samo odrasli × noći × 1€ (djeca i bebe ne plaćaju)
+  if (adults > 0 && n > 0) {
+    const tax = adults * n;
     sub += tax;
-    lines.push(`&nbsp;&nbsp;Tur. taksa (${taxPersons}os × ${n}noći × 1€): +${tax.toFixed(2)}€`);
+    lines.push(`&nbsp;&nbsp;Tur. taksa (${adults} odraslih × ${n}noći × 1€): +${tax.toFixed(2)}€`);
   }
 
   lines.push(`<span class="pb-total">&nbsp;&nbsp;Ukupno B${bungNum}: ${sub.toFixed(2)} €</span>`);
@@ -2537,12 +2601,13 @@ window.toggleClosedMode = function() {
     document.getElementById('form-title').textContent = '🔒 Zatvaranje Bungalova';
   } else {
     nameEl.setAttribute('required', '');
-    nameEl.value = '';
+    // Briši ime SAMO ako nije edit mode — u edit modu ime je već postavljeno iz rezervacije
+    if (!editId) nameEl.value = '';
     if (fgName) fgName.style.display = '';
     if (svcSec) svcSec.style.display = '';
     if (priceSec) priceSec.style.display = '';
     if (guestFields) guestFields.style.display = '';
-    document.getElementById('form-title').textContent = '➕ Nova Rezervacija';
+    if (!editId) document.getElementById('form-title').textContent = '➕ Nova Rezervacija';
   }
 };
 
@@ -2689,14 +2754,40 @@ async function logH(action,res,old=null,reason=null) {
 }
 
 // ── CALENDAR ────────────────────────────────────────────────
+
+// Logoi za Settings prikaz (20x20)
+const CHANNEL_LOGOS_SETTINGS = {
+  airbnb:    'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAC3klEQVR4nI2UzW8bVRTFf/fNm/F8pU6kxpVA6ne7glSlIo0qtkj8CUj8eahihUBILNigAgvaKNCQCKG29APCorJDWseOPZ6Pd1mMk3pwEriLkWbm6bx7zrn3SK/XU1Xl1NLpQ+TEIyKCqmL+C0xUIfBR3wc9GVRVERHM6Z0prtXCvHyJ7e1CqwXOzV+KHIHa0zpzUYT9ZYv4500cQnFnjcn1q5gsQ2c6Vd6wPBFQjcFMJiTrGww/+RhXlCSff0F+6UID7N91LGVxDo1j/PvrZNeuULbb6PJZ3OXLhA830SSu9fy/gOp5mOGQ4M8d3NUrnLn7GfGnd5lcOo/35CkyGp9ojnS73cZV4hxuYYHw3neoCHY4JL94EZPnmG4Pogj1LdnabczBwRz9uQ7VGGQ8Jvj9GcXq+6hzEAQ4axGU7OYN7G+PkDw/VssGoKiiUYj/6DHFuWVcmjC5dYvW9z8QPdwkf+8m2j4Dy2fxnz5Dw1Y9pzN1rMsC2LJEEXSxTbA/oBChTBJAcAcjFJBjfJnXUMF5hvjbe0i/jylLRrdX8Yscu74BQUC5tMTkow9hnM2Z0wRUBWtRwByMkEmGS1PUGEgTzOs+khe4xTYyGKBpAkUJxhyNkZkF08DH9PuY8Zjo/gNIU+zOX6RffoXZH6BRhFoP8/ce8dffIIMhBH6t47TTukNVNAzxt7YJt39F1FEttjG7e1RJTLC3R97p4DnF9PtUCynyeh8Xt6hWVsjefQfJavrmiKpvCf7YwZ3roOqwz18gVUV5Y4UqSXHtNnZrm2xtFe/VK0SEqtPBe/4CfHvk9hsNjYHxmOjHB+hCiltagspRvP0WwcZP0GrhLpyn8jzMcIDX3UVGI4oP7lDNpFDTFGPQKKx/Vq6WpSjRMKxZlGW9554Ba0HqJRDnUKlDTBqJrYBO8+5wHETAuTqRG+NVv6lpLps9TFpVrSdazBRn+u1QDpFGwsyu3eFZEeEfG2Nv347u8i8AAAAASUVORK5CYII=',
+  viber:     'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAABCGlDQ1BJQ0MgUHJvZmlsZQAAeJxjYGA8wQAELAYMDLl5JUVB7k4KEZFRCuwPGBiBEAwSk4sLGHADoKpv1yBqL+viUYcLcKakFicD6Q9ArFIEtBxopAiQLZIOYWuA2EkQtg2IXV5SUAJkB4DYRSFBzkB2CpCtkY7ETkJiJxcUgdT3ANk2uTmlyQh3M/Ck5oUGA2kOIJZhKGYIYnBncAL5H6IkfxEDg8VXBgbmCQixpJkMDNtbGRgkbiHEVBYwMPC3MDBsO48QQ4RJQWJRIliIBYiZ0tIYGD4tZ2DgjWRgEL7AwMAVDQsIHG5TALvNnSEfCNMZchhSgSKeDHkMyQx6QJYRgwGDIYMZAKbWPz9HbOBQAAACH0lEQVR4nM2UPWsUURSGn3NnZmc2H0RIxMiqJGhCcBE/goEUimiVwkIUBe38A1oIpvYvCIKFYi2CIghWoqJgIZKEFDGQwnyAZolms5nNzu7sPRaTjWY3HxZbeLrLvffhfe977pEwDJUmlKoiIphmwABEBKB5wFq5O22qVaz+9SIKYgRjpPHsuuVtgdYqqcAl5foJiQRS1ZhSMdqwWKvaekugtUq6JSA3n2fi3QRhoUQlimnbk6Z/8CC92X1EUXlLIVKfsrVKkE6xML3Ek3uv8dMeuflljpzI8PP7Cj++/eLK7XOcuXSMsFDEOJtjaAhFVXEdj7fPxujNdjP6+AY92W5aOwLOXj5Opm8vH19OUoniBFbXdA2WRUDVsrYasbIUsppfI8yXyM0t46Zc9vd2MjO+QLEQEbR7VGOLsEsfqiqe7zL7dZFPryYZvNBPOYqZm1pk+sscnu+uZ6TUS9zCMhgjtHWk8XyXN0/HMI7hzsNr3H10nczhLkSE1vYgUbeerogkz1UPNCKUKxWGL2aZ+jxLJYp58eAD4+9nGDh9iOXcKuevnsRxDRop4siGKxFpTBnAWosfeCwtFLh/6zlHh3vo6GzFb/HoP3WATF8XpbUIY/4Y3LGxRQxxbHF9w9DIACM3h/A8ByFRXw/bdHfbaSNQrVgcL2mNajVJU4w0/JJdFSYnwHHNRpCOs/McqYXyb9OmUdC2Cv//edhUoKryGxMf4We21dlmAAAAAElFTkSuQmCC',
+  whatsapp:  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAEKElEQVR4nI2UT6hVRRzHPzPnzJxz73v3XPOqZCI+/xEtamFYQoGB1CKQ2oW5bBMRtAhsU4sIQVoUGNEmCkFMjGgntYgMSukPSVpQkWhZ+Ofda+/O8d57zsyc82vx9Lntt/3yG2Y+fOfD4uKihBAkhCDD4VBERJxz4pwTEZHhcPi/88XFRVHeewkhIAjWWKbVDGMNCvDek+c5IQQAjDFUVYW1FgGCD3TzDj54FApjDCm3RqEQhBxLJjkAqSQYsRhJANCSokVhxAJQ39pRqNvHkDrnKIqCFiGUnmG/5At/hptqhp0z+LpG2QQQ2tCQz+X44JmTLnvmdrFmqcD0LAqFcw4lIuJKR4blanfEa/VhymSGxTCVikigYJ6UBMeESEOh5glE5pqMN+xLrJ8NqPEUvYK0LEtSa8jI+HxyihvJkDVhNUtScq9a4Kl0D4WaRxAikW+as3zZnKGv5rmh/uWz6Vc8nz1Lg1CW5TJDBQjCUhyjozCSRR5Kd7A/e5pjs0/5o/2Tlpa79Tr2ZXvZqNfxYXUCpcAxRrJ2haLu9Xp472l9Q6I0k7pkTXMX++xeDo3f4Z9wBRfHjOMS5+pfOLB0kAU2sFvtYlSNSHVCG1q89/R6PfRoNCLPc5KOoZ7OKGvH4+mjnJqdJsbAe2sPsVU24uuKfuiiQ8sRd4LH7MNoD9PJTZI8Jc9zRqMRuiiK5RuGBq0Vsfas0wN+m/7OzN9k1lSMqiGudlyrrhFD4PLsLzQw12S0qkVCS/CBoijQKwVC0TSR2k+IracrOecn5zmyeJQXBs+xwAb2zj3BerWWOkyhVVR+gjQRALnN0DmHNRZtNVU1RZrIuZs/82B+P722w9HRcb5eOs3BDa/y8j0vsl0vsCXZRBlLrldXibVHWY01Bucc6WAwYOzGmCRFJwoJwk/lOXZ2duBmJTYxHJ68y8fXPyFXGR2d89bWQ7x5+W2a0JAmirZqqZqKwWCw3ENjDSrRhFnNtHI8sPo+Nnc2c2jT69RtzZnxt5TthG3dLewdPMn7f3/AD0vf0VUp0+kEZRWmMXd6CKCUYp4uEiIzP+Xk9ZP86M6ykG9id/8REpVypbrCgV9f4WJ1iYFZzVV/lXnmUOrOX1YiIuNyTDfpciFeYP/3+7gerxHbgFYJLQ3SCkopWlq6uksn6VC3np4u+GjncbaZ7UybKf1eHzUcDqUoClppaWYNl7jIiUvHKGOJSQ117bHWLOsqRKxNqIOnSPs8s7CPzWobSUejlV6Ww20fAiRpgo4akxkQEC+oXEG49R4DUgnKKlAQ6kCbtjSxWfHlCkMRQSvNNE4x2gDgoyePOSHeEqwyVLHC6mUfhhjomi5R4gpHPR6PsdaSZRnOOfpFnyY0NKFhVbGKSTmhk3XoZB0m5YRVxaqVvF/0cc6RZRnWWsbjMf8BEiFuKTxped8AAAAASUVORK5CYII=',
+  facebook:  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAC/UlEQVR4nIWUS28cRRSFv+ru6sd4auzM2BCDIEHe8BBICBZIkZBA2bBASOz4B0j8BMSv4G8gIbYoAoJYBoSQkHgseFnGorvHM1X2zHRVT18WjsdOxk5qe+6punXuOZeyLCWEIN57qapKRESstWKtFRGRqqrEey/eeykfgYcQpCxLUfeLUUqhtWaxWJCmKQDee/I8p/Ee6SDNzvFIqRUeQkBESNOURER41BERdByR9WJQMTEJURzhQ3dpraqqSgaDAQDOOYbDIc45APp9g7MTFl3C598e8NfBlChJufWS4fbr14l1weToCGMMANZaktFotLpgOBwyHo8xxiAi2OkROu/zyaf3+PkPi05iDqoTnhw9zztpQVmO2dk5549GIxLn3Eoz5xzGGEIILDuhbwxf/3DAb/8cMxxkvPxcnxu7N3nx2QLfNAw2DQ/zk6u1AwWMrQcgjuDD9/Z45voWvlkQ2iVpGq/xImMM3nu89xhz+mKSaIo8JaIhzzRdJ+gkYqNXMDu2oBJ0mq5+dJG/NpSta9eQdsEX3+1z96cJ86Zlv5yj44i9pzdol8K7b2zz9mu7qCRfG8qqwxACxhisdcQ65XCy5M69Q/78d0YSK5ad8P2vE+7+WJLlBbHWOHuu+VmHaxoqpWjbjhduDPjg9k2qyZxf/nZkacxbr26TZ5q9p/qEtkMptS7+xWjVdb2K1smxExGRz776Xd786Et5/+NvZP/wNHrOnUevrusVv6oqudKH7bKjmZ0OAAQFqLhgOjkiLzaIIsV4PH4gCI/14UavR9v+h1IKEWiaBU9sGRaNJ1Jq5YqL/OgqH8KpDxUQKYgeWfkYH2qt0VrT+jlECW7WMlssyfOC+eyE9D5+mQ+Tuq458+FFTTqBzYFhUJTcemWbzV5CMz9md7SDdQ71kOYAdV2jmqaREMKV+3CjVyBdy+mSi5lfsi/P9qHWmuRSL1047VLwfglAlq1n9wHNlSKaTqdkWYbWGmvtmibOWbIsJcvSS3FrLVprsixjOp3yP8e2L7wa4i/bAAAAAElFTkSuQmCC',
+  instagram: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAADJ0lEQVR4nHWUPWwcZRCGn/fbvdu789ln5+z4En4ESAZbGIKEKSKgMAUUiI4GhFCKgKI0lJGQKKCDjjRUSEFUSNAiBFL4q5AIRAKEJUsQExJDHJtcLrf3t/sNxf3t5WCa1c6nmXnnfWdGcRybmSGJvhkgzENUEhL4gQ/Am5HEhlz/PxtrZoSTDgAhGWEBLm+lJE0jkOEA5yFXhMpaDrqD2hmTRChpVEUCnxqFsvjoTIuv3u2y1OlSIWEOTxlHLiceeK3E6jtzpE3AjVGaGcq27L2RL4jdrYSz63UWaXJH2GFhzijjyTc86oUYJdZ+Xqa4lsO3xu0D45bNDDyEgdj7sUuVA554ocgjb6/gwgGDKRy8vkPjwwOSH+bRgxH4dALlqOWheYTttrknusX66RrXX/2O3G83yQuCI0UOvbmO+/hv3NUWRmUkxn+LgmE4optN7r0fep//gT77nmJYIJd00WPH8FeazNxlWKM1JBDJTSOUhDA8jpk0Jr8QE+3eoDDbIn/hBOqk2Jnz6KeQ4HBC6tsYfSGztIVZuBgYjgJNonyd4n4de3EVvfcllqa4WgFdvIQr18B38Gg0OsOkbthu/2sYIqJB2a4TlFpo0RN88AXhufNwZx4qhnyMlAzixjM4xeGwYESdnO2BArASsA8E4NtgHbAuWG/A4TiZJMKhumaGMAwIZ+qEM9ewhqEGpM8fh16CbrUgboArA8kIRNYmRBk+ankP7tvGWIFz72MXvoEgxG2cwp7dxP5sg9KptZtuefhYbaOlq9jK4wRfX4ITL8PlEsH+FXpHKuiXf6aQTYgyGuy+LrA0h9iGjU38Ky/hnlrEPbNA8twm9vSjuK0dmIvIXof/R+jBqjU020LXPoWTZzGfgncQOvTWJ9Dcxx+dvR3k9GAjhxJPWn0Yf/cs7sa32EUPpaPQNfT7HtrewZeq2LEa8r2paxNm99gQSltQeYje6hvk27+i+cOQiyBJgCK2MU9y/ElYX4Z2G5PIzrKazabdfiCQkELU/QtcAC7AzEPSgw5waBkSP3FgR+sbx7ENHRN8YJjLD4JsVAiBkl5fwCxdgxz/AshSsifB45a9AAAAAElFTkSuQmCC',
+  booking:   'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAABCGlDQ1BJQ0MgUHJvZmlsZQAAeJxjYGA8wQAELAYMDLl5JUVB7k4KEZFRCuwPGBiBEAwSk4sLGHADoKpv1yBqL+viUYcLcKakFicD6Q9ArFIEtBxopAiQLZIOYWuA2EkQtg2IXV5SUAJkB4DYRSFBzkB2CpCtkY7ETkJiJxcUgdT3ANk2uTmlyQh3M/Ck5oUGA2kOIJZhKGYIYnBncAL5H6IkfxEDg8VXBgbmCQixpJkMDNtbGRgkbiHEVBYwMPC3MDBsO48QQ4RJQWJRIliIBYiZ0tIYGD4tZ2DgjWRgEL7AwMAVDQsIHG5TALvNnSEfCNMZchhSgSKeDHkMyQx6QJYRgwGDIYMZAKbWPz9HbOBQAAACzklEQVR4nJWVzW4cRRSFv7pV1T3j8RiTAIHwIyQrkbJB2YQVGySQWCdvwIYNO5Y8AE8RscRPwJoFP4pEEJKFokgRxMJASBwldsYz6a6qe1nMdM/YjiCsWrqquufUueeedk3TWM4ZEcE5RykF7z2lFJxzOOdQ1f+siQg5Z9xkMjHvPWYG0B8WEcwMM0NE/rUGoKqEEJAYI6p6qtmyJpQTtdVmqtoDpJSQlNIxlI6FW9TEQQwBWH5Xm3VSqSoxRtyqht1hJ4IXB6bMnmaMOYOSC6O1CvGets19007XUgohpUSnYUfdAY8PZ1z77Ct++/MJxUEdPSUV3nx1zPYXVzl/7gxN0/Z3O4a9ht2kUs7Ug5qfb/3Ot9/f5Y/HM3Ixdncfsbc/5YfvfmXnzj4hCDjph3lKw46hFw9WGI2GSCl8evUyX37+ER9fewcpBVkf0KYELJ8LYGZLhictg/O0bULVGK8PSFk5uzFE24yaUVcVsBxgd7dnuIoiImCFuopgRhWF3b8ecf7lMbI5BjOatl0wPG70Yxp2KGXBsGlbfBXZu3fAKy+uc+P2feKlLTxQ9Qz9KR8+c8qqGWNu6OvbP3F9+ya0BYYRpg0ptdiC4ao3Y4yEGCOrPhQzRCKb6xUfvH+RMKhQNUTg6Szx9rkRH17ZwrUNVQiUVYektNzlOULg7wcH3Ny5y7uXt2ibhgcPD9l8YY3xaMDGeMQ0VBxOG44yvDGAYfSozl8XQlgyBEfwnoMnU77+Zocff9llMmk4mra8dGbE/XsPeeu9K+iFC+wfzpDg+WRryKVozAB/kmE3fjXj6KgBAWyuzXBYc+v2HvXGmNdePws5sxY9mFF7QTEw8N7Pd7mU0k/ZbC6uFgUHstjRuq7QXPr8y6o4OZ6RpZRn52EpinjB1KALhlIQ8RgG/zcPvRdMFeeW2TcHVdzz5KH3vkfpJv48te53sbop/wBkDijv4sBMdAAAAABJRU5ErkJggg=='
+};
+
+function getChannelLogoForSettings(channelName) {
+  if (!channelName) return '';
+  const ch = channelName.toLowerCase();
+  let key = null;
+  if (ch.includes('airbnb'))   key = 'airbnb';
+  else if (ch.includes('viber'))    key = 'viber';
+  else if (ch.includes('whatsapp')) key = 'whatsapp';
+  else if (ch.includes('facebook') || ch.includes('fb')) key = 'facebook';
+  else if (ch.includes('instagram') || ch.includes('insta')) key = 'instagram';
+  else if (ch.includes('booking'))  key = 'booking';
+  if (!key) return '';
+  return `<img src="${CHANNEL_LOGOS_SETTINGS[key]}" width="20" height="20" style="vertical-align:middle;margin-right:6px;border-radius:3px">`;
+}
+
 // ── KANAL STILOVI ZA KALENDAR ────────────────────────────
 // SVG logo paths: simpleicons.org (CC0 / brand guidelines)
 const CHANNEL_LOGOS = {
-  airbnb:    '<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAYAAAAfSC3RAAABpUlEQVR4nG2SzWtTURDFf3M/8rXQTSlKq2ZX3QqKYq1/tPgHiGLAnRRBpLSpUKJ9TZqGSN7re/cdFy9tkuKsZu7MuWfmzFiWZZLEhkngfeOnGmyVMjMk4f4LCgFb5FieQ/DN221amBmBuxYCNp/T/TxA3pO/eYW6XajrDbBbx5iEWpHWt0Py1y8pXjynffgdtVuYBLbqeYNRMeL/nGNVSTweIgRFgc/G1PfvQUq3tW6DLQTi8RDabRQDeI86bcLJEMXYsN4FKgT8eIItFizeHeBHv/HjCfnBPm4+x0+n6EbpjVYlMLCyJJyd4RcLaolw+guKAjm3oa6dZ5lYDl73esSTIWE0otjbwwzij59U/cek7W2sLLG6RmY4JHAOKwpaR0f4ySXV7i7dLwOsuKZ69hSfXdD5+KnRAQOJQC3UjnQGX4mnQ+xqRtraAu/ovf+AhQDXJTUCZ+Rv93F5TsAMS4my/wgcKETSwwfY9Ar3d07a2cFmM9zFmNR/gqWEzNZmDKERYPkRZsi5VaF3UCWsqpAZgeXtqSyxG39tV2J54xLmHLIm/gd9BN4JqCcLgwAAAABJRU5ErkJggg==" width="14" height="14" style="vertical-align:middle;margin-right:2px;border-radius:2px">',
-  viber:     '<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAYAAAAfSC3RAAABCGlDQ1BJQ0MgUHJvZmlsZQAAeJxjYGA8wQAELAYMDLl5JUVB7k4KEZFRCuwPGBiBEAwSk4sLGHADoKpv1yBqL+viUYcLcKakFicD6Q9ArFIEtBxopAiQLZIOYWuA2EkQtg2IXV5SUAJkB4DYRSFBzkB2CpCtkY7ETkJiJxcUgdT3ANk2uTmlyQh3M/Ck5oUGA2kOIJZhKGYIYnBncAL5H6IkfxEDg8VXBgbmCQixpJkMDNtbGRgkbiHEVBYwMPC3MDBsO48QQ4RJQWJRIliIBYiZ0tIYGD4tZ2DgjWRgEL7AwMAVDQsIHG5TALvNnSEfCNMZchhSgSKeDHkMyQx6QJYRgwGDIYMZAKbWPz9HbOBQAAABVElEQVR4nJ2Su0pDQRCGv9m4R2O8BGJQ8AqGKHbesBW18gHsfQVfxHewttNCSwsFEYJFwGA60YiQgxA9eDu7YxGJiUYF/2KLWb6Z+ZlfoihS/qGOdkXV+qOACIjI36B6JWENNrAAxG+O+NUhRn4GVZUgaXkInwgrVbzzZIb7SWdTvDy/tkxugOqVoMtyXapyuHNGeFujL9PN/d0j65tLzK7meIqeMQkDgGmeZjsCjveKLKxNMb+WJ+iyjM8McnpwAbR6bYAAikc9nOwXsUGCsFIjrNQAcM5Bk80WEJThyQylsyvK5zdsbC0zMTNEsqeTwFrUf15OGndU6h1V2N0+4rJwzfTiGNmRNHMrOXoHunGxa6wrzQHwXkmmAsqFGzpTltF8FlVwscPFvsWjfE2OqmKMYBKG+M2h2j4E3wIgIqiH2NfXahOa9mCdBuEH4kPm199f9A6GRIfIiBgoBAAAAABJRU5ErkJggg==" width="14" height="14" style="vertical-align:middle;margin-right:2px;border-radius:2px">',
-  whatsapp:  '<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAYAAAAfSC3RAAACJ0lEQVR4nF3SvUuVYRzG8e/9u5/nsaNSKRUYieSJzAoMKgi0JaGhIaIx6F8oaIqgf6ChqVoKCRpbo6C5QpKwIM3B7EVOejJQzvv93uAhpPVaLvjyUfV6PRVFgXMOyYQQAiJCSgkApRQxRrTWRB/J8xxrLcoYk5xz5FlOETIQRYoJpQQAUtzeQsJlHucdeZ6TWecoshzrLa/yN/yIa3jtMckAkEtOkQpG8iEuuLP0ZD1Y58h0JmRBeCFveeyfIwjDaoiTchSF4ltc5Uv6SoiRII4rYZqQCeJDABGWzQq23WDKT3DJT7LeqrDerjDlJ7gap/HtJstmBSWCDwHR3RDOGfbaPsZTmQW7RDu0eNd6z8PaDAO+n6N+hJZrklJCiyApJUSEhqlRTsPMNz9yWA0zKaf5U6vSbNWZbc5R5hBt00R1j7rpwDtL3WwxyB6eVGdQEW7vu8nl3ot0bBPrDc51UAoSIChFSoksCgu1RfYzwEaryr3V+/xsfKfVqXG+dI7ZzVmyIMSYEKXIYgioQtFq1+nzOSd6j3PrwA2qrsovs86Z/lN82JxjceszxwbLKK0INpBprSHCeGmM19WX3F26w2+zwZHeUUq6xKPqAyq2QoyB8sFRiKC1RtUb9dSTFXSc4dnaUz5tzbNLSnRih5gSvbqEoBjbPc61oeuU8hLGm//IqQIECPAvWwT09maxO8hZS1EUWGfx2hNcF3nYgdx3kYdIkRdYa/kL7YAzJZrkA8cAAAAASUVORK5CYII=" width="14" height="14" style="vertical-align:middle;margin-right:2px;border-radius:2px">',
-  facebook:  '<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAYAAAAfSC3RAAABvElEQVR4nG2Su25TURBF13ldx0US5DgCIgS9RQUFRKIAOgpK6PgD+AxKinyIe9q0gQJRRMgoEiKJFPGUcuHa9zxmKK6dOCjVOcWsPXu0t6nrWquqIqWE955SCtZaRBRRnf8LwXtyzoQQiDFi2rbV/6EiQi84fLAgShFl1mb8EuxTSjjnzqEi9CrH0feG8e4xX781PN2+xuO712mmEe/dwl2n4pxDRDDWkLKwMz5gb/8nG+s96qlgkblwwXuPL6WcQ8bQC5Y2CQfHNfdHA968ukOMiWkUQM/c+e74DgLDya8Zn49OMcZQ1PBh8oONtYrNK30ARLrNVlW7IVH6K563eye83PmIASaHp7x4/Z79LzW9ylGkm1VVTNM0CqAKVbBMjv7w7tNvxruHDNcqnmxv8eD2kOF6IGXFGACwCwVrDW0sjG6t8vzhFgBXB32ePbrJYNWTsmDtfJsx2IXnxTuLhbopWAO5CCllUtELMyKCXc5QRHDWAsrfWSFmxRmw1pxBixT8cobWda2pguPeaMCNzT6KQUVxbi7sHDnnyyunqqxUDlGljUtu5lAIARtjJIRwsT3G0LSZNsqlUIyRf637LnmjLhy/AAAAAElFTkSuQmCC" width="14" height="14" style="vertical-align:middle;margin-right:2px;border-radius:2px">',
-  instagram: '<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAYAAAAfSC3RAAAB10lEQVR4nHWSMWtTURiGn++cm+bexrRJaaNQLQgVNIoOVbF/oOKP0EEQHNz0P7i6CC4qugji4KgiboIgqKUigkKlIEiNGko9TeK953XIbVMHv/l9eJ/vO8dCCKIcRVGtGQ6jAIQBQogiAFbmJJJtKBYizYzlpzkvb24xtdFnEpHVPIeu1Nh3tkoeBB7MDAshSAIziBI35n+QrgeOnq5QN6HXgWw65cjn/ZjBdjYpu/Gp0f2Yc6D3i6X7U4xvbpLkkXipzs9rHYrVFkm7CiEiGKniHNbtc/hUDneX2Xy+Sm1vneTqCRrtP9jGACwFhqqjHTHGyJnxHSa6X0luLWCNFB59ImZNCoqd64yOIwAjcQMa4QvVxXF07xmWG1po4ztdIgXChuh2o5kQHm89Uq0BLSxfh1hBWY7TAIjsnh1VyXDpb3x7Dd6uUFy8gPk67s4L1GyDRqoj0IBoWNaDY99gagL/+Dq8b8HB40AO+k8jhdDkJFZ5g87fhqUt+D5GVAt3+Qk0zmG7YEdZaUUf7ZlDszP49Qe4+THcmYLk3UM0DZprQr9Apa3t/FVF5FNc9xVJWIFsFooBfOiQTywST7axXh+c+xeUytf0GcKB8nIZBy5ivQGYoWGQv/JQzuGTlM/0AAAAAElFTkSuQmCC" width="14" height="14" style="vertical-align:middle;margin-right:2px;border-radius:2px">'
+  airbnb:    '<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAACB0lEQVR4nHWTy08UQRDGf9XdM/twE5FHREDUo4kXIbKJB+MfbrzoRSQbLnpQ8SJGnMnADo9h59FdHmZdIAt96nTnq+9RVZKmqaoqt57/7yJzXyKCquLuBIugcdxe6/qq2Ky2IiK4u8B4T//de3COyds33Eajqpg5bAhor0f30y7+2VPq9TXi3T2030dCmLMzp0CjCJumUBTUm49BlfjXISbL0MEAvL9JmCTJTJ0EJdzr0/3wERHBXBSEEFqgc0xeDzHnBWquVNxQoJHDZhmmuMQvL+EXF6FpkBAwfxPMyRjt9SCEGWaWgaiicYz79p1mY51ye4voy1eig5+UWy8Ja4+IfxygnQ5yrSNzGYi1mPEYc3aGKwq8CJLnyPExYTC4Ab7KQKSVJQIidEb7mPGYyfAVZjIhHu3jlxaphjtQVVOkgCqSpKmiCta27+cX2DynfrJJZ29EubMN1kHTEH8eUb94DlEETQMiSJokqlPZ3d09pKmhbgjW4rKMenMTWxRt8ewE/3CZajjEL9wH7zGogrOY/BRzdo7JT7F/jgirqzQrK9ijI+TyktDvI2WJXBRIPgbnphaSRAVaxsPfiLOEbhftdjHZMWIM/sECNA1mnCMCzcZGawGQ69uocQTajjMaUOvaya1bv7hp06pqFqL7v1WqipQVMp11BcRXyDRxVYWybFmNmW3jP2+qE7msue7MAAAAAElFTkSuQmCC" width="16" height="16" style="vertical-align:middle;margin-right:2px;border-radius:2px">',
+  viber:     '<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABCGlDQ1BJQ0MgUHJvZmlsZQAAeJxjYGA8wQAELAYMDLl5JUVB7k4KEZFRCuwPGBiBEAwSk4sLGHADoKpv1yBqL+viUYcLcKakFicD6Q9ArFIEtBxopAiQLZIOYWuA2EkQtg2IXV5SUAJkB4DYRSFBzkB2CpCtkY7ETkJiJxcUgdT3ANk2uTmlyQh3M/Ck5oUGA2kOIJZhKGYIYnBncAL5H6IkfxEDg8VXBgbmCQixpJkMDNtbGRgkbiHEVBYwMPC3MDBsO48QQ4RJQWJRIliIBYiZ0tIYGD4tZ2DgjWRgEL7AwMAVDQsIHG5TALvNnSEfCNMZchhSgSKeDHkMyQx6QJYRgwGDIYMZAKbWPz9HbOBQAAABkklEQVR4nKWTvUscQRiHn5ndPT/u9PAkuAjCSQSJ18RAiKWdaOH/YJX/IrVlQEiZJq2SIkVKEUQCNsKBaURzINEoGrlj7/Zr3kkl7t6eQfDXzTDPw8z7vqOCILA8I/o5MIA7aNNaEBHU/RrQWqGUKpwtCKy1aEdTLlcAwWJRaOIkJonTgsTthx3XIekavn054O6qg+M5lMeHebf6itr0GEmUoPSDROcF4HkeXz/tE7R7XLZuCbsRPw9bfP7wnTQ0aEdhM2XXWdhxNd1OyGnzN2sbS9QXfP5edlhcniPqxVz8usEbcskacjdQCsQIaWzY2dqj+qJC+7bL8Y8WJhVELPTVUWdhkwrDoyVq/jhHuydcn9/xfnOd1Y0lkiilNjWGSSQnUdlBErGUhlzOmn/Y/rjHzUWb2YbP5HSV2YbP25V5wjBGZ4qY64LWiihMmH8zw+vll/j1GvXGFG7JoVwdIerl4cINsu0Mg5jKxAjWgjWCMbYAPyoAUFohRgDFgAEc/IRsxNiBo9ufRz/TE9j/C56afyh/qQyUVyimAAAAAElFTkSuQmCC" width="16" height="16" style="vertical-align:middle;margin-right:2px;border-radius:2px">',
+  whatsapp:  '<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAACwElEQVR4nF3TPYseVRyG8eu8zJxnntlnTbKVhRa+obKuGpCAYsBqS0VQiIhGexH8Dr6AYhXENmInfoCgkMIUMVFXZZFsgoHEqEVMNuvMPGfOy5y/xSaCfoD7qu6f2t3dlcViQd/3tG3L4Aecm5FSxBgDQCkFYy0xBObNHL/0tG1L13WonLMMw0DTNIRxZMUtKCmjjYVSAEBrypTRlaUPPW7m8H4/ovb29qSZNySfoFb8Un4lqIgCMgUQDAaFopaKR/V9EKFqKvzSo1JKEnyACj7mM35SFxEELyNr6gAWww25hVaaCsuGPMg7HIckuMZhB79k4Vq+iz9zXr5nxowFK7xZPc+sOCYyFsupfIZLcpnz/Mi22uEpt0HnB6xzNZKFpXjSOLJQM95oXuTr4Rt+mLYxynCPvptjsxf4Mga28jZjMyJZcK5Gp5RQVsMk3PI32TRHObP8lvvtvRzRjxPDkgt+h8+7L9i0R0khUKYJZTUpJbQxBgqUMqFCYY0DnO3Ocdg+xmqZc62/Rh4DF4dLpBI5mFtiiVDAGIMWACWUUhhDz1QSTal4/8+PWK8e4bXVlzh+1zEkRqQUfOiRqYACAfQ0ZZTWSJkYQseFfod1+xCnb57mxB+f8nD1AKSJw9UGyzTw23AVIwqlFNP+NyokC1Im4jhSieHJ5gleP/gKOQfeu/IhW90Wm6vPcfL3k+gkTCUhRahshY0h4lqHE0cJgSlFrsoVVssKrx56GaUNf4XrvHv5A/6e9ig5UouDCuIQUTFFiWOk2MLb22/x1fVTZMkUBKdrDBpfRhZ2BRF45tCznFj/BD1p6ll9+8pNQ46ZrDPnbpwlyAiiEAQABUxMNLrhyNrT2FJha4P3/v+YAivzFciAgdv7OwWw0Pue2tWMftzHdIfz0A/M2zn9ssc5R0rpP5yttYQQaJv2X4ld1/EPtb2U0Hmkj0YAAAAASUVORK5CYII=" width="16" height="16" style="vertical-align:middle;margin-right:2px;border-radius:2px">',
+  facebook:  '<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAACXklEQVR4nHWTv4tdRRzFPzPfmbn35r3dTRQXtTEh/miSIAhaaa1YWNtp5X8gFv4XgoXY2KsgmEJETCoRUUQEGxfTmESI2Wfeuzt3fls839u3ov18OOd75hx1fHzc9vb2WK1WzGYzvPd0XUdKCS1Cq41cCs5aUooMw8A4jsznc5bLJSrn3MZxZBgGpmnawiJCbY1zTkA0NWdy1YQQ6Pse7z2z2Qy1WCzarnKMEWsttVa0gh+P/uKP+xOH5x3XLh9gjCWEsHWiUkrNe0/f94QQsNaSUqbvDO9/dsQnN37neBW5evmAj955nilEnOsIYWIYBsxGeRfunOH2Pc8X397loX3DG688wcXH5oSYsNYSY6DrOrz3mM3N1lpyzogI1glaQcyVS4/v8+arTwEVPyVyzv8IJbquw6SUMMZQSkFEoDVufH+Ho9snGFGsfObjr3/jwlx48dohiFBKwRiz+Smh1opSilorYhQffH6L9z79ld4K9xaBdz/8ma9++BPnDKXsvBVBee9baw2A1kApuPnTfX65teDL7+5yYc/y0rOHPPfMw1y9tE/OBa0VAEopzMZOKQWtNblUXn7hUa5cnHP9mzsczB1vvfYkNRemUBDRW/WcM2YTiDFmHaIWUkw8GBNKrV2txoiiITv3b8LUp993GqYRjRGNVqxBrTDmbHjWrgulh2EghLCtsDGGWiu5FB6cZE5iA8UZeNObYRgw4zieGVGIERHHI+d73n79afbPWWggsoadc0zTdFrl/xpTjBHnLM5pqI0pVkopW9u7YzLL5ZL/m3NKGhTQ6hb+95z/BgeNhGQHcOUaAAAAAElFTkSuQmCC" width="16" height="16" style="vertical-align:middle;margin-right:2px;border-radius:2px">',
+  instagram: '<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAACQUlEQVR4nF2Tz29MURTHP+e+1zedGZ12SjuirQWpILUoKjbsJO3Cr4U/QMJObCwqWIh/wQI7sRCxFZaWjSohRURE0zYq+iuTaeuZmffuPRZv5nXGSe7m5p7vOd8fV8IwVFVFRABQp2TzBgG0cQAsEIcKQlqqig8gIslDBx2dwsyLOgtvYwrWkUXpEKE05jNwNoOtAkZBkz4/RbNKJissfIx5cm6DIpsMEFHEkUPYIkdhpkTXaID9q4iXrJIC4MD3hIVXIcN+mfOP++nel8EA8feQ1StLRC/zcHwnOMBrodAsi8H/scHYuKFr/jfh7a9kFTI3RuifCHBzFZQ+wKKq7RuIgMNQ9P+QK8XE96bJn+wj6OmEX2U6ewJs4FAERBEx2wAJmuIwFPxNsuUKPUeBa/vBM8j9D0j/IFGugCKJQw3ntimoohjyXplcbRnvxA64+xys4M4cQxYreCZD3PBRRNptRBJtsrpG4JZR6UbcKlgDXgTEoHXSIDQC0iJictOxawmpr6DTs9hbV8H3MA9ew+7hdgABoZVCM2GDP2GPxXx5D1MlWOnFTH3CXT4MUa1tGIBJRWwC99WR3nX0znWM+YYpf8ZOXoT1KkTRf9No0UAVLOjQXmT2Ke7UJJy+ACrI4ipm9BH25qVU8DYAABUDscMOTeCvPcOff4h2H4SaRd7M4Y54uPEDiIvASGqjhGGoTRoCqAkwm+/w2IJMEVyMrpRx1RLu0AgSRUnqmj2tAKlAXq7xl23C1zdgHFKrtTUD/ANgKv/QtA/AuAAAAABJRU5ErkJggg==" width="16" height="16" style="vertical-align:middle;margin-right:2px;border-radius:2px">',
+  booking:   '<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABCGlDQ1BJQ0MgUHJvZmlsZQAAeJxjYGA8wQAELAYMDLl5JUVB7k4KEZFRCuwPGBiBEAwSk4sLGHADoKpv1yBqL+viUYcLcKakFicD6Q9ArFIEtBxopAiQLZIOYWuA2EkQtg2IXV5SUAJkB4DYRSFBzkB2CpCtkY7ETkJiJxcUgdT3ANk2uTmlyQh3M/Ck5oUGA2kOIJZhKGYIYnBncAL5H6IkfxEDg8VXBgbmCQixpJkMDNtbGRgkbiHEVBYwMPC3MDBsO48QQ4RJQWJRIliIBYiZ0tIYGD4tZ2DgjWRgEL7AwMAVDQsIHG5TALvNnSEfCNMZchhSgSKeDHkMyQx6QJYRgwGDIYMZAKbWPz9HbOBQAAABy0lEQVR4nJ2TvYsTURTFf+fNR5JN3C1WV1FZRAloL4LbiKXYi62VWFqK/g0WtjaWtvaCH2AjyFpYCbKLRnBlE2WTSTKZmXctsllmkgjiLd8793DuufdoNBqZmfG/5f6l+W8ISYRLGwzCwB2ipgx54ZHmcbacoBYH9JMUJyi8gWC1WWOS+QVshaDwRrNR59mL9zx6/JK+RLMeEU5yHt67xt1bV0mGYwKnoxHcvCQ5x+sPX9k7SLm5dQEkOjs93nz8hqSKIWZWJShXu32C+7cvc+PKJq7wtBrxUtwcwVSaN3By/OwlrK418Y0avlicXxJOFWsNMyMKHb3ugE9f9tnuHKCNdSZptkBgZoRmhqTpPM4hiTh0/Njt8uDJK/AehilnTl46UlhRMRwODcA5xyAZ00/GJKOMzzt7xLWI1VYD88bF9iniWkyEEZS8DCXhvZ/K/j3g6fO3nDt7nO6vAa1mTJZmnL6+xbvvnlHa5875FTZXAlJvqKxAEkXhGQxT8qIAgygK2O3ss7axzrFWnUhGI3CEbnqtklA5TBIEQTD7PTQ0wOcF3nsM4c0q2QjLYTKDLC9KC4U8L5iFQEtitXBITqp47ZxbeJutXhJ/AJwaz7ZvNrUrAAAAAElFTkSuQmCC" width="16" height="16" style="vertical-align:middle;margin-right:2px;border-radius:2px">'
 };
 
 function getChannelStyle(channelName) {
@@ -2707,6 +2798,7 @@ function getChannelStyle(channelName) {
   if (ch.includes('whatsapp') || ch.includes('whats app')) return { cls: 'ch-whatsapp', svg: CHANNEL_LOGOS.whatsapp };
   if (ch.includes('facebook') || ch.includes('fb')) return { cls: 'ch-facebook', svg: CHANNEL_LOGOS.facebook };
   if (ch.includes('instagram') || ch.includes('insta')) return { cls: 'ch-instagram', svg: CHANNEL_LOGOS.instagram };
+  if (ch.includes('booking'))   return { cls: 'ch-booking',  svg: CHANNEL_LOGOS.booking };
   if (ch.includes('direktno') || ch.includes('direct')) return { cls: 'ch-direktno',  svg: '🤝' };
   if (ch.includes('telefon') || ch.includes('phone') || ch.includes('call')) return { cls: 'ch-telefon', svg: '📞' };
   return null;
@@ -2728,7 +2820,7 @@ window.renderCal = function() {
   const dim=new Date(yr,mo+1,0).getDate();
 
   const DNAMES_SHORT=['N','P','U','S','Č','P','S'];
-  let html='<div class="cal-row"><div class="cc hdr cc-label cc-corner">Bungalovi<br><span style="font-weight:400;font-size:.9em;color:#888">Datum</span></div>';
+  let html='<div class="cal-row cal-row-hdr"><div class="cc hdr cc-label cc-corner cal-col-bung">Bungalovi<br><span style="font-weight:400;font-size:.9em;color:#888">Datum</span></div>';
   for (let d=1;d<=dim;d++) {
     const dt=new Date(yr,mo,d);
     const past=dt<now, today=dt.getTime()===now.getTime();
@@ -2741,7 +2833,7 @@ window.renderCal = function() {
   html+='</div>';
 
   for (let bn=1;bn<=13;bn++) {
-    html+=`<div class="cal-row"><div class="cc bh">B${bn}</div>`;
+    html+=`<div class="cal-row"><div class="cc bh cal-col-bung">B${bn}</div>`;
     let skip=0, tog=true;
     for (let d=1;d<=dim;d++) {
       if (d<skip) continue;
@@ -2768,7 +2860,7 @@ window.renderCal = function() {
         let label;
         if (isManualClosed) label = '🔒 ' + (res.name && res.name !== 'Zatvoreno' ? escHtml(res.name) : 'Zatvoreno');
         else if (isIcalClosed) label = '🔒 Booking.com';
-        else if (isIcal) label = res.name && res.name !== 'Booking.com' ? escHtml(res.name)+' <small>🌐</small>' : '🌐 Booking.com';
+        else if (isIcal) label = (CHANNEL_LOGOS.booking||'') + (res.name && res.name !== 'Booking.com' ? escHtml(res.name) : 'Booking.com');
         else {
           const chStyle = getChannelStyle(res.channel);
           const chIcon = chStyle ? chStyle.svg : '';
@@ -3553,8 +3645,7 @@ window.renderStats = function() {
     ?`<table class="stbl"><thead><tr><th>Država</th><th>👥 Gostiju</th><th>🌙 Noćenja</th><th>📊 Udio</th></tr></thead><tbody>${cRows}</tbody></table>`
     :'<div class="no-data">Nema podataka. Unesite zemlju pri rezervaciji.</div>';
 
-  // Ažuriraj osoba-noćenja (init datumi pa izračunaj)
-  _initPersonNightsDates();
+  // Ažuriraj osoba-noćenja prema aktivnom periodu
   renderPersonNights();
 };
 
@@ -3571,7 +3662,9 @@ let   _gdBackupDone = false; // jednom dnevno
 
 // Provjeri da li je backup već urađen danas
 function _gdBackupTodayDone() {
-  return localStorage.getItem('kmk_gd_backup_date') === lDate(new Date());
+  // Provjeri i lokalno i globalno (Firebase)
+  if (localStorage.getItem('kmk_gd_backup_date') === lDate(new Date())) return true;
+  return window._gdBackupDateGlobal === lDate(new Date());
 }
 
 // Inicijalizuj Google Identity Services i traži token
@@ -3635,8 +3728,14 @@ async function _gdDoBackup() {
       await _gdCreateFile(fileName, backupData, folderId);
     }
 
-    // 6. Označi kao urađeno danas
-    localStorage.setItem('kmk_gd_backup_date', lDate(new Date()));
+    // 6. Označi kao urađeno danas - lokalno i u Firebase (za sve uređaje)
+    const todayStr = lDate(new Date());
+    localStorage.setItem('kmk_gd_backup_date', todayStr);
+    window._gdBackupDateGlobal = todayStr;
+    try {
+      const { doc, setDoc } = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js');
+      await setDoc(doc(db, 'settings', 'gdrive_backup'), { lastBackupDate: todayStr }, { merge: true });
+    } catch(e) { console.warn('[GDrive] Firebase save greška:', e); }
     _gdBackupDone = true;
     _updateGDriveStatus('ok', `✅ Drive backup: ${fileName}`);
     console.log('[GDrive] Backup OK:', fileName);
@@ -3709,15 +3808,28 @@ function _updateGDriveStatus(state, msg) {
 }
 
 // Auto backup pri loginu - pozove se jednom dnevno
-function _gdAutoBackupOnLogin() {
+async function _gdAutoBackupOnLogin() {
+  // Provjeri Firebase - da li je backup urađen danas sa bilo kojeg uređaja
+  try {
+    const { doc, getDoc } = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js');
+    const snap = await getDoc(doc(db, 'settings', 'gdrive_backup'));
+    if (snap.exists()) {
+      const lastDate = snap.data().lastBackupDate;
+      window._gdBackupDateGlobal = lastDate;
+      if (lastDate === lDate(new Date())) {
+        localStorage.setItem('kmk_gd_backup_date', lastDate);
+        _updateGDriveStatus('ok', '✅ Drive backup: urađen danas');
+        return;
+      }
+    }
+  } catch(e) { console.warn('[GDrive] Firebase check greška:', e); }
+
+  // Backup nije urađen danas ni sa jednog uređaja
   if (_gdBackupTodayDone()) {
     _updateGDriveStatus('ok', '✅ Drive backup: urađen danas');
     return;
   }
-  // Sačekaj 3s da se Firebase učita pa pokreni
-  setTimeout(() => {
-    if (reservations.length > 0) startGDriveBackup();
-  }, 3000);
+  _updateGDriveStatus('ok', '☁️ Klikni "Backup na Google Drive" jednom dnevno');
 }
 
 // ══════════════════════════════════════════════════════════
@@ -3726,59 +3838,40 @@ function _gdAutoBackupOnLogin() {
 // ══════════════════════════════════════════════════════════
 
 function _initPersonNightsDates() {
+  // Postavi default datume ako su prazni: prvi dan tekućeg mj. → danas
   const now = new Date();
-  const firstDay = lDate(new Date(now.getFullYear(), now.getMonth(), 1));
-  const today    = lDate(now);
   const fromEl = document.getElementById('pn-from');
   const toEl   = document.getElementById('pn-to');
-  if (fromEl && !fromEl.value) fromEl.value = firstDay;
-  if (toEl   && !toEl.value)   toEl.value   = today;
+  if (fromEl && !fromEl.value)
+    fromEl.value = lDate(new Date(now.getFullYear(), now.getMonth(), 1));
+  if (toEl && !toEl.value)
+    toEl.value = lDate(now);
 }
 
 function calcPersonNights(from, to) {
-  // Validacija
   if (!from || !to || from > to) return { total: 0, adults: 0, children: 0, babies: 0 };
-
   const result = { total: 0, adults: 0, children: 0, babies: 0 };
+  // to je zadnji dan koji uključujemo → checkOut mora biti > to (ne >= to)
+  const toIncl = lDate(new Date(new Date(to).getTime() + 86400000));
 
   reservations
-    .filter(r => !r.cancelled && !r.closedManual)
+    .filter(r => !r.cancelled && !r.closedManual && r.checkIn && r.checkOut)
     .forEach(r => {
-      if (!r.checkIn || !r.checkOut) return;
-
-      // Izračunaj overlap između rezervacije i odabranog perioda
-      // checkOut je dan odlaska (ne računa se kao noćenje)
-      const overlapStart = r.checkIn  > from ? r.checkIn  : from;
-      const overlapEnd   = r.checkOut < to   ? r.checkOut : to;
-
-      // Dodaj 1 dan na 'to' jer 'to' je zadnji dan koji uključujemo
-      // Npr. filter Do: 30 Apr → checkOut 30 Apr = 0 noći, ali checkOut 1 May = 1 noć u Aprilu
-      const toInclusive = new Date(to);
-      toInclusive.setDate(toInclusive.getDate() + 1);
-      const toInclusiveStr = lDate(toInclusive);
-
-      const oStart = r.checkIn  > from           ? r.checkIn  : from;
-      const oEnd   = r.checkOut < toInclusiveStr ? r.checkOut : toInclusiveStr;
-
-      if (oStart >= oEnd) return; // Nema overlapa
-
-      const nightsInRange = Math.ceil(
-        (new Date(oEnd) - new Date(oStart)) / 86400000
-      );
-      if (nightsInRange <= 0) return;
-
-      // Saberi po bungalovima (svaki bungalov ima svoje osobe)
+      const oStart = r.checkIn  > from  ? r.checkIn  : from;
+      const oEnd   = r.checkOut < toIncl ? r.checkOut : toIncl;
+      if (oStart >= oEnd) return;
+      const n = Math.ceil((new Date(oEnd) - new Date(oStart)) / 86400000);
+      if (n <= 0) return;
       (r.bungalovi || []).forEach(b => {
         const ad = parseInt(b.adults   || 0);
         const ch = parseInt(b.children || 0);
         const bb = parseInt(b.babies   || 0);
-        result.adults   += ad * nightsInRange;
-        result.children += ch * nightsInRange;
-        result.babies   += bb * nightsInRange;
-        result.total    += (ad + ch + bb) * nightsInRange;
+        result.adults   += ad * n;
+        result.children += ch * n;
+        result.babies   += bb * n;
+        result.total    += (ad + ch + bb) * n;
       });
     });
-
   return result;
 }
 
@@ -3788,24 +3881,15 @@ window.renderPersonNights = () => {
   const to   = document.getElementById('pn-to')?.value;
   const el   = document.getElementById('st-person-nights-cards');
   if (!el) return;
-
-  if (!from || !to) {
-    el.innerHTML = '<div style="color:#888;font-size:.9em">Unesite period.</div>';
+  if (!from || !to || from > to) {
+    el.innerHTML = '<div style="color:#dc3545;font-size:.88em">❌ Datum Od mora biti prije Do.</div>';
     return;
   }
-  if (from > to) {
-    el.innerHTML = '<div style="color:#dc3545;font-size:.9em">❌ Datum Od mora biti prije Do.</div>';
-    return;
-  }
-
   const r = calcPersonNights(from, to);
-
   const card = (val, lbl, color) =>
-    `<div class="stat-card" style="flex:1;min-width:120px;background:${color}">
-       <div class="sv">${val}</div>
-       <div class="sl">${lbl}</div>
+    `<div class="stat-card" style="flex:1;min-width:110px;background:${color}">
+       <div class="sv">${val}</div><div class="sl">${lbl}</div>
      </div>`;
-
   el.innerHTML =
     card(r.total,    'Ukupno osoba-noćenja',  'linear-gradient(135deg,#667eea,#764ba2)') +
     card(r.adults,   '👨 Odrasli',            'linear-gradient(135deg,#20c997,#0d7a5f)') +
@@ -3823,74 +3907,85 @@ function renderAccounting() {
   const el = document.getElementById('st-accounting-body');
   if (!el) return;
 
-  // Koristi isti period filter kao renderStats
-  const now = new Date(); now.setHours(0,0,0,0);
-  const ts  = lDate(now);
-  let f = [...reservations];
-  if (period === 'today') f = f.filter(r => r.checkIn<=ts && r.checkOut>ts);
-  else if (period === 'week') {
-    const wa = new Date(now); wa.setDate(wa.getDate()-7);
-    f = f.filter(r => r.checkIn >= lDate(wa) || (r.checkIn < lDate(wa) && r.checkOut > lDate(wa)));
-  } else if (period === 'month') {
-    const fd = lDate(new Date(now.getFullYear(), now.getMonth(), 1));
-    const ld = lDate(new Date(now.getFullYear(), now.getMonth()+1, 0));
-    f = f.filter(r => (r.checkIn>=fd&&r.checkIn<=ld)||(r.checkOut>fd&&r.checkOut<=ld)||(r.checkIn<=fd&&r.checkOut>ld));
-  } else if (period === 'custom' && pFrom && pTo) {
-    f = f.filter(r => (r.checkIn>=pFrom&&r.checkIn<=pTo)||(r.checkOut>pFrom&&r.checkOut<=pTo)||(r.checkIn<=pFrom&&r.checkOut>pTo));
+  // Init datuma ako nisu postavljeni
+  const now = new Date();
+  const fromEl = document.getElementById('acc-from');
+  const toEl   = document.getElementById('acc-to');
+  if (fromEl && !fromEl.value) fromEl.value = lDate(new Date(now.getFullYear(), now.getMonth(), 1));
+  if (toEl   && !toEl.value)   toEl.value   = lDate(now);
+
+  const accFrom = fromEl?.value || lDate(new Date(now.getFullYear(), now.getMonth(), 1));
+  const accTo   = toEl?.value   || lDate(now);
+
+  // Filtriraj rezervacije po acc periodu (overlap logika)
+  const accToIncl = lDate(new Date(new Date(accTo).getTime() + 86400000));
+  let f = reservations.filter(r =>
+    !r.cancelled && !r.closedManual &&
+    r.checkIn < accToIncl && r.checkOut > accFrom
+  );
+
+  // Izračunaj noći u periodu za svaku rezervaciju
+  function nightsInPeriod(r) {
+    const start = r.checkIn  > accFrom   ? r.checkIn  : accFrom;
+    const end   = r.checkOut < accToIncl ? r.checkOut : accToIncl;
+    return Math.max(0, Math.ceil((new Date(end) - new Date(start)) / 86400000));
   }
 
-  const active = f.filter(r => !r.cancelled && !r.closedManual);
+  // Boravišna taksa: odrasli × noći × 1€ (djeca i bebe = 0)
+  function calcTax(r) {
+    const n = nightsInPeriod(r);
+    const adults = (r.bungalovi||[]).reduce((s,b) => s + (b.adults||0), 0);
+    return adults * n * 1;
+  }
 
-  // Izračunaj po bungalovu
+  // Ukupni sumari
+  const totPrihod  = f.reduce((s,r) => s + (r.price||0), 0);
+  const totNaplac  = f.filter(r=>r.paid).reduce((s,r) => s + (r.price||0), 0);
+  const totDug     = f.filter(r=>!r.paid).reduce((s,r) => s + (r.price||0), 0);
+  const totTaksa   = f.filter(r=>r.paid).reduce((s,r) => s + calcTax(r), 0);
+  const totBezTakse = totNaplac - totTaksa;
+  const totRez     = f.length;
+  const totNoci    = f.reduce((s,r) => s + Math.ceil((new Date(r.checkOut)-new Date(r.checkIn))/86400000), 0);
+  const totOdrasli = f.reduce((s,r) => s + (r.bungalovi||[]).reduce((ss,b)=>ss+(b.adults||0),0), 0);
+
+  // Tabela po bungalovima
   const byBung = {};
-  active.forEach(r => {
+  f.forEach(r => {
     const n = Math.ceil((new Date(r.checkOut)-new Date(r.checkIn))/86400000);
+    const tax = calcTax(r);
     (r.bungalovi||[]).forEach(b => {
       const bn = 'B' + b.bungalov;
-      if (!byBung[bn]) byBung[bn] = { rez:0, noci:0, prihod:0, naplaceno:0, dug:0 };
-      const share = r.bungalovi.length > 1 ? (r.price||0) / r.bungalovi.length : (r.price||0);
+      if (!byBung[bn]) byBung[bn] = { rez:0, noci:0, prihod:0, naplaceno:0, dug:0, taksa:0 };
+      const share = r.bungalovi.length > 1 ? (r.price||0)/r.bungalovi.length : (r.price||0);
+      const taxShare = r.bungalovi.length > 1 ? tax/r.bungalovi.length : tax;
       byBung[bn].rez++;
       byBung[bn].noci += n;
       byBung[bn].prihod += share;
-      if (r.paid) byBung[bn].naplaceno += share;
+      if (r.paid) { byBung[bn].naplaceno += share; byBung[bn].taksa += taxShare; }
       else byBung[bn].dug += share;
     });
   });
 
-  // Ukupni sumari
-  const totRez      = active.length;
-  const totNoci     = active.reduce((s,r) => s + Math.ceil((new Date(r.checkOut)-new Date(r.checkIn))/86400000), 0);
-  const totPrihod   = active.reduce((s,r) => s + (r.price||0), 0);
-  const totNaplac   = active.filter(r=>r.paid).reduce((s,r) => s + (r.price||0), 0);
-  const totDug      = active.filter(r=>!r.paid).reduce((s,r) => s + (r.price||0), 0);
-  const totOsoba    = active.reduce((s,r) => s + (r.bungalovi||[]).reduce((ss,b)=>ss+(b.adults||0)+(b.children||0)+(b.babies||0),0), 0);
-
-  // PDV (7% turistička taksa na prihod)
-  const pdv = totNaplac * 0.07;
-
-  // Tabela po bungalovima
   const bungRows = Object.entries(byBung)
     .sort((a,b) => a[0].localeCompare(b[0], undefined, {numeric:true}))
-    .map(([bn, d]) => `
-      <tr>
-        <td><strong>${escHtml(bn)}</strong></td>
-        <td>${d.rez}</td>
-        <td>${d.noci}</td>
-        <td>${d.prihod.toFixed(2)}€</td>
-        <td style="color:#28a745;font-weight:600">${d.naplaceno.toFixed(2)}€</td>
-        <td style="color:${d.dug>0?'#dc3545':'#888'}">${d.dug.toFixed(2)}€</td>
-      </tr>`).join('');
+    .map(([bn,d]) => `<tr>
+      <td><strong>${escHtml(bn)}</strong></td>
+      <td>${d.rez}</td><td>${d.noci}</td>
+      <td>${d.prihod.toFixed(2)}€</td>
+      <td style="color:#28a745;font-weight:600">${d.naplaceno.toFixed(2)}€</td>
+      <td style="color:#1565c0">${d.taksa.toFixed(2)}€</td>
+      <td style="color:${d.dug>0?'#dc3545':'#888'}">${d.dug.toFixed(2)}€</td>
+    </tr>`).join('');
 
-  // Lista neplaćenih
-  const neplacene = active.filter(r => !r.paid).sort((a,b)=>a.checkIn.localeCompare(b.checkIn));
+  // Neplaćene
+  const neplacene = f.filter(r=>!r.paid).sort((a,b)=>a.checkIn.localeCompare(b.checkIn));
   const neplaceneRows = neplacene.map(r => {
     const n = Math.ceil((new Date(r.checkOut)-new Date(r.checkIn))/86400000);
     const bungs = (r.bungalovi||[]).map(b=>'B'+b.bungalov).join(', ');
     return `<tr>
       <td>${escHtml(r.name)}</td>
       <td>${fmtD(r.checkIn)} → ${fmtD(r.checkOut)}</td>
-      <td>${n} noći</td>
-      <td>${escHtml(bungs)}</td>
+      <td>${n}n</td><td>${escHtml(bungs)}</td>
       <td style="color:#dc3545;font-weight:600">${(r.price||0).toFixed(2)}€</td>
     </tr>`;
   }).join('');
@@ -3899,42 +3994,282 @@ function renderAccounting() {
     <!-- Sumarne kartice -->
     <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px">
       ${[
-        ['€'+totPrihod.toFixed(2),'Ukupno ugovoreno','#667eea'],
-        ['€'+totNaplac.toFixed(2),'Naplaćeno','#28a745'],
-        ['€'+totDug.toFixed(2),'Neplaćeno','#dc3545'],
-        ['€'+pdv.toFixed(2),'Tur. taksa 7%','#fd7e14'],
-        [totRez,'Rezervacija','#6c757d'],
-        [totNoci,'Noćenja','#6c757d'],
-        [totOsoba,'Gostiju','#6c757d'],
-      ].map(([v,l,c])=>`<div class="stat-card" style="flex:1;min-width:110px;background:linear-gradient(135deg,${c},${c}cc)">
-        <div class="sv" style="font-size:1.4em">${v}</div>
-        <div class="sl">${l}</div>
+        ['€'+totNaplac.toFixed(2),   'Ukupno naplaćeno',           '#28a745'],
+        ['€'+totTaksa.toFixed(2),    'Boravišna taksa (1€/os/noć)','#1565c0'],
+        ['€'+totBezTakse.toFixed(2), 'Prihod bez takse',           '#667eea'],
+        ['€'+totDug.toFixed(2),      'Neplaćeno',                  '#dc3545'],
+        ['€'+totPrihod.toFixed(2),   'Ukupno ugovoreno',           '#6c757d'],
+        [totRez,                      'Rezervacija',                '#6c757d'],
+        [totNoci,                     'Noćenja',                    '#6c757d'],
+      ].map(([v,l,c])=>`<div class="stat-card" style="flex:1;min-width:120px;background:linear-gradient(135deg,${c},${c}bb)">
+        <div class="sv" style="font-size:1.3em">${v}</div>
+        <div class="sl" style="font-size:.75em">${l}</div>
       </div>`).join('')}
     </div>
 
-    <!-- Po bungalovima -->
-    <h4 style="margin-bottom:10px;font-size:.95em">📊 Prihod po bungalovima</h4>
+    <!-- Tabela po bungalovima -->
+    <h4 style="margin-bottom:10px;font-size:.95em">📊 Po bungalovima</h4>
     <div style="overflow-x:auto;margin-bottom:20px">
       <table class="stbl">
         <thead><tr>
           <th>Bungalov</th><th>Rez.</th><th>Noći</th>
-          <th>Ugovoreno</th><th>Naplaćeno</th><th>Dug</th>
+          <th>Ugovoreno</th><th>Naplaćeno</th><th>Taksa</th><th>Dug</th>
         </tr></thead>
-        <tbody>${bungRows || '<tr><td colspan="6" style="text-align:center;color:#aaa">Nema podataka</td></tr>'}</tbody>
+        <tbody>${bungRows||'<tr><td colspan="7" style="text-align:center;color:#aaa">Nema podataka</td></tr>'}</tbody>
       </table>
     </div>
 
-    <!-- Neplaćene rezervacije -->
-    ${neplacene.length ? `
-    <h4 style="margin-bottom:10px;font-size:.95em;color:#dc3545">⚠️ Neplaćene rezervacije (${neplacene.length})</h4>
-    <div style="overflow-x:auto">
-      <table class="stbl">
-        <thead><tr><th>Gost</th><th>Period</th><th>Noći</th><th>Bungalov</th><th>Iznos</th></tr></thead>
-        <tbody>${neplaceneRows}</tbody>
-      </table>
-    </div>` : '<div style="padding:12px;background:#e8f5e9;border-radius:8px;color:#28a745;font-size:.9em">✅ Sve rezervacije su naplaćene</div>'}
+    <!-- Neplaćene rezervacije — zasebna sekcija -->
+    <div style="margin-top:8px">
+      <h4 style="margin-bottom:10px;font-size:.95em;color:${neplacene.length?'#dc3545':'#28a745'}">
+        ${neplacene.length ? '⚠️ Neplaćene rezervacije ('+neplacene.length+')' : '✅ Plaćenost'}
+      </h4>
+      ${neplacene.length ? `<div style="overflow-x:auto">
+        <table class="stbl">
+          <thead><tr><th>Gost</th><th>Period</th><th>Noći</th><th>Bungalov</th><th>Iznos</th></tr></thead>
+          <tbody>${neplaceneRows}</tbody>
+        </table>
+      </div>` : '<div style="padding:10px 14px;background:#e8f5e9;border-radius:8px;color:#28a745;font-size:.88em">Sve rezervacije u odabranom periodu su naplaćene.</div>'}
+    </div>
   `;
+
+  // Crtaj grafike
+  _renderAccountingCharts(f, accFrom, accTo);
 }
+
+// Brzi period setteri
+window.accSetMonth = (offset) => {
+  const now = new Date();
+  const d = new Date(now.getFullYear(), now.getMonth() + offset, 1);
+  const from = lDate(d);
+  const to   = lDate(new Date(d.getFullYear(), d.getMonth()+1, 0));
+  const fe = document.getElementById('acc-from');
+  const te = document.getElementById('acc-to');
+  if (fe) fe.value = from;
+  if (te) te.value = to;
+  renderAccounting();
+};
+window.accSetYear = () => {
+  const y = new Date().getFullYear();
+  const fe = document.getElementById('acc-from');
+  const te = document.getElementById('acc-to');
+  if (fe) fe.value = `${y}-01-01`;
+  if (te) te.value = `${y}-12-31`;
+  renderAccounting();
+};
+
+// Grafici računovodstva
+let _accCharts = {};
+let _accAllData = {};
+
+function _renderAccountingCharts(resv, accFrom, accTo) {
+  const el = document.getElementById('st-accounting-charts');
+  if (!el || typeof Chart === 'undefined') return;
+
+  Object.values(_accCharts).forEach(c => { try { c.destroy(); } catch(e){} });
+  _accCharts = {};
+
+  // Pripremi sve podatke
+  const now = new Date();
+  const prevMonthFrom = lDate(new Date(now.getFullYear(), now.getMonth()-1, 1));
+  const prevMonthTo   = lDate(new Date(now.getFullYear(), now.getMonth(), 0));
+  const prevYearFrom  = `${now.getFullYear()-1}-01-01`;
+  const prevYearTo    = `${now.getFullYear()-1}-12-31`;
+
+  function filterPeriod(from, to) {
+    const toIncl = lDate(new Date(new Date(to).getTime()+86400000));
+    return reservations.filter(r => !r.cancelled && !r.closedManual && r.checkIn < toIncl && r.checkOut > from);
+  }
+
+  function calcTaxLocal(r) {
+    const n = Math.ceil((new Date(r.checkOut)-new Date(r.checkIn))/86400000);
+    return (r.bungalovi||[]).reduce((s,b)=>s+(b.adults||0),0) * n * 1;
+  }
+
+  function getMetrics(list) {
+    const paid = list.filter(r=>r.paid);
+    const naplac    = paid.reduce((s,r)=>s+(r.price||0),0);
+    const taksa     = paid.reduce((s,r)=>s+calcTaxLocal(r),0);
+    return {
+      naplac,
+      taksa,
+      bezTakse: naplac - taksa,
+      dug:      list.filter(r=>!r.paid).reduce((s,r)=>s+(r.price||0),0),
+      ugovoreno:list.reduce((s,r)=>s+(r.price||0),0),
+      rez:      list.length,
+      noci:     list.reduce((s,r)=>s+Math.ceil((new Date(r.checkOut)-new Date(r.checkIn))/86400000),0),
+    };
+  }
+
+  // Podaci po mjesecima za prihod chart
+  const monthlyData = {};
+  resv.filter(r=>r.paid).forEach(r => {
+    const mo = r.checkIn.substring(0,7);
+    monthlyData[mo] = (monthlyData[mo]||0) + (r.price||0);
+  });
+  const months = Object.keys(monthlyData).sort();
+
+  // Podaci po bungalovima
+  const bungData = {};
+  resv.forEach(r => {
+    (r.bungalovi||[]).forEach(b => {
+      const bn = 'B'+b.bungalov;
+      bungData[bn] = (bungData[bn]||0) + Math.ceil((new Date(r.checkOut)-new Date(r.checkIn))/86400000);
+    });
+  });
+
+  // Podaci po kanalima
+  const chData = {};
+  resv.forEach(r => { const ch=r.channel||'Ostalo'; chData[ch]=(chData[ch]||0)+1; });
+
+  // Prethodni periodi za poređenje
+  const curMetrics  = getMetrics(resv);
+  const prevMonth   = getMetrics(filterPeriod(prevMonthFrom, prevMonthTo));
+  const prevYear    = getMetrics(filterPeriod(prevYearFrom, prevYearTo));
+
+  window._accAllData = { monthlyData, months, bungData, chData, curMetrics, prevMonth, prevYear, accFrom, accTo };
+  window._accFilteredResv = resv; // Čuvaj filtrovane za metric_ trendove
+
+  el.innerHTML = `
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:14px;flex-wrap:wrap">
+      <span style="font-weight:600;font-size:.9em">📈 Grafik:</span>
+      <select id="acc-chart-metric" onchange="accShowChart(this.value)"
+        style="padding:5px 10px;border:1px solid #ddd;border-radius:6px;font-size:.85em">
+        <option value="revenue">Prihod po mjesecima</option>
+        <option value="occupancy">Noćenja po bungalovima</option>
+        <option value="channels">Rezervacije po kanalima</option>
+        <option value="compare_month">Poređenje — ovaj vs prošli mjesec</option>
+        <option value="compare_year">Poređenje — ova vs prošla godina</option>
+        <option value="metric_naplac">Metrika: Ukupno naplaćeno</option>
+        <option value="metric_taksa">Metrika: Boravišna taksa</option>
+        <option value="metric_bezTakse">Metrika: Prihod bez takse</option>
+        <option value="metric_dug">Metrika: Neplaćeno</option>
+        <option value="metric_rez">Metrika: Rezervacije</option>
+        <option value="metric_noci">Metrika: Noćenja</option>
+      </select>
+    </div>
+    <div style="background:white;border-radius:12px;padding:16px;border:1px solid #e0e0e0;max-width:720px">
+      <canvas id="acc-chart-canvas" height="260"></canvas>
+    </div>`;
+
+  accShowChart('revenue');
+}
+
+window.accShowChart = (type) => {
+  if (typeof Chart === 'undefined') return;
+  const canvas = document.getElementById('acc-chart-canvas');
+  if (!canvas) return;
+
+  const sel = document.getElementById('acc-chart-metric');
+  if (sel && sel.value !== type) sel.value = type;
+
+  Object.values(_accCharts).forEach(c => { try { c.destroy(); } catch(e){} });
+  _accCharts = {};
+
+  const d = window._accAllData || {};
+  const COLORS = ['#667eea','#28a745','#FF5A5F','#fd7e14','#7360F2','#1877F2','#E1306C','#003580','#20c997','#6c757d'];
+  const MN = ['Jan','Feb','Mar','Apr','Maj','Jun','Jul','Avg','Sep','Okt','Nov','Dec'];
+
+  // Prihod po mjesecima
+  if (type === 'revenue') {
+    const labels = (d.months||[]).map(m => { const [y,mo]=m.split('-'); return MN[parseInt(mo)-1]+' '+y.substring(2); });
+    _accCharts.c = new Chart(canvas, {
+      type: 'bar',
+      data: { labels, datasets: [{ label:'Naplaćeno (€)', data:(d.months||[]).map(m=>d.monthlyData[m]||0), backgroundColor:'#667eea', borderRadius:6 }] },
+      options: { responsive:true, plugins:{legend:{display:false},title:{display:true,text:'Naplaćeni prihod po mjesecima'}}, scales:{y:{beginAtZero:true,ticks:{callback:v=>'€'+v}}} }
+    });
+
+  // Noćenja po bungalovima
+  } else if (type === 'occupancy') {
+    const entries = Object.entries(d.bungData||{}).sort((a,b)=>a[0].localeCompare(b[0],undefined,{numeric:true}));
+    _accCharts.c = new Chart(canvas, {
+      type: 'bar',
+      data: { labels:entries.map(e=>e[0]), datasets:[{ label:'Noćenja', data:entries.map(e=>e[1]), backgroundColor:entries.map((_,i)=>COLORS[i%COLORS.length]), borderRadius:4 }] },
+      options: { indexAxis:'y', responsive:true, plugins:{legend:{display:false},title:{display:true,text:'Noćenja po bungalovima'}}, scales:{x:{beginAtZero:true}} }
+    });
+
+  // Kanali
+  } else if (type === 'channels') {
+    const entries = Object.entries(d.chData||{}).sort((a,b)=>b[1]-a[1]);
+    _accCharts.c = new Chart(canvas, {
+      type: 'doughnut',
+      data: { labels:entries.map(e=>e[0]), datasets:[{data:entries.map(e=>e[1]),backgroundColor:COLORS,borderWidth:2}] },
+      options: { responsive:true, plugins:{legend:{position:'right'},title:{display:true,text:'Rezervacije po kanalima'}} }
+    });
+
+  // Poređenje ovaj vs prošli mjesec
+  } else if (type === 'compare_month') {
+    const now = new Date();
+    const curLabel  = MN[now.getMonth()] + ' ' + now.getFullYear();
+    const prevLabel = MN[now.getMonth()===0?11:now.getMonth()-1] + ' ' + (now.getMonth()===0?now.getFullYear()-1:now.getFullYear());
+    const cur  = d.curMetrics  || {};
+    const prev = d.prevMonth   || {};
+    const metrics = ['Naplaćeno','Taksa','Bez takse','Neplaćeno','Ugovoreno'];
+    const curVals  = [cur.naplac||0,  cur.taksa||0,  cur.bezTakse||0,  cur.dug||0,  cur.ugovoreno||0];
+    const prevVals = [prev.naplac||0, prev.taksa||0, prev.bezTakse||0, prev.dug||0, prev.ugovoreno||0];
+    _accCharts.c = new Chart(canvas, {
+      type: 'bar',
+      data: { labels:metrics, datasets:[
+        { label:curLabel,  data:curVals,  backgroundColor:'#667eea', borderRadius:4 },
+        { label:prevLabel, data:prevVals, backgroundColor:'#ccc',    borderRadius:4 }
+      ]},
+      options: { responsive:true, plugins:{title:{display:true,text:'Poređenje: '+curLabel+' vs '+prevLabel}}, scales:{y:{beginAtZero:true,ticks:{callback:v=>'€'+v}}} }
+    });
+
+  // Poređenje ova vs prošla godina
+  } else if (type === 'compare_year') {
+    const now = new Date();
+    const cur  = d.curMetrics || {};
+    const prev = d.prevYear   || {};
+    const metrics = ['Naplaćeno','Taksa','Bez takse','Neplaćeno','Ugovoreno','Rezervacije','Noćenja'];
+    const curVals  = [cur.naplac||0,  cur.taksa||0,  cur.bezTakse||0,  cur.dug||0,  cur.ugovoreno||0, cur.rez||0,  cur.noci||0];
+    const prevVals = [prev.naplac||0, prev.taksa||0, prev.bezTakse||0, prev.dug||0, prev.ugovoreno||0,prev.rez||0, prev.noci||0];
+    _accCharts.c = new Chart(canvas, {
+      type: 'bar',
+      data: { labels:metrics, datasets:[
+        { label:String(now.getFullYear()),   data:curVals,  backgroundColor:'#28a745', borderRadius:4 },
+        { label:String(now.getFullYear()-1), data:prevVals, backgroundColor:'#ccc',    borderRadius:4 }
+      ]},
+      options: { responsive:true, plugins:{title:{display:true,text:'Poređenje: '+now.getFullYear()+' vs '+(now.getFullYear()-1)}}, scales:{y:{beginAtZero:true}} }
+    });
+
+  // Pojedinačna metrika kroz mjesece
+  } else if (type.startsWith('metric_')) {
+    const key = type.replace('metric_','');
+    const labels_map = { naplac:'Naplaćeno (€)', taksa:'Boravišna taksa (€)', bezTakse:'Prihod bez takse (€)', dug:'Neplaćeno (€)', rez:'Rezervacije', noci:'Noćenja' };
+    const color_map  = { naplac:'#28a745', taksa:'#1565c0', bezTakse:'#667eea', dug:'#dc3545', rez:'#fd7e14', noci:'#6c757d' };
+    const label = labels_map[key] || key;
+    const color = color_map[key]  || '#667eea';
+    const isMoney = ['naplac','taksa','bezTakse','dug'].includes(key);
+
+    // Koristi FILTRIRANI period (accFrom/accTo), ne sve rezervacije
+    const filteredResv = d.curMetrics ? (window._accFilteredResv || []) : [];
+    const sourceResv = (window._accFilteredResv || []).length > 0
+      ? window._accFilteredResv
+      : reservations.filter(r=>!r.cancelled&&!r.closedManual);
+
+    // Grupiši po mjesecima unutar odabranog perioda
+    const moData = {};
+    sourceResv.forEach(r => {
+      const mo = r.checkIn.substring(0,7);
+      if (!moData[mo]) moData[mo] = {naplac:0,taksa:0,bezTakse:0,dug:0,rez:0,noci:0};
+      const n = Math.ceil((new Date(r.checkOut)-new Date(r.checkIn))/86400000);
+      const adults = (r.bungalovi||[]).reduce((s,b)=>s+(b.adults||0),0);
+      const tax = adults*n*1;
+      if (r.paid) { moData[mo].naplac+=(r.price||0); moData[mo].taksa+=tax; moData[mo].bezTakse+=(r.price||0)-tax; }
+      else moData[mo].dug+=(r.price||0);
+      moData[mo].rez++; moData[mo].noci+=n;
+    });
+    const mos = Object.keys(moData).sort();
+    const moLabels = mos.map(m => { const [y,mo]=m.split('-'); return MN[parseInt(mo)-1]+' '+y.substring(2); });
+    _accCharts.c = new Chart(canvas, {
+      type: 'line',
+      data: { labels:moLabels, datasets:[{ label, data:mos.map(m=>moData[m][key]||0), borderColor:color, backgroundColor:color+'33', fill:true, tension:0.3, pointRadius:4 }] },
+      options: { responsive:true, plugins:{legend:{display:false},title:{display:true,text:label+' — trend po mjesecima (odabrani period)'}}, scales:{y:{beginAtZero:true,ticks:{callback:v=>isMoney?'€'+v:v}}} }
+    });
+  }
+};
+
 
 // Export računovodstva u Excel
 window.exportAccountingXLSX = () => {
@@ -3942,15 +4277,14 @@ window.exportAccountingXLSX = () => {
   if (typeof XLSX === 'undefined') { alert('Excel biblioteka se učitava...'); return; }
 
   const now = new Date();
-  let f = [...reservations];
-  if (period === 'month') {
-    const fd = lDate(new Date(now.getFullYear(), now.getMonth(), 1));
-    const ld = lDate(new Date(now.getFullYear(), now.getMonth()+1, 0));
-    f = f.filter(r => (r.checkIn>=fd&&r.checkIn<=ld)||(r.checkOut>fd&&r.checkOut<=ld)||(r.checkIn<=fd&&r.checkOut>ld));
-  } else if (period === 'custom' && pFrom && pTo) {
-    f = f.filter(r => (r.checkIn>=pFrom&&r.checkIn<=pTo)||(r.checkOut>pFrom&&r.checkOut<=pTo)||(r.checkIn<=pFrom&&r.checkOut>pTo));
-  }
-  const active = f.filter(r => !r.cancelled && !r.closedManual);
+  const accFrom = document.getElementById('acc-from')?.value || lDate(new Date(now.getFullYear(), now.getMonth(), 1));
+  const accTo   = document.getElementById('acc-to')?.value   || lDate(now);
+  const accToIncl = lDate(new Date(new Date(accTo).getTime() + 86400000));
+
+  const active = reservations.filter(r =>
+    !r.cancelled && !r.closedManual &&
+    r.checkIn < accToIncl && r.checkOut > accFrom
+  );
 
   const wb = XLSX.utils.book_new();
 
@@ -3979,7 +4313,7 @@ window.exportAccountingXLSX = () => {
     { 'Stavka': 'Ukupno ugovoreno (€)', 'Vrijednost': totPrihod.toFixed(2) },
     { 'Stavka': 'Naplaćeno (€)',         'Vrijednost': totNaplac.toFixed(2) },
     { 'Stavka': 'Neplaćeno (€)',          'Vrijednost': totDug.toFixed(2) },
-    { 'Stavka': 'Turistička taksa 7% (€)','Vrijednost': (totNaplac*0.07).toFixed(2) },
+    { 'Stavka': 'Boravišna taksa (1€/os/noć)', 'Vrijednost': active.filter(r=>r.paid).reduce((s,r)=>{ const n=Math.ceil((new Date(r.checkOut)-new Date(r.checkIn))/86400000); const ad=(r.bungalovi||[]).reduce((ss,b)=>ss+(b.adults||0),0); return s+ad*n*1; },0).toFixed(2) },
     { 'Stavka': 'Broj rezervacija',        'Vrijednost': active.length },
     { 'Stavka': 'Ukupno noćenja',          'Vrijednost': active.reduce((s,r)=>s+Math.ceil((new Date(r.checkOut)-new Date(r.checkIn))/86400000),0) },
   ];
@@ -4212,6 +4546,29 @@ window.mobGoBack = () => {
 
 // Mobilna navigacija
 let _mobCurrentTab = 'daily';
+
+// Mob nav panel collapse/expand
+window.mobToggleNavPanel = () => {
+  const panel = document.getElementById('mob-nav-collapsible');
+  const btn   = document.getElementById('mob-nav-collapse-btn');
+  if (!panel) return;
+  const isOpen = panel.style.display !== 'none';
+  panel.style.display = isOpen ? 'none' : 'block';
+  if (btn) btn.textContent = isOpen ? '+' : '−';
+  localStorage.setItem('kmk_mob_nav_open', isOpen ? '0' : '1');
+};
+
+// Vrati stanje collapse panela
+function _restoreMobNavState() {
+  const saved = localStorage.getItem('kmk_mob_nav_open');
+  if (saved === '0') {
+    const panel = document.getElementById('mob-nav-collapsible');
+    const btn   = document.getElementById('mob-nav-collapse-btn');
+    if (panel) panel.style.display = 'none';
+    if (btn)   btn.textContent = '+';
+  }
+}
+
 window.mobGoTab = (tab) => {
   // Prati historiju tabova za Back dugme
   if (tab !== _mobCurrentTab) {
@@ -6218,6 +6575,9 @@ function renderOccupancyBar() {
       </span>
     </div>
   `;
+  // Kopiraj isti sadržaj u mob panel
+  const mobEl = document.getElementById('mob-occ-bar-inner');
+  if (mobEl) mobEl.innerHTML = el.innerHTML;
 }
 
 // ══════════════════════════════════════════════════════════
@@ -7093,14 +7453,26 @@ window.renderChannels = function() {
   const el=document.getElementById('channels-list'); if(!el) return;
   const chs=window.appChannels||[];
   if(!chs.length){el.innerHTML='<div class="no-data">Nema kanala</div>';return;}
-  el.innerHTML=chs.map(ch=>`
-    <div class="user-card">
-      <div class="user-info-block"><strong>${escHtml(ch.icon||'')} ${escHtml(ch.name)}</strong></div>
+  el.innerHTML=chs.map(ch=>{
+    // Koristi custom logo ako je uploadovan, inače prepoznaj po imenu
+    const customLogo = ch.logoBase64
+      ? `<img src="${ch.logoBase64}" width="20" height="20" style="vertical-align:middle;margin-right:6px;border-radius:3px">`
+      : '';
+    const logo = customLogo || getChannelLogoForSettings(ch.name);
+    const chStyle = getChannelStyle(ch.name);
+    const bgColor = chStyle ? '' : '';
+    return `<div class="user-card" style="display:flex;align-items:center;justify-content:space-between">
+      <div class="user-info-block" style="display:flex;align-items:center;gap:8px">
+        ${logo || `<span style="font-size:1.3em">${escHtml(ch.icon||'📌')}</span>`}
+        <strong>${escHtml(ch.name)}</strong>
+        ${chStyle ? `<span style="font-size:.75em;padding:2px 8px;border-radius:10px;background:${chStyle.cls.replace('ch-','').includes('airbnb')?'#FF5A5F':chStyle.cls.includes('viber')?'#7360F2':chStyle.cls.includes('whatsapp')?'#25D366':chStyle.cls.includes('facebook')?'#1877F2':chStyle.cls.includes('instagram')?'#E1306C':chStyle.cls.includes('booking')?'#003580':'#6c757d'};color:white">${escHtml(ch.name)}</span>` : ''}
+      </div>
       <div class="btn-actions">
         <button class="bs bs-edit" onclick="editChannel('${ch.id}')">✏️</button>
         <button class="bs bs-del" onclick="deleteChannel('${ch.id}')">🗑️</button>
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 };
 window.showAddChannelForm=()=>{
   editingChannelId=null;
@@ -7114,15 +7486,63 @@ window.editChannel=id=>{
   editingChannelId=id;
   document.getElementById('chf-name').value=ch.name||'';
   document.getElementById('chf-icon').value=ch.icon||'';
+  // Učitaj logo ako postoji
+  const logoDataEl = document.getElementById('chf-logo-data');
+  const logoPreview = document.getElementById('chf-logo-preview');
+  const logoImg = document.getElementById('chf-logo-img');
+  if (logoDataEl) logoDataEl.value = ch.logoBase64||'';
+  if (ch.logoBase64 && logoImg && logoPreview) {
+    logoImg.src = ch.logoBase64;
+    logoPreview.style.display = 'flex';
+  } else if (logoPreview) {
+    logoPreview.style.display = 'none';
+  }
   document.getElementById('ch-form-title').textContent='Uredi: '+escHtml(ch.name);
   document.getElementById('ch-form-wrap').style.display='block';
 };
-window.cancelChannelForm=()=>{ document.getElementById('ch-form-wrap').style.display='none'; editingChannelId=null; };
+window.cancelChannelForm=()=>{
+  document.getElementById('ch-form-wrap').style.display='none';
+  editingChannelId=null;
+  clearChannelLogo();
+  const nameEl=document.getElementById('chf-name'); if(nameEl) nameEl.value='';
+  const iconEl=document.getElementById('chf-icon'); if(iconEl) iconEl.value='';
+};
+
+// ── CHANNEL LOGO UPLOAD ───────────────────────────────────
+window.previewChannelLogo = (input) => {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    // Skaliraj na 20x20 px pomoću canvas-a
+    const img = new window.Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = 20; canvas.height = 20;
+      canvas.getContext('2d').drawImage(img, 0, 0, 20, 20);
+      const b64 = canvas.toDataURL('image/png');
+      document.getElementById('chf-logo-data').value = b64;
+      document.getElementById('chf-logo-img').src = b64;
+      document.getElementById('chf-logo-preview').style.display = 'flex';
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+};
+
+window.clearChannelLogo = () => {
+  document.getElementById('chf-logo-data').value = '';
+  document.getElementById('chf-logo-file').value = '';
+  document.getElementById('chf-logo-preview').style.display = 'none';
+};
+
 window.saveChannel=async()=>{
   const name=document.getElementById('chf-name').value.trim();
   const icon=document.getElementById('chf-icon').value.trim();
+  const logoData=document.getElementById('chf-logo-data')?.value||'';
   if(!name){alert('Naziv je obavezan!');return;}
   const data={name,icon,updatedAt:new Date().toISOString()};
+  if(logoData) data.logoBase64=logoData;
   try {
     if(editingChannelId) await updateDoc(doc(db,'channels',editingChannelId),data);
     else await addDoc(collection(db,'channels'),{...data,createdAt:new Date().toISOString()});
@@ -7318,13 +7738,12 @@ async function syncIcalLink(id, silent) {
   // Proxy lista — Cloudflare Workers worker je najpouzdaniji (ako postoji),
   // ostali su javni besplatni servisi koji mogu biti nedostupni
   const PROXY_BUILDERS = [
-    // Javni proxy-ji — pouzdan redosljed
-    url => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url),
-    url => 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(url),
+    // Cloudflare Worker — vlastiti, najpouzdaniji, Booking.com ga ne blokira
+    url => 'https://kmk-ical-proxy.isko-rado.workers.dev/?url=' + encodeURIComponent(url),
+    // Fallback proxy-ji ako Worker ne radi
     url => 'https://corsproxy.io/?' + encodeURIComponent(url),
     url => 'https://thingproxy.freeboard.io/fetch/' + url,
-    // Cloudflare Worker (vlastiti — aktivirati kada se deploya worker)
-    // url => 'https://kmk-ical-proxy.waveinthesky.workers.dev/?url=' + encodeURIComponent(url),
+    url => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url),
   ];
   let text = null;
   for (const buildUrl of PROXY_BUILDERS) {
@@ -7544,12 +7963,15 @@ function startAutoIcalSync() {
   const el = document.getElementById('ical-countdown');
   if (el) el.style.display = 'inline-block';
 
-  function doSync() {
+  async function doSync() {
     _icalNextSync = Date.now() + ICAL_INTERVAL_MS;
     const links = window.icalLinks || [];
     if (!links.length) return;
-    // Koristi istu syncIcalLink funkciju kao rucni sync, samo silent=true
-    links.forEach(lnk => syncIcalLink(lnk.id, true).catch(e => console.warn('iCal auto error B'+lnk.bungalov+':', e)));
+    // Serijalni sync — isti kao syncAllIcal, sprečava _icalSyncing lock konflikt
+    for (const lnk of links) {
+      try { await syncIcalLink(lnk.id, true); }
+      catch(e) { console.warn('iCal auto error B'+lnk.bungalov+':', e); }
+    }
   }
 
   // Odmah postavi sljedeci sync
