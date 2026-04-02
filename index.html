@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Maja Karanfil Bungali v1.7.7</title>
+<title>Maja Karanfil Bungali v1.7.9</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh;padding:20px}
@@ -160,6 +160,10 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 .cc.closed-ical:hover{opacity:.85}
 .res-span{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:.85em;text-align:center;padding:2px 4px;line-height:1.3;word-break:break-word}
 .legend{display:flex;gap:10px;margin-top:12px;padding:10px 14px;background:#f8f9fa;border-radius:8px;flex-wrap:wrap;font-size:.82em}
+@media(max-width:700px){
+  .legend{display:none!important}
+  #occ-bar{display:none!important}
+}
 .legend-i{display:flex;align-items:center;gap:4px}
 .lc{width:20px;height:14px;border-radius:3px}
 
@@ -442,6 +446,8 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
   
   /* Sakrij desktop cal header, prikazi mob */
   .cal-hdr{display:none!important}
+  #occ-bar{display:none!important}
+  #occupancy-dash{display:none!important}
   
   /* Forma na mobu */
   .form-wrap{display:none!important}
@@ -740,7 +746,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
       <img src="https://i.imgur.com/DzB2EDR.png" onerror="this.style.display='none'"
            alt="Logo" style="max-width:175px;margin:0 auto 10px;display:block;border-radius:10px">
       <h1>🏡 Maja Karanfil Bungali</h1>
-      <p>Prijavite se u sistem — v1.7.7</p>
+      <p>Prijavite se u sistem — v1.7.9</p>
     </div>
     <div class="login-err" id="login-err">Pogrešno korisničko ime ili lozinka!</div>
     <form class="login-form" id="login-form">
@@ -1590,7 +1596,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <!-- Current version -->
       <div style="background:#e8f4fd;padding:14px;border-radius:8px;margin-bottom:20px;border-left:4px solid #667eea">
-        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v1.7.7</strong>
+        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v1.7.9</strong>
       </div>
 
       <!-- Changelog -->
@@ -1598,7 +1604,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <div class="changelog">
         <div class="ch-version">
-          <div class="ch-ver-header">v1.7.7 <span class="ch-date">— 30.03.2026</span></div>
+          <div class="ch-ver-header">v1.7.9 <span class="ch-date">— 30.03.2026</span></div>
           <ul>
             <li><strong>About premješten:</strong> Iz floating dugmeta u Podešavanja → ℹ️ About tab — pregledniji pristup</li>
             <li><strong>Excel Export:</strong> Novo dugme "📊 Export u Excel" — preuzmi SVE rezervacije kao čistu CSV/Excel tabelu sa kompletnim detaljima (ID, status, ime, telefon, zemlja, kanal, datumi, broj noći, bungalovi, kreveti, struktura gostiju, cijena, napomene)</li>
@@ -3627,8 +3633,7 @@ window.renderStats = function() {
     ?`<table class="stbl"><thead><tr><th>Država</th><th>👥 Gostiju</th><th>🌙 Noćenja</th><th>📊 Udio</th></tr></thead><tbody>${cRows}</tbody></table>`
     :'<div class="no-data">Nema podataka. Unesite zemlju pri rezervaciji.</div>';
 
-  // Ažuriraj osoba-noćenja (init datumi pa izračunaj)
-  _initPersonNightsDates();
+  // Ažuriraj osoba-noćenja prema aktivnom periodu
   renderPersonNights();
 };
 
@@ -3876,13 +3881,15 @@ function calcPersonNights(from, to) {
 }
 
 window.renderPersonNights = () => {
-  const { from, to } = _initPersonNightsDates();
+  const pn = _initPersonNightsDates();
   const el = document.getElementById('st-person-nights-cards');
   if (!el) return;
-  if (!from || !to || from > to) {
-    el.innerHTML = '<div style="color:#888;font-size:.88em">Nema podataka za odabrani period.</div>';
-    return;
-  }
+
+  // Osiguraj validne datume — fallback na tekući mjesec
+  const now = new Date();
+  const from = (pn && pn.from) ? pn.from : lDate(new Date(now.getFullYear(), now.getMonth(), 1));
+  const to   = (pn && pn.to)   ? pn.to   : lDate(now);
+
   const r = calcPersonNights(from, to);
   const card = (val, lbl, color) =>
     `<div class="stat-card" style="flex:1;min-width:110px;background:${color}">
@@ -6573,6 +6580,9 @@ function renderOccupancyBar() {
       </span>
     </div>
   `;
+  // Kopiraj isti sadržaj u mob panel
+  const mobEl = document.getElementById('mob-occ-bar-inner');
+  if (mobEl) mobEl.innerHTML = el.innerHTML;
 }
 
 // ══════════════════════════════════════════════════════════
