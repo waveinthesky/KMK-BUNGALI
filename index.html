@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Maja Karanfil Bungali v1.7.4</title>
+<title>Maja Karanfil Bungali v1.7.6</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh;padding:20px}
@@ -740,7 +740,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
       <img src="https://i.imgur.com/DzB2EDR.png" onerror="this.style.display='none'"
            alt="Logo" style="max-width:175px;margin:0 auto 10px;display:block;border-radius:10px">
       <h1>🏡 Maja Karanfil Bungali</h1>
-      <p>Prijavite se u sistem — v1.7.4</p>
+      <p>Prijavite se u sistem — v1.7.6</p>
     </div>
     <div class="login-err" id="login-err">Pogrešno korisničko ime ili lozinka!</div>
     <form class="login-form" id="login-form">
@@ -1000,50 +1000,58 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
   <!-- CALENDAR -->
   <div id="pane-calendar" class="tab-pane">
     <!-- Mobilna navigacija kalendara (vidljiva samo na mobu) -->
-    <div id="mob-cal-nav" style="display:none;flex-direction:column;gap:8px;background:white;border-radius:12px;padding:10px 14px;margin-bottom:10px;box-shadow:0 1px 6px rgba(0,0,0,.08)" class="mob-cal-nav-wrap">
-      <div style="display:flex;align-items:center;justify-content:space-between">
+    <div id="mob-cal-nav" style="display:none;flex-direction:column;gap:0;background:white;border-radius:12px;overflow:hidden;margin-bottom:10px;box-shadow:0 1px 6px rgba(0,0,0,.08)" class="mob-cal-nav-wrap">
+
+      <!-- GORNJI DIO: Navigacija mjeseca — uvijek vidljiv -->
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px">
         <button onclick="changeMonth(-1)" style="background:#f0f0f0;border:none;border-radius:8px;padding:8px 16px;font-size:.95em;cursor:pointer;font-weight:600">←</button>
         <span id="mob-cal-month-label" style="font-size:1.05em;font-weight:700;color:#333">— —</span>
         <div style="display:flex;align-items:center;gap:6px">
           <button onclick="changeMonth(1)" style="background:#f0f0f0;border:none;border-radius:8px;padding:8px 16px;font-size:.95em;cursor:pointer;font-weight:600">→</button>
           <button id="mob-nav-collapse-btn" onclick="mobToggleNavPanel()"
-            style="background:#f0f0f0;border:none;border-radius:8px;padding:8px 12px;font-size:1em;cursor:pointer;font-weight:700;color:#667eea;line-height:1"
+            style="background:#667eea;color:white;border:none;border-radius:8px;padding:7px 11px;font-size:1.1em;cursor:pointer;font-weight:700;line-height:1"
             title="Sakrij/prikaži panel">−</button>
         </div>
       </div>
-      <div id="mob-nav-collapsible">
-      <div style="display:flex;gap:6px;justify-content:center">
-        <button id="mob-cal-v1-btn" onclick="mobSetCalView('v1')"
-          style="flex:1;padding:5px;border:1.5px solid #667eea;border-radius:8px;
-                 background:#667eea;color:white;font-size:.78em;font-weight:600;cursor:pointer">
-          V1 Grid
-        </button>
-        <button id="mob-cal-v2-btn" onclick="mobSetCalView('v2')"
-          style="flex:1;padding:5px;border:1.5px solid #667eea;border-radius:8px;
-                 background:white;color:#667eea;font-size:.78em;font-weight:600;cursor:pointer">
-          V2 Mjesec
-        </button>
-        <button id="mob-cal-v3-btn" onclick="mobSetCalView('v3')"
-          style="flex:1;padding:5px;border:1.5px solid #667eea;border-radius:8px;
-                 background:white;color:#667eea;font-size:.78em;font-weight:600;cursor:pointer">
-          V3 Traka
-        </button>
-      </div>
-      <!-- Mini legenda za mobilni — sklopiva -->
-      <div style="font-size:.75em">
-        <button onclick="mobToggleLegend()" id="mob-legend-toggle"
-          style="background:none;border:none;color:#667eea;font-size:.9em;cursor:pointer;
-                 padding:2px 0;font-weight:600;width:100%;text-align:left">
-          + Legenda boja
-        </button>
-        <div id="mob-legend-body" style="display:none;margin-top:5px;
-          display:none;flex-wrap:wrap;gap:6px">
-          <span style="display:flex;align-items:center;gap:3px"><span style="width:10px;height:10px;background:#003580;border-radius:2px;display:inline-block"></span>Booking</span>
-          <span style="display:flex;align-items:center;gap:3px"><span style="width:10px;height:10px;background:#667eea;border-radius:2px;display:inline-block"></span>Ručna</span>
-          <span style="display:flex;align-items:center;gap:3px"><span style="width:10px;height:10px;background:#333;border-radius:2px;display:inline-block"></span>Zatvoreno</span>
-          <span style="display:flex;align-items:center;gap:3px"><span style="width:10px;height:10px;background:#28a745;border-radius:2px;display:inline-block"></span>Plaćeno</span>
+
+      <!-- KOLAPSIBILNI DIO: V1/V2/V3 + Popunjenost + Legenda -->
+      <div id="mob-nav-collapsible" style="border-top:1px solid #f0f0f0;padding:10px 14px;display:flex;flex-direction:column;gap:10px">
+
+        <!-- V1 / V2 / V3 izbor -->
+        <div style="display:flex;gap:6px">
+          <button id="mob-cal-v1-btn" onclick="mobSetCalView('v1')"
+            style="flex:1;padding:6px;border:1.5px solid #667eea;border-radius:8px;
+                   background:#667eea;color:white;font-size:.8em;font-weight:600;cursor:pointer">
+            V1 Grid
+          </button>
+          <button id="mob-cal-v2-btn" onclick="mobSetCalView('v2')"
+            style="flex:1;padding:6px;border:1.5px solid #667eea;border-radius:8px;
+                   background:white;color:#667eea;font-size:.8em;font-weight:600;cursor:pointer">
+            V2 Mjesec
+          </button>
+          <button id="mob-cal-v3-btn" onclick="mobSetCalView('v3')"
+            style="flex:1;padding:6px;border:1.5px solid #667eea;border-radius:8px;
+                   background:white;color:#667eea;font-size:.8em;font-weight:600;cursor:pointer">
+            V3 Traka
+          </button>
         </div>
-      </div>
+
+        <!-- Popunjenost bar (mob) -->
+        <div id="mob-occ-bar-inner" style="font-size:.8em"></div>
+
+        <!-- Legenda boja — kompletna -->
+        <div style="display:flex;flex-wrap:wrap;gap:6px;font-size:.75em">
+          <span style="display:flex;align-items:center;gap:3px"><span style="width:11px;height:11px;background:#ffc107;border-radius:2px;display:inline-block"></span>Rezervacija 1</span>
+          <span style="display:flex;align-items:center;gap:3px"><span style="width:11px;height:11px;background:#fd7e14;border-radius:2px;display:inline-block"></span>Rezervacija 2</span>
+          <span style="display:flex;align-items:center;gap:3px"><span style="width:11px;height:11px;background:#28a745;border-radius:2px;display:inline-block"></span>Potvrđeno 1</span>
+          <span style="display:flex;align-items:center;gap:3px"><span style="width:11px;height:11px;background:#20c997;border-radius:2px;display:inline-block"></span>Potvrđeno 2</span>
+          <span style="display:flex;align-items:center;gap:3px"><span style="width:11px;height:11px;background:#17a2b8;border-radius:2px;display:inline-block"></span>Plaćeno 1</span>
+          <span style="display:flex;align-items:center;gap:3px"><span style="width:11px;height:11px;background:#6610f2;border-radius:2px;display:inline-block"></span>Plaćeno 2</span>
+          <span style="display:flex;align-items:center;gap:3px"><span style="width:11px;height:11px;background:#003580;border-radius:2px;display:inline-block"></span>Booking.com</span>
+          <span style="display:flex;align-items:center;gap:3px"><span style="width:11px;height:11px;background:#1a1a1a;border-radius:2px;display:inline-block"></span>Zatvoreno</span>
+          <span style="display:flex;align-items:center;gap:3px"><span style="width:11px;height:11px;background:#e9ecef;border:1px solid #ccc;border-radius:2px;display:inline-block"></span>Prošlo</span>
+        </div>
+
       </div><!-- /mob-nav-collapsible -->
     </div>
     <!-- V2 mobilni kalendar — vertikalni prikaz po danima -->
@@ -1594,7 +1602,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <!-- Current version -->
       <div style="background:#e8f4fd;padding:14px;border-radius:8px;margin-bottom:20px;border-left:4px solid #667eea">
-        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v1.7.4</strong>
+        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v1.7.6</strong>
       </div>
 
       <!-- Changelog -->
@@ -1602,7 +1610,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <div class="changelog">
         <div class="ch-version">
-          <div class="ch-ver-header">v1.7.4 <span class="ch-date">— 30.03.2026</span></div>
+          <div class="ch-ver-header">v1.7.6 <span class="ch-date">— 30.03.2026</span></div>
           <ul>
             <li><strong>About premješten:</strong> Iz floating dugmeta u Podešavanja → ℹ️ About tab — pregledniji pristup</li>
             <li><strong>Excel Export:</strong> Novo dugme "📊 Export u Excel" — preuzmi SVE rezervacije kao čistu CSV/Excel tabelu sa kompletnim detaljima (ID, status, ime, telefon, zemlja, kanal, datumi, broj noći, bungalovi, kreveti, struktura gostiju, cijena, napomene)</li>
@@ -3828,78 +3836,51 @@ function _initPersonNightsDates() {
   const now = new Date();
   const fromEl = document.getElementById('pn-from');
   const toEl   = document.getElementById('pn-to');
-
-  // Sinhronizuj sa globalnim period filterom iz Statistike
+  // Postavi datume prema periodu filtera statistike
+  let from = '', to = lDate(now);
   if (period === 'today') {
-    const ts = lDate(now);
-    if (fromEl) fromEl.value = ts;
-    if (toEl)   toEl.value   = ts;
+    from = to = lDate(now);
   } else if (period === 'week') {
     const wa = new Date(now); wa.setDate(wa.getDate()-7);
-    if (fromEl) fromEl.value = lDate(wa);
-    if (toEl)   toEl.value   = lDate(now);
+    from = lDate(wa);
   } else if (period === 'month') {
-    if (fromEl) fromEl.value = lDate(new Date(now.getFullYear(), now.getMonth(), 1));
-    if (toEl)   toEl.value   = lDate(now);
+    from = lDate(new Date(now.getFullYear(), now.getMonth(), 1));
   } else if (period === 'custom' && pFrom && pTo) {
-    if (fromEl) fromEl.value = pFrom;
-    if (toEl)   toEl.value   = pTo;
+    from = pFrom; to = pTo;
   } else if (period === 'all') {
-    // Sve - od prve rezervacije do danas
     const firstRes = [...reservations].filter(r=>!r.cancelled).sort((a,b)=>a.checkIn.localeCompare(b.checkIn))[0];
-    if (fromEl) fromEl.value = firstRes ? firstRes.checkIn : lDate(new Date(now.getFullYear(), now.getMonth(), 1));
-    if (toEl)   toEl.value   = lDate(now);
+    from = firstRes ? firstRes.checkIn : lDate(new Date(now.getFullYear(), now.getMonth(), 1));
   } else {
-    // Default: tekući mjesec
-    if (fromEl && !fromEl.value) fromEl.value = lDate(new Date(now.getFullYear(), now.getMonth(), 1));
-    if (toEl   && !toEl.value)   toEl.value   = lDate(now);
+    from = lDate(new Date(now.getFullYear(), now.getMonth(), 1));
   }
+  if (fromEl) fromEl.value = from;
+  if (toEl)   toEl.value   = to;
 }
 
 function calcPersonNights(from, to) {
-  // Validacija
   if (!from || !to || from > to) return { total: 0, adults: 0, children: 0, babies: 0 };
-
   const result = { total: 0, adults: 0, children: 0, babies: 0 };
+  // to je zadnji dan koji uključujemo → checkOut mora biti > to (ne >= to)
+  const toIncl = lDate(new Date(new Date(to).getTime() + 86400000));
 
   reservations
-    .filter(r => !r.cancelled && !r.closedManual)
+    .filter(r => !r.cancelled && !r.closedManual && r.checkIn && r.checkOut)
     .forEach(r => {
-      if (!r.checkIn || !r.checkOut) return;
-
-      // Izračunaj overlap između rezervacije i odabranog perioda
-      // checkOut je dan odlaska (ne računa se kao noćenje)
-      const overlapStart = r.checkIn  > from ? r.checkIn  : from;
-      const overlapEnd   = r.checkOut < to   ? r.checkOut : to;
-
-      // Dodaj 1 dan na 'to' jer 'to' je zadnji dan koji uključujemo
-      // Npr. filter Do: 30 Apr → checkOut 30 Apr = 0 noći, ali checkOut 1 May = 1 noć u Aprilu
-      const toInclusive = new Date(to);
-      toInclusive.setDate(toInclusive.getDate() + 1);
-      const toInclusiveStr = lDate(toInclusive);
-
-      const oStart = r.checkIn  > from           ? r.checkIn  : from;
-      const oEnd   = r.checkOut < toInclusiveStr ? r.checkOut : toInclusiveStr;
-
-      if (oStart >= oEnd) return; // Nema overlapa
-
-      const nightsInRange = Math.ceil(
-        (new Date(oEnd) - new Date(oStart)) / 86400000
-      );
-      if (nightsInRange <= 0) return;
-
-      // Saberi po bungalovima (svaki bungalov ima svoje osobe)
+      const oStart = r.checkIn  > from  ? r.checkIn  : from;
+      const oEnd   = r.checkOut < toIncl ? r.checkOut : toIncl;
+      if (oStart >= oEnd) return;
+      const n = Math.ceil((new Date(oEnd) - new Date(oStart)) / 86400000);
+      if (n <= 0) return;
       (r.bungalovi || []).forEach(b => {
         const ad = parseInt(b.adults   || 0);
         const ch = parseInt(b.children || 0);
         const bb = parseInt(b.babies   || 0);
-        result.adults   += ad * nightsInRange;
-        result.children += ch * nightsInRange;
-        result.babies   += bb * nightsInRange;
-        result.total    += (ad + ch + bb) * nightsInRange;
+        result.adults   += ad * n;
+        result.children += ch * n;
+        result.babies   += bb * n;
+        result.total    += (ad + ch + bb) * n;
       });
     });
-
   return result;
 }
 
@@ -3911,14 +3892,14 @@ window.renderPersonNights = () => {
   if (!el) return;
 
   if (!from || !to) {
-    el.innerHTML = '<div style="color:#888;font-size:.9em">Unesite period.</div>';
+    el.innerHTML = '<div style="color:#888;font-size:.9em;padding:10px">Unesite period iznad.</div>';
     return;
   }
   if (from > to) {
-    el.innerHTML = '<div style="color:#dc3545;font-size:.9em">❌ Datum Od mora biti prije Do.</div>';
+    el.innerHTML = '<div style="color:#dc3545;font-size:.9em;padding:10px">❌ Datum "Od" mora biti prije datuma "Do".</div>';
     return;
   }
-
+  // Danas: Od=Do je OK (1 dan)
   const r = calcPersonNights(from, to);
 
   const card = (val, lbl, color) =>
@@ -4056,15 +4037,18 @@ function renderAccounting() {
       </table>
     </div>
 
-    <!-- Neplaćene -->
-    ${neplacene.length ? `
-    <h4 style="margin-bottom:10px;font-size:.95em;color:#dc3545">⚠️ Neplaćene (${neplacene.length})</h4>
-    <div style="overflow-x:auto">
-      <table class="stbl">
-        <thead><tr><th>Gost</th><th>Period</th><th>Noći</th><th>Bungalov</th><th>Iznos</th></tr></thead>
-        <tbody>${neplaceneRows}</tbody>
-      </table>
-    </div>` : '<div style="padding:12px;background:#e8f5e9;border-radius:8px;color:#28a745;font-size:.9em">✅ Sve rezervacije naplaćene</div>'}
+    <!-- Neplaćene rezervacije — zasebna sekcija -->
+    <div style="margin-top:8px">
+      <h4 style="margin-bottom:10px;font-size:.95em;color:${neplacene.length?'#dc3545':'#28a745'}">
+        ${neplacene.length ? '⚠️ Neplaćene rezervacije ('+neplacene.length+')' : '✅ Plaćenost'}
+      </h4>
+      ${neplacene.length ? `<div style="overflow-x:auto">
+        <table class="stbl">
+          <thead><tr><th>Gost</th><th>Period</th><th>Noći</th><th>Bungalov</th><th>Iznos</th></tr></thead>
+          <tbody>${neplaceneRows}</tbody>
+        </table>
+      </div>` : '<div style="padding:10px 14px;background:#e8f5e9;border-radius:8px;color:#28a745;font-size:.88em">Sve rezervacije u odabranom periodu su naplaćene.</div>'}
+    </div>
   `;
 
   // Crtaj grafike
@@ -4162,6 +4146,7 @@ function _renderAccountingCharts(resv, accFrom, accTo) {
   const prevYear    = getMetrics(filterPeriod(prevYearFrom, prevYearTo));
 
   window._accAllData = { monthlyData, months, bungData, chData, curMetrics, prevMonth, prevYear, accFrom, accTo };
+  window._accFilteredResv = resv; // Čuvaj filtrovane za metric_ trendove
 
   el.innerHTML = `
     <div style="display:flex;gap:8px;align-items:center;margin-bottom:14px;flex-wrap:wrap">
@@ -4275,9 +4260,15 @@ window.accShowChart = (type) => {
     const color = color_map[key]  || '#667eea';
     const isMoney = ['naplac','taksa','bezTakse','dug'].includes(key);
 
-    // Grupiši po mjesecima
+    // Koristi FILTRIRANI period (accFrom/accTo), ne sve rezervacije
+    const filteredResv = d.curMetrics ? (window._accFilteredResv || []) : [];
+    const sourceResv = (window._accFilteredResv || []).length > 0
+      ? window._accFilteredResv
+      : reservations.filter(r=>!r.cancelled&&!r.closedManual);
+
+    // Grupiši po mjesecima unutar odabranog perioda
     const moData = {};
-    reservations.filter(r=>!r.cancelled&&!r.closedManual).forEach(r => {
+    sourceResv.forEach(r => {
       const mo = r.checkIn.substring(0,7);
       if (!moData[mo]) moData[mo] = {naplac:0,taksa:0,bezTakse:0,dug:0,rez:0,noci:0};
       const n = Math.ceil((new Date(r.checkOut)-new Date(r.checkIn))/86400000);
@@ -4292,7 +4283,7 @@ window.accShowChart = (type) => {
     _accCharts.c = new Chart(canvas, {
       type: 'line',
       data: { labels:moLabels, datasets:[{ label, data:mos.map(m=>moData[m][key]||0), borderColor:color, backgroundColor:color+'33', fill:true, tension:0.3, pointRadius:4 }] },
-      options: { responsive:true, plugins:{legend:{display:false},title:{display:true,text:label+' — trend po mjesecima'}}, scales:{y:{beginAtZero:true,ticks:{callback:v=>isMoney?'€'+v:v}}} }
+      options: { responsive:true, plugins:{legend:{display:false},title:{display:true,text:label+' — trend po mjesecima (odabrani period)'}}, scales:{y:{beginAtZero:true,ticks:{callback:v=>isMoney?'€'+v:v}}} }
     });
   }
 };
@@ -4340,7 +4331,7 @@ window.exportAccountingXLSX = () => {
     { 'Stavka': 'Ukupno ugovoreno (€)', 'Vrijednost': totPrihod.toFixed(2) },
     { 'Stavka': 'Naplaćeno (€)',         'Vrijednost': totNaplac.toFixed(2) },
     { 'Stavka': 'Neplaćeno (€)',          'Vrijednost': totDug.toFixed(2) },
-    { 'Stavka': 'Turistička taksa 7% (€)','Vrijednost': (totNaplac*0.07).toFixed(2) },
+    { 'Stavka': 'Boravišna taksa (1€/os/noć)', 'Vrijednost': active.filter(r=>r.paid).reduce((s,r)=>{ const n=Math.ceil((new Date(r.checkOut)-new Date(r.checkIn))/86400000); const ad=(r.bungalovi||[]).reduce((ss,b)=>ss+(b.adults||0),0); return s+ad*n*1; },0).toFixed(2) },
     { 'Stavka': 'Broj rezervacija',        'Vrijednost': active.length },
     { 'Stavka': 'Ukupno noćenja',          'Vrijednost': active.reduce((s,r)=>s+Math.ceil((new Date(r.checkOut)-new Date(r.checkIn))/86400000),0) },
   ];
