@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Maja Karanfil Bungali v1.6.4</title>
+<title>Maja Karanfil Bungali v1.6.7</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh;padding:20px}
@@ -146,6 +146,8 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 .cc.ch-instagram{background:#E1306C!important;color:white!important}
 .cc.ch-instagram:hover{opacity:.88!important}
 .cc.ch-direktno{background:#20c997!important;color:#0a3d2e!important}
+.cc.ch-booking{background:#003580!important;color:white!important}
+.cc.ch-booking:hover{opacity:.88!important}
 .cc.ch-telefon{background:#6c757d!important;color:white!important}
 .cc.closed-manual{background:#1a1a1a;color:white;cursor:pointer}
 .cc.closed-manual:hover{opacity:.85}
@@ -732,7 +734,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
       <img src="https://i.imgur.com/DzB2EDR.png" onerror="this.style.display='none'"
            alt="Logo" style="max-width:175px;margin:0 auto 10px;display:block;border-radius:10px">
       <h1>🏡 Maja Karanfil Bungali</h1>
-      <p>Prijavite se u sistem — v1.6.4</p>
+      <p>Prijavite se u sistem — v1.6.7</p>
     </div>
     <div class="login-err" id="login-err">Pogrešno korisničko ime ili lozinka!</div>
     <form class="login-form" id="login-form">
@@ -1423,13 +1425,16 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
           Fajl se zove <em>backup-DATUM.json</em>.
         </p>
         <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-          <button class="bk-btn" onclick="startGDriveBackup()"
+          <button class="bk-btn" id="gdrive-backup-btn" onclick="startGDriveBackup()"
             style="background:#4285f4;border-color:#4285f4;color:white">
             ☁️ Backup na Google Drive
           </button>
         </div>
         <div id="gdrive-backup-status"
           style="margin-top:8px;font-size:.82em;color:#555;min-height:18px"></div>
+        <div style="margin-top:6px;font-size:.78em;color:#888">
+          Klikni jednom dnevno. Token se osvježava automatski nakon klika.
+        </div>
       </div>
       <div style="background:#f8f9fa;border-radius:10px;padding:16px;border:1px solid #e0e0e0">
         <h4 style="margin:0 0 8px;font-size:.95em">📊 Export podataka</h4>
@@ -1501,7 +1506,21 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
         <h4 id="ch-form-title">Novi Kanal</h4>
         <div class="grid2">
           <div class="fg"><label>Naziv *</label><input type="text" id="chf-name"></div>
-          <div class="fg"><label>Ikona</label><input type="text" id="chf-icon" maxlength="4"></div>
+          <div class="fg"><label>Ikona (emoji)</label><input type="text" id="chf-icon" maxlength="4" placeholder="npr. 📞"></div>
+          <div class="fg" style="grid-column:1/-1">
+            <label>Logo (slika) — opcionalno</label>
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+              <input type="file" id="chf-logo-file" accept="image/*"
+                onchange="previewChannelLogo(this)"
+                style="font-size:.85em;flex:1">
+              <div id="chf-logo-preview" style="display:none;align-items:center;gap:6px">
+                <img id="chf-logo-img" width="28" height="28" style="border-radius:4px;object-fit:contain">
+                <button type="button" onclick="clearChannelLogo()"
+                  style="font-size:.8em;color:#dc3545;background:none;border:none;cursor:pointer">✕ Ukloni</button>
+              </div>
+            </div>
+            <input type="hidden" id="chf-logo-data">
+          </div>
         </div>
         <div style="display:flex;gap:10px;margin-top:10px">
           <button class="btn btn-primary" onclick="saveChannel()">💾 Sačuvaj</button>
@@ -1545,7 +1564,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <!-- Current version -->
       <div style="background:#e8f4fd;padding:14px;border-radius:8px;margin-bottom:20px;border-left:4px solid #667eea">
-        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v1.6.4</strong>
+        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v1.6.7</strong>
       </div>
 
       <!-- Changelog -->
@@ -1553,7 +1572,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <div class="changelog">
         <div class="ch-version">
-          <div class="ch-ver-header">v1.6.4 <span class="ch-date">— 30.03.2026</span></div>
+          <div class="ch-ver-header">v1.6.7 <span class="ch-date">— 30.03.2026</span></div>
           <ul>
             <li><strong>About premješten:</strong> Iz floating dugmeta u Podešavanja → ℹ️ About tab — pregledniji pristup</li>
             <li><strong>Excel Export:</strong> Novo dugme "📊 Export u Excel" — preuzmi SVE rezervacije kao čistu CSV/Excel tabelu sa kompletnim detaljima (ID, status, ime, telefon, zemlja, kanal, datumi, broj noći, bungalovi, kreveti, struktura gostiju, cijena, napomene)</li>
@@ -2689,14 +2708,40 @@ async function logH(action,res,old=null,reason=null) {
 }
 
 // ── CALENDAR ────────────────────────────────────────────────
+
+// Logoi za Settings prikaz (20x20)
+const CHANNEL_LOGOS_SETTINGS = {
+  airbnb:    'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAC3klEQVR4nI2UzW8bVRTFf/fNm/F8pU6kxpVA6ne7glSlIo0qtkj8CUj8eahihUBILNigAgvaKNCQCKG29APCorJDWseOPZ6Pd1mMk3pwEriLkWbm6bx7zrn3SK/XU1Xl1NLpQ+TEIyKCqmL+C0xUIfBR3wc9GVRVERHM6Z0prtXCvHyJ7e1CqwXOzV+KHIHa0zpzUYT9ZYv4500cQnFnjcn1q5gsQ2c6Vd6wPBFQjcFMJiTrGww/+RhXlCSff0F+6UID7N91LGVxDo1j/PvrZNeuULbb6PJZ3OXLhA830SSu9fy/gOp5mOGQ4M8d3NUrnLn7GfGnd5lcOo/35CkyGp9ojnS73cZV4hxuYYHw3neoCHY4JL94EZPnmG4Pogj1LdnabczBwRz9uQ7VGGQ8Jvj9GcXq+6hzEAQ4axGU7OYN7G+PkDw/VssGoKiiUYj/6DHFuWVcmjC5dYvW9z8QPdwkf+8m2j4Dy2fxnz5Dw1Y9pzN1rMsC2LJEEXSxTbA/oBChTBJAcAcjFJBjfJnXUMF5hvjbe0i/jylLRrdX8Yscu74BQUC5tMTkow9hnM2Z0wRUBWtRwByMkEmGS1PUGEgTzOs+khe4xTYyGKBpAkUJxhyNkZkF08DH9PuY8Zjo/gNIU+zOX6RffoXZH6BRhFoP8/ce8dffIIMhBH6t47TTukNVNAzxt7YJt39F1FEttjG7e1RJTLC3R97p4DnF9PtUCynyeh8Xt6hWVsjefQfJavrmiKpvCf7YwZ3roOqwz18gVUV5Y4UqSXHtNnZrm2xtFe/VK0SEqtPBe/4CfHvk9hsNjYHxmOjHB+hCiltagspRvP0WwcZP0GrhLpyn8jzMcIDX3UVGI4oP7lDNpFDTFGPQKKx/Vq6WpSjRMKxZlGW9554Ba0HqJRDnUKlDTBqJrYBO8+5wHETAuTqRG+NVv6lpLps9TFpVrSdazBRn+u1QDpFGwsyu3eFZEeEfG2Nv347u8i8AAAAASUVORK5CYII=',
+  viber:     'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAABCGlDQ1BJQ0MgUHJvZmlsZQAAeJxjYGA8wQAELAYMDLl5JUVB7k4KEZFRCuwPGBiBEAwSk4sLGHADoKpv1yBqL+viUYcLcKakFicD6Q9ArFIEtBxopAiQLZIOYWuA2EkQtg2IXV5SUAJkB4DYRSFBzkB2CpCtkY7ETkJiJxcUgdT3ANk2uTmlyQh3M/Ck5oUGA2kOIJZhKGYIYnBncAL5H6IkfxEDg8VXBgbmCQixpJkMDNtbGRgkbiHEVBYwMPC3MDBsO48QQ4RJQWJRIliIBYiZ0tIYGD4tZ2DgjWRgEL7AwMAVDQsIHG5TALvNnSEfCNMZchhSgSKeDHkMyQx6QJYRgwGDIYMZAKbWPz9HbOBQAAACH0lEQVR4nM2UPWsUURSGn3NnZmc2H0RIxMiqJGhCcBE/goEUimiVwkIUBe38A1oIpvYvCIKFYi2CIghWoqJgIZKEFDGQwnyAZolms5nNzu7sPRaTjWY3HxZbeLrLvffhfe977pEwDJUmlKoiIphmwABEBKB5wFq5O22qVaz+9SIKYgRjpPHsuuVtgdYqqcAl5foJiQRS1ZhSMdqwWKvaekugtUq6JSA3n2fi3QRhoUQlimnbk6Z/8CC92X1EUXlLIVKfsrVKkE6xML3Ek3uv8dMeuflljpzI8PP7Cj++/eLK7XOcuXSMsFDEOJtjaAhFVXEdj7fPxujNdjP6+AY92W5aOwLOXj5Opm8vH19OUoniBFbXdA2WRUDVsrYasbIUsppfI8yXyM0t46Zc9vd2MjO+QLEQEbR7VGOLsEsfqiqe7zL7dZFPryYZvNBPOYqZm1pk+sscnu+uZ6TUS9zCMhgjtHWk8XyXN0/HMI7hzsNr3H10nczhLkSE1vYgUbeerogkz1UPNCKUKxWGL2aZ+jxLJYp58eAD4+9nGDh9iOXcKuevnsRxDRop4siGKxFpTBnAWosfeCwtFLh/6zlHh3vo6GzFb/HoP3WATF8XpbUIY/4Y3LGxRQxxbHF9w9DIACM3h/A8ByFRXw/bdHfbaSNQrVgcL2mNajVJU4w0/JJdFSYnwHHNRpCOs/McqYXyb9OmUdC2Cv//edhUoKryGxMf4We21dlmAAAAAElFTkSuQmCC',
+  whatsapp:  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAEKElEQVR4nI2UT6hVRRzHPzPnzJxz73v3XPOqZCI+/xEtamFYQoGB1CKQ2oW5bBMRtAhsU4sIQVoUGNEmCkFMjGgntYgMSukPSVpQkWhZ+Ofda+/O8d57zsyc82vx9Lntt/3yG2Y+fOfD4uKihBAkhCDD4VBERJxz4pwTEZHhcPi/88XFRVHeewkhIAjWWKbVDGMNCvDek+c5IQQAjDFUVYW1FgGCD3TzDj54FApjDCm3RqEQhBxLJjkAqSQYsRhJANCSokVhxAJQ39pRqNvHkDrnKIqCFiGUnmG/5At/hptqhp0z+LpG2QQQ2tCQz+X44JmTLnvmdrFmqcD0LAqFcw4lIuJKR4blanfEa/VhymSGxTCVikigYJ6UBMeESEOh5glE5pqMN+xLrJ8NqPEUvYK0LEtSa8jI+HxyihvJkDVhNUtScq9a4Kl0D4WaRxAikW+as3zZnKGv5rmh/uWz6Vc8nz1Lg1CW5TJDBQjCUhyjozCSRR5Kd7A/e5pjs0/5o/2Tlpa79Tr2ZXvZqNfxYXUCpcAxRrJ2haLu9Xp472l9Q6I0k7pkTXMX++xeDo3f4Z9wBRfHjOMS5+pfOLB0kAU2sFvtYlSNSHVCG1q89/R6PfRoNCLPc5KOoZ7OKGvH4+mjnJqdJsbAe2sPsVU24uuKfuiiQ8sRd4LH7MNoD9PJTZI8Jc9zRqMRuiiK5RuGBq0Vsfas0wN+m/7OzN9k1lSMqiGudlyrrhFD4PLsLzQw12S0qkVCS/CBoijQKwVC0TSR2k+IracrOecn5zmyeJQXBs+xwAb2zj3BerWWOkyhVVR+gjQRALnN0DmHNRZtNVU1RZrIuZs/82B+P722w9HRcb5eOs3BDa/y8j0vsl0vsCXZRBlLrldXibVHWY01Bucc6WAwYOzGmCRFJwoJwk/lOXZ2duBmJTYxHJ68y8fXPyFXGR2d89bWQ7x5+W2a0JAmirZqqZqKwWCw3ENjDSrRhFnNtHI8sPo+Nnc2c2jT69RtzZnxt5TthG3dLewdPMn7f3/AD0vf0VUp0+kEZRWmMXd6CKCUYp4uEiIzP+Xk9ZP86M6ykG9id/8REpVypbrCgV9f4WJ1iYFZzVV/lXnmUOrOX1YiIuNyTDfpciFeYP/3+7gerxHbgFYJLQ3SCkopWlq6uksn6VC3np4u+GjncbaZ7UybKf1eHzUcDqUoClppaWYNl7jIiUvHKGOJSQ117bHWLOsqRKxNqIOnSPs8s7CPzWobSUejlV6Ww20fAiRpgo4akxkQEC+oXEG49R4DUgnKKlAQ6kCbtjSxWfHlCkMRQSvNNE4x2gDgoyePOSHeEqwyVLHC6mUfhhjomi5R4gpHPR6PsdaSZRnOOfpFnyY0NKFhVbGKSTmhk3XoZB0m5YRVxaqVvF/0cc6RZRnWWsbjMf8BEiFuKTxped8AAAAASUVORK5CYII=',
+  facebook:  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAC/UlEQVR4nIWUS28cRRSFv+ru6sd4auzM2BCDIEHe8BBICBZIkZBA2bBASOz4B0j8BMSv4G8gIbYoAoJYBoSQkHgseFnGorvHM1X2zHRVT18WjsdOxk5qe+6punXuOZeyLCWEIN57qapKRESstWKtFRGRqqrEey/eeykfgYcQpCxLUfeLUUqhtWaxWJCmKQDee/I8p/Ee6SDNzvFIqRUeQkBESNOURER41BERdByR9WJQMTEJURzhQ3dpraqqSgaDAQDOOYbDIc45APp9g7MTFl3C598e8NfBlChJufWS4fbr14l1weToCGMMANZaktFotLpgOBwyHo8xxiAi2OkROu/zyaf3+PkPi05iDqoTnhw9zztpQVmO2dk5549GIxLn3Eoz5xzGGEIILDuhbwxf/3DAb/8cMxxkvPxcnxu7N3nx2QLfNAw2DQ/zk6u1AwWMrQcgjuDD9/Z45voWvlkQ2iVpGq/xImMM3nu89xhz+mKSaIo8JaIhzzRdJ+gkYqNXMDu2oBJ0mq5+dJG/NpSta9eQdsEX3+1z96cJ86Zlv5yj44i9pzdol8K7b2zz9mu7qCRfG8qqwxACxhisdcQ65XCy5M69Q/78d0YSK5ad8P2vE+7+WJLlBbHWOHuu+VmHaxoqpWjbjhduDPjg9k2qyZxf/nZkacxbr26TZ5q9p/qEtkMptS7+xWjVdb2K1smxExGRz776Xd786Et5/+NvZP/wNHrOnUevrusVv6oqudKH7bKjmZ0OAAQFqLhgOjkiLzaIIsV4PH4gCI/14UavR9v+h1IKEWiaBU9sGRaNJ1Jq5YqL/OgqH8KpDxUQKYgeWfkYH2qt0VrT+jlECW7WMlssyfOC+eyE9D5+mQ+Tuq458+FFTTqBzYFhUJTcemWbzV5CMz9md7SDdQ71kOYAdV2jmqaREMKV+3CjVyBdy+mSi5lfsi/P9qHWmuRSL1047VLwfglAlq1n9wHNlSKaTqdkWYbWGmvtmibOWbIsJcvSS3FrLVprsixjOp3yP8e2L7wa4i/bAAAAAElFTkSuQmCC',
+  instagram: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAADJ0lEQVR4nHWUPWwcZRCGn/fbvdu789ln5+z4En4ESAZbGIKEKSKgMAUUiI4GhFCKgKI0lJGQKKCDjjRUSEFUSNAiBFL4q5AIRAKEJUsQExJDHJtcLrf3t/sNxf3t5WCa1c6nmXnnfWdGcRybmSGJvhkgzENUEhL4gQ/Am5HEhlz/PxtrZoSTDgAhGWEBLm+lJE0jkOEA5yFXhMpaDrqD2hmTRChpVEUCnxqFsvjoTIuv3u2y1OlSIWEOTxlHLiceeK3E6jtzpE3AjVGaGcq27L2RL4jdrYSz63UWaXJH2GFhzijjyTc86oUYJdZ+Xqa4lsO3xu0D45bNDDyEgdj7sUuVA554ocgjb6/gwgGDKRy8vkPjwwOSH+bRgxH4dALlqOWheYTttrknusX66RrXX/2O3G83yQuCI0UOvbmO+/hv3NUWRmUkxn+LgmE4optN7r0fep//gT77nmJYIJd00WPH8FeazNxlWKM1JBDJTSOUhDA8jpk0Jr8QE+3eoDDbIn/hBOqk2Jnz6KeQ4HBC6tsYfSGztIVZuBgYjgJNonyd4n4de3EVvfcllqa4WgFdvIQr18B38Gg0OsOkbthu/2sYIqJB2a4TlFpo0RN88AXhufNwZx4qhnyMlAzixjM4xeGwYESdnO2BArASsA8E4NtgHbAuWG/A4TiZJMKhumaGMAwIZ+qEM9ewhqEGpM8fh16CbrUgboArA8kIRNYmRBk+ankP7tvGWIFz72MXvoEgxG2cwp7dxP5sg9KptZtuefhYbaOlq9jK4wRfX4ITL8PlEsH+FXpHKuiXf6aQTYgyGuy+LrA0h9iGjU38Ky/hnlrEPbNA8twm9vSjuK0dmIvIXof/R+jBqjU020LXPoWTZzGfgncQOvTWJ9Dcxx+dvR3k9GAjhxJPWn0Yf/cs7sa32EUPpaPQNfT7HtrewZeq2LEa8r2paxNm99gQSltQeYje6hvk27+i+cOQiyBJgCK2MU9y/ElYX4Z2G5PIzrKazabdfiCQkELU/QtcAC7AzEPSgw5waBkSP3FgR+sbx7ENHRN8YJjLD4JsVAiBkl5fwCxdgxz/AshSsifB45a9AAAAAElFTkSuQmCC',
+  booking:   'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAABCGlDQ1BJQ0MgUHJvZmlsZQAAeJxjYGA8wQAELAYMDLl5JUVB7k4KEZFRCuwPGBiBEAwSk4sLGHADoKpv1yBqL+viUYcLcKakFicD6Q9ArFIEtBxopAiQLZIOYWuA2EkQtg2IXV5SUAJkB4DYRSFBzkB2CpCtkY7ETkJiJxcUgdT3ANk2uTmlyQh3M/Ck5oUGA2kOIJZhKGYIYnBncAL5H6IkfxEDg8VXBgbmCQixpJkMDNtbGRgkbiHEVBYwMPC3MDBsO48QQ4RJQWJRIliIBYiZ0tIYGD4tZ2DgjWRgEL7AwMAVDQsIHG5TALvNnSEfCNMZchhSgSKeDHkMyQx6QJYRgwGDIYMZAKbWPz9HbOBQAAACzklEQVR4nJWVzW4cRRSFv7pV1T3j8RiTAIHwIyQrkbJB2YQVGySQWCdvwIYNO5Y8AE8RscRPwJoFP4pEEJKFokgRxMJASBwldsYz6a6qe1nMdM/YjiCsWrqquufUueeedk3TWM4ZEcE5RykF7z2lFJxzOOdQ1f+siQg5Z9xkMjHvPWYG0B8WEcwMM0NE/rUGoKqEEJAYI6p6qtmyJpQTtdVmqtoDpJSQlNIxlI6FW9TEQQwBWH5Xm3VSqSoxRtyqht1hJ4IXB6bMnmaMOYOSC6O1CvGets19007XUgohpUSnYUfdAY8PZ1z77Ct++/MJxUEdPSUV3nx1zPYXVzl/7gxN0/Z3O4a9ht2kUs7Ug5qfb/3Ot9/f5Y/HM3Ixdncfsbc/5YfvfmXnzj4hCDjph3lKw46hFw9WGI2GSCl8evUyX37+ER9fewcpBVkf0KYELJ8LYGZLhictg/O0bULVGK8PSFk5uzFE24yaUVcVsBxgd7dnuIoiImCFuopgRhWF3b8ecf7lMbI5BjOatl0wPG70Yxp2KGXBsGlbfBXZu3fAKy+uc+P2feKlLTxQ9Qz9KR8+c8qqGWNu6OvbP3F9+ya0BYYRpg0ptdiC4ao3Y4yEGCOrPhQzRCKb6xUfvH+RMKhQNUTg6Szx9rkRH17ZwrUNVQiUVYektNzlOULg7wcH3Ny5y7uXt2ibhgcPD9l8YY3xaMDGeMQ0VBxOG44yvDGAYfSozl8XQlgyBEfwnoMnU77+Zocff9llMmk4mra8dGbE/XsPeeu9K+iFC+wfzpDg+WRryKVozAB/kmE3fjXj6KgBAWyuzXBYc+v2HvXGmNdePws5sxY9mFF7QTEw8N7Pd7mU0k/ZbC6uFgUHstjRuq7QXPr8y6o4OZ6RpZRn52EpinjB1KALhlIQ8RgG/zcPvRdMFeeW2TcHVdzz5KH3vkfpJv48te53sbop/wBkDijv4sBMdAAAAABJRU5ErkJggg=='
+};
+
+function getChannelLogoForSettings(channelName) {
+  if (!channelName) return '';
+  const ch = channelName.toLowerCase();
+  let key = null;
+  if (ch.includes('airbnb'))   key = 'airbnb';
+  else if (ch.includes('viber'))    key = 'viber';
+  else if (ch.includes('whatsapp')) key = 'whatsapp';
+  else if (ch.includes('facebook') || ch.includes('fb')) key = 'facebook';
+  else if (ch.includes('instagram') || ch.includes('insta')) key = 'instagram';
+  else if (ch.includes('booking'))  key = 'booking';
+  if (!key) return '';
+  return `<img src="${CHANNEL_LOGOS_SETTINGS[key]}" width="20" height="20" style="vertical-align:middle;margin-right:6px;border-radius:3px">`;
+}
+
 // ── KANAL STILOVI ZA KALENDAR ────────────────────────────
 // SVG logo paths: simpleicons.org (CC0 / brand guidelines)
 const CHANNEL_LOGOS = {
-  airbnb:    '<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAYAAAAfSC3RAAABpUlEQVR4nG2SzWtTURDFf3M/8rXQTSlKq2ZX3QqKYq1/tPgHiGLAnRRBpLSpUKJ9TZqGSN7re/cdFy9tkuKsZu7MuWfmzFiWZZLEhkngfeOnGmyVMjMk4f4LCgFb5FieQ/DN221amBmBuxYCNp/T/TxA3pO/eYW6XajrDbBbx5iEWpHWt0Py1y8pXjynffgdtVuYBLbqeYNRMeL/nGNVSTweIgRFgc/G1PfvQUq3tW6DLQTi8RDabRQDeI86bcLJEMXYsN4FKgT8eIItFizeHeBHv/HjCfnBPm4+x0+n6EbpjVYlMLCyJJyd4RcLaolw+guKAjm3oa6dZ5lYDl73esSTIWE0otjbwwzij59U/cek7W2sLLG6RmY4JHAOKwpaR0f4ySXV7i7dLwOsuKZ69hSfXdD5+KnRAQOJQC3UjnQGX4mnQ+xqRtraAu/ovf+AhQDXJTUCZ+Rv93F5TsAMS4my/wgcKETSwwfY9Ar3d07a2cFmM9zFmNR/gqWEzNZmDKERYPkRZsi5VaF3UCWsqpAZgeXtqSyxG39tV2J54xLmHLIm/gd9BN4JqCcLgwAAAABJRU5ErkJggg==" width="14" height="14" style="vertical-align:middle;margin-right:2px;border-radius:2px">',
-  viber:     '<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAYAAAAfSC3RAAABCGlDQ1BJQ0MgUHJvZmlsZQAAeJxjYGA8wQAELAYMDLl5JUVB7k4KEZFRCuwPGBiBEAwSk4sLGHADoKpv1yBqL+viUYcLcKakFicD6Q9ArFIEtBxopAiQLZIOYWuA2EkQtg2IXV5SUAJkB4DYRSFBzkB2CpCtkY7ETkJiJxcUgdT3ANk2uTmlyQh3M/Ck5oUGA2kOIJZhKGYIYnBncAL5H6IkfxEDg8VXBgbmCQixpJkMDNtbGRgkbiHEVBYwMPC3MDBsO48QQ4RJQWJRIliIBYiZ0tIYGD4tZ2DgjWRgEL7AwMAVDQsIHG5TALvNnSEfCNMZchhSgSKeDHkMyQx6QJYRgwGDIYMZAKbWPz9HbOBQAAABVElEQVR4nJ2Su0pDQRCGv9m4R2O8BGJQ8AqGKHbesBW18gHsfQVfxHewttNCSwsFEYJFwGA60YiQgxA9eDu7YxGJiUYF/2KLWb6Z+ZlfoihS/qGOdkXV+qOACIjI36B6JWENNrAAxG+O+NUhRn4GVZUgaXkInwgrVbzzZIb7SWdTvDy/tkxugOqVoMtyXapyuHNGeFujL9PN/d0j65tLzK7meIqeMQkDgGmeZjsCjveKLKxNMb+WJ+iyjM8McnpwAbR6bYAAikc9nOwXsUGCsFIjrNQAcM5Bk80WEJThyQylsyvK5zdsbC0zMTNEsqeTwFrUf15OGndU6h1V2N0+4rJwzfTiGNmRNHMrOXoHunGxa6wrzQHwXkmmAsqFGzpTltF8FlVwscPFvsWjfE2OqmKMYBKG+M2h2j4E3wIgIqiH2NfXahOa9mCdBuEH4kPm199f9A6GRIfIiBgoBAAAAABJRU5ErkJggg==" width="14" height="14" style="vertical-align:middle;margin-right:2px;border-radius:2px">',
-  whatsapp:  '<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAYAAAAfSC3RAAACJ0lEQVR4nF3SvUuVYRzG8e/9u5/nsaNSKRUYieSJzAoMKgi0JaGhIaIx6F8oaIqgf6ChqVoKCRpbo6C5QpKwIM3B7EVOejJQzvv93uAhpPVaLvjyUfV6PRVFgXMOyYQQAiJCSgkApRQxRrTWRB/J8xxrLcoYk5xz5FlOETIQRYoJpQQAUtzeQsJlHucdeZ6TWecoshzrLa/yN/yIa3jtMckAkEtOkQpG8iEuuLP0ZD1Y58h0JmRBeCFveeyfIwjDaoiTchSF4ltc5Uv6SoiRII4rYZqQCeJDABGWzQq23WDKT3DJT7LeqrDerjDlJ7gap/HtJstmBSWCDwHR3RDOGfbaPsZTmQW7RDu0eNd6z8PaDAO+n6N+hJZrklJCiyApJUSEhqlRTsPMNz9yWA0zKaf5U6vSbNWZbc5R5hBt00R1j7rpwDtL3WwxyB6eVGdQEW7vu8nl3ot0bBPrDc51UAoSIChFSoksCgu1RfYzwEaryr3V+/xsfKfVqXG+dI7ZzVmyIMSYEKXIYgioQtFq1+nzOSd6j3PrwA2qrsovs86Z/lN82JxjceszxwbLKK0INpBprSHCeGmM19WX3F26w2+zwZHeUUq6xKPqAyq2QoyB8sFRiKC1RtUb9dSTFXSc4dnaUz5tzbNLSnRih5gSvbqEoBjbPc61oeuU8hLGm//IqQIECPAvWwT09maxO8hZS1EUWGfx2hNcF3nYgdx3kYdIkRdYa/kL7YAzJZrkA8cAAAAASUVORK5CYII=" width="14" height="14" style="vertical-align:middle;margin-right:2px;border-radius:2px">',
-  facebook:  '<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAYAAAAfSC3RAAABvElEQVR4nG2Su25TURBF13ldx0US5DgCIgS9RQUFRKIAOgpK6PgD+AxKinyIe9q0gQJRRMgoEiKJFPGUcuHa9zxmKK6dOCjVOcWsPXu0t6nrWquqIqWE955SCtZaRBRRnf8LwXtyzoQQiDFi2rbV/6EiQi84fLAgShFl1mb8EuxTSjjnzqEi9CrH0feG8e4xX781PN2+xuO712mmEe/dwl2n4pxDRDDWkLKwMz5gb/8nG+s96qlgkblwwXuPL6WcQ8bQC5Y2CQfHNfdHA968ukOMiWkUQM/c+e74DgLDya8Zn49OMcZQ1PBh8oONtYrNK30ARLrNVlW7IVH6K563eye83PmIASaHp7x4/Z79LzW9ylGkm1VVTNM0CqAKVbBMjv7w7tNvxruHDNcqnmxv8eD2kOF6IGXFGACwCwVrDW0sjG6t8vzhFgBXB32ePbrJYNWTsmDtfJsx2IXnxTuLhbopWAO5CCllUtELMyKCXc5QRHDWAsrfWSFmxRmw1pxBixT8cobWda2pguPeaMCNzT6KQUVxbi7sHDnnyyunqqxUDlGljUtu5lAIARtjJIRwsT3G0LSZNsqlUIyRf637LnmjLhy/AAAAAElFTkSuQmCC" width="14" height="14" style="vertical-align:middle;margin-right:2px;border-radius:2px">',
-  instagram: '<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAYAAAAfSC3RAAAB10lEQVR4nHWSMWtTURiGn++cm+bexrRJaaNQLQgVNIoOVbF/oOKP0EEQHNz0P7i6CC4qugji4KgiboIgqKUigkKlIEiNGko9TeK953XIbVMHv/l9eJ/vO8dCCKIcRVGtGQ6jAIQBQogiAFbmJJJtKBYizYzlpzkvb24xtdFnEpHVPIeu1Nh3tkoeBB7MDAshSAIziBI35n+QrgeOnq5QN6HXgWw65cjn/ZjBdjYpu/Gp0f2Yc6D3i6X7U4xvbpLkkXipzs9rHYrVFkm7CiEiGKniHNbtc/hUDneX2Xy+Sm1vneTqCRrtP9jGACwFhqqjHTHGyJnxHSa6X0luLWCNFB59ImZNCoqd64yOIwAjcQMa4QvVxXF07xmWG1po4ztdIgXChuh2o5kQHm89Uq0BLSxfh1hBWY7TAIjsnh1VyXDpb3x7Dd6uUFy8gPk67s4L1GyDRqoj0IBoWNaDY99gagL/+Dq8b8HB40AO+k8jhdDkJFZ5g87fhqUt+D5GVAt3+Qk0zmG7YEdZaUUf7ZlDszP49Qe4+THcmYLk3UM0DZprQr9Apa3t/FVF5FNc9xVJWIFsFooBfOiQTywST7axXh+c+xeUytf0GcKB8nIZBy5ivQGYoWGQv/JQzuGTlM/0AAAAAElFTkSuQmCC" width="14" height="14" style="vertical-align:middle;margin-right:2px;border-radius:2px">'
+  airbnb:    '<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAACB0lEQVR4nHWTy08UQRDGf9XdM/twE5FHREDUo4kXIbKJB+MfbrzoRSQbLnpQ8SJGnMnADo9h59FdHmZdIAt96nTnq+9RVZKmqaoqt57/7yJzXyKCquLuBIugcdxe6/qq2Ky2IiK4u8B4T//de3COyds33Eajqpg5bAhor0f30y7+2VPq9TXi3T2030dCmLMzp0CjCJumUBTUm49BlfjXISbL0MEAvL9JmCTJTJ0EJdzr0/3wERHBXBSEEFqgc0xeDzHnBWquVNxQoJHDZhmmuMQvL+EXF6FpkBAwfxPMyRjt9SCEGWaWgaiicYz79p1mY51ye4voy1eig5+UWy8Ja4+IfxygnQ5yrSNzGYi1mPEYc3aGKwq8CJLnyPExYTC4Ab7KQKSVJQIidEb7mPGYyfAVZjIhHu3jlxaphjtQVVOkgCqSpKmiCta27+cX2DynfrJJZ29EubMN1kHTEH8eUb94DlEETQMiSJokqlPZ3d09pKmhbgjW4rKMenMTWxRt8ewE/3CZajjEL9wH7zGogrOY/BRzdo7JT7F/jgirqzQrK9ijI+TyktDvI2WJXBRIPgbnphaSRAVaxsPfiLOEbhftdjHZMWIM/sECNA1mnCMCzcZGawGQ69uocQTajjMaUOvaya1bv7hp06pqFqL7v1WqipQVMp11BcRXyDRxVYWybFmNmW3jP2+qE7msue7MAAAAAElFTkSuQmCC" width="16" height="16" style="vertical-align:middle;margin-right:2px;border-radius:2px">',
+  viber:     '<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABCGlDQ1BJQ0MgUHJvZmlsZQAAeJxjYGA8wQAELAYMDLl5JUVB7k4KEZFRCuwPGBiBEAwSk4sLGHADoKpv1yBqL+viUYcLcKakFicD6Q9ArFIEtBxopAiQLZIOYWuA2EkQtg2IXV5SUAJkB4DYRSFBzkB2CpCtkY7ETkJiJxcUgdT3ANk2uTmlyQh3M/Ck5oUGA2kOIJZhKGYIYnBncAL5H6IkfxEDg8VXBgbmCQixpJkMDNtbGRgkbiHEVBYwMPC3MDBsO48QQ4RJQWJRIliIBYiZ0tIYGD4tZ2DgjWRgEL7AwMAVDQsIHG5TALvNnSEfCNMZchhSgSKeDHkMyQx6QJYRgwGDIYMZAKbWPz9HbOBQAAABkklEQVR4nKWTvUscQRiHn5ndPT/u9PAkuAjCSQSJ18RAiKWdaOH/YJX/IrVlQEiZJq2SIkVKEUQCNsKBaURzINEoGrlj7/Zr3kkl7t6eQfDXzTDPw8z7vqOCILA8I/o5MIA7aNNaEBHU/RrQWqGUKpwtCKy1aEdTLlcAwWJRaOIkJonTgsTthx3XIekavn054O6qg+M5lMeHebf6itr0GEmUoPSDROcF4HkeXz/tE7R7XLZuCbsRPw9bfP7wnTQ0aEdhM2XXWdhxNd1OyGnzN2sbS9QXfP5edlhcniPqxVz8usEbcskacjdQCsQIaWzY2dqj+qJC+7bL8Y8WJhVELPTVUWdhkwrDoyVq/jhHuydcn9/xfnOd1Y0lkiilNjWGSSQnUdlBErGUhlzOmn/Y/rjHzUWb2YbP5HSV2YbP25V5wjBGZ4qY64LWiihMmH8zw+vll/j1GvXGFG7JoVwdIerl4cINsu0Mg5jKxAjWgjWCMbYAPyoAUFohRgDFgAEc/IRsxNiBo9ufRz/TE9j/C56afyh/qQyUVyimAAAAAElFTkSuQmCC" width="16" height="16" style="vertical-align:middle;margin-right:2px;border-radius:2px">',
+  whatsapp:  '<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAACwElEQVR4nF3TPYseVRyG8eu8zJxnntlnTbKVhRa+obKuGpCAYsBqS0VQiIhGexH8Dr6AYhXENmInfoCgkMIUMVFXZZFsgoHEqEVMNuvMPGfOy5y/xSaCfoD7qu6f2t3dlcViQd/3tG3L4Aecm5FSxBgDQCkFYy0xBObNHL/0tG1L13WonLMMw0DTNIRxZMUtKCmjjYVSAEBrypTRlaUPPW7m8H4/ovb29qSZNySfoFb8Un4lqIgCMgUQDAaFopaKR/V9EKFqKvzSo1JKEnyACj7mM35SFxEELyNr6gAWww25hVaaCsuGPMg7HIckuMZhB79k4Vq+iz9zXr5nxowFK7xZPc+sOCYyFsupfIZLcpnz/Mi22uEpt0HnB6xzNZKFpXjSOLJQM95oXuTr4Rt+mLYxynCPvptjsxf4Mga28jZjMyJZcK5Gp5RQVsMk3PI32TRHObP8lvvtvRzRjxPDkgt+h8+7L9i0R0khUKYJZTUpJbQxBgqUMqFCYY0DnO3Ocdg+xmqZc62/Rh4DF4dLpBI5mFtiiVDAGIMWACWUUhhDz1QSTal4/8+PWK8e4bXVlzh+1zEkRqQUfOiRqYACAfQ0ZZTWSJkYQseFfod1+xCnb57mxB+f8nD1AKSJw9UGyzTw23AVIwqlFNP+NyokC1Im4jhSieHJ5gleP/gKOQfeu/IhW90Wm6vPcfL3k+gkTCUhRahshY0h4lqHE0cJgSlFrsoVVssKrx56GaUNf4XrvHv5A/6e9ig5UouDCuIQUTFFiWOk2MLb22/x1fVTZMkUBKdrDBpfRhZ2BRF45tCznFj/BD1p6ll9+8pNQ46ZrDPnbpwlyAiiEAQABUxMNLrhyNrT2FJha4P3/v+YAivzFciAgdv7OwWw0Pue2tWMftzHdIfz0A/M2zn9ssc5R0rpP5yttYQQaJv2X4ld1/EPtb2U0Hmkj0YAAAAASUVORK5CYII=" width="16" height="16" style="vertical-align:middle;margin-right:2px;border-radius:2px">',
+  facebook:  '<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAACXklEQVR4nHWTv4tdRRzFPzPfmbn35r3dTRQXtTEh/miSIAhaaa1YWNtp5X8gFv4XgoXY2KsgmEJETCoRUUQEGxfTmESI2Wfeuzt3fls839u3ov18OOd75hx1fHzc9vb2WK1WzGYzvPd0XUdKCS1Cq41cCs5aUooMw8A4jsznc5bLJSrn3MZxZBgGpmnawiJCbY1zTkA0NWdy1YQQ6Pse7z2z2Qy1WCzarnKMEWsttVa0gh+P/uKP+xOH5x3XLh9gjCWEsHWiUkrNe0/f94QQsNaSUqbvDO9/dsQnN37neBW5evmAj955nilEnOsIYWIYBsxGeRfunOH2Pc8X397loX3DG688wcXH5oSYsNYSY6DrOrz3mM3N1lpyzogI1glaQcyVS4/v8+arTwEVPyVyzv8IJbquw6SUMMZQSkFEoDVufH+Ho9snGFGsfObjr3/jwlx48dohiFBKwRiz+Smh1opSilorYhQffH6L9z79ld4K9xaBdz/8ma9++BPnDKXsvBVBee9baw2A1kApuPnTfX65teDL7+5yYc/y0rOHPPfMw1y9tE/OBa0VAEopzMZOKQWtNblUXn7hUa5cnHP9mzsczB1vvfYkNRemUBDRW/WcM2YTiDFmHaIWUkw8GBNKrV2txoiiITv3b8LUp993GqYRjRGNVqxBrTDmbHjWrgulh2EghLCtsDGGWiu5FB6cZE5iA8UZeNObYRgw4zieGVGIERHHI+d73n79afbPWWggsoadc0zTdFrl/xpTjBHnLM5pqI0pVkopW9u7YzLL5ZL/m3NKGhTQ6hb+95z/BgeNhGQHcOUaAAAAAElFTkSuQmCC" width="16" height="16" style="vertical-align:middle;margin-right:2px;border-radius:2px">',
+  instagram: '<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAACQUlEQVR4nF2Tz29MURTHP+e+1zedGZ12SjuirQWpILUoKjbsJO3Cr4U/QMJObCwqWIh/wQI7sRCxFZaWjSohRURE0zYq+iuTaeuZmffuPRZv5nXGSe7m5p7vOd8fV8IwVFVFRABQp2TzBgG0cQAsEIcKQlqqig8gIslDBx2dwsyLOgtvYwrWkUXpEKE05jNwNoOtAkZBkz4/RbNKJissfIx5cm6DIpsMEFHEkUPYIkdhpkTXaID9q4iXrJIC4MD3hIVXIcN+mfOP++nel8EA8feQ1StLRC/zcHwnOMBrodAsi8H/scHYuKFr/jfh7a9kFTI3RuifCHBzFZQ+wKKq7RuIgMNQ9P+QK8XE96bJn+wj6OmEX2U6ewJs4FAERBEx2wAJmuIwFPxNsuUKPUeBa/vBM8j9D0j/IFGugCKJQw3ntimoohjyXplcbRnvxA64+xys4M4cQxYreCZD3PBRRNptRBJtsrpG4JZR6UbcKlgDXgTEoHXSIDQC0iJictOxawmpr6DTs9hbV8H3MA9ew+7hdgABoZVCM2GDP2GPxXx5D1MlWOnFTH3CXT4MUa1tGIBJRWwC99WR3nX0znWM+YYpf8ZOXoT1KkTRf9No0UAVLOjQXmT2Ke7UJJy+ACrI4ipm9BH25qVU8DYAABUDscMOTeCvPcOff4h2H4SaRd7M4Y54uPEDiIvASGqjhGGoTRoCqAkwm+/w2IJMEVyMrpRx1RLu0AgSRUnqmj2tAKlAXq7xl23C1zdgHFKrtTUD/ANgKv/QtA/AuAAAAABJRU5ErkJggg==" width="16" height="16" style="vertical-align:middle;margin-right:2px;border-radius:2px">',
+  booking:   '<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABCGlDQ1BJQ0MgUHJvZmlsZQAAeJxjYGA8wQAELAYMDLl5JUVB7k4KEZFRCuwPGBiBEAwSk4sLGHADoKpv1yBqL+viUYcLcKakFicD6Q9ArFIEtBxopAiQLZIOYWuA2EkQtg2IXV5SUAJkB4DYRSFBzkB2CpCtkY7ETkJiJxcUgdT3ANk2uTmlyQh3M/Ck5oUGA2kOIJZhKGYIYnBncAL5H6IkfxEDg8VXBgbmCQixpJkMDNtbGRgkbiHEVBYwMPC3MDBsO48QQ4RJQWJRIliIBYiZ0tIYGD4tZ2DgjWRgEL7AwMAVDQsIHG5TALvNnSEfCNMZchhSgSKeDHkMyQx6QJYRgwGDIYMZAKbWPz9HbOBQAAABy0lEQVR4nJ2TvYsTURTFf+fNR5JN3C1WV1FZRAloL4LbiKXYi62VWFqK/g0WtjaWtvaCH2AjyFpYCbKLRnBlE2WTSTKZmXctsllmkgjiLd8793DuufdoNBqZmfG/5f6l+W8ISYRLGwzCwB2ipgx54ZHmcbacoBYH9JMUJyi8gWC1WWOS+QVshaDwRrNR59mL9zx6/JK+RLMeEU5yHt67xt1bV0mGYwKnoxHcvCQ5x+sPX9k7SLm5dQEkOjs93nz8hqSKIWZWJShXu32C+7cvc+PKJq7wtBrxUtwcwVSaN3By/OwlrK418Y0avlicXxJOFWsNMyMKHb3ugE9f9tnuHKCNdSZptkBgZoRmhqTpPM4hiTh0/Njt8uDJK/AehilnTl46UlhRMRwODcA5xyAZ00/GJKOMzzt7xLWI1VYD88bF9iniWkyEEZS8DCXhvZ/K/j3g6fO3nDt7nO6vAa1mTJZmnL6+xbvvnlHa5875FTZXAlJvqKxAEkXhGQxT8qIAgygK2O3ss7axzrFWnUhGI3CEbnqtklA5TBIEQTD7PTQ0wOcF3nsM4c0q2QjLYTKDLC9KC4U8L5iFQEtitXBITqp47ZxbeJutXhJ/AJwaz7ZvNrUrAAAAAElFTkSuQmCC" width="16" height="16" style="vertical-align:middle;margin-right:2px;border-radius:2px">'
 };
 
 function getChannelStyle(channelName) {
@@ -2707,6 +2752,7 @@ function getChannelStyle(channelName) {
   if (ch.includes('whatsapp') || ch.includes('whats app')) return { cls: 'ch-whatsapp', svg: CHANNEL_LOGOS.whatsapp };
   if (ch.includes('facebook') || ch.includes('fb')) return { cls: 'ch-facebook', svg: CHANNEL_LOGOS.facebook };
   if (ch.includes('instagram') || ch.includes('insta')) return { cls: 'ch-instagram', svg: CHANNEL_LOGOS.instagram };
+  if (ch.includes('booking'))   return { cls: 'ch-booking',  svg: CHANNEL_LOGOS.booking };
   if (ch.includes('direktno') || ch.includes('direct')) return { cls: 'ch-direktno',  svg: '🤝' };
   if (ch.includes('telefon') || ch.includes('phone') || ch.includes('call')) return { cls: 'ch-telefon', svg: '📞' };
   return null;
@@ -3571,7 +3617,9 @@ let   _gdBackupDone = false; // jednom dnevno
 
 // Provjeri da li je backup već urađen danas
 function _gdBackupTodayDone() {
-  return localStorage.getItem('kmk_gd_backup_date') === lDate(new Date());
+  // Provjeri i lokalno i globalno (Firebase)
+  if (localStorage.getItem('kmk_gd_backup_date') === lDate(new Date())) return true;
+  return window._gdBackupDateGlobal === lDate(new Date());
 }
 
 // Inicijalizuj Google Identity Services i traži token
@@ -3635,8 +3683,14 @@ async function _gdDoBackup() {
       await _gdCreateFile(fileName, backupData, folderId);
     }
 
-    // 6. Označi kao urađeno danas
-    localStorage.setItem('kmk_gd_backup_date', lDate(new Date()));
+    // 6. Označi kao urađeno danas - lokalno i u Firebase (za sve uređaje)
+    const todayStr = lDate(new Date());
+    localStorage.setItem('kmk_gd_backup_date', todayStr);
+    window._gdBackupDateGlobal = todayStr;
+    try {
+      const { doc, setDoc } = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js');
+      await setDoc(doc(db, 'settings', 'gdrive_backup'), { lastBackupDate: todayStr }, { merge: true });
+    } catch(e) { console.warn('[GDrive] Firebase save greška:', e); }
     _gdBackupDone = true;
     _updateGDriveStatus('ok', `✅ Drive backup: ${fileName}`);
     console.log('[GDrive] Backup OK:', fileName);
@@ -3709,15 +3763,28 @@ function _updateGDriveStatus(state, msg) {
 }
 
 // Auto backup pri loginu - pozove se jednom dnevno
-function _gdAutoBackupOnLogin() {
+async function _gdAutoBackupOnLogin() {
+  // Provjeri Firebase - da li je backup urađen danas sa bilo kojeg uređaja
+  try {
+    const { doc, getDoc } = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js');
+    const snap = await getDoc(doc(db, 'settings', 'gdrive_backup'));
+    if (snap.exists()) {
+      const lastDate = snap.data().lastBackupDate;
+      window._gdBackupDateGlobal = lastDate;
+      if (lastDate === lDate(new Date())) {
+        localStorage.setItem('kmk_gd_backup_date', lastDate);
+        _updateGDriveStatus('ok', '✅ Drive backup: urađen danas');
+        return;
+      }
+    }
+  } catch(e) { console.warn('[GDrive] Firebase check greška:', e); }
+
+  // Backup nije urađen danas ni sa jednog uređaja
   if (_gdBackupTodayDone()) {
     _updateGDriveStatus('ok', '✅ Drive backup: urađen danas');
     return;
   }
-  // Sačekaj 3s da se Firebase učita pa pokreni
-  setTimeout(() => {
-    if (reservations.length > 0) startGDriveBackup();
-  }, 3000);
+  _updateGDriveStatus('ok', '☁️ Klikni "Backup na Google Drive" jednom dnevno');
 }
 
 // ══════════════════════════════════════════════════════════
@@ -7093,14 +7160,26 @@ window.renderChannels = function() {
   const el=document.getElementById('channels-list'); if(!el) return;
   const chs=window.appChannels||[];
   if(!chs.length){el.innerHTML='<div class="no-data">Nema kanala</div>';return;}
-  el.innerHTML=chs.map(ch=>`
-    <div class="user-card">
-      <div class="user-info-block"><strong>${escHtml(ch.icon||'')} ${escHtml(ch.name)}</strong></div>
+  el.innerHTML=chs.map(ch=>{
+    // Koristi custom logo ako je uploadovan, inače prepoznaj po imenu
+    const customLogo = ch.logoBase64
+      ? `<img src="${ch.logoBase64}" width="20" height="20" style="vertical-align:middle;margin-right:6px;border-radius:3px">`
+      : '';
+    const logo = customLogo || getChannelLogoForSettings(ch.name);
+    const chStyle = getChannelStyle(ch.name);
+    const bgColor = chStyle ? '' : '';
+    return `<div class="user-card" style="display:flex;align-items:center;justify-content:space-between">
+      <div class="user-info-block" style="display:flex;align-items:center;gap:8px">
+        ${logo || `<span style="font-size:1.3em">${escHtml(ch.icon||'📌')}</span>`}
+        <strong>${escHtml(ch.name)}</strong>
+        ${chStyle ? `<span style="font-size:.75em;padding:2px 8px;border-radius:10px;background:${chStyle.cls.replace('ch-','').includes('airbnb')?'#FF5A5F':chStyle.cls.includes('viber')?'#7360F2':chStyle.cls.includes('whatsapp')?'#25D366':chStyle.cls.includes('facebook')?'#1877F2':chStyle.cls.includes('instagram')?'#E1306C':chStyle.cls.includes('booking')?'#003580':'#6c757d'};color:white">${escHtml(ch.name)}</span>` : ''}
+      </div>
       <div class="btn-actions">
         <button class="bs bs-edit" onclick="editChannel('${ch.id}')">✏️</button>
         <button class="bs bs-del" onclick="deleteChannel('${ch.id}')">🗑️</button>
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 };
 window.showAddChannelForm=()=>{
   editingChannelId=null;
@@ -7114,15 +7193,63 @@ window.editChannel=id=>{
   editingChannelId=id;
   document.getElementById('chf-name').value=ch.name||'';
   document.getElementById('chf-icon').value=ch.icon||'';
+  // Učitaj logo ako postoji
+  const logoDataEl = document.getElementById('chf-logo-data');
+  const logoPreview = document.getElementById('chf-logo-preview');
+  const logoImg = document.getElementById('chf-logo-img');
+  if (logoDataEl) logoDataEl.value = ch.logoBase64||'';
+  if (ch.logoBase64 && logoImg && logoPreview) {
+    logoImg.src = ch.logoBase64;
+    logoPreview.style.display = 'flex';
+  } else if (logoPreview) {
+    logoPreview.style.display = 'none';
+  }
   document.getElementById('ch-form-title').textContent='Uredi: '+escHtml(ch.name);
   document.getElementById('ch-form-wrap').style.display='block';
 };
-window.cancelChannelForm=()=>{ document.getElementById('ch-form-wrap').style.display='none'; editingChannelId=null; };
+window.cancelChannelForm=()=>{
+  document.getElementById('ch-form-wrap').style.display='none';
+  editingChannelId=null;
+  clearChannelLogo();
+  const nameEl=document.getElementById('chf-name'); if(nameEl) nameEl.value='';
+  const iconEl=document.getElementById('chf-icon'); if(iconEl) iconEl.value='';
+};
+
+// ── CHANNEL LOGO UPLOAD ───────────────────────────────────
+window.previewChannelLogo = (input) => {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    // Skaliraj na 20x20 px pomoću canvas-a
+    const img = new window.Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = 20; canvas.height = 20;
+      canvas.getContext('2d').drawImage(img, 0, 0, 20, 20);
+      const b64 = canvas.toDataURL('image/png');
+      document.getElementById('chf-logo-data').value = b64;
+      document.getElementById('chf-logo-img').src = b64;
+      document.getElementById('chf-logo-preview').style.display = 'flex';
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+};
+
+window.clearChannelLogo = () => {
+  document.getElementById('chf-logo-data').value = '';
+  document.getElementById('chf-logo-file').value = '';
+  document.getElementById('chf-logo-preview').style.display = 'none';
+};
+
 window.saveChannel=async()=>{
   const name=document.getElementById('chf-name').value.trim();
   const icon=document.getElementById('chf-icon').value.trim();
+  const logoData=document.getElementById('chf-logo-data')?.value||'';
   if(!name){alert('Naziv je obavezan!');return;}
   const data={name,icon,updatedAt:new Date().toISOString()};
+  if(logoData) data.logoBase64=logoData;
   try {
     if(editingChannelId) await updateDoc(doc(db,'channels',editingChannelId),data);
     else await addDoc(collection(db,'channels'),{...data,createdAt:new Date().toISOString()});
