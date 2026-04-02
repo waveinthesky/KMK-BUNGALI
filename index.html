@@ -3,7 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<<<<<<< HEAD
 <title>Maja Karanfil Bungali v1.8.0</title>
+=======
+<title>Maja Karanfil Bungali v1.7.9</title>
+>>>>>>> 7741de34a914fdb626dee7a49a6b3405d1686574
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh;padding:20px}
@@ -746,7 +750,11 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
       <img src="https://i.imgur.com/DzB2EDR.png" onerror="this.style.display='none'"
            alt="Logo" style="max-width:175px;margin:0 auto 10px;display:block;border-radius:10px">
       <h1>🏡 Maja Karanfil Bungali</h1>
+<<<<<<< HEAD
       <p>Prijavite se u sistem — v1.8.0</p>
+=======
+      <p>Prijavite se u sistem — v1.7.9</p>
+>>>>>>> 7741de34a914fdb626dee7a49a6b3405d1686574
     </div>
     <div class="login-err" id="login-err">Pogrešno korisničko ime ili lozinka!</div>
     <form class="login-form" id="login-form">
@@ -1214,9 +1222,10 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
       </div>
     </div>
     <div class="stat-cards" id="stat-cards"></div>
-    <!-- OSOBA-NOĆENJA SEKCIJA -->
+    <!-- OSOBA-NOĆENJA SEKCIJA — prati Period filter gore -->
     <div id="st-person-nights-wrap" style="margin:18px 0 0">
       <hr class="divider" style="margin-bottom:12px">
+<<<<<<< HEAD
       <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:12px">
         <h3 style="margin:0;font-size:1em">🧮 Osoba-noćenja</h3>
         <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:.85em">
@@ -1230,6 +1239,9 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
             style="padding:4px 10px;font-size:.82em">Izračunaj</button>
         </div>
       </div>
+=======
+      <h3 style="margin:0 0 12px;font-size:1em">🧮 Osoba-noćenja <span id="pn-period-label" style="font-size:.78em;color:#888;font-weight:400"></span></h3>
+>>>>>>> 7741de34a914fdb626dee7a49a6b3405d1686574
       <div id="st-person-nights-cards" style="display:flex;gap:10px;flex-wrap:wrap"></div>
     </div>
 
@@ -1608,7 +1620,11 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <!-- Current version -->
       <div style="background:#e8f4fd;padding:14px;border-radius:8px;margin-bottom:20px;border-left:4px solid #667eea">
+<<<<<<< HEAD
         <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v1.8.0</strong>
+=======
+        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v1.7.9</strong>
+>>>>>>> 7741de34a914fdb626dee7a49a6b3405d1686574
       </div>
 
       <!-- Changelog -->
@@ -1616,7 +1632,11 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <div class="changelog">
         <div class="ch-version">
+<<<<<<< HEAD
           <div class="ch-ver-header">v1.8.0 <span class="ch-date">— 30.03.2026</span></div>
+=======
+          <div class="ch-ver-header">v1.7.9 <span class="ch-date">— 30.03.2026</span></div>
+>>>>>>> 7741de34a914fdb626dee7a49a6b3405d1686574
           <ul>
             <li><strong>About premješten:</strong> Iz floating dugmeta u Podešavanja → ℹ️ About tab — pregledniji pristup</li>
             <li><strong>Excel Export:</strong> Novo dugme "📊 Export u Excel" — preuzmi SVE rezervacije kao čistu CSV/Excel tabelu sa kompletnim detaljima (ID, status, ime, telefon, zemlja, kanal, datumi, broj noći, bungalovi, kreveti, struktura gostiju, cijena, napomene)</li>
@@ -3838,6 +3858,7 @@ async function _gdAutoBackupOnLogin() {
 // ══════════════════════════════════════════════════════════
 
 function _initPersonNightsDates() {
+<<<<<<< HEAD
   // Postavi default datume ako su prazni: prvi dan tekućeg mj. → danas
   const now = new Date();
   const fromEl = document.getElementById('pn-from');
@@ -3846,6 +3867,33 @@ function _initPersonNightsDates() {
     fromEl.value = lDate(new Date(now.getFullYear(), now.getMonth(), 1));
   if (toEl && !toEl.value)
     toEl.value = lDate(now);
+=======
+  // Vraća {from, to, label} prema globalnom period filteru statistike
+  const now = new Date();
+  let from = '', to = lDate(now), label = '';
+  if (period === 'today') {
+    from = to = lDate(now); label = 'Danas';
+  } else if (period === 'week') {
+    const wa = new Date(now); wa.setDate(wa.getDate()-7);
+    from = lDate(wa); label = 'Poslednjih 7 dana';
+  } else if (period === 'month') {
+    from = lDate(new Date(now.getFullYear(), now.getMonth(), 1));
+    label = 'Ovaj mjesec';
+  } else if (period === 'custom' && pFrom && pTo) {
+    from = pFrom; to = pTo; label = fmtD(pFrom) + ' — ' + fmtD(pTo);
+  } else if (period === 'all') {
+    const firstRes = [...reservations].filter(r=>!r.cancelled).sort((a,b)=>a.checkIn.localeCompare(b.checkIn))[0];
+    from = firstRes ? firstRes.checkIn : lDate(new Date(now.getFullYear(), now.getMonth(), 1));
+    label = 'Sve';
+  } else {
+    from = lDate(new Date(now.getFullYear(), now.getMonth(), 1));
+    label = 'Ovaj mjesec';
+  }
+  // Ažuriraj label
+  const lbl = document.getElementById('pn-period-label');
+  if (lbl) lbl.textContent = label ? '(' + label + ')' : '';
+  return { from, to };
+>>>>>>> 7741de34a914fdb626dee7a49a6b3405d1686574
 }
 
 function calcPersonNights(from, to) {
@@ -3876,15 +3924,22 @@ function calcPersonNights(from, to) {
 }
 
 window.renderPersonNights = () => {
-  _initPersonNightsDates();
-  const from = document.getElementById('pn-from')?.value;
-  const to   = document.getElementById('pn-to')?.value;
-  const el   = document.getElementById('st-person-nights-cards');
+  const pn = _initPersonNightsDates();
+  const el = document.getElementById('st-person-nights-cards');
   if (!el) return;
+<<<<<<< HEAD
   if (!from || !to || from > to) {
     el.innerHTML = '<div style="color:#dc3545;font-size:.88em">❌ Datum Od mora biti prije Do.</div>';
     return;
   }
+=======
+
+  // Osiguraj validne datume — fallback na tekući mjesec
+  const now = new Date();
+  const from = (pn && pn.from) ? pn.from : lDate(new Date(now.getFullYear(), now.getMonth(), 1));
+  const to   = (pn && pn.to)   ? pn.to   : lDate(now);
+
+>>>>>>> 7741de34a914fdb626dee7a49a6b3405d1686574
   const r = calcPersonNights(from, to);
   const card = (val, lbl, color) =>
     `<div class="stat-card" style="flex:1;min-width:110px;background:${color}">
