@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Maja Karanfil Bungali v1.6.8</title>
+<title>Maja Karanfil Bungali v1.6.9</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh;padding:20px}
@@ -734,7 +734,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
       <img src="https://i.imgur.com/DzB2EDR.png" onerror="this.style.display='none'"
            alt="Logo" style="max-width:175px;margin:0 auto 10px;display:block;border-radius:10px">
       <h1>🏡 Maja Karanfil Bungali</h1>
-      <p>Prijavite se u sistem — v1.6.8</p>
+      <p>Prijavite se u sistem — v1.6.9</p>
     </div>
     <div class="login-err" id="login-err">Pogrešno korisničko ime ili lozinka!</div>
     <form class="login-form" id="login-form">
@@ -1564,7 +1564,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <!-- Current version -->
       <div style="background:#e8f4fd;padding:14px;border-radius:8px;margin-bottom:20px;border-left:4px solid #667eea">
-        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v1.6.8</strong>
+        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v1.6.9</strong>
       </div>
 
       <!-- Changelog -->
@@ -1572,7 +1572,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <div class="changelog">
         <div class="ch-version">
-          <div class="ch-ver-header">v1.6.8 <span class="ch-date">— 30.03.2026</span></div>
+          <div class="ch-ver-header">v1.6.9 <span class="ch-date">— 30.03.2026</span></div>
           <ul>
             <li><strong>About premješten:</strong> Iz floating dugmeta u Podešavanja → ℹ️ About tab — pregledniji pristup</li>
             <li><strong>Excel Export:</strong> Novo dugme "📊 Export u Excel" — preuzmi SVE rezervacije kao čistu CSV/Excel tabelu sa kompletnim detaljima (ID, status, ime, telefon, zemlja, kanal, datumi, broj noći, bungalovi, kreveti, struktura gostiju, cijena, napomene)</li>
@@ -7445,11 +7445,11 @@ async function syncIcalLink(id, silent) {
   // Proxy lista — Cloudflare Workers worker je najpouzdaniji (ako postoji),
   // ostali su javni besplatni servisi koji mogu biti nedostupni
   const PROXY_BUILDERS = [
-    // Javni proxy-ji — pouzdan redosljed
-    url => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url),
-    url => 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(url),
+    // corsproxy.io — najpouzdaniji za Booking.com iCal
     url => 'https://corsproxy.io/?' + encodeURIComponent(url),
     url => 'https://thingproxy.freeboard.io/fetch/' + url,
+    url => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url),
+    url => 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(url),
     // Cloudflare Worker (vlastiti — aktivirati kada se deploya worker)
     // url => 'https://kmk-ical-proxy.waveinthesky.workers.dev/?url=' + encodeURIComponent(url),
   ];
@@ -7671,12 +7671,15 @@ function startAutoIcalSync() {
   const el = document.getElementById('ical-countdown');
   if (el) el.style.display = 'inline-block';
 
-  function doSync() {
+  async function doSync() {
     _icalNextSync = Date.now() + ICAL_INTERVAL_MS;
     const links = window.icalLinks || [];
     if (!links.length) return;
-    // Koristi istu syncIcalLink funkciju kao rucni sync, samo silent=true
-    links.forEach(lnk => syncIcalLink(lnk.id, true).catch(e => console.warn('iCal auto error B'+lnk.bungalov+':', e)));
+    // Serijalni sync — isti kao syncAllIcal, sprečava _icalSyncing lock konflikt
+    for (const lnk of links) {
+      try { await syncIcalLink(lnk.id, true); }
+      catch(e) { console.warn('iCal auto error B'+lnk.bungalov+':', e); }
+    }
   }
 
   // Odmah postavi sljedeci sync
