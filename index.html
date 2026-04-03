@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Maja Karanfil Bungali v1.8.2</title>
+<title>Maja Karanfil Bungali v1.8.3</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh;padding:20px}
@@ -744,9 +744,9 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
   <div class="login-box">
     <div class="login-head">
       <img src="https://i.imgur.com/DzB2EDR.png" onerror="this.style.display='none'"
-           alt="Logo" style="max-width:175px;margin:0 auto 10px;display:block;border-radius:10px">
-      <h1>🏡 Maja Karanfil Bungali</h1>
-      <p>Prijavite se u sistem — v1.8.2</p>
+           id="login-logo-img" alt="Logo" style="max-width:175px;margin:0 auto 10px;display:block;border-radius:10px">
+      <h1 id="login-h1"><span id="login-logo-emoji">🏡</span> Maja Karanfil Bungali</h1>
+      <p>Prijavite se u sistem — <span id="login-ver-txt">v1.8.3</span></p>
     </div>
     <div class="login-err" id="login-err">Pogrešno korisničko ime ili lozinka!</div>
     <form class="login-form" id="login-form">
@@ -951,7 +951,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
   <div class="hdr">
     <div class="hdr-l">
       <h1>🏡 Maja Karanfil Bungali</h1>
-      <p>Sistem za upravljanje rezervacijama — v1.5.0</p>
+      <p id="app-version-hdr">Sistem za upravljanje rezervacijama — v1.8.3</p>
     </div>
     <div class="hdr-r">
       <div class="user-row">
@@ -1375,6 +1375,35 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
     <!-- SECURITY TAB -->
     <div id="set-security" style="display:none">
       <h3 style="margin-bottom:16px">🔒 Sigurnost</h3>
+
+      <!-- Logo upload -->
+      <div style="background:#f8f9fa;border-radius:10px;padding:16px;margin-bottom:20px;border:1px solid #e0e0e0">
+        <h4 style="margin:0 0 12px;font-size:.95em">🖼️ Logo Objekta</h4>
+        <p style="font-size:.85em;color:#666;margin-bottom:12px">
+          Logo se prikazuje na login ekranu i u zaglavlju programa. Preporučena veličina: kvadratna slika, min 200×200px.
+        </p>
+        <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:12px">
+          <div id="logo-preview-wrap" style="width:64px;height:64px;border-radius:10px;border:2px solid #e0e0e0;overflow:hidden;background:#f0f0f0;display:flex;align-items:center;justify-content:center;font-size:2em">
+            <img id="logo-preview-img" src="" style="width:100%;height:100%;object-fit:cover;display:none">
+            <span id="logo-preview-emoji">🏡</span>
+          </div>
+          <div>
+            <input type="file" id="logo-file-input" accept="image/*" style="display:none" onchange="previewLogoUpload(this)">
+            <button class="btn btn-primary" onclick="document.getElementById('logo-file-input').click()" style="padding:7px 14px;font-size:.85em">
+              📁 Odaberi Sliku
+            </button>
+            <button class="btn" onclick="clearLogo()" style="padding:7px 14px;font-size:.85em;margin-left:6px;background:#dc3545;color:white">
+              🗑️ Ukloni Logo
+            </button>
+          </div>
+        </div>
+        <div id="logo-save-area" style="display:none">
+          <button class="btn btn-primary" onclick="saveLogo()" style="padding:8px 18px;font-size:.88em">
+            💾 Sačuvaj Logo
+          </button>
+          <span id="logo-save-msg" style="display:none;color:#28a745;margin-left:10px;font-size:.85em">✅ Logo sačuvan!</span>
+        </div>
+      </div>
       <div style="background:#f8f9fa;border-radius:10px;padding:16px;margin-bottom:20px;border:1px solid #e0e0e0">
         <h4 style="margin:0 0 12px;font-size:.95em">🔐 Zaštita pri Otkazivanju</h4>
         <p style="font-size:.85em;color:#666;margin-bottom:12px">
@@ -1608,7 +1637,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <!-- Trenutna verzija -->
       <div style="background:#e8f4fd;padding:14px;border-radius:8px;margin-bottom:24px;border-left:4px solid #667eea">
-        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v1.8.2</strong>
+        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v1.8.3</strong>
         <div style="font-size:.85em;color:#555;margin-top:4px">Firebase Firestore · GitHub Pages · Single-file aplikacija</div>
       </div>
 
@@ -1767,55 +1796,111 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
       <!-- Gdje se što nalazi -->
       <h3 style="margin:0 0 14px;color:#333;border-bottom:2px solid #667eea;padding-bottom:8px">🗺️ Gdje Se Što Nalazi</h3>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-bottom:24px;font-size:.85em">
-        ${[
-          ['🏠','Dnevni Pregled','Ko dolazi i odlazi danas, ko je u objektu, popunjenost, štampa'],
-          ['📅','Kalendar','Grid svih 13 bungalova, V1/V2/V3 na mobu, drag za novu rezervaciju'],
-          ['➕','Nova Rezervacija','Forma za unos/izmjenu, automatski obračun cijene, historija gosta'],
-          ['📋','Lista','Sve rezervacije sa filterom po statusu, bungalovu i imenu'],
-          ['📊','Statistika','Kartice, gosti po bungalovima i državama, osoba-noćenja, računovodstvo, grafici'],
-          ['📜','Historija','Log svih izmjena, vraćanje otkazanih rezervacija'],
-          ['⚙️','Podešavanja → Korisnici','Dodavanje i upravljanje korisnicima (admin only)'],
-          ['⚙️','Podešavanja → Gosti','Knjiga gostiju, profili, historija po gostu'],
-          ['⚙️','Podešavanja → Sigurnost','Zaštita pri otkazivanju, session postavke'],
-          ['⚙️','Podešavanja → Cjenovnik','Sezonski periodi cijena po tipu bungalova'],
-          ['⚙️','Podešavanja → Kanali','Kanali rezervacije sa logotipovima'],
-          ['⚙️','Podešavanja → Kalendar','Opcije klika i drag-and-drop na kalendaru'],
-          ['⚙️','Podešavanja → Backup','Ručni/automatski backup i vraćanje podataka'],
-          ['⚙️','Podešavanja → iCal','Booking.com iCal linkovi, sync, status'],
-          ['⚙️','Podešavanja → Import','Import iz Excel/CSV fajlova'],
-          ['⚙️','Podešavanja → About','Ova stranica — opis programa i changelog'],
-        ].map(([ico,tab,desc]) => `
-          <div style="background:#f8f9fa;border-radius:8px;padding:10px 12px">
-            <div style="font-weight:700;color:#333;margin-bottom:3px">${ico} ${tab}</div>
-            <div style="color:#666;font-size:.9em">${desc}</div>
-          </div>`).join('')}
+        <div style="background:#f8f9fa;border-radius:8px;padding:10px 12px">
+          <div style="font-weight:700;color:#333;margin-bottom:3px">🏠 Dnevni Pregled</div>
+          <div style="color:#666">Ko dolazi i odlazi danas, ko je u objektu, popunjenost, štampa</div>
+        </div>
+        <div style="background:#f8f9fa;border-radius:8px;padding:10px 12px">
+          <div style="font-weight:700;color:#333;margin-bottom:3px">📅 Kalendar</div>
+          <div style="color:#666">Grid svih 13 bungalova, V1/V2/V3 na mobu, drag za novu rezervaciju</div>
+        </div>
+        <div style="background:#f8f9fa;border-radius:8px;padding:10px 12px">
+          <div style="font-weight:700;color:#333;margin-bottom:3px">➕ Nova Rezervacija</div>
+          <div style="color:#666">Forma za unos/izmjenu, automatski obračun cijene, historija gosta</div>
+        </div>
+        <div style="background:#f8f9fa;border-radius:8px;padding:10px 12px">
+          <div style="font-weight:700;color:#333;margin-bottom:3px">📋 Lista</div>
+          <div style="color:#666">Sve rezervacije sa filterom po statusu, bungalovu i imenu</div>
+        </div>
+        <div style="background:#f8f9fa;border-radius:8px;padding:10px 12px">
+          <div style="font-weight:700;color:#333;margin-bottom:3px">📊 Statistika</div>
+          <div style="color:#666">Kartice, gosti po bungalovima i državama, osoba-noćenja, računovodstvo, grafici</div>
+        </div>
+        <div style="background:#f8f9fa;border-radius:8px;padding:10px 12px">
+          <div style="font-weight:700;color:#333;margin-bottom:3px">📜 Historija</div>
+          <div style="color:#666">Log svih izmjena, vraćanje otkazanih rezervacija</div>
+        </div>
+        <div style="background:#f8f9fa;border-radius:8px;padding:10px 12px">
+          <div style="font-weight:700;color:#333;margin-bottom:3px">⚙️ Podešavanja → Korisnici</div>
+          <div style="color:#666">Dodavanje i upravljanje korisnicima (admin only)</div>
+        </div>
+        <div style="background:#f8f9fa;border-radius:8px;padding:10px 12px">
+          <div style="font-weight:700;color:#333;margin-bottom:3px">⚙️ Podešavanja → Gosti</div>
+          <div style="color:#666">Knjiga gostiju, profili, historija po gostu</div>
+        </div>
+        <div style="background:#f8f9fa;border-radius:8px;padding:10px 12px">
+          <div style="font-weight:700;color:#333;margin-bottom:3px">⚙️ Podešavanja → Sigurnost</div>
+          <div style="color:#666">Zaštita pri otkazivanju, session postavke</div>
+        </div>
+        <div style="background:#f8f9fa;border-radius:8px;padding:10px 12px">
+          <div style="font-weight:700;color:#333;margin-bottom:3px">⚙️ Podešavanja → Cjenovnik</div>
+          <div style="color:#666">Sezonski periodi cijena po tipu bungalova</div>
+        </div>
+        <div style="background:#f8f9fa;border-radius:8px;padding:10px 12px">
+          <div style="font-weight:700;color:#333;margin-bottom:3px">⚙️ Podešavanja → Kanali</div>
+          <div style="color:#666">Kanali rezervacije sa logotipovima</div>
+        </div>
+        <div style="background:#f8f9fa;border-radius:8px;padding:10px 12px">
+          <div style="font-weight:700;color:#333;margin-bottom:3px">⚙️ Podešavanja → Backup</div>
+          <div style="color:#666">Ručni/automatski backup, vraćanje podataka, Google Drive</div>
+        </div>
+        <div style="background:#f8f9fa;border-radius:8px;padding:10px 12px">
+          <div style="font-weight:700;color:#333;margin-bottom:3px">⚙️ Podešavanja → iCal</div>
+          <div style="color:#666">Booking.com iCal linkovi, sync status, ručna sinhronizacija</div>
+        </div>
+        <div style="background:#f8f9fa;border-radius:8px;padding:10px 12px">
+          <div style="font-weight:700;color:#333;margin-bottom:3px">⚙️ Podešavanja → Import</div>
+          <div style="color:#666">Import iz Excel/CSV fajlova sa preview i detekcijom duplikata</div>
+        </div>
+        <div style="background:#f8f9fa;border-radius:8px;padding:10px 12px">
+          <div style="font-weight:700;color:#333;margin-bottom:3px">⚙️ Podešavanja → About</div>
+          <div style="color:#666">Ova stranica — opis programa, changelog i tehničke info</div>
+        </div>
       </div>
 
       <!-- Tehnički detalji -->
       <h3 style="margin:0 0 14px;color:#333;border-bottom:2px solid #667eea;padding-bottom:8px">🔧 Tehničke Specifikacije</h3>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-bottom:28px;font-size:.84em">
-        ${[
-          ['Firebase','Firestore + offline persistence (IndexedDB)','#667eea'],
-          ['Hosting','GitHub Pages — waveinthesky.github.io/KMK-BUNGALI','#28a745'],
-          ['Baza rezervacija','Firebase projekt: rezervacije-bungalova','#fd7e14'],
-          ['iCal Proxy','Cloudflare Worker: kmk-ical-proxy.isko-rado.workers.dev','#003580'],
-          ['Biblioteke','SheetJS (Excel), Chart.js (grafici), Firebase v10.8.0','#6c757d'],
-          ['Arhitektura','Single-file HTML + JS module, bez build sistema','#17a2b8'],
-          ['Bungalovi','13 bungalova: B1–B5 (max 4 kr, 60€), B6–B9 (max 6 kr, 70€), B10–B13 (max 2–4 kr, 60€)','#dc3545'],
-          ['Cijena','Osnova 2 osobe + 15€/odrasla iznad 2 + 10€/dijete iznad 2 + taksa 1€/odrasli/noć','#856404'],
-        ].map(([label,val,color]) => `
-          <div style="background:#f8f9fa;border-radius:8px;padding:10px 12px;border-top:3px solid ${color}">
-            <div style="font-weight:700;color:#333;margin-bottom:3px">${label}</div>
-            <div style="color:#666">${val}</div>
-          </div>`).join('')}
+        <div style="background:#f8f9fa;border-radius:8px;padding:10px 12px;border-top:3px solid #667eea">
+          <div style="font-weight:700;color:#333;margin-bottom:3px">Firebase</div>
+          <div style="color:#666">Firestore + offline persistence (IndexedDB)</div>
+        </div>
+        <div style="background:#f8f9fa;border-radius:8px;padding:10px 12px;border-top:3px solid #28a745">
+          <div style="font-weight:700;color:#333;margin-bottom:3px">Hosting</div>
+          <div style="color:#666">GitHub Pages — waveinthesky.github.io/KMK-BUNGALI</div>
+        </div>
+        <div style="background:#f8f9fa;border-radius:8px;padding:10px 12px;border-top:3px solid #fd7e14">
+          <div style="font-weight:700;color:#333;margin-bottom:3px">Firebase projekt</div>
+          <div style="color:#666">rezervacije-bungalova</div>
+        </div>
+        <div style="background:#f8f9fa;border-radius:8px;padding:10px 12px;border-top:3px solid #003580">
+          <div style="font-weight:700;color:#333;margin-bottom:3px">iCal Proxy</div>
+          <div style="color:#666">kmk-ical-proxy.isko-rado.workers.dev (Cloudflare Worker)</div>
+        </div>
+        <div style="background:#f8f9fa;border-radius:8px;padding:10px 12px;border-top:3px solid #6c757d">
+          <div style="font-weight:700;color:#333;margin-bottom:3px">Biblioteke</div>
+          <div style="color:#666">SheetJS (Excel), Chart.js (grafici), Firebase v10.8.0</div>
+        </div>
+        <div style="background:#f8f9fa;border-radius:8px;padding:10px 12px;border-top:3px solid #17a2b8">
+          <div style="font-weight:700;color:#333;margin-bottom:3px">Arhitektura</div>
+          <div style="color:#666">Single-file HTML + JS module, bez build sistema</div>
+        </div>
+        <div style="background:#f8f9fa;border-radius:8px;padding:10px 12px;border-top:3px solid #dc3545">
+          <div style="font-weight:700;color:#333;margin-bottom:3px">Bungalovi</div>
+          <div style="color:#666">B1–B5, B10–B13: max 4 kr, 60€ osnova &nbsp;|&nbsp; B6–B9: max 6 kr, 70€ osnova &nbsp;|&nbsp; B12–B13: max 2 kr</div>
+        </div>
+        <div style="background:#f8f9fa;border-radius:8px;padding:10px 12px;border-top:3px solid #856404">
+          <div style="font-weight:700;color:#333;margin-bottom:3px">Cjenovnik</div>
+          <div style="color:#666">Osnova 2 os. + 15€/odrasla iznad 2 + 10€/dijete iznad 2 + taksa 1€/odrasli/noć</div>
+        </div>
       </div>
 
-      <!-- Changelog -->
+            <!-- Changelog -->
       <h3 style="margin:24px 0 14px;color:#333;border-bottom:2px solid #667eea;padding-bottom:8px">📝 Izmjene po verzijama</h3>
 
       <div class="changelog">
         <div class="ch-version">
-          <div class="ch-ver-header">v1.8.2 <span class="ch-date">— 30.03.2026</span></div>
+          <div class="ch-ver-header">v1.8.3 <span class="ch-date">— 30.03.2026</span></div>
           <ul>
             <li><strong>About premješten:</strong> Iz floating dugmeta u Podešavanja → ℹ️ About tab — pregledniji pristup</li>
             <li><strong>Excel Export:</strong> Novo dugme "📊 Export u Excel" — preuzmi SVE rezervacije kao čistu CSV/Excel tabelu sa kompletnim detaljima (ID, status, ime, telefon, zemlja, kanal, datumi, broj noći, bungalovi, kreveti, struktura gostiju, cijena, napomene)</li>
@@ -2300,6 +2385,108 @@ document.getElementById('login-form').addEventListener('submit', async e => {
     errEl.style.display = 'block';
   }
 });
+
+
+// ══════════════════════════════════════════════════════════
+// LOGO MANAGEMENT — upload, čuvanje i primjena
+// ══════════════════════════════════════════════════════════
+const LOGO_KEY = 'kmk_logo_b64';
+
+function _applyLogo() {
+  const b64 = localStorage.getItem(LOGO_KEY);
+  // Login logo
+  const loginImg = document.getElementById('login-logo-img');
+  // Header logo
+  const hdrTitle = document.querySelector('.hdr-l h1');
+  // Mob header
+  const mobTitle = document.querySelector('.mob-hdr-title');
+
+  if (b64) {
+    // Login ekran - zamijeni emoji sa slikom
+    if (loginImg) {
+      loginImg.src = b64;
+      loginImg.style.display = 'block';
+      const loginEmoji = document.getElementById('login-logo-emoji');
+      if (loginEmoji) loginEmoji.style.display = 'none';
+    }
+    // Desktop header - zamijeni 🏡 sa img
+    if (hdrTitle) {
+      hdrTitle.innerHTML = `<img src="${b64}" style="height:32px;width:32px;object-fit:cover;border-radius:6px;vertical-align:middle;margin-right:8px"> Maja Karanfil Bungali`;
+    }
+    if (mobTitle) {
+      mobTitle.innerHTML = `<img src="${b64}" style="height:22px;width:22px;object-fit:cover;border-radius:4px;vertical-align:middle;margin-right:6px"> Maja Karanfil Bungali`;
+    }
+    // Security tab preview
+    const prev = document.getElementById('logo-preview-img');
+    const emoji = document.getElementById('logo-preview-emoji');
+    if (prev) { prev.src = b64; prev.style.display = 'block'; }
+    if (emoji) emoji.style.display = 'none';
+  } else {
+    // Nema loga - vrati emojije
+    if (loginImg) loginImg.style.display = 'none';
+    const loginEmoji = document.getElementById('login-logo-emoji');
+    if (loginEmoji) loginEmoji.style.display = '';
+    if (hdrTitle) hdrTitle.textContent = '🏡 Maja Karanfil Bungali';
+    if (mobTitle) mobTitle.textContent = '🏡 Maja Karanfil Bungali';
+  }
+}
+
+window.previewLogoUpload = (input) => {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const img = new window.Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const size = 200;
+      canvas.width = size; canvas.height = size;
+      // Crop na kvadrat
+      const s = Math.min(img.width, img.height);
+      const sx = (img.width - s) / 2;
+      const sy = (img.height - s) / 2;
+      canvas.getContext('2d').drawImage(img, sx, sy, s, s, 0, 0, size, size);
+      const b64 = canvas.toDataURL('image/jpeg', 0.85);
+      // Preview
+      const prev = document.getElementById('logo-preview-img');
+      const emoji = document.getElementById('logo-preview-emoji');
+      if (prev) { prev.src = b64; prev.style.display = 'block'; }
+      if (emoji) emoji.style.display = 'none';
+      document.getElementById('logo-save-area').style.display = 'block';
+      // Privremeno sačuvaj za saveLogo
+      window._pendingLogo = b64;
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+};
+
+window.saveLogo = () => {
+  if (!window._pendingLogo) return;
+  localStorage.setItem(LOGO_KEY, window._pendingLogo);
+  window._pendingLogo = null;
+  _applyLogo();
+  const msg = document.getElementById('logo-save-msg');
+  if (msg) { msg.style.display = 'inline'; setTimeout(() => msg.style.display = 'none', 2500); }
+  document.getElementById('logo-save-area').style.display = 'none';
+  document.getElementById('logo-file-input').value = '';
+};
+
+window.clearLogo = () => {
+  if (!confirm('Ukloniti logo i vratiti na default (🏡)?')) return;
+  localStorage.removeItem(LOGO_KEY);
+  window._pendingLogo = null;
+  const prev = document.getElementById('logo-preview-img');
+  const emoji = document.getElementById('logo-preview-emoji');
+  if (prev) { prev.src = ''; prev.style.display = 'none'; }
+  if (emoji) emoji.style.display = '';
+  document.getElementById('logo-save-area').style.display = 'none';
+  document.getElementById('logo-file-input').value = '';
+  _applyLogo();
+};
+
+// Primijeni logo pri startu
+document.addEventListener('DOMContentLoaded', _applyLogo);
 
 window.logout = () => {
   if (curRole==='admin') localStorage.setItem('lastAdminLogin', new Date().toISOString());
@@ -5494,7 +5681,15 @@ window.deleteManualReservations = async () => {
   if (curRole !== 'admin') { alert('Samo admin može ovo uraditi.'); return; }
   const manual = reservations.filter(r => !r.icalLinkId && !r.importedFromExcel);
   if (!manual.length) { alert('Nema ručnih rezervacija za brisanje.'); return; }
-  if (!confirm('Obrisati ' + manual.length + ' rucnih rezervacija? iCal ostaju. Akcija je nepovratna!')) return;
+  // Traži lozinku za brisanje (ista kao zaštita pri otkazivanju)
+  const savedPw = getDelPassword();
+  if (savedPw) {
+    const typed = prompt('🔐 Unesite lozinku za potvrdu brisanja:');
+    if (typed === null) return;
+    if (typed !== savedPw) { alert('❌ Netačna lozinka. Brisanje otkazano.'); return; }
+  } else {
+    if (!confirm('Obrisati ' + manual.length + ' ručnih rezervacija? iCal ostaju. Akcija je nepovratna!')) return;
+  }
 
   syncUI('sy', 'Brišem ručne rezervacije...');
   let deleted = 0;
@@ -5510,8 +5705,16 @@ window.deleteAllReservations = async () => {
   if (curRole !== 'admin') { alert('Samo admin može obrisati sve rezervacije.'); return; }
   const total = reservations.length;
   if (total === 0) { alert('Nema rezervacija za brisanje.'); return; }
-  if (!confirm('⚠️ PAŽNJA!\n\nObrisati SVIH ' + total + ' rezervacija?\n\nOva akcija je NEPOVRATNA!\nUvjeri se da si napravio backup prije brisanja.')) return;
-  if (!confirm('Jesi li siguran? Ovo briše SVE rezervacije i ne može se poništiti.')) return;
+  // Traži lozinku za brisanje (ista kao zaštita pri otkazivanju)
+  const savedPw = getDelPassword();
+  if (savedPw) {
+    const typed = prompt('🔐 Unesite lozinku za potvrdu brisanja SVIH ' + total + ' rezervacija:');
+    if (typed === null) return;
+    if (typed !== savedPw) { alert('❌ Netačna lozinka. Brisanje otkazano.'); return; }
+  } else {
+    if (!confirm('⚠️ PAŽNJA!\n\nObrisati SVIH ' + total + ' rezervacija?\n\nOva akcija je NEPOVRATNA!')) return;
+    if (!confirm('Jesi li siguran? Ovo briše SVE rezervacije i ne može se poništiti.')) return;
+  }
 
   syncUI('sy', 'Brišem sve rezervacije...');
   let deleted = 0;
@@ -8103,7 +8306,15 @@ async function syncIcalLink(id, silent) {
 window.clearAllIcalReservations = async () => {
   const icalRes = reservations.filter(r => r.icalLinkId);
   if (!icalRes.length) { alert('Nema iCal rezervacija za brisanje.'); return; }
-  if (!confirm('Obrisati ' + icalRes.length + ' iCal rezervacija iz kalendara?\n\nNakon toga klikni Sinhronizuj Sve da ih ponovo uvučeš ispravno.')) return;
+  // Traži lozinku za brisanje
+  const savedPw = getDelPassword();
+  if (savedPw) {
+    const typed = prompt('🔐 Unesite lozinku za potvrdu brisanja ' + icalRes.length + ' iCal rezervacija:');
+    if (typed === null) return;
+    if (typed !== savedPw) { alert('❌ Netačna lozinka. Brisanje otkazano.'); return; }
+  } else {
+    if (!confirm('Obrisati ' + icalRes.length + ' iCal rezervacija iz kalendara?\n\nNakon toga klikni Sinhronizuj Sve da ih ponovo uvučeš ispravno.')) return;
+  }
   syncUI('sy', 'Brisem iCal rezervacije...');
   let deleted = 0;
   for (const r of icalRes) {
