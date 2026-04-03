@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Maja Karanfil Bungali v1.8.3</title>
+<title>Maja Karanfil Bungali v1.8.4</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh;padding:20px}
@@ -746,7 +746,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
       <img src="https://i.imgur.com/DzB2EDR.png" onerror="this.style.display='none'"
            id="login-logo-img" alt="Logo" style="max-width:175px;margin:0 auto 10px;display:block;border-radius:10px">
       <h1 id="login-h1"><span id="login-logo-emoji">🏡</span> Maja Karanfil Bungali</h1>
-      <p>Prijavite se u sistem — <span id="login-ver-txt">v1.8.3</span></p>
+      <p>Prijavite se u sistem — <span id="login-ver-txt">v1.8.4</span></p>
     </div>
     <div class="login-err" id="login-err">Pogrešno korisničko ime ili lozinka!</div>
     <form class="login-form" id="login-form">
@@ -1521,6 +1521,25 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
       </div>
     </div>
 
+      <hr class="divider" style="margin:20px 0">
+      <!-- DANGER ZONE — Brisanje podataka -->
+      <div style="background:#fff5f5;border:1px solid #fed7d7;border-radius:12px;padding:16px;margin-bottom:22px">
+        <h4 style="margin:0 0 10px;color:#c53030;font-size:.95em">⚠️ Brisanje Podataka</h4>
+        <div style="font-size:.85em;color:#666;margin-bottom:12px">
+          Obriši sve rezervacije iz baze. Koristi kada završiš sa testiranjem. <strong>Ova akcija je nepovratna.</strong>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <button onclick="deleteManualReservations()" class="btn" style="background:#dc3545;color:white;padding:9px 16px;font-size:.88em">
+            🗑️ Obriši sve RUČNE rezervacije
+          </button>
+          <div style="font-size:.78em;color:#888">Briše samo rezervacije unesene ručno — iCal (Booking.com) rezervacije ostaju.</div>
+          <button onclick="deleteAllReservations()" class="btn" style="background:#6c757d;color:white;padding:9px 16px;font-size:.88em;margin-top:6px">
+            🗑️ Obriši SVE rezervacije (ručne + iCal)
+          </button>
+          <div style="font-size:.78em;color:#888">Briše apsolutno sve rezervacije i historiju.</div>
+        </div>
+      </div>
+    
     <!-- PRICES TAB -->
     <div id="set-prices" style="display:none">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
@@ -1607,24 +1626,6 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
     <div id="set-about" style="display:none">
       <div style="padding:20px">
 
-      <!-- DANGER ZONE — Brisanje podataka -->
-      <div style="background:#fff5f5;border:1px solid #fed7d7;border-radius:12px;padding:16px;margin-bottom:22px">
-        <h4 style="margin:0 0 10px;color:#c53030;font-size:.95em">⚠️ Brisanje Podataka</h4>
-        <div style="font-size:.85em;color:#666;margin-bottom:12px">
-          Obriši sve rezervacije iz baze. Koristi kada završiš sa testiranjem. <strong>Ova akcija je nepovratna.</strong>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:8px">
-          <button onclick="deleteManualReservations()" class="btn" style="background:#dc3545;color:white;padding:9px 16px;font-size:.88em">
-            🗑️ Obriši sve RUČNE rezervacije
-          </button>
-          <div style="font-size:.78em;color:#888">Briše samo rezervacije unesene ručno — iCal (Booking.com) rezervacije ostaju.</div>
-          <button onclick="deleteAllReservations()" class="btn" style="background:#6c757d;color:white;padding:9px 16px;font-size:.88em;margin-top:6px">
-            🗑️ Obriši SVE rezervacije (ručne + iCal)
-          </button>
-          <div style="font-size:.78em;color:#888">Briše apsolutno sve rezervacije i historiju.</div>
-        </div>
-      </div>
-
       <!-- Bismillah poruka -->
       <div style="background:linear-gradient(135deg,#667eea,#764ba2);color:white;padding:20px;border-radius:12px;margin-bottom:24px;text-align:center;line-height:1.8;font-size:.95em">
         <strong style="font-size:1.15em;display:block;margin-bottom:10px">بِسْمِ ٱللَّٰهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</strong>
@@ -1637,7 +1638,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <!-- Trenutna verzija -->
       <div style="background:#e8f4fd;padding:14px;border-radius:8px;margin-bottom:24px;border-left:4px solid #667eea">
-        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v1.8.3</strong>
+        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v1.8.4</strong>
         <div style="font-size:.85em;color:#555;margin-top:4px">Firebase Firestore · GitHub Pages · Single-file aplikacija</div>
       </div>
 
@@ -1900,7 +1901,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <div class="changelog">
         <div class="ch-version">
-          <div class="ch-ver-header">v1.8.3 <span class="ch-date">— 30.03.2026</span></div>
+          <div class="ch-ver-header">v1.8.4 <span class="ch-date">— 30.03.2026</span></div>
           <ul>
             <li><strong>About premješten:</strong> Iz floating dugmeta u Podešavanja → ℹ️ About tab — pregledniji pristup</li>
             <li><strong>Excel Export:</strong> Novo dugme "📊 Export u Excel" — preuzmi SVE rezervacije kao čistu CSV/Excel tabelu sa kompletnim detaljima (ID, status, ime, telefon, zemlja, kanal, datumi, broj noći, bungalovi, kreveti, struktura gostiju, cijena, napomene)</li>
