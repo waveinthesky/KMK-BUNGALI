@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Maja Karanfil Bungali v1.8.5</title>
+<title>Maja Karanfil Bungali v1.8.6</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh;padding:20px}
@@ -693,6 +693,25 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
   padding: 9px 12px; background: #fff3cd; border-radius: 8px; border: 1px solid #ffc107; }
 .shared-bed-row input[type=checkbox] { width: 17px; height: 17px; cursor: pointer; }
 .shared-bed-row label { font-size: .87em; font-weight: 600; color: #856404; cursor: pointer; }
+
+/* MOB APP POLISH v1.8.6 */
+.mob-kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.mob-kpi{background:white;border-radius:12px;padding:10px;text-align:center;box-shadow:0 1px 6px rgba(0,0,0,.08);border:1px solid #eee}
+.mob-kpi-num{font-size:1.35em;font-weight:800;color:#667eea;line-height:1}
+.mob-kpi-lbl{font-size:.68em;color:#777;margin-top:4px;font-weight:700;text-transform:uppercase;letter-spacing:.25px}
+.mob-action-row{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.mob-action-btn{flex:1;min-width:92px;border:none;border-radius:10px;padding:10px 8px;font-weight:700;font-size:.82em;cursor:pointer;text-align:center;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:4px}
+.mob-action-btn.call{background:#e6f4ea;color:#1a7a3a}.mob-action-btn.wa{background:#e8fff1;color:#0b7f3a}.mob-action-btn.open{background:#e8f0fe;color:#1565c0}.mob-action-btn.more{background:#f5f5f5;color:#555}
+.mob-status-chip{display:inline-flex;align-items:center;gap:3px;border-radius:12px;padding:3px 8px;font-size:.72em;font-weight:800;white-space:nowrap}
+.mob-chip-paid{background:#e6f4ea;color:#1a7a3a}.mob-chip-unpaid{background:#fff3cd;color:#856404}.mob-chip-conf{background:#e8f0fe;color:#1565c0}.mob-chip-wait{background:#f5f5f5;color:#666}
+.mob-availability-card{background:white;border-radius:14px;padding:14px;margin-bottom:10px;box-shadow:0 1px 8px rgba(0,0,0,.08);border-left:4px solid #28a745}
+.mob-availability-card.busy{border-left-color:#dc3545;opacity:.9}
+.mob-section-title{font-size:.78em;font-weight:900;color:#555;text-transform:uppercase;letter-spacing:.6px;margin:15px 0 8px;display:flex;align-items:center;justify-content:space-between}
+.mob-mini-note{font-size:.74em;color:#777;line-height:1.45}
+.mob-safe-warn{background:#fff3cd;border-left:4px solid #ffc107;color:#856404;border-radius:10px;padding:10px 12px;margin-bottom:10px;font-size:.82em;font-weight:600}
+.mob-top-search{position:sticky;top:0;z-index:20;background:#f4f5f7;padding:0 0 8px;margin-bottom:8px}
+@media(max-width:768px){.mob-nav-inner{grid-template-columns:repeat(5,1fr)!important}.mob-nav-btn{font-size:.58em!important}.mob-nav-btn .mob-nav-ico{font-size:1.38em!important}.mob-res-actions .mob-res-btn.del{display:none!important}.mob-hdr{min-height:52px}}
+
 </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script>
@@ -746,7 +765,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
       <img src="https://i.imgur.com/DzB2EDR.png" onerror="this.style.display='none'"
            id="login-logo-img" alt="Logo" style="max-width:175px;margin:0 auto 10px;display:block;border-radius:10px">
       <h1 id="login-h1"><span id="login-logo-emoji">🏡</span> Maja Karanfil Bungali</h1>
-      <p>Prijavite se u sistem — <span id="login-ver-txt">v1.8.5</span></p>
+      <p>Prijavite se u sistem — <span id="login-ver-txt">v1.8.6</span></p>
     </div>
     <div class="login-err" id="login-err">Pogrešno korisničko ime ili lozinka!</div>
     <form class="login-form" id="login-form">
@@ -774,7 +793,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
     </button>
     <div>
       <div class="mob-hdr-title">🏡 Maja Karanfil Bungali</div>
-      <div class="mob-hdr-sub" id="mob-hdr-sub">v1.1.0</div>
+      <div class="mob-hdr-sub" id="mob-hdr-sub">v1.8.6 mobile</div>
     </div>
   </div>
   <div class="mob-hdr-right">
@@ -791,6 +810,9 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
   <div class="mob-nav-inner">
     <button class="mob-nav-btn active" id="mob-btn-daily" onclick="mobGoTab('daily')">
       <span class="mob-nav-ico">📆</span>Danas
+    </button>
+    <button class="mob-nav-btn" id="mob-btn-availability" onclick="mobGoTab('availability')">
+      <span class="mob-nav-ico">🔎</span>Slobodno
     </button>
     <button class="mob-nav-btn" id="mob-btn-calendar" onclick="mobGoTab('calendar')">
       <span class="mob-nav-ico">📅</span>Kalendar
@@ -951,7 +973,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
   <div class="hdr">
     <div class="hdr-l">
       <h1>🏡 Maja Karanfil Bungali</h1>
-      <p id="app-version-hdr">Sistem za upravljanje rezervacijama — v1.8.3</p>
+      <p id="app-version-hdr">Sistem za upravljanje rezervacijama — v1.8.6</p>
     </div>
     <div class="hdr-r">
       <div class="user-row">
@@ -1001,6 +1023,11 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
     <!-- PRINT TEMPLATE (hidden, shown only on print) -->
     <div class="print-only" id="print-daily-content"></div>
+  </div>
+
+  <!-- MOBILE AVAILABILITY -->
+  <div id="pane-availability" class="tab-pane">
+    <div id="mob-availability-content"></div>
   </div>
 
   <!-- CALENDAR -->
@@ -4901,7 +4928,7 @@ function lDate(d) { return `${d.getFullYear()}-${String(d.getMonth()+1).padStart
 function escHtml(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#x27;'); }
 
 // ── TAB SWITCHING ────────────────────────────────────────────
-const TAB_IDS={daily:'pane-daily',calendar:'pane-calendar',add:'pane-add',list:'pane-list',stats:'pane-stats',history:'pane-history',settings:'pane-settings',conflicts:'pane-conflicts'};
+const TAB_IDS={daily:'pane-daily',availability:'pane-availability',calendar:'pane-calendar',add:'pane-add',list:'pane-list',stats:'pane-stats',history:'pane-history',settings:'pane-settings',conflicts:'pane-conflicts'};
 window.goTab=(name,btn)=>{
   Object.values(TAB_IDS).forEach(id=>document.getElementById(id).classList.remove('active'));
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
@@ -4909,6 +4936,7 @@ window.goTab=(name,btn)=>{
   btn?.classList.add('active');
   if(name==='daily')    renderDaily();
   if(name==='calendar') renderCal();
+  if(name==='availability' && typeof renderMobAvailability === 'function') renderMobAvailability();
   if(name==='add')      {
     if(!editId && !_calDragFill) resetForm();
     setTimeout(_setupGuestAutocomplete, 100); // Setup autocomplete pri otvaranju
@@ -4985,7 +5013,7 @@ window.mobGoTab = (tab) => {
   if (tabBtn) goTabDirect(tab);
   else goTabDirect(tab);
   // Ažuriraj bottom nav
-  ['daily','calendar','list'].forEach(t => {
+  ['daily','availability','calendar','list'].forEach(t => {
     const btn = document.getElementById('mob-btn-' + t);
     if (btn) btn.classList.toggle('active', t === tab);
   });
@@ -4999,6 +5027,7 @@ window.mobGoTab = (tab) => {
   // Renderuj mobilne prikaze
   if (isMobile()) {
     if (tab === 'daily') renderMobDaily();
+    if (tab === 'availability') renderMobAvailability();
     if (tab === 'list') renderMobList();
     if (tab === 'calendar') { _updateCalViewButtons(); _applyCalView(); }
     if (tab === 'conflicts') { renderConflictsPane(); }
@@ -5365,79 +5394,52 @@ window.mobSaveReservation = async () => {
   }
 };
 
+
+function mobPhoneHref(phone, mode){const clean=String(phone||'').replace(/[^\+\d]/g,'');if(!clean)return '#';return mode==='wa'?'https://wa.me/'+clean.replace(/^\+/,''):'tel:'+clean;}
+function mobBungLabel(r){return (r.bungalovi||[]).map(b=>'B'+b.bungalov).join(', ')||'—';}
+function mobPersons(r){return (r.bungalovi||[]).reduce((s,b)=>s+(parseInt(b.adults||0)+parseInt(b.children||0)+parseInt(b.babies||0)),0)||(r.bungalovi||[]).reduce((s,b)=>s+(parseInt(b.beds||0)),0)||0;}
+function mobStatusChips(r){const chips=[];if(r.closedManual)chips.push('<span class="mob-status-chip mob-chip-wait">🔒 Zatvoreno</span>');else if(r.paid)chips.push('<span class="mob-status-chip mob-chip-paid">💶 Plaćeno</span>');else chips.push('<span class="mob-status-chip mob-chip-unpaid">💶 Nije plaćeno</span>');if(r.confirmed)chips.push('<span class="mob-status-chip mob-chip-conf">✓ Potvrđeno</span>');else chips.push('<span class="mob-status-chip mob-chip-wait">⏳ Čeka</span>');if(r.icalLinkId)chips.push('<span class="mob-status-chip mob-chip-conf">🌐 iCal</span>');return chips.join(' ');}
+function mobContactActions(r){const phone=String(r.phone||'').trim();const call=phone?`<a class="mob-action-btn call" href="${mobPhoneHref(phone,'call')}">📞 Pozovi</a>`:'';const wa=phone?`<a class="mob-action-btn wa" href="${mobPhoneHref(phone,'wa')}" target="_blank" rel="noopener">WhatsApp</a>`:'';return `${call}${wa}<button class="mob-action-btn open" onclick="showDet('${r.id}')">Otvori</button>`;}
+function mobGetAvailability(from,to,persons){const bungs=Array.from({length:13},(_,i)=>String(i+1));const busy=new Map();reservations.filter(r=>!r.cancelled&&from<r.checkOut&&to>r.checkIn).forEach(r=>(r.bungalovi||[]).forEach(b=>busy.set(String(b.bungalov),r)));return{free:bungs.filter(b=>!busy.has(b)),busy};}
+function mobPrefillQuickForm(bn,ci,co){mobOpenQuickForm(null);setTimeout(()=>{const ciEl=document.getElementById('mob-ci'),coEl=document.getElementById('mob-co');if(ciEl)ciEl.value=ci||'';if(coEl)coEl.value=co||'';const btn=document.querySelector(`#mob-bung-grid [data-bung="${bn}"]`);if(btn){btn.classList.add('sel');_mobSelBungs=[String(bn)];}mobUpdateNights();mobShowStep(1);},80);}
+
+function renderMobAvailability(){
+  const pane=document.getElementById('mob-availability-content'); if(!pane||!isMobile())return;
+  const today=lDate(new Date()); let td=new Date();td.setDate(td.getDate()+1);const tomorrow=lDate(td);
+  const from=document.getElementById('mob-av-from')?.value||today, to=document.getElementById('mob-av-to')?.value||tomorrow, persons=document.getElementById('mob-av-persons')?.value||'2';
+  const {free,busy}=mobGetAvailability(from,to,parseInt(persons)||2); const nightsN=Math.max(1,Math.ceil((new Date(to)-new Date(from))/86400000));
+  let html=`<div class="mob-top-search"><div style="background:white;border-radius:14px;padding:12px;box-shadow:0 1px 8px rgba(0,0,0,.08)"><div style="font-size:1.05em;font-weight:800;color:#222;margin-bottom:10px">🔎 Brza provjera slobodnih bungalova</div><div style="display:grid;grid-template-columns:1fr 1fr 80px;gap:8px"><div><label style="font-size:.72em;font-weight:700;color:#777">Od</label><input id="mob-av-from" type="date" value="${from}" onchange="renderMobAvailability()" style="width:100%;padding:10px;border:1.5px solid #ddd;border-radius:10px"></div><div><label style="font-size:.72em;font-weight:700;color:#777">Do</label><input id="mob-av-to" type="date" value="${to}" onchange="renderMobAvailability()" style="width:100%;padding:10px;border:1.5px solid #ddd;border-radius:10px"></div><div><label style="font-size:.72em;font-weight:700;color:#777">Osoba</label><input id="mob-av-persons" type="number" min="1" value="${persons}" oninput="renderMobAvailability()" style="width:100%;padding:10px;border:1.5px solid #ddd;border-radius:10px;text-align:center"></div></div><div class="mob-mini-note" style="margin-top:8px">Period <strong>${fmtD(from)} → ${fmtD(to)}</strong>. Slobodno: <strong>${free.length}</strong>, zauzeto: <strong>${busy.size}</strong>.</div></div></div>`;
+  html+=`<div class="mob-kpi-grid"><div class="mob-kpi"><div class="mob-kpi-num">${free.length}</div><div class="mob-kpi-lbl">Slobodno</div></div><div class="mob-kpi"><div class="mob-kpi-num">${busy.size}</div><div class="mob-kpi-lbl">Zauzeto</div></div><div class="mob-kpi"><div class="mob-kpi-num">${Math.round((busy.size/13)*100)}%</div><div class="mob-kpi-lbl">Popunjeno</div></div></div>`;
+  html+='<div class="mob-section-title">✅ Slobodni bungalovi</div>';
+  if(!free.length)html+='<div class="mob-availability-card busy">Nema slobodnih bungalova za izabrani period.</div>';
+  free.forEach(bn=>{const activePrices=(typeof getActivePrices==='function')?getActivePrices(from):[];const pr=calcPrice(parseInt(bn),Math.max(1,parseInt(persons)||2),0,0,nightsN,activePrices);html+=`<div class="mob-availability-card"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><div><div style="font-size:1.1em;font-weight:900;color:#222">B${bn}</div><div class="mob-mini-note">${nightsN} noći · procjena ~${((pr&&pr.subtotal)||0).toFixed(0)}€</div></div><button class="mob-action-btn open" style="flex:0 0 auto;min-width:112px" onclick="mobPrefillQuickForm('${bn}','${from}','${to}')">➕ Rezerviši</button></div></div>`;});
+  html+='<div class="mob-section-title">⛔ Zauzeti bungalovi</div>';
+  if(!busy.size)html+='<div class="mob-availability-card">Nema zauzetih bungalova u ovom periodu.</div>';
+  Array.from(busy.entries()).sort((a,b)=>parseInt(a[0])-parseInt(b[0])).forEach(([bn,r])=>{html+=`<div class="mob-availability-card busy" onclick="showDet('${r.id}')"><div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start"><div><div style="font-weight:900;color:#222">B${bn} · ${escHtml(r.name||'—')}</div><div class="mob-mini-note">${fmtD(r.checkIn)} → ${fmtD(r.checkOut)} · ${escHtml(r.channel||'')}</div></div><div>${mobStatusChips(r)}</div></div></div>`;});
+  pane.innerHTML=html;
+}
+
 // ── MOBILNI DNEVNI PREGLED ────────────────────────────
 function renderMobDaily() {
-  const pane = document.getElementById('pane-daily');
-  if (!pane || !isMobile()) return;
-  
-  // Ukloni stari mob daily
-  let mobDiv = document.getElementById('mob-daily-content');
-  if (mobDiv) mobDiv.remove();
-  
-  const today = new Date();
-  const todayStr = today.toISOString().slice(0,10);
-  
-  const arrivals = reservations.filter(r => !r.cancelled && r.checkIn === todayStr);
-  const departures = reservations.filter(r => !r.cancelled && r.checkOut === todayStr);
-  const occupied = reservations.filter(r => !r.cancelled && r.checkIn < todayStr && r.checkOut > todayStr);
-  
-  let html = '<div id="mob-daily-content" style="padding-bottom:8px">';
-  
-  // Datum header
-  html += `<div style="background:linear-gradient(135deg,#667eea,#764ba2);color:white;
-    border-radius:12px;padding:14px;margin-bottom:12px;text-align:center">
-    <div style="font-size:1.1em;font-weight:700">${today.toLocaleDateString('sr-Latn',{weekday:'long',day:'numeric',month:'long'})}</div>
-    <div style="font-size:.8em;opacity:.85;margin-top:3px">${arrivals.length} dolazaka · ${departures.length} odlazaka · ${occupied.length} u objektu</div>
-  </div>`;
-  
-  if (arrivals.length) {
-    html += '<div class="mob-daily-section"><div class="mob-daily-title">👋 Ko Dolazi Danas</div>';
-    arrivals.forEach(r => {
-      html += `<div class="mob-daily-card">
-        <div style="font-weight:700;color:#222">${escHtml(r.name)}</div>
-        <div style="font-size:.82em;color:#555;margin-top:3px">
-          ${(r.bungalovi||[]).map(b=>'B'+b.bungalov).join(', ')} · 
-          ${r.checkIn} → ${r.checkOut} · 
-          ${(r.bungalovi||[]).reduce((s,b)=>s+b.beds,0)} os.
-        </div>
-        ${r.phone ? `<div style="font-size:.8em;color:#667eea;margin-top:3px">📞 ${escHtml(r.phone)}</div>` : ''}
-      </div>`;
-    });
-    html += '</div>';
-  }
-  
-  if (departures.length) {
-    html += '<div class="mob-daily-section"><div class="mob-daily-title">🧹 Odjave / Čišćenje</div>';
-    departures.forEach(r => {
-      html += `<div class="mob-daily-card" style="border-left-color:#fd7e14">
-        <div style="font-weight:700;color:#222">${escHtml(r.name)}</div>
-        <div style="font-size:.82em;color:#555;margin-top:3px">
-          ${(r.bungalovi||[]).map(b=>'B'+b.bungalov).join(', ')}
-        </div>
-      </div>`;
-    });
-    html += '</div>';
-  }
-  
-  if (occupied.length) {
-    html += '<div class="mob-daily-section"><div class="mob-daily-title">🏠 Trenutno u Objektu</div>';
-    occupied.forEach(r => {
-      html += `<div class="mob-daily-card" style="border-left-color:#28a745">
-        <div style="font-weight:700;color:#222">${escHtml(r.name)}</div>
-        <div style="font-size:.82em;color:#555;margin-top:3px">
-          ${(r.bungalovi||[]).map(b=>'B'+b.bungalov).join(', ')} · do ${r.checkOut}
-        </div>
-      </div>`;
-    });
-    html += '</div>';
-  }
-  
-  if (!arrivals.length && !departures.length && !occupied.length) {
-    html += '<div style="text-align:center;padding:40px;color:#aaa">Slobodan dan 🎉</div>';
-  }
-  
-  html += '</div>';
-  pane.insertAdjacentHTML('beforeend', html);
+  const pane=document.getElementById('pane-daily'); if(!pane||!isMobile())return;
+  let mobDiv=document.getElementById('mob-daily-content'); if(mobDiv)mobDiv.remove();
+  const today=new Date(), todayStr=lDate(today);
+  const arrivals=reservations.filter(r=>!r.cancelled&&r.checkIn===todayStr);
+  const departures=reservations.filter(r=>!r.cancelled&&r.checkOut===todayStr);
+  const occupied=reservations.filter(r=>!r.cancelled&&r.checkIn<todayStr&&r.checkOut>todayStr);
+  const unpaid=reservations.filter(r=>!r.cancelled&&!r.paid&&r.checkIn<=todayStr&&r.checkOut>=todayStr&&!r.closedManual);
+  const freeToday=mobGetAvailability(todayStr,lDate(new Date(today.getFullYear(),today.getMonth(),today.getDate()+1)),2).free;
+  const cfCount=(_activeConflicts||[]).length;
+  let html='<div id="mob-daily-content" style="padding-bottom:8px">';
+  if(typeof isOffline==='function'&&isOffline())html+='<div class="mob-safe-warn">📵 Offline režim — pregled je moguć, ali ne unositi nove rezervacije dok se internet ne vrati.</div>';
+  html+=`<div style="background:linear-gradient(135deg,#667eea,#764ba2);color:white;border-radius:14px;padding:15px;margin-bottom:12px"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><div><div style="font-size:1.08em;font-weight:900">${today.toLocaleDateString('sr-Latn',{weekday:'long',day:'numeric',month:'long'})}</div><div style="font-size:.78em;opacity:.86;margin-top:2px">Operativni pregled smještaja</div></div><button onclick="mobOpenQuickForm()" style="border:none;background:rgba(255,255,255,.22);color:white;border-radius:10px;padding:9px 11px;font-weight:800">➕ Nova</button></div></div>`;
+  html+=`<div class="mob-kpi-grid"><div class="mob-kpi"><div class="mob-kpi-num">${arrivals.length}</div><div class="mob-kpi-lbl">Dolazi</div></div><div class="mob-kpi"><div class="mob-kpi-num">${departures.length}</div><div class="mob-kpi-lbl">Odlazi</div></div><div class="mob-kpi"><div class="mob-kpi-num">${occupied.length}</div><div class="mob-kpi-lbl">U objektu</div></div><div class="mob-kpi" onclick="mobGoTab('availability')"><div class="mob-kpi-num">${freeToday.length}</div><div class="mob-kpi-lbl">Slobodno</div></div><div class="mob-kpi"><div class="mob-kpi-num">${unpaid.length}</div><div class="mob-kpi-lbl">Za naplatu</div></div><div class="mob-kpi" onclick="mobGoTab('conflicts')"><div class="mob-kpi-num" style="color:${cfCount?'#dc3545':'#28a745'}">${cfCount}</div><div class="mob-kpi-lbl">Konflikti</div></div></div>`;
+  function section(title,list,emptyTxt,accent){html+=`<div class="mob-section-title">${title}<span style="color:#999">${list.length}</span></div>`;if(!list.length){html+=`<div class="mob-daily-card" style="color:#aaa;text-align:center">${emptyTxt}</div>`;return;}list.forEach(r=>{const n=r.checkIn&&r.checkOut?Math.ceil((new Date(r.checkOut)-new Date(r.checkIn))/86400000):0;html+=`<div class="mob-daily-card" style="border-left:4px solid ${accent||'#667eea'}"><div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start"><div style="min-width:0"><div style="font-weight:900;color:#222;font-size:1em">${mobBungLabel(r)} · ${escHtml(r.name||'—')}</div><div class="mob-mini-note">${fmtD(r.checkIn)} → ${fmtD(r.checkOut)} · ${n}n · ${mobPersons(r)} os. ${r.channel?'· '+escHtml(r.channel):''}</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">${mobStatusChips(r)}</div></div>${r.notes?`<div class="mob-mini-note" style="margin-top:7px;background:#f8f9fa;border-radius:8px;padding:7px">📝 ${escHtml(r.notes)}</div>`:''}<div class="mob-action-row">${mobContactActions(r)}</div></div>`;});}
+  section('👋 Dolasci danas',arrivals,'Nema dolazaka danas.','#28a745');
+  section('🧹 Odjave / čišćenje',departures,'Nema odjava danas.','#fd7e14');
+  section('🏡 Trenutno u objektu',occupied,'Niko trenutno nije označen kao boravak.','#667eea');
+  if(unpaid.length)section('💶 Za naplatu',unpaid,'','#ffc107');
+  html+='</div>'; pane.insertAdjacentHTML('beforeend',html);
 }
 
 // ── MOBILNA LISTA REZERVACIJA ─────────────────────────
@@ -5457,7 +5459,7 @@ function renderMobList() {
   
   // Search bar
   html += `<div style="margin-bottom:12px">
-    <input type="text" id="mob-search" placeholder="🔍 Pretraži po imenu..." 
+    <input type="text" id="mob-search" placeholder="🔍 Pretraži ime, telefon, kanal..." 
       style="width:100%;padding:11px 14px;border:1.5px solid #e0e0e0;border-radius:10px;font-size:.95em"
       oninput="renderMobListFiltered()">
   </div>`;
@@ -5470,51 +5472,15 @@ function renderMobList() {
 }
 
 function renderMobCards(list) {
-  if (!list.length) return '<div style="text-align:center;padding:30px;color:#aaa">Nema rezervacija</div>';
-  
-  const today = new Date().toISOString().slice(0,10);
-  return list.map(r => {
-    const isBooking = !!r.icalLinkId;
-    const isClosed = !!r.closedManual;
-    const isPaid = !!r.paid;
-    const nights = Math.ceil((new Date(r.checkOut) - new Date(r.checkIn)) / 86400000);
-    const isActive = r.checkIn <= today && r.checkOut > today;
-    const isFuture = r.checkIn > today;
-    
-    let cardCls = 'mob-res-card';
-    if (isBooking) cardCls += ' booking';
-    else if (isClosed) cardCls += ' closed';
-    else if (isPaid) cardCls += ' paid';
-    
-    const statusBadge = isPaid ? '<span style="background:#28a745;color:white;border-radius:10px;padding:2px 7px;font-size:.72em">💰 Plaćeno</span>' :
-      r.confirmed ? '<span style="background:#e8f0fe;color:#1565c0;border-radius:10px;padding:2px 7px;font-size:.72em">✓ Potvrđeno</span>' :
-      '<span style="background:#fff3cd;color:#856404;border-radius:10px;padding:2px 7px;font-size:.72em">⏳ Na čekanju</span>';
-    
-    return `<div class="${cardCls}">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start">
-        <div class="mob-res-name">${isBooking?'🌐 ':''}${isClosed?'🔒 ':''}${escHtml(r.name)}</div>
-        ${statusBadge}
-      </div>
-      <div class="mob-res-dates">📅 ${fmtD(r.checkIn)} → ${fmtD(r.checkOut)} · <strong>${nights}n</strong></div>
-      <div class="mob-res-meta">
-        <span>🏡 ${(r.bungalovi||[]).map(b=>'B'+b.bungalov).join(', ')}</span>
-        ${r.channel ? '<span>📡 ' + escHtml(r.channel) + '</span>' : ''}
-        ${isActive ? '<span style="color:#28a745;font-weight:700">● Aktivan</span>' : ''}
-        ${isFuture ? '<span style="color:#667eea;font-weight:700">● Nadolazeći</span>' : ''}
-      </div>
-      ${r.phone ? `<div style="font-size:.8em;color:#667eea;margin-top:5px">📞 ${escHtml(r.phone)}</div>` : ''}
-      <div class="mob-res-actions">
-        <button class="mob-res-btn edit" onclick="mobOpenQuickForm('${r.id}')">✏️ Izmijeni</button>
-        <button class="mob-res-btn del" onclick="mobDelRes('${r.id}','${escHtml(r.name)}')">🗑️ Otkaži</button>
-      </div>
-    </div>`;
-  }).join('');
+  if(!list.length)return '<div style="text-align:center;padding:30px;color:#aaa">Nema rezervacija</div>';
+  const today=lDate(new Date());
+  return list.map(r=>{const isBooking=!!r.icalLinkId,isClosed=!!r.closedManual,isPaid=!!r.paid;const n=r.checkIn&&r.checkOut?Math.ceil((new Date(r.checkOut)-new Date(r.checkIn))/86400000):0;const isActive=r.checkIn<=today&&r.checkOut>today,isFuture=r.checkIn>today;let cardCls='mob-res-card';if(isBooking)cardCls+=' booking';else if(isClosed)cardCls+=' closed';else if(isPaid)cardCls+=' paid';return `<div class="${cardCls}"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div style="min-width:0"><div style="font-size:.86em;color:#667eea;font-weight:900;margin-bottom:2px">${mobBungLabel(r)}</div><div class="mob-res-name">${isBooking?'🌐 ':''}${isClosed?'🔒 ':''}${escHtml(r.name||'—')}</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">${mobStatusChips(r)}</div></div><div class="mob-res-dates">📅 ${fmtD(r.checkIn)} → ${fmtD(r.checkOut)} · <strong>${n}n</strong> · ${mobPersons(r)} os.</div><div class="mob-res-meta">${r.channel?'<span>📡 '+escHtml(r.channel)+'</span>':''}${r.price?'<span>💶 '+Number(r.price).toFixed(0)+'€</span>':''}${isActive?'<span style="color:#28a745;font-weight:800">● Aktivan</span>':''}${isFuture?'<span style="color:#667eea;font-weight:800">● Nadolazeći</span>':''}</div>${r.phone?`<div class="mob-mini-note" style="margin-top:5px">📞 ${escHtml(r.phone)}</div>`:''}<div class="mob-action-row">${mobContactActions(r)}<button class="mob-action-btn more" onclick="mobOpenQuickForm('${r.id}')">✏️ Izmijeni</button></div></div>`;}).join('');
 }
 
 window.renderMobListFiltered = () => {
   const q = (document.getElementById('mob-search')?.value || '').toLowerCase();
   const filtered = reservations
-    .filter(r => !r.cancelled && (!q || r.name?.toLowerCase().includes(q)))
+    .filter(r => !r.cancelled && (!q || [r.name,r.phone,r.channel,mobBungLabel(r)].join(' ').toLowerCase().includes(q)))
     .sort((a,b) => a.checkIn.localeCompare(b.checkIn));
   const el = document.getElementById('mob-list-cards');
   if (el) el.innerHTML = renderMobCards(filtered);
@@ -5951,9 +5917,9 @@ window.v2TapDay = (ds) => {
         <span class="v2-bung-badge ${badgeCls}">${badgeTxt}</span>
       </div>`;
     } else {
-      html += `<div class="v2-bung-row" style="opacity:.5;cursor:default">
+      html += `<div class="v2-bung-row" onclick="v2BookBung('${bn}','${ds}')">
         <span class="v2-bung-num">B${bn}</span>
-        <div class="v2-bung-info"><div class="v2-bung-name" style="color:#aaa">Slobodan</div></div>
+        <div class="v2-bung-info"><div class="v2-bung-name" style="color:#28a745">Slobodan</div><div class="v2-bung-dates">Tap za novu rezervaciju</div></div>
         <span class="v2-bung-badge v2-badge-free">Slobodan</span>
       </div>`;
     }
@@ -5967,6 +5933,13 @@ window.v2CloseSheet = (e) => {
   if (!e || e.target === document.getElementById('v2-day-overlay')) {
     document.getElementById('v2-day-overlay')?.classList.remove('open');
   }
+};
+
+window.v2BookBung = (bn, ds) => {
+  document.getElementById('v2-day-overlay')?.classList.remove('open');
+  const dt = new Date(ds + 'T00:00:00');
+  dt.setDate(dt.getDate() + 1);
+  mobPrefillQuickForm(String(bn), ds, lDate(dt));
 };
 
 // Nova rezervacija iz V2 sheet — pre-popuni datum i otvori mob formu
@@ -6079,7 +6052,7 @@ function renderMobCalV3() {
   let html = `
     <div class="v3-topbar">
       <button class="v3-nav" onclick="changeMonth(-1)">←</button>
-      <span class="v3-monthlbl">${MNAMES_S[mo]} ${yr}</span>
+      <span class="v3-monthlbl">${MNAMES_S[mo]} ${yr}<br><small style="font-weight:600;color:#888">${dates.length} dana · tap/prevuci</small></span>
       <button class="v3-nav" onclick="changeMonth(1)">→</button>
     </div>
     <div class="v3-zoom">
