@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Maja Karanfil Bungali v1.9.2</title>
+<title>Maja Karanfil Bungali v1.9.3</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh;padding:20px}
@@ -739,7 +739,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 .shared-bed-row label { font-size: .87em; font-weight: 600; color: #856404; cursor: pointer; }
 
 
-/* MOBILNA REZERVACIJA PRO v1.9.2 */
+/* MOBILNA REZERVACIJA PRO v1.9.3 */
 .mob-bung-card{background:#fff;border:1.5px solid #e7e7f2;border-radius:14px;padding:12px;margin:10px 0;box-shadow:0 1px 8px rgba(0,0,0,.06)}
 .mob-bung-card.warn{border-color:#ffc107;background:#fffdf4}
 .mob-bung-card.err{border-color:#dc3545;background:#fff7f7}
@@ -756,7 +756,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 .mob-total-sub{font-size:.82em;color:#555;margin-top:3px;line-height:1.45}
 .mob-channel-note{font-size:.74em;color:#888;margin-top:5px}
 
-/* MOB APP POLISH v1.9.2 */
+/* MOB APP POLISH v1.9.3 */
 .mob-kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
 .mob-kpi{background:white;border-radius:12px;padding:10px;text-align:center;box-shadow:0 1px 6px rgba(0,0,0,.08);border:1px solid #eee}
 .mob-kpi-num{font-size:1.35em;font-weight:800;color:#667eea;line-height:1}
@@ -776,7 +776,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
 
 
-/* === KMK MOBILE CALENDAR PREMIUM REDESIGN v1.9.2 === */
+/* === KMK MOBILE CALENDAR PREMIUM REDESIGN v1.9.3 === */
 @media(max-width:768px){
   #mob-cal-hero{display:block!important}
   #mob-cal-nav{border:1px solid #e6ede3!important;border-radius:16px!important;box-shadow:0 2px 12px rgba(37,56,35,.06)!important}
@@ -811,7 +811,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
 
 /* ═════════════════════════════════════════════════════
-   KMK MOBILE FULL POLISH v1.9.2 — final mobile theme
+   KMK MOBILE FULL POLISH v1.9.3 — final mobile theme
    Premium green hospitality UI, unified across all mobile tabs.
    ═════════════════════════════════════════════════════ */
 :root{
@@ -1016,7 +1016,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
       <img src="https://i.imgur.com/DzB2EDR.png" onerror="this.style.display='none'"
            id="login-logo-img" alt="Logo" style="max-width:175px;margin:0 auto 10px;display:block;border-radius:10px">
       <h1 id="login-h1"><span id="login-logo-emoji">🏡</span> Maja Karanfil Bungali</h1>
-      <p>Prijavite se u sistem — <span id="login-ver-txt">v1.9.2</span></p>
+      <p>Prijavite se u sistem — <span id="login-ver-txt">v1.9.3</span></p>
     </div>
     <div class="login-err" id="login-err">Pogrešno korisničko ime ili lozinka!</div>
     <form class="login-form" id="login-form">
@@ -1044,7 +1044,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
     </button>
     <div>
       <div class="mob-hdr-title">🏡 Maja Karanfil Bungali</div>
-      <div class="mob-hdr-sub" id="mob-hdr-sub">v1.9.2 mobile</div>
+      <div class="mob-hdr-sub" id="mob-hdr-sub">v1.9.3 mobile</div>
     </div>
   </div>
   <div class="mob-hdr-right">
@@ -1261,7 +1261,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
   <div class="hdr">
     <div class="hdr-l">
       <h1>🏡 Maja Karanfil Bungali</h1>
-      <p id="app-version-hdr">Sistem za upravljanje rezervacijama — v1.9.2</p>
+      <p id="app-version-hdr">Sistem za upravljanje rezervacijama — v1.9.3</p>
     </div>
     <div class="hdr-r">
       <div class="user-row">
@@ -4081,27 +4081,6 @@ window.printDaily = function() {
     </div>
   
 
-<script>
-// KMK mobile v1.9.2 final polish runtime guard
-(function(){
-  const oldMobGoTab = window.mobGoTab;
-  if (typeof oldMobGoTab === 'function') {
-    window.mobGoTab = function(tab){
-      const r = oldMobGoTab.apply(this, arguments);
-      try {
-        if (tab === 'calendar' && typeof isMobile === 'function' && isMobile()) {
-          const hero = document.getElementById('mob-cal-hero'); if (hero) hero.style.display='block';
-          if (typeof _applyCalView === 'function') setTimeout(_applyCalView, 20);
-        }
-        if (tab === 'daily' && typeof renderMobDaily === 'function') setTimeout(renderMobDaily, 20);
-        if (tab === 'availability' && typeof renderMobAvailability === 'function') setTimeout(renderMobAvailability, 20);
-        if (tab === 'list' && typeof renderMobList === 'function') setTimeout(renderMobList, 20);
-      } catch(e) { console.warn('KMK mobile polish tab refresh skipped', e); }
-      return r;
-    };
-  }
-})();
-</script>
 
 </body></html>`);
   printWin.document.close();
@@ -5380,7 +5359,7 @@ window.mobCloseMore = (e) => {
   }
 };
 
-// ── MOBILNA BRZA FORMA PRO v1.9.2 ────────────────────────────────
+// ── MOBILNA BRZA FORMA PRO v1.9.3 ────────────────────────────────
 let _mobFormStep = 1;
 let _mobSelBungs = [];
 let _mobEditId = null;
@@ -8943,7 +8922,7 @@ function stopAutoIcalSync() {
 document.addEventListener('click',e=>{ const p=document.getElementById('notif-panel'),b=document.querySelector('.notif-bell'); if(p&&b&&!p.contains(e.target)&&!b.contains(e.target)) p.classList.remove('open'); });
 
 // ═══════════════════════════════════════════════════════════════
-// KMK MOBILE CALENDAR PREMIUM REDESIGN v1.9.2 — OVERRIDES
+// KMK MOBILE CALENDAR PREMIUM REDESIGN v1.9.3 — OVERRIDES
 // Dizajn kao mockup: V1 tabela, V2 mjesec + sheet, V3 timeline.
 // Poslovna logika rezervacija/Firebase/iCal se ne mijenja.
 // ═══════════════════════════════════════════════════════════════
@@ -9068,5 +9047,27 @@ try{setTimeout(()=>{_updateCalViewButtons(); if(isMobile()&&_mobCurrentTab==='ca
   </div>
 </div>
 
+
+<script>
+// KMK mobile v1.9.3 final polish runtime guard
+(function(){
+  const oldMobGoTab = window.mobGoTab;
+  if (typeof oldMobGoTab === 'function') {
+    window.mobGoTab = function(tab){
+      const r = oldMobGoTab.apply(this, arguments);
+      try {
+        if (tab === 'calendar' && typeof isMobile === 'function' && isMobile()) {
+          const hero = document.getElementById('mob-cal-hero'); if (hero) hero.style.display='block';
+          if (typeof _applyCalView === 'function') setTimeout(_applyCalView, 20);
+        }
+        if (tab === 'daily' && typeof renderMobDaily === 'function') setTimeout(renderMobDaily, 20);
+        if (tab === 'availability' && typeof renderMobAvailability === 'function') setTimeout(renderMobAvailability, 20);
+        if (tab === 'list' && typeof renderMobList === 'function') setTimeout(renderMobList, 20);
+      } catch(e) { console.warn('KMK mobile polish tab refresh skipped', e); }
+      return r;
+    };
+  }
+})();
+</script>
 </body>
 </html>
