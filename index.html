@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Maja Karanfil Bungali v1.8.6</title>
+<title>Maja Karanfil Bungali v1.8.8</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh;padding:20px}
@@ -694,7 +694,25 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 .shared-bed-row input[type=checkbox] { width: 17px; height: 17px; cursor: pointer; }
 .shared-bed-row label { font-size: .87em; font-weight: 600; color: #856404; cursor: pointer; }
 
-/* MOB APP POLISH v1.8.6 */
+
+/* MOBILNA REZERVACIJA PRO v1.8.8 */
+.mob-bung-card{background:#fff;border:1.5px solid #e7e7f2;border-radius:14px;padding:12px;margin:10px 0;box-shadow:0 1px 8px rgba(0,0,0,.06)}
+.mob-bung-card.warn{border-color:#ffc107;background:#fffdf4}
+.mob-bung-card.err{border-color:#dc3545;background:#fff7f7}
+.mob-bung-card-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.mob-bung-title{font-size:1.04em;font-weight:900;color:#222}
+.mob-bung-sub{font-size:.76em;color:#888;margin-top:2px}
+.mob-bung-remove{border:none;background:#fce8e6;color:#c62828;border-radius:9px;padding:7px 10px;font-weight:800;cursor:pointer}
+.mob-guest-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.mob-guest-box label{display:block;font-size:.7em;color:#777;font-weight:800;margin-bottom:4px}
+.mob-guest-box input{width:100%;padding:10px 6px;border:1.5px solid #ddd;border-radius:10px;text-align:center;font-weight:800;font-size:.95em;background:white}
+.mob-bung-price{margin-top:10px;background:#f0fff4;color:#1a7a3a;border-radius:10px;padding:9px;font-size:.82em;font-weight:700;line-height:1.45}
+.mob-total-box{background:linear-gradient(135deg,#f0fff4,#eef6ff);border:1.5px solid #ccebd7;border-radius:14px;padding:12px;margin:10px 0;color:#222;box-shadow:0 1px 8px rgba(0,0,0,.06)}
+.mob-total-main{font-size:1.35em;font-weight:950;color:#1a7a3a}
+.mob-total-sub{font-size:.82em;color:#555;margin-top:3px;line-height:1.45}
+.mob-channel-note{font-size:.74em;color:#888;margin-top:5px}
+
+/* MOB APP POLISH v1.8.8 */
 .mob-kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
 .mob-kpi{background:white;border-radius:12px;padding:10px;text-align:center;box-shadow:0 1px 6px rgba(0,0,0,.08);border:1px solid #eee}
 .mob-kpi-num{font-size:1.35em;font-weight:800;color:#667eea;line-height:1}
@@ -765,7 +783,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
       <img src="https://i.imgur.com/DzB2EDR.png" onerror="this.style.display='none'"
            id="login-logo-img" alt="Logo" style="max-width:175px;margin:0 auto 10px;display:block;border-radius:10px">
       <h1 id="login-h1"><span id="login-logo-emoji">🏡</span> Maja Karanfil Bungali</h1>
-      <p>Prijavite se u sistem — <span id="login-ver-txt">v1.8.6</span></p>
+      <p>Prijavite se u sistem — <span id="login-ver-txt">v1.8.8</span></p>
     </div>
     <div class="login-err" id="login-err">Pogrešno korisničko ime ili lozinka!</div>
     <form class="login-form" id="login-form">
@@ -793,7 +811,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
     </button>
     <div>
       <div class="mob-hdr-title">🏡 Maja Karanfil Bungali</div>
-      <div class="mob-hdr-sub" id="mob-hdr-sub">v1.8.6 mobile</div>
+      <div class="mob-hdr-sub" id="mob-hdr-sub">v1.8.8 mobile</div>
     </div>
   </div>
   <div class="mob-hdr-right">
@@ -878,6 +896,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
           </div>
         </div>
         <div id="mob-nights-show" style="text-align:center;font-size:.9em;color:#667eea;font-weight:600;margin:4px 0 14px"></div>
+        <div style="font-size:.78em;color:#777;font-weight:700;margin:-2px 0 7px">Podrazumijevani broj gostiju za prvi/novi bungalov — kasnije možeš posebno promijeniti za svaki bungalov.</div>
         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
           <div class="mob-field">
             <label style="font-size:.78em">👨 Odrasli</label>
@@ -901,9 +920,11 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
       <!-- KORAK 3: Bungalovi -->
       <div class="mob-form-page" id="mob-page-3">
         <div class="mob-field">
-          <label>🏡 Odaberi Bungalove *</label>
+          <label>🏡 Odaberi jedan ili više bungalova *</label>
           <div class="mob-bung-grid" id="mob-bung-grid"></div>
+          <div class="mob-mini-note" style="margin-top:7px">Tapni bungalov da ga dodaš. Za svaki odabrani bungalov možeš posebno podesiti odrasle, djecu i bebe.</div>
         </div>
+        <div id="mob-bung-cards"></div>
         <div id="mob-overlap-warn" style="display:none;background:#fff3cd;border-left:3px solid #ffc107;padding:10px;border-radius:8px;font-size:.82em;margin:8px 0;color:#856404"></div>
         <div class="mob-field" style="margin-top:10px">
           <label>📝 Napomena</label>
@@ -973,7 +994,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
   <div class="hdr">
     <div class="hdr-l">
       <h1>🏡 Maja Karanfil Bungali</h1>
-      <p id="app-version-hdr">Sistem za upravljanje rezervacijama — v1.8.6</p>
+      <p id="app-version-hdr">Sistem za upravljanje rezervacijama — v1.8.8</p>
     </div>
     <div class="hdr-r">
       <div class="user-row">
@@ -5053,14 +5074,67 @@ window.mobCloseMore = (e) => {
   }
 };
 
-// ── MOBILNA BRZA FORMA ────────────────────────────────
+// ── MOBILNA BRZA FORMA PRO v1.8.8 ────────────────────────────────
 let _mobFormStep = 1;
 let _mobSelBungs = [];
 let _mobEditId = null;
+let _mobBungGuests = {}; // { "1": {adults, children, babies, sharedBed, notes} }
+
+function mobNum(id, fallback=0){
+  const v = parseInt(document.getElementById(id)?.value, 10);
+  return Number.isFinite(v) ? v : fallback;
+}
+function mobDefaultGuests(){
+  return {
+    adults: Math.max(0, mobNum('mob-adults', 2)),
+    children: Math.max(0, mobNum('mob-children', 0)),
+    babies: Math.max(0, mobNum('mob-babies', 0)),
+    sharedBed: false,
+    notes: ''
+  };
+}
+function mobGetBungGuest(b){
+  const key = String(b);
+  if (!_mobBungGuests[key]) _mobBungGuests[key] = mobDefaultGuests();
+  return _mobBungGuests[key];
+}
+function mobBungCapacity(b){ return B_CFG?.[parseInt(b,10)]?.m || 0; }
+function mobGuestTotal(g){ return (parseInt(g.adults||0,10)||0) + (parseInt(g.children||0,10)||0) + (parseInt(g.babies||0,10)||0); }
+function mobBedsNeeded(g){ return (parseInt(g.adults||0,10)||0) + (parseInt(g.children||0,10)||0); }
+
+function mobBuildChannelOptions(currentValue='') {
+  const list = [];
+  const add = (name, icon='') => {
+    name = String(name || '').trim();
+    if (!name) return;
+    const key = name.toLowerCase();
+    if (list.some(x => String(x.name||'').toLowerCase() === key)) return;
+    list.push({name, icon: icon || ''});
+  };
+  (window.appChannels || []).forEach(ch => add(ch.name, ch.icon));
+  if (typeof DEFAULT_CHANNELS !== 'undefined') DEFAULT_CHANNELS.forEach(ch => add(ch.name, ch.icon));
+  (reservations || []).forEach(r => add(r.channel || ''));
+  add('Facebook','📘'); add('Instagram','📸'); add('WhatsApp','💬'); add('Viber','💬'); add('Booking.com','🌐'); add('Airbnb','🏠'); add('Direktno','🤝'); add('Telefon','📞'); add('Email','✉️'); add('Ostalo','📋');
+  if (currentValue) add(currentValue, '');
+  return list.sort((a,b)=>(a.name||'').localeCompare(b.name||''));
+}
+function mobPopulateChannels(currentValue='') {
+  const chSel = document.getElementById('mob-channel');
+  if (!chSel) return;
+  const selected = currentValue || chSel.value || '';
+  const opts = mobBuildChannelOptions(selected);
+  chSel.innerHTML = '<option value="">-- Odaberi kanal --</option>' + opts.map(ch => {
+    const val = escHtml(ch.name || '');
+    const label = escHtml((ch.icon ? ch.icon + ' ' : '') + ch.name);
+    return `<option value="${val}">${label}</option>`;
+  }).join('');
+  if (selected && Array.from(chSel.options).some(o => o.value === selected)) chSel.value = selected;
+}
 
 window.mobOpenQuickForm = (editResId) => {
   _mobEditId = editResId || null;
   _mobSelBungs = [];
+  _mobBungGuests = {};
   _mobFormStep = 1;
   
   // Reset forme
@@ -5076,28 +5150,21 @@ window.mobOpenQuickForm = (editResId) => {
   document.getElementById('mob-price-show').innerHTML = '';
   document.getElementById('mob-persons-summary').textContent = '';
   document.getElementById('mob-overlap-warn').style.display = 'none';
-  
-  // Popuni kanale
-  const chSel = document.getElementById('mob-channel');
-  chSel.innerHTML = '<option value="">-- Odaberi --</option>';
-  (window.appChannels || []).forEach(ch => {
-    const o = document.createElement('option');
-    o.value = ch.name;
-    o.textContent = (ch.icon ? ch.icon + ' ' : '') + ch.name;
-    chSel.appendChild(o);
-  });
+  document.getElementById('mob-bung-cards').innerHTML = '';
+  mobPopulateChannels('');
   
   // Popuni bungalove
   const grid = document.getElementById('mob-bung-grid');
   grid.innerHTML = '';
-  for (let b = 1; b <= 13; b++) {
+  const bungs = Object.keys(B_CFG || {}).sort((a,b)=>parseInt(a)-parseInt(b));
+  (bungs.length ? bungs : Array.from({length:13},(_,i)=>String(i+1))).forEach(b => {
     const btn = document.createElement('button');
     btn.textContent = 'B' + b;
     btn.className = 'mob-bung-btn';
     btn.dataset.bung = b;
     btn.onclick = () => mobToggleBung(b, btn);
     grid.appendChild(btn);
-  }
+  });
   
   // Ako je edit - popuni podatke
   if (_mobEditId) {
@@ -5108,37 +5175,41 @@ window.mobOpenQuickForm = (editResId) => {
       document.getElementById('mob-notes').value = res.notes || '';
       document.getElementById('mob-ci').value    = res.checkIn || '';
       document.getElementById('mob-co').value    = res.checkOut || '';
-      document.getElementById('mob-adults').value   = (res.bungalovi?.[0]?.adults)   ?? 2;
-      document.getElementById('mob-children').value = (res.bungalovi?.[0]?.children) ?? 0;
-      document.getElementById('mob-babies').value   = (res.bungalovi?.[0]?.babies)   ?? 0;
-      // Channel setTimeout — select mora biti popunjen prvo
-      const _ch = res.channel || '';
-      setTimeout(() => {
-        const sel = document.getElementById('mob-channel');
-        if (sel) sel.value = _ch;
-      }, 30);
+      const first = res.bungalovi?.[0] || {};
+      document.getElementById('mob-adults').value   = first.adults ?? 2;
+      document.getElementById('mob-children').value = first.children ?? 0;
+      document.getElementById('mob-babies').value   = first.babies ?? 0;
+      mobPopulateChannels(res.channel || '');
       _mobSelBungs = (res.bungalovi || []).map(b => String(b.bungalov));
+      (res.bungalovi || []).forEach(b => {
+        const key = String(b.bungalov);
+        _mobBungGuests[key] = {
+          adults: parseInt(b.adults ?? b.beds ?? 2, 10) || 0,
+          children: parseInt(b.children ?? 0, 10) || 0,
+          babies: parseInt(b.babies ?? 0, 10) || 0,
+          sharedBed: !!b.sharedBed,
+          notes: b.notes || ''
+        };
+      });
       _mobSelBungs.forEach(b => {
         const btn = grid.querySelector(`[data-bung="${b}"]`);
         if (btn) btn.classList.add('sel');
       });
-      // Ažuriraj noći i cijenu
-      setTimeout(() => { mobUpdateNights(); }, 50);
+      setTimeout(() => { mobRenderBungCards(); mobUpdateNights(); }, 50);
     }
     document.getElementById('mob-form-title').textContent = '✏️ Izmijeni Rezervaciju';
   } else {
     document.getElementById('mob-form-title').textContent = '➕ Nova Rezervacija';
-    // Postavi default datume (danas + sutra)
     const today = new Date();
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrow = new Date(today); tomorrow.setDate(tomorrow.getDate() + 1);
     document.getElementById('mob-ci').value = today.toISOString().slice(0,10);
     document.getElementById('mob-co').value = tomorrow.toISOString().slice(0,10);
+    setTimeout(() => { mobRenderBungCards(); mobUpdateNights(); }, 30);
   }
   
   mobShowStep(1);
   document.getElementById('mob-quick-overlay').classList.add('open');
-  document.getElementById('mob-name').focus();
+  setTimeout(()=>document.getElementById('mob-name')?.focus(), 40);
 };
 
 window.mobCloseQuickForm = (e) => {
@@ -5152,25 +5223,92 @@ function mobToggleBung(b, btn) {
   const bs = String(b);
   if (_mobSelBungs.includes(bs)) {
     _mobSelBungs = _mobSelBungs.filter(x => x !== bs);
-    btn.classList.remove('sel');
+    delete _mobBungGuests[bs];
+    btn?.classList.remove('sel');
   } else {
     _mobSelBungs.push(bs);
-    btn.classList.add('sel');
+    _mobBungGuests[bs] = mobDefaultGuests();
+    btn?.classList.add('sel');
   }
+  _mobSelBungs.sort((a,b)=>parseInt(a)-parseInt(b));
+  mobRenderBungCards();
   mobCheckOverlap();
   mobCalcPrice();
+}
+
+window.mobRemoveBung = (b) => {
+  const bs = String(b);
+  _mobSelBungs = _mobSelBungs.filter(x => x !== bs);
+  delete _mobBungGuests[bs];
+  document.querySelector(`#mob-bung-grid [data-bung="${bs}"]`)?.classList.remove('sel');
+  mobRenderBungCards(); mobCheckOverlap(); mobCalcPrice();
+};
+
+window.mobBungGuestChange = (b, field, val) => {
+  const g = mobGetBungGuest(b);
+  g[field] = Math.max(0, parseInt(val,10) || 0);
+  // Ako je prvi bungalov, ažuriraj i gornji summary radi bržeg osjećaja forme
+  if (_mobSelBungs[0] === String(b)) {
+    if (field === 'adults') document.getElementById('mob-adults').value = g.adults;
+    if (field === 'children') document.getElementById('mob-children').value = g.children;
+    if (field === 'babies') document.getElementById('mob-babies').value = g.babies;
+  }
+  mobRenderBungCards(false); mobUpdateNights();
+};
+
+function mobRenderBungCards(rebuild=true) {
+  const wrap = document.getElementById('mob-bung-cards');
+  if (!wrap) return;
+  if (!_mobSelBungs.length) {
+    wrap.innerHTML = '<div class="mob-mini-note" style="background:#f8f9fa;border-radius:10px;padding:10px;margin-top:10px">Još nije odabran nijedan bungalov.</div>';
+    return;
+  }
+  const ci = document.getElementById('mob-ci')?.value;
+  const co = document.getElementById('mob-co')?.value;
+  const nights = ci && co ? Math.ceil((new Date(co)-new Date(ci))/86400000) : 0;
+  const activePrices = (ci && typeof getActivePrices === 'function') ? getActivePrices(ci) : [];
+  let html = '<div class="mob-section-title" style="margin-top:12px">👥 Gosti i cijena po bungalovu</div>';
+  _mobSelBungs.forEach(b => {
+    const g = mobGetBungGuest(b);
+    const cap = mobBungCapacity(b);
+    const beds = mobBedsNeeded(g);
+    const total = mobGuestTotal(g);
+    const badCap = cap && beds > cap;
+    const noGuest = total <= 0;
+    const cls = badCap || noGuest ? 'err' : (beds === cap ? 'warn' : '');
+    let priceHtml = 'Unesi validne datume za obračun.';
+    if (nights > 0 && !noGuest) {
+      const pr = calcPrice(parseInt(b,10), g.adults, g.children, g.babies, nights, activePrices);
+      priceHtml = `<strong>${((pr&&pr.subtotal)||0).toFixed(2)}€</strong> · ${nights} noći · ${g.adults} odraslih${g.children?`, ${g.children} djece`:''}${g.babies?`, ${g.babies} beba`:''}`;
+      if (badCap) priceHtml += `<br><span style="color:#c62828">⚠️ Kapacitet B${b}: ${cap}, a uneseno za krevete: ${beds}</span>`;
+    }
+    html += `<div class="mob-bung-card ${cls}" data-bung-card="${escHtml(b)}">
+      <div class="mob-bung-card-head">
+        <div><div class="mob-bung-title">B${escHtml(b)}</div><div class="mob-bung-sub">Kapacitet: ${cap || '?'} osoba/kreveta</div></div>
+        <button type="button" class="mob-bung-remove" onclick="mobRemoveBung('${escHtml(b)}')">Ukloni</button>
+      </div>
+      <div class="mob-guest-grid">
+        <div class="mob-guest-box"><label>Odrasli</label><input type="number" min="0" max="20" value="${g.adults}" oninput="mobBungGuestChange('${escHtml(b)}','adults',this.value)"></div>
+        <div class="mob-guest-box"><label>Djeca 4–12</label><input type="number" min="0" max="20" value="${g.children}" oninput="mobBungGuestChange('${escHtml(b)}','children',this.value)"></div>
+        <div class="mob-guest-box"><label>Bebe &lt;4</label><input type="number" min="0" max="20" value="${g.babies}" oninput="mobBungGuestChange('${escHtml(b)}','babies',this.value)"></div>
+      </div>
+      <div class="mob-bung-price">💶 ${priceHtml}</div>
+    </div>`;
+  });
+  wrap.innerHTML = html;
 }
 
 function mobCheckOverlap() {
   const ci = document.getElementById('mob-ci').value;
   const co = document.getElementById('mob-co').value;
-  if (!ci || !co || !_mobSelBungs.length) return;
   const warnEl = document.getElementById('mob-overlap-warn');
+  if (!warnEl) return;
+  if (!ci || !co || !_mobSelBungs.length) { warnEl.style.display='none'; return; }
   const conflicts = [];
   for (const b of _mobSelBungs) {
     const ov = reservations.find(r =>
       !r.cancelled && r.id !== _mobEditId &&
-      r.bungalovi?.some(bv => String(bv.bungalov) === b) &&
+      r.bungalovi?.some(bv => String(bv.bungalov) === String(b)) &&
       ci < r.checkOut && co > r.checkIn
     );
     if (ov) conflicts.push('B' + b + ': ' + escHtml(ov.name) + ' (' + fmtD(ov.checkIn) + '→' + fmtD(ov.checkOut) + ')');
@@ -5178,49 +5316,30 @@ function mobCheckOverlap() {
   if (conflicts.length) {
     warnEl.style.display = 'block';
     warnEl.innerHTML = '⚠️ Preklapanje:<br>' + conflicts.join('<br>');
-  } else {
-    warnEl.style.display = 'none';
-  }
+  } else warnEl.style.display = 'none';
 }
 
 function mobCalcPrice() {
   const ci = document.getElementById('mob-ci').value;
   const co = document.getElementById('mob-co').value;
   const priceEl = document.getElementById('mob-price-show');
-  if (!ci || !co || !_mobSelBungs.length) { priceEl.textContent = ''; return; }
+  if (!priceEl) return;
+  if (!ci || !co || !_mobSelBungs.length) { priceEl.innerHTML = ''; return; }
   const nights = Math.ceil((new Date(co) - new Date(ci)) / 86400000);
-  if (nights <= 0) { priceEl.textContent = ''; return; }
-  const adults   = parseInt(document.getElementById('mob-adults')?.value)   || 2;
-  const children = parseInt(document.getElementById('mob-children')?.value) || 0;
-  const babies   = parseInt(document.getElementById('mob-babies')?.value)   || 0;
-
-  // Koristi isti getActivePrices() kao desktop — po checkIn datumu
-  const activePrices = (typeof getActivePrices === 'function')
-    ? getActivePrices(ci)
-    : (window.pricePeriods || []).filter(p => ci >= p.dateFrom && ci <= p.dateTo);
-
-  let grandTotal = 0;
-  let priceLines = [];
+  if (nights <= 0) { priceEl.innerHTML = ''; return; }
+  const activePrices = (typeof getActivePrices === 'function') ? getActivePrices(ci) : [];
+  let grandTotal = 0, totalGuests = 0, totalBeds = 0;
+  const lines = [];
   _mobSelBungs.forEach(b => {
-    const r = calcPrice(parseInt(b), adults, children, babies, nights, activePrices);
-    grandTotal += r.subtotal || 0;
-    priceLines.push('B' + b + ': ' + (r.subtotal||0).toFixed(2) + '€');
+    const g = mobGetBungGuest(b);
+    totalGuests += mobGuestTotal(g);
+    totalBeds += mobBedsNeeded(g);
+    const r = calcPrice(parseInt(b,10), g.adults, g.children, g.babies, nights, activePrices);
+    const sub = r.subtotal || 0;
+    grandTotal += sub;
+    lines.push(`B${b}: ${sub.toFixed(2)}€`);
   });
-
-  // Prikaz sa detaljem
-  const summaryParts = [];
-  if (adults > 0) summaryParts.push(adults + ' odraslih');
-  if (children > 0) summaryParts.push(children + ' djece');
-  if (babies > 0) summaryParts.push(babies + ' beba');
-
-  let html = '<div style="background:#f0fff4;border-radius:8px;padding:10px;font-size:.82em">';
-  html += '<div style="font-size:1.1em;font-weight:700;color:#28a745;margin-bottom:4px">💰 ' + grandTotal.toFixed(2) + ' €</div>';
-  html += '<div style="color:#555">' + summaryParts.join(' · ') + ' · ' + nights + ' noći</div>';
-  if (_mobSelBungs.length > 1) {
-    html += '<div style="color:#888;margin-top:3px;font-size:.9em">' + priceLines.join(' | ') + '</div>';
-  }
-  html += '</div>';
-  priceEl.innerHTML = html;
+  priceEl.innerHTML = `<div class="mob-total-box"><div class="mob-total-main">💰 ${grandTotal.toFixed(2)} €</div><div class="mob-total-sub">${_mobSelBungs.length} bungalov(a) · ${nights} noći · ${totalGuests} gostiju · ${totalBeds} koriste krevet<br>${lines.join(' · ')}</div></div>`;
 }
 
 function mobUpdateNights() {
@@ -5230,36 +5349,21 @@ function mobUpdateNights() {
   if (ci && co) {
     const n = Math.ceil((new Date(co) - new Date(ci)) / 86400000);
     el.textContent = n > 0 ? n + ' noći' : '❌ Neispravan period';
-  } else {
-    el.textContent = '';
-  }
-  // Ažuriraj summary osoba
-  const adults   = parseInt(document.getElementById('mob-adults')?.value)   || 0;
-  const children = parseInt(document.getElementById('mob-children')?.value) || 0;
-  const babies   = parseInt(document.getElementById('mob-babies')?.value)   || 0;
-  const total = adults + children + babies;
+  } else el.textContent = '';
+  const adults = mobNum('mob-adults',0), children = mobNum('mob-children',0), babies = mobNum('mob-babies',0);
   const sumEl = document.getElementById('mob-persons-summary');
-  if (sumEl && total > 0) {
-    const parts = [];
-    if (adults > 0) parts.push(adults + ' odrasli');
-    if (children > 0) parts.push(children + ' djece');
-    if (babies > 0) parts.push(babies + ' beba');
-    sumEl.textContent = 'Ukupno: ' + total + ' · ' + parts.join(', ');
-  } else if (sumEl) {
-    sumEl.textContent = '';
+  if (sumEl) {
+    const total = adults + children + babies;
+    sumEl.textContent = total > 0 ? `Podrazumijevano za novi bungalov: ${total} ukupno (${adults} odraslih, ${children} djece, ${babies} beba)` : '';
   }
-  mobCalcPrice();
-  mobCheckOverlap();
+  // Kad nema izabranih bungalova, gornji broj ostaje samo predložak. Kad ih ima, ne pregazi ručne izmjene.
+  mobRenderBungCards(false); mobCalcPrice(); mobCheckOverlap();
 }
 
-// Postavi listenere
 document.addEventListener('DOMContentLoaded', () => {
-  // Provjeri Google Drive OAuth redirect token
-  _gdCheckRedirectToken();
+  if (typeof _gdCheckRedirectToken === 'function') _gdCheckRedirectToken();
   const mobCiEl = document.getElementById('mob-ci');
   const mobCoEl = document.getElementById('mob-co');
-
-  // CI change: postavi min na CO i pomjeri CO ako treba
   mobCiEl?.addEventListener('change', () => {
     if (mobCiEl.value) {
       const minCo = new Date(mobCiEl.value + 'T00:00:00');
@@ -5267,19 +5371,13 @@ document.addEventListener('DOMContentLoaded', () => {
       const minCoStr = minCo.toISOString().slice(0,10);
       if (mobCoEl) {
         mobCoEl.min = minCoStr;
-        // Ako CO prazno ili nije poslije CI — postavi na sutra
-        if (!mobCoEl.value || mobCoEl.value <= mobCiEl.value) {
-          mobCoEl.value = minCoStr;
-        }
+        if (!mobCoEl.value || mobCoEl.value <= mobCiEl.value) mobCoEl.value = minCoStr;
       }
     }
     mobUpdateNights();
   });
-
   mobCoEl?.addEventListener('change', mobUpdateNights);
-  ['mob-adults','mob-children','mob-babies'].forEach(id =>
-    document.getElementById(id)?.addEventListener('input', mobUpdateNights)
-  );
+  ['mob-adults','mob-children','mob-babies'].forEach(id => document.getElementById(id)?.addEventListener('input', mobUpdateNights));
 });
 
 function mobShowStep(step) {
@@ -5288,10 +5386,7 @@ function mobShowStep(step) {
     const page = document.getElementById('mob-page-' + s);
     const stepEl = document.getElementById('mob-s' + s);
     if (page) page.classList.toggle('active', s === step);
-    if (stepEl) {
-      stepEl.classList.toggle('active', s === step);
-      stepEl.classList.toggle('done', s < step);
-    }
+    if (stepEl) { stepEl.classList.toggle('active', s === step); stepEl.classList.toggle('done', s < step); }
   });
 }
 
@@ -5305,10 +5400,9 @@ window.mobNextStep = (step) => {
     const co = document.getElementById('mob-co').value;
     if (!ci || !co) { alert('Unesite datume!'); return; }
     if (ci >= co) { alert('Datum dolaska mora biti prije odlaska!'); return; }
-    mobCheckOverlap();
+    mobCheckOverlap(); mobRenderBungCards(); mobCalcPrice();
   }
   mobShowStep(step);
-  if (step === 3) mobCalcPrice();
 };
 
 window.mobSaveReservation = async () => {
@@ -5318,79 +5412,61 @@ window.mobSaveReservation = async () => {
   const ci = document.getElementById('mob-ci').value;
   const co = document.getElementById('mob-co').value;
   const notes = document.getElementById('mob-notes').value.trim();
-  const persons = parseInt(document.getElementById('mob-adults')?.value) || 2;
-  
   if (!name) { alert('Unesite ime!'); mobShowStep(1); return; }
-  if (!ci || !co) { alert('Unesite datume!'); mobShowStep(2); return; }
-  if (!_mobSelBungs.length) { alert('Odaberite barem jedan bungalov!'); return; }
+  if (!ci || !co || ci >= co) { alert('Unesite ispravan period rezervacije!'); mobShowStep(2); return; }
+  if (!_mobSelBungs.length) { alert('Odaberite barem jedan bungalov!'); mobShowStep(3); return; }
+  if (typeof isOffline === 'function' && isOffline()) { alert('❌ Nema internetske veze. Rezervacija ne može biti sačuvana dok se internet ne vrati.'); return; }
 
-  // Offline provjera
-  if (typeof isOffline === 'function' && isOffline()) {
-    alert('❌ Nema internetske veze.\n\nRezervacija ne može biti sačuvana dok se internet ne vrati.');
-    return;
-  }
-  
-  // Provjeri preklapanja
   let hasOverlap = false;
   for (const b of _mobSelBungs) {
-    const ov = reservations.find(r =>
-      !r.cancelled && r.id !== _mobEditId &&
-      r.bungalovi?.some(bv => String(bv.bungalov) === b) &&
-      ci < r.checkOut && co > r.checkIn
-    );
+    const ov = reservations.find(r => !r.cancelled && r.id !== _mobEditId && r.bungalovi?.some(bv => String(bv.bungalov) === String(b)) && ci < r.checkOut && co > r.checkIn);
     if (ov) { hasOverlap = true; break; }
   }
-  if (hasOverlap) {
-    if (!confirm('⚠️ Postoji preklapanje! Svejedno sačuvati?')) return;
-  }
-  
-  const saveBtn = document.getElementById('mob-save-btn');
-  saveBtn.disabled = true;
-  saveBtn.textContent = '⏳ Čuvam...';
-  
-  try {
-    const adults2   = parseInt(document.getElementById('mob-adults')?.value)   || 2;
-    const children2 = parseInt(document.getElementById('mob-children')?.value) || 0;
-    const babies2   = parseInt(document.getElementById('mob-babies')?.value)   || 0;
-    // Izracunaj cijenu koristeci pravi engine
-    const nights2 = Math.ceil((new Date(co) - new Date(ci)) / 86400000);
-    const activePrices2 = (typeof getActivePrices === 'function')
-      ? getActivePrices(ci)
-      : (window.pricePeriods || []).filter(p => ci >= p.dateFrom && ci <= p.dateTo);
-    let totalPrice = 0;
-    _mobSelBungs.forEach(b => {
-      const r = calcPrice(parseInt(b), adults2, children2, babies2, nights2, activePrices2);
-      totalPrice += r.subtotal || 0;
+  if (hasOverlap && !confirm('⚠️ Postoji preklapanje! Svejedno sačuvati?')) return;
+
+  const nights = Math.ceil((new Date(co) - new Date(ci)) / 86400000);
+  const activePrices = (typeof getActivePrices === 'function') ? getActivePrices(ci) : [];
+  let totalPrice = 0;
+  const bungalovi = [];
+  for (const b of _mobSelBungs) {
+    const g = mobGetBungGuest(b);
+    if (mobGuestTotal(g) <= 0) { alert('❌ B' + b + ': unesite barem jednog gosta.'); return; }
+    const cap = mobBungCapacity(b);
+    const beds = mobBedsNeeded(g);
+    if (cap && beds > cap) { alert('❌ B' + b + ' nema dovoljno kapaciteta. Maksimalno: ' + cap + ', uneseno za krevete: ' + beds + '.'); mobShowStep(3); return; }
+    const r = calcPrice(parseInt(b,10), g.adults, g.children, g.babies, nights, activePrices);
+    totalPrice += r.subtotal || 0;
+    const existingB = _mobEditId ? reservations.find(x=>x.id===_mobEditId)?.bungalovi?.find(x => String(x.bungalov) === String(b)) : null;
+    bungalovi.push({
+      bungalov: String(b), beds: beds,
+      adults: parseInt(g.adults||0,10)||0, children: parseInt(g.children||0,10)||0, babies: parseInt(g.babies||0,10)||0,
+      sharedBed: existingB?.sharedBed || !!g.sharedBed,
+      notes: existingB?.notes || g.notes || ''
     });
-    const bungalovi = _mobSelBungs.map(b => ({
-      bungalov: String(b), beds: adults2 + children2,
-      adults: adults2, children: children2, babies: babies2,
-      sharedBed: false, notes: ''
-    }));
+  }
+
+  const saveBtn = document.getElementById('mob-save-btn');
+  saveBtn.disabled = true; saveBtn.textContent = '⏳ Čuvam...';
+  try {
+    const existing = _mobEditId ? reservations.find(r => r.id === _mobEditId) : null;
     const data = {
-      name, phone, country: '', checkIn: ci, checkOut: co,
-      channel: channel || '', price: totalPrice,
-      bungalovi,
-      services: { polupansion: false, fullPansion: false, lunchPaket: false },
-      notes, confirmed: true, paid: false, cancelled: false,
-      closedManual: false,
-      createdAt: new Date().toISOString(), createdBy: curUser
+      name, phone, country: existing?.country || '', checkIn: ci, checkOut: co,
+      channel: channel || existing?.channel || '', price: totalPrice, bungalovi,
+      services: existing?.services || { polupansion: false, fullPansion: false, lunchPaket: false },
+      notes, confirmed: existing ? !!existing.confirmed : true, paid: existing ? !!existing.paid : false, cancelled: existing ? !!existing.cancelled : false,
+      closedManual: existing ? !!existing.closedManual : false,
+      createdAt: existing?.createdAt || new Date().toISOString(), createdBy: existing?.createdBy || curUser,
+      updatedAt: new Date().toISOString(), updatedBy: curUser
     };
-    if (_mobEditId) {
-      await updateDoc(doc(db, 'reservations', _mobEditId), data);
-    } else {
-      await addDoc(collection(db, 'reservations'), data);
-    }
+    if (_mobEditId) await updateDoc(doc(db, 'reservations', _mobEditId), data);
+    else await addDoc(collection(db, 'reservations'), data);
     document.getElementById('mob-quick-overlay').classList.remove('open');
     _mobEditId = null;
-    renderMobList();
-    renderMobDaily();
-    if (_mobCurrentTab === 'calendar') renderCal();
+    renderMobList(); renderMobDaily(); if (_mobCurrentTab === 'availability') renderMobAvailability(); if (_mobCurrentTab === 'calendar') renderCal();
   } catch(err) {
     alert('Greška: ' + err.message);
   } finally {
-    saveBtn.disabled = false;
-    saveBtn.textContent = '💾 Sačuvaj';
+    saveBtn.disabled = false; saveBtn.textContent = '💾 Sačuvaj';
   }
 };
 
@@ -5400,19 +5476,30 @@ function mobBungLabel(r){return (r.bungalovi||[]).map(b=>'B'+b.bungalov).join(',
 function mobPersons(r){return (r.bungalovi||[]).reduce((s,b)=>s+(parseInt(b.adults||0)+parseInt(b.children||0)+parseInt(b.babies||0)),0)||(r.bungalovi||[]).reduce((s,b)=>s+(parseInt(b.beds||0)),0)||0;}
 function mobStatusChips(r){const chips=[];if(r.closedManual)chips.push('<span class="mob-status-chip mob-chip-wait">🔒 Zatvoreno</span>');else if(r.paid)chips.push('<span class="mob-status-chip mob-chip-paid">💶 Plaćeno</span>');else chips.push('<span class="mob-status-chip mob-chip-unpaid">💶 Nije plaćeno</span>');if(r.confirmed)chips.push('<span class="mob-status-chip mob-chip-conf">✓ Potvrđeno</span>');else chips.push('<span class="mob-status-chip mob-chip-wait">⏳ Čeka</span>');if(r.icalLinkId)chips.push('<span class="mob-status-chip mob-chip-conf">🌐 iCal</span>');return chips.join(' ');}
 function mobContactActions(r){const phone=String(r.phone||'').trim();const call=phone?`<a class="mob-action-btn call" href="${mobPhoneHref(phone,'call')}">📞 Pozovi</a>`:'';const wa=phone?`<a class="mob-action-btn wa" href="${mobPhoneHref(phone,'wa')}" target="_blank" rel="noopener">WhatsApp</a>`:'';return `${call}${wa}<button class="mob-action-btn open" onclick="showDet('${r.id}')">Otvori</button>`;}
-function mobGetAvailability(from,to,persons){const bungs=Array.from({length:13},(_,i)=>String(i+1));const busy=new Map();reservations.filter(r=>!r.cancelled&&from<r.checkOut&&to>r.checkIn).forEach(r=>(r.bungalovi||[]).forEach(b=>busy.set(String(b.bungalov),r)));return{free:bungs.filter(b=>!busy.has(b)),busy};}
+function mobGetAvailability(from,to,persons){
+  const bungs=Object.keys(B_CFG||{}).sort((a,b)=>parseInt(a)-parseInt(b));
+  const reqPersons=Math.max(1,parseInt(persons)||1);
+  const busy=new Map();
+  reservations
+    .filter(r=>!r.cancelled&&r.checkIn&&r.checkOut&&from<r.checkOut&&to>r.checkIn)
+    .forEach(r=>(r.bungalovi||[]).forEach(b=>{ if(!busy.has(String(b.bungalov))) busy.set(String(b.bungalov),r); }));
+  const free=bungs.filter(b=>!busy.has(b)&&(!B_CFG[parseInt(b)]||B_CFG[parseInt(b)].m>=reqPersons));
+  const tooSmall=bungs.filter(b=>!busy.has(b)&&B_CFG[parseInt(b)]&&B_CFG[parseInt(b)].m<reqPersons);
+  return{free,busy,tooSmall,total:bungs.length};
+}
 function mobPrefillQuickForm(bn,ci,co){mobOpenQuickForm(null);setTimeout(()=>{const ciEl=document.getElementById('mob-ci'),coEl=document.getElementById('mob-co');if(ciEl)ciEl.value=ci||'';if(coEl)coEl.value=co||'';const btn=document.querySelector(`#mob-bung-grid [data-bung="${bn}"]`);if(btn){btn.classList.add('sel');_mobSelBungs=[String(bn)];}mobUpdateNights();mobShowStep(1);},80);}
 
 function renderMobAvailability(){
   const pane=document.getElementById('mob-availability-content'); if(!pane||!isMobile())return;
   const today=lDate(new Date()); let td=new Date();td.setDate(td.getDate()+1);const tomorrow=lDate(td);
   const from=document.getElementById('mob-av-from')?.value||today, to=document.getElementById('mob-av-to')?.value||tomorrow, persons=document.getElementById('mob-av-persons')?.value||'2';
-  const {free,busy}=mobGetAvailability(from,to,parseInt(persons)||2); const nightsN=Math.max(1,Math.ceil((new Date(to)-new Date(from))/86400000));
-  let html=`<div class="mob-top-search"><div style="background:white;border-radius:14px;padding:12px;box-shadow:0 1px 8px rgba(0,0,0,.08)"><div style="font-size:1.05em;font-weight:800;color:#222;margin-bottom:10px">🔎 Brza provjera slobodnih bungalova</div><div style="display:grid;grid-template-columns:1fr 1fr 80px;gap:8px"><div><label style="font-size:.72em;font-weight:700;color:#777">Od</label><input id="mob-av-from" type="date" value="${from}" onchange="renderMobAvailability()" style="width:100%;padding:10px;border:1.5px solid #ddd;border-radius:10px"></div><div><label style="font-size:.72em;font-weight:700;color:#777">Do</label><input id="mob-av-to" type="date" value="${to}" onchange="renderMobAvailability()" style="width:100%;padding:10px;border:1.5px solid #ddd;border-radius:10px"></div><div><label style="font-size:.72em;font-weight:700;color:#777">Osoba</label><input id="mob-av-persons" type="number" min="1" value="${persons}" oninput="renderMobAvailability()" style="width:100%;padding:10px;border:1.5px solid #ddd;border-radius:10px;text-align:center"></div></div><div class="mob-mini-note" style="margin-top:8px">Period <strong>${fmtD(from)} → ${fmtD(to)}</strong>. Slobodno: <strong>${free.length}</strong>, zauzeto: <strong>${busy.size}</strong>.</div></div></div>`;
-  html+=`<div class="mob-kpi-grid"><div class="mob-kpi"><div class="mob-kpi-num">${free.length}</div><div class="mob-kpi-lbl">Slobodno</div></div><div class="mob-kpi"><div class="mob-kpi-num">${busy.size}</div><div class="mob-kpi-lbl">Zauzeto</div></div><div class="mob-kpi"><div class="mob-kpi-num">${Math.round((busy.size/13)*100)}%</div><div class="mob-kpi-lbl">Popunjeno</div></div></div>`;
+  const {free,busy,tooSmall,total}=mobGetAvailability(from,to,parseInt(persons)||2); const nightsN=Math.max(1,Math.ceil((new Date(to)-new Date(from))/86400000));
+  let html=`<div class="mob-top-search"><div style="background:white;border-radius:14px;padding:12px;box-shadow:0 1px 8px rgba(0,0,0,.08)"><div style="font-size:1.05em;font-weight:800;color:#222;margin-bottom:10px">🔎 Brza provjera slobodnih bungalova</div><div style="display:grid;grid-template-columns:1fr 1fr 80px;gap:8px"><div><label style="font-size:.72em;font-weight:700;color:#777">Od</label><input id="mob-av-from" type="date" value="${from}" onchange="renderMobAvailability()" style="width:100%;padding:10px;border:1.5px solid #ddd;border-radius:10px"></div><div><label style="font-size:.72em;font-weight:700;color:#777">Do</label><input id="mob-av-to" type="date" value="${to}" onchange="renderMobAvailability()" style="width:100%;padding:10px;border:1.5px solid #ddd;border-radius:10px"></div><div><label style="font-size:.72em;font-weight:700;color:#777">Osoba</label><input id="mob-av-persons" type="number" min="1" value="${persons}" onchange="renderMobAvailability()" style="width:100%;padding:10px;border:1.5px solid #ddd;border-radius:10px;text-align:center"></div></div><div class="mob-mini-note" style="margin-top:8px">Period <strong>${fmtD(from)} → ${fmtD(to)}</strong>. Slobodno: <strong>${free.length}</strong>, zauzeto: <strong>${busy.size}</strong>.</div></div></div>`;
+  html+=`<div class="mob-kpi-grid"><div class="mob-kpi"><div class="mob-kpi-num">${free.length}</div><div class="mob-kpi-lbl">Slobodno</div></div><div class="mob-kpi"><div class="mob-kpi-num">${busy.size}</div><div class="mob-kpi-lbl">Zauzeto</div></div><div class="mob-kpi"><div class="mob-kpi-num">${Math.round((busy.size/Math.max(1,total))*100)}%</div><div class="mob-kpi-lbl">Popunjeno</div></div></div>`;
   html+='<div class="mob-section-title">✅ Slobodni bungalovi</div>';
   if(!free.length)html+='<div class="mob-availability-card busy">Nema slobodnih bungalova za izabrani period.</div>';
   free.forEach(bn=>{const activePrices=(typeof getActivePrices==='function')?getActivePrices(from):[];const pr=calcPrice(parseInt(bn),Math.max(1,parseInt(persons)||2),0,0,nightsN,activePrices);html+=`<div class="mob-availability-card"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><div><div style="font-size:1.1em;font-weight:900;color:#222">B${bn}</div><div class="mob-mini-note">${nightsN} noći · procjena ~${((pr&&pr.subtotal)||0).toFixed(0)}€</div></div><button class="mob-action-btn open" style="flex:0 0 auto;min-width:112px" onclick="mobPrefillQuickForm('${bn}','${from}','${to}')">➕ Rezerviši</button></div></div>`;});
+  if(tooSmall&&tooSmall.length){html+='<div class="mob-section-title">ℹ️ Slobodni, ali premali za broj osoba</div>';tooSmall.forEach(bn=>{html+=`<div class="mob-availability-card busy"><div style="font-weight:900;color:#222">B${bn}</div><div class="mob-mini-note">Kapacitet: ${B_CFG[parseInt(bn)]?.m||'?'} osoba/kreveta · traženo: ${escHtml(persons)}</div></div>`;});}
   html+='<div class="mob-section-title">⛔ Zauzeti bungalovi</div>';
   if(!busy.size)html+='<div class="mob-availability-card">Nema zauzetih bungalova u ovom periodu.</div>';
   Array.from(busy.entries()).sort((a,b)=>parseInt(a[0])-parseInt(b[0])).forEach(([bn,r])=>{html+=`<div class="mob-availability-card busy" onclick="showDet('${r.id}')"><div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start"><div><div style="font-weight:900;color:#222">B${bn} · ${escHtml(r.name||'—')}</div><div class="mob-mini-note">${fmtD(r.checkIn)} → ${fmtD(r.checkOut)} · ${escHtml(r.channel||'')}</div></div><div>${mobStatusChips(r)}</div></div></div>`;});
