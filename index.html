@@ -774,6 +774,40 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 .mob-top-search{position:sticky;top:0;z-index:20;background:#f4f5f7;padding:0 0 8px;margin-bottom:8px}
 @media(max-width:768px){.mob-nav-inner{grid-template-columns:repeat(5,1fr)!important}.mob-nav-btn{font-size:.58em!important}.mob-nav-btn .mob-nav-ico{font-size:1.38em!important}.mob-res-actions .mob-res-btn.del{display:none!important}.mob-hdr{min-height:52px}}
 
+
+
+/* === KMK MOBILE CALENDAR PREMIUM REDESIGN v1.9.0 === */
+@media(max-width:768px){
+  #mob-cal-hero{display:block!important}
+  #mob-cal-nav{border:1px solid #e6ede3!important;border-radius:16px!important;box-shadow:0 2px 12px rgba(37,56,35,.06)!important}
+  #mob-cal-v1,#mob-cal-v2,#mob-cal-v3{animation:kmkFadeIn .18s ease-out}
+}
+@keyframes kmkFadeIn{from{opacity:.4;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.kmk-cal-card{background:#fff;border:1px solid #e7ede5;border-radius:16px;box-shadow:0 2px 12px rgba(37,56,35,.06);overflow:hidden;margin-bottom:12px}
+.kmk-cal-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;background:linear-gradient(180deg,#fff,#f7faf6);border-bottom:1px solid #edf2eb}
+.kmk-cal-title{font-size:1.02em;font-weight:900;color:#223321}
+.kmk-cal-sub{font-size:.76em;color:#6f7a6c;margin-top:2px}
+.kmk-pill{border:1px solid #dce8d8;background:#f7faf6;color:#5d7158;border-radius:999px;padding:6px 10px;font-size:.74em;font-weight:800;white-space:nowrap}
+.kmk-mode-btn{flex:1;padding:9px 8px;border:1.5px solid #dfe8dc;border-radius:12px;background:#fff;color:#5d7058;font-size:.82em;font-weight:900;cursor:pointer}
+.kmk-mode-btn.on{background:#5f7f56!important;color:white!important;border-color:#5f7f56!important;box-shadow:0 8px 16px rgba(95,127,86,.14)}
+.kmk-legend{display:flex;gap:8px;flex-wrap:wrap;padding:10px 12px;border-top:1px solid #eef2ed;background:#fbfcfb;font-size:.7em;color:#657160;font-weight:700}
+.kmk-leg{display:flex;align-items:center;gap:4px}.kmk-dot{width:9px;height:9px;border-radius:3px;display:inline-block}.kmk-dot.round{border-radius:50%}
+/* V1 */
+.kmk-v1-scroll{overflow:auto;-webkit-overflow-scrolling:touch;padding:10px 0 4px}
+.kmk-v1-grid{display:grid;gap:6px;width:max-content;min-width:100%;padding:0 10px 8px}
+.kmk-v1-cell{height:34px;min-width:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:.72em;font-weight:900;position:relative;overflow:hidden;border:1px solid transparent}
+.kmk-v1-label{position:sticky;left:0;z-index:4;background:#fff;min-width:76px;justify-content:flex-start!important;padding-left:4px;box-shadow:8px 0 10px rgba(255,255,255,.9)}
+.kmk-v1-bn{font-size:.9em;color:#243322;font-weight:900}.kmk-v1-type{font-size:.62em;color:#7a8576;font-weight:700;line-height:1}
+.kmk-v1-date{background:#fbfcfb;color:#4e5e4a;border-color:#edf2eb;flex-direction:column;line-height:1.1}.kmk-v1-date.today{outline:2px solid #5f7f56;outline-offset:-2px;color:#375f3b}.kmk-v1-date small{font-size:.65em;color:#889183}
+.kmk-st-free{background:#d8efc9;color:#315d30;border-color:#c9e4bb}.kmk-st-manual{background:#7fa8ed;color:#fff}.kmk-st-paid{background:#416f46;color:#fff}.kmk-st-booking{background:#24539b;color:#fff}.kmk-st-closed{background:#9a9a9a;color:#fff}.kmk-st-conflict{background:#ef807d;color:#fff}.kmk-st-past{opacity:.45;filter:saturate(.65)}
+.kmk-v1-name{font-size:.62em;max-width:100%;padding:0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* V2 */
+.kmk-v2-month{padding:10px}.kmk-v2-dow{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:6px}.kmk-v2-dow div{text-align:center;font-size:.7em;font-weight:900;color:#7b8777}
+.kmk-v2-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}.kmk-v2-day{min-height:52px;border-radius:12px;border:1px solid #edf2eb;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;position:relative}.kmk-v2-day.empty{opacity:0;pointer-events:none}.kmk-v2-day.today{border-color:#5f7f56;background:#f3f8f1}.kmk-v2-day.selected{background:#5f7f56;color:#fff}.kmk-v2-day.conflict{border-color:#e87979;background:#fff7f7}.kmk-v2-num{font-weight:900;font-size:.9em}.kmk-v2-dots{display:flex;gap:2px;min-height:8px;align-items:center;justify-content:center}.kmk-v2-dot{width:6px;height:6px;border-radius:50%}.kmk-v2-count{font-size:.62em;color:#7b8777;font-weight:800}.kmk-v2-day.selected .kmk-v2-count{color:#e9f2e7}
+.kmk-day-sheet{position:fixed;left:0;right:0;bottom:0;background:#fff;border-radius:22px 22px 0 0;box-shadow:0 -10px 28px rgba(0,0,0,.18);z-index:3000;max-height:82vh;overflow:auto;animation:slideUp .22s ease-out}.kmk-day-sheet .handle{width:38px;height:4px;background:#dfe5dd;border-radius:3px;margin:10px auto}.kmk-day-section{padding:0 16px 12px}.kmk-day-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f1f3f0}.kmk-day-row:last-child{border-bottom:none}.kmk-day-bn{width:42px;height:42px;border-radius:12px;background:#f1f6ef;color:#43633e;display:flex;align-items:center;justify-content:center;font-weight:900}.kmk-day-info{flex:1;min-width:0}.kmk-day-name{font-weight:900;color:#243322;font-size:.9em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.kmk-day-meta{font-size:.76em;color:#778274}.kmk-day-badge{font-size:.7em;font-weight:900;padding:5px 8px;border-radius:999px}.kmk-day-free{background:#e6f4dd;color:#376b35}.kmk-day-busy{background:#eef4ff;color:#2855a0}.kmk-sheet-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.38);z-index:2999}
+/* V3 */
+.kmk-v3-wrap{background:#fff;border:1px solid #e7ede5;border-radius:16px;box-shadow:0 2px 12px rgba(37,56,35,.06);overflow:hidden}.kmk-v3-top{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:linear-gradient(180deg,#fff,#f7faf6);border-bottom:1px solid #edf2eb}.kmk-v3-scroll{overflow:auto;-webkit-overflow-scrolling:touch;padding:10px 0}.kmk-v3-grid{display:grid;width:max-content;gap:6px;padding:0 10px}.kmk-v3-label{position:sticky;left:0;z-index:5;background:#fff;min-width:78px;min-height:34px;display:flex;flex-direction:column;justify-content:center;box-shadow:8px 0 10px rgba(255,255,255,.9)}.kmk-v3-date{height:34px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:.7em;font-weight:900;color:#596756;border-radius:10px;background:#fbfcfb;border:1px solid #edf2eb}.kmk-v3-date.today{background:#edf6eb;color:#356a42;border-color:#5f7f56}.kmk-v3-cell{height:34px;border-radius:10px;background:#e1f1d3;position:relative;cursor:pointer;border:1px solid #d0e6c0}.kmk-v3-bar{height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:.68em;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 4px}.kmk-v3-selected{outline:2px solid #f0b842!important;background:#fff1bf!important}.kmk-v3-footer{position:sticky;bottom:0;background:rgba(255,255,255,.96);backdrop-filter:blur(8px);border-top:1px solid #edf2eb;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;gap:10px}.kmk-v3-footer strong{color:#243322}.kmk-v3-footer small{color:#6f7a6c}.kmk-v3-book{border:none;border-radius:14px;background:#5f7f56;color:#fff;padding:11px 14px;font-weight:900;cursor:pointer}.kmk-v3-book:disabled{background:#cdd6ca;color:#f7faf6}.kmk-v3-tip{font-size:.72em;color:#7b8777;padding:8px 12px;text-align:center;border-top:1px solid #f0f3ef}
+
 </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script>
@@ -1199,6 +1233,9 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       </div><!-- /mob-nav-collapsible -->
     </div>
+    <!-- V1 premium mobilni tabelarni kalendar -->
+    <div id="mob-cal-v1" style="display:none"></div>
+
     <!-- V2 mobilni kalendar — vertikalni prikaz po danima -->
     <div id="mob-cal-v2" style="display:none"></div>
 
@@ -8725,6 +8762,120 @@ function stopAutoIcalSync() {
 // Close modals on backdrop click
 ['m-delete','m-restore','m-details'].forEach(id=>{ document.getElementById(id).addEventListener('click',e=>{ if(e.target.id===id){ if(id==='m-delete') closeDelModal(); else if(id==='m-restore') closeRestModal(); else closeDetModal(); } }); });
 document.addEventListener('click',e=>{ const p=document.getElementById('notif-panel'),b=document.querySelector('.notif-bell'); if(p&&b&&!p.contains(e.target)&&!b.contains(e.target)) p.classList.remove('open'); });
+
+// ═══════════════════════════════════════════════════════════════
+// KMK MOBILE CALENDAR PREMIUM REDESIGN v1.9.0 — OVERRIDES
+// Dizajn kao mockup: V1 tabela, V2 mjesec + sheet, V3 timeline.
+// Poslovna logika rezervacija/Firebase/iCal se ne mijenja.
+// ═══════════════════════════════════════════════════════════════
+function kmkCalBungs(){ return Object.keys(B_CFG||{}).map(x=>parseInt(x,10)).filter(Boolean).sort((a,b)=>a-b).length ? Object.keys(B_CFG||{}).map(x=>parseInt(x,10)).filter(Boolean).sort((a,b)=>a-b) : Array.from({length:13},(_,i)=>i+1); }
+function kmkCalDates(days=7){
+  const yr=calMonth.getFullYear(), mo=calMonth.getMonth();
+  const now=new Date(); now.setHours(0,0,0,0);
+  let start=(yr===now.getFullYear()&&mo===now.getMonth())?new Date(now):new Date(yr,mo,1);
+  const out=[];
+  for(let i=0;i<days;i++){const d=new Date(start);d.setDate(start.getDate()+i); if(d.getMonth()!==mo && out.length) break; out.push(lDate(d));}
+  return out;
+}
+function kmkCalResFor(bn,ds){return (reservations||[]).find(r=>!r.cancelled&&r.bungalovi?.some(b=>String(b.bungalov)===String(bn))&&ds>=r.checkIn&&ds<r.checkOut)||null;}
+function kmkCalStatus(res){
+  if(!res)return 'free';
+  if(res.closedManual)return 'closed';
+  if((_activeConflicts||[]).some(cf=>cf.a.id===res.id||cf.b.id===res.id))return 'conflict';
+  if(res.paid)return 'paid';
+  if(res.icalLinkId)return 'booking';
+  return 'manual';
+}
+function kmkStatusLabel(st){return ({free:'Slobodno',manual:'Rezervisano',booking:'Booking',paid:'Plaćeno',closed:'Zatvoreno',conflict:'Konflikt'}[st]||st);}
+function kmkDateShort(ds){const d=new Date(ds+'T00:00:00');const dn=['Ned','Pon','Uto','Sri','Čet','Pet','Sub'];return {day:d.getDate(),dow:dn[d.getDay()]};}
+function kmkNextDay(ds){const d=new Date(ds+'T00:00:00');d.setDate(d.getDate()+1);return lDate(d);}
+function kmkMonthName(){return ['Januar','Februar','Mart','April','Maj','Jun','Jul','Avgust','Septembar','Oktobar','Novembar','Decembar'][calMonth.getMonth()]+' '+calMonth.getFullYear();}
+
+window.mobSetCalView = (view) => { _mobCalView=view; localStorage.setItem('kmk_cal_view',view); _updateCalViewButtons(); _applyCalView(); };
+function _updateCalViewButtons(){
+  [['mob-cal-v1-btn','v1'],['mob-cal-v2-btn','v2'],['mob-cal-v3-btn','v3']].forEach(([id,v])=>{const btn=document.getElementById(id);if(!btn)return;btn.classList.add('kmk-mode-btn');btn.classList.toggle('on',_mobCalView===v);btn.style.background='';btn.style.color='';btn.style.border='';});
+}
+function _applyCalView(){
+  if(!isMobile())return;
+  const calWrap=document.querySelector('#pane-calendar .cal-wrap'), calHdr=document.querySelector('#pane-calendar .cal-hdr'), legend=document.querySelector('#pane-calendar .legend');
+  const v1=document.getElementById('mob-cal-v1'), v2=document.getElementById('mob-cal-v2'), v3=document.getElementById('mob-cal-v3');
+  [calWrap,calHdr,legend,v1,v2,v3].forEach(el=>{if(el)el.style.display='none';});
+  updateMobCalHero?.();
+  if(_mobCalView==='v2'){ if(v2)v2.style.display='block'; renderMobCalV2(); }
+  else if(_mobCalView==='v3'){ if(v3)v3.style.display='block'; renderMobCalV3(); }
+  else { if(v1)v1.style.display='block'; renderMobCalV1(); }
+}
+
+function renderMobCalV1(){
+  const el=document.getElementById('mob-cal-v1'); if(!el)return;
+  const dates=kmkCalDates(7), bungs=kmkCalBungs(), today=lDate(new Date());
+  let html=`<div class="kmk-cal-card"><div class="kmk-cal-head"><div><div class="kmk-cal-title">V1 — Tabelarni pregled</div><div class="kmk-cal-sub">Brz pregled dostupnosti po bungalovima</div></div><span class="kmk-pill">${kmkMonthName()}</span></div>`;
+  html+=`<div class="kmk-v1-scroll"><div class="kmk-v1-grid" style="grid-template-columns:76px repeat(${dates.length},42px)">`;
+  html+=`<div class="kmk-v1-cell kmk-v1-label"><div><div class="kmk-v1-bn">Bungalov</div><div class="kmk-v1-type">status</div></div></div>`;
+  dates.forEach(ds=>{const d=kmkDateShort(ds);html+=`<div class="kmk-v1-cell kmk-v1-date ${ds===today?'today':''}"><div>${d.day}</div><small>${d.dow}</small></div>`;});
+  bungs.forEach(bn=>{
+    const cap=B_CFG?.[bn]?.m||'?';
+    html+=`<div class="kmk-v1-cell kmk-v1-label"><div><div class="kmk-v1-bn">B${bn}</div><div class="kmk-v1-type">Max ${cap}</div></div></div>`;
+    dates.forEach(ds=>{
+      const res=kmkCalResFor(bn,ds), st=kmkCalStatus(res); let cls=`kmk-v1-cell kmk-st-${st}`; if(ds<today)cls+=' kmk-st-past';
+      if(res) html+=`<div class="${cls}" onclick="showDet('${res.id}')"><div class="kmk-v1-name">${escHtml(res.closedManual?'Zatvoreno':(res.name||kmkStatusLabel(st)))}</div></div>`;
+      else html+=`<div class="${cls}" onclick="mobPrefillQuickForm('${bn}','${ds}','${kmkNextDay(ds)}')">✓</div>`;
+    });
+  });
+  html+=`</div></div><div class="kmk-legend"><span class="kmk-leg"><i class="kmk-dot" style="background:#d8efc9"></i>Slobodno</span><span class="kmk-leg"><i class="kmk-dot" style="background:#7fa8ed"></i>Rezervisano</span><span class="kmk-leg"><i class="kmk-dot" style="background:#24539b"></i>Booking</span><span class="kmk-leg"><i class="kmk-dot" style="background:#416f46"></i>Plaćeno</span><span class="kmk-leg"><i class="kmk-dot" style="background:#9a9a9a"></i>Zatvoreno</span><span class="kmk-leg"><i class="kmk-dot" style="background:#ef807d"></i>Konflikt</span></div></div>`;
+  el.innerHTML=html;
+}
+
+function renderMobCalV2(){
+  const el=document.getElementById('mob-cal-v2'); if(!el)return;
+  const yr=calMonth.getFullYear(), mo=calMonth.getMonth(), dim=new Date(yr,mo+1,0).getDate(), first=new Date(yr,mo,1).getDay(), offset=(first+6)%7, today=lDate(new Date());
+  let html=`<div class="kmk-cal-card"><div class="kmk-cal-head"><div><div class="kmk-cal-title">V2 — Mjesečni pregled</div><div class="kmk-cal-sub">Pregled popunjenosti po danima</div></div><span class="kmk-pill">${kmkMonthName()}</span></div><div class="kmk-v2-month"><div class="kmk-v2-dow">${['Pon','Uto','Sri','Čet','Pet','Sub','Ned'].map(d=>`<div>${d}</div>`).join('')}</div><div class="kmk-v2-grid">`;
+  for(let i=0;i<offset;i++)html+='<div class="kmk-v2-day empty"></div>';
+  for(let d=1;d<=dim;d++){
+    const ds=`${yr}-${String(mo+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const dayRes=(reservations||[]).filter(r=>!r.cancelled&&ds>=r.checkIn&&ds<r.checkOut);
+    const sts=[...new Set(dayRes.map(kmkCalStatus))];
+    const conflict=sts.includes('conflict');
+    html+=`<div class="kmk-v2-day ${ds===today?'today':''} ${conflict?'conflict':''}" onclick="v2TapDay('${ds}')"><div class="kmk-v2-num">${d}</div><div class="kmk-v2-dots">${sts.slice(0,4).map(st=>`<i class="kmk-v2-dot" style="background:${{manual:'#7fa8ed',booking:'#24539b',paid:'#416f46',closed:'#9a9a9a',conflict:'#ef807d'}[st]||'#d8efc9'}"></i>`).join('')}</div>${dayRes.length?`<div class="kmk-v2-count">${dayRes.length} rez.</div>`:''}</div>`;
+  }
+  html+=`</div></div><div class="kmk-legend"><span class="kmk-leg"><i class="kmk-dot round" style="background:#7fa8ed"></i>Rez.</span><span class="kmk-leg"><i class="kmk-dot round" style="background:#24539b"></i>Booking</span><span class="kmk-leg"><i class="kmk-dot round" style="background:#416f46"></i>Plaćeno</span><span class="kmk-leg"><i class="kmk-dot round" style="background:#ef807d"></i>Konflikt</span></div></div>`;
+  el.innerHTML=html;
+}
+
+window.v2TapDay=(ds)=>{
+  _v2SelectedDate=ds;
+  document.querySelectorAll('.kmk-sheet-backdrop,.kmk-day-sheet').forEach(x=>x.remove());
+  const bungs=kmkCalBungs();
+  const dayRes=(reservations||[]).filter(r=>!r.cancelled&&ds>=r.checkIn&&ds<r.checkOut);
+  const d=kmkDateShort(ds);
+  let free=[], busy=[];
+  bungs.forEach(bn=>{const res=dayRes.find(r=>r.bungalovi?.some(b=>String(b.bungalov)===String(bn))); if(res)busy.push([bn,res]); else free.push(bn);});
+  const back=document.createElement('div');back.className='kmk-sheet-backdrop';back.onclick=()=>{back.remove();sheet.remove();};
+  const sheet=document.createElement('div');sheet.className='kmk-day-sheet';
+  sheet.innerHTML=`<div class="handle"></div><div class="kmk-cal-head" style="border-bottom:0"><div><div class="kmk-cal-title">${d.dow}, ${fmtD(ds)}</div><div class="kmk-cal-sub">Slobodno ${free.length} · zauzeto ${busy.length}</div></div><button class="mob-sheet-close" onclick="document.querySelectorAll('.kmk-sheet-backdrop,.kmk-day-sheet').forEach(x=>x.remove())">✕</button></div><div class="kmk-day-section"><div class="mob-section-title">✅ Slobodni bungalovi</div>${free.map(bn=>`<div class="kmk-day-row" onclick="document.querySelectorAll('.kmk-sheet-backdrop,.kmk-day-sheet').forEach(x=>x.remove());mobPrefillQuickForm('${bn}','${ds}','${kmkNextDay(ds)}')"><div class="kmk-day-bn">B${bn}</div><div class="kmk-day-info"><div class="kmk-day-name">Slobodan</div><div class="kmk-day-meta">Max ${B_CFG?.[bn]?.m||'?'} · tap za rezervaciju</div></div><span class="kmk-day-badge kmk-day-free">Rezerviši</span></div>`).join('')||'<div class="mob-note">Nema slobodnih bungalova.</div>'}<div class="mob-section-title">⛔ Zauzeti bungalovi</div>${busy.map(([bn,r])=>`<div class="kmk-day-row" onclick="showDet('${r.id}')"><div class="kmk-day-bn">B${bn}</div><div class="kmk-day-info"><div class="kmk-day-name">${escHtml(r.name||'—')}</div><div class="kmk-day-meta">${fmtD(r.checkIn)} → ${fmtD(r.checkOut)} · ${escHtml(r.channel||'')}</div></div><span class="kmk-day-badge kmk-day-busy">${kmkStatusLabel(kmkCalStatus(r))}</span></div>`).join('')||'<div class="mob-note">Nema zauzetih bungalova.</div>'}<button class="btn btn-primary" style="width:100%;padding:13px;border-radius:14px;background:#5f7f56;margin:12px 0" onclick="document.querySelectorAll('.kmk-sheet-backdrop,.kmk-day-sheet').forEach(x=>x.remove());v2AddFromSheet()">+ Nova rezervacija</button></div>`;
+  document.body.appendChild(back);document.body.appendChild(sheet);
+};
+
+let _kmkV3Sel={bn:null,start:null,end:null};
+function renderMobCalV3(){
+  const el=document.getElementById('mob-cal-v3'); if(!el)return;
+  const dates=kmkCalDates(_v3Days===0?31:_v3Days), bungs=kmkCalBungs(), today=lDate(new Date()), cellW=_v3Days<=7?58:_v3Days<=14?42:30;
+  let html=`<div class="kmk-v3-wrap"><div class="kmk-v3-top"><button class="v3-nav" onclick="changeMonth(-1)">←</button><div style="text-align:center"><div class="kmk-cal-title">V3 — Horizontalni prikaz</div><div class="kmk-cal-sub">${kmkMonthName()} · ${dates.length} dana</div></div><button class="v3-nav" onclick="changeMonth(1)">→</button></div><div class="v3-zoom"><div class="v3-zb ${_v3Days===7?'on':''}" onclick="v3SetZoom(7)">7d</div><div class="v3-zb ${_v3Days===14?'on':''}" onclick="v3SetZoom(14)">14d</div><div class="v3-zb ${_v3Days===30?'on':''}" onclick="v3SetZoom(30)">30d</div><div class="v3-zb ${_v3Days===0?'on':''}" onclick="v3SetZoom(0)">Cijeli</div></div><div class="kmk-v3-scroll"><div class="kmk-v3-grid" style="grid-template-columns:78px repeat(${dates.length},${cellW}px)">`;
+  html+=`<div class="kmk-v3-label"><span style="font-weight:900;color:#243322">Bungalov</span></div>`+dates.map(ds=>{const d=kmkDateShort(ds);return `<div class="kmk-v3-date ${ds===today?'today':''}"><span>${d.day}</span><small>${d.dow}</small></div>`;}).join('');
+  bungs.forEach(bn=>{
+    html+=`<div class="kmk-v3-label"><strong>B${bn}</strong><small style="color:#7b8777">Max ${B_CFG?.[bn]?.m||'?'}</small></div>`;
+    dates.forEach(ds=>{const r=kmkCalResFor(bn,ds), st=kmkCalStatus(r), sel=_kmkV3Sel.bn==String(bn)&&_kmkV3Sel.start&&ds>=_kmkV3Sel.start&&ds<=(_kmkV3Sel.end||_kmkV3Sel.start); if(r){const color={manual:'#7fa8ed',booking:'#24539b',paid:'#416f46',closed:'#9a9a9a',conflict:'#ef807d'}[st]||'#7fa8ed'; html+=`<div class="kmk-v3-cell" style="background:#f5f7f4;border-color:#edf2eb" onclick="showDet('${r.id}')"><div class="kmk-v3-bar" style="background:${color}">${escHtml(r.closedManual?'Zatvoreno':(r.name||kmkStatusLabel(st)))}</div></div>`;} else {html+=`<div class="kmk-v3-cell ${sel?'kmk-v3-selected':''}" onclick="kmkV3Select('${bn}','${ds}')"></div>`;}});
+  });
+  html+=`</div></div><div class="kmk-legend"><span class="kmk-leg"><i class="kmk-dot" style="background:#e1f1d3"></i>Slobodno</span><span class="kmk-leg"><i class="kmk-dot" style="background:#7fa8ed"></i>Rezervisano</span><span class="kmk-leg"><i class="kmk-dot" style="background:#24539b"></i>Booking</span><span class="kmk-leg"><i class="kmk-dot" style="background:#416f46"></i>Plaćeno</span><span class="kmk-leg"><i class="kmk-dot" style="background:#9a9a9a"></i>Zatvoreno</span><span class="kmk-leg"><i class="kmk-dot" style="background:#ef807d"></i>Konflikt</span></div><div class="kmk-v3-footer"><div id="kmk-v3-info"><strong>Izaberite slobodan period</strong><br><small>Tap na prvi datum, zatim na zadnji datum.</small></div><button class="kmk-v3-book" id="kmk-v3-book" disabled onclick="kmkV3Book()">Rezerviši</button></div><div class="kmk-v3-tip">Tap na zauzetu traku otvara detalje rezervacije.</div></div>`;
+  el.innerHTML=html; kmkV3Footer();
+}
+window.v3SetZoom=(days)=>{_v3Days=days;_kmkV3Sel={bn:null,start:null,end:null};renderMobCalV3();};
+window.kmkV3Select=(bn,ds)=>{if(_kmkV3Sel.bn!==String(bn)||!_kmkV3Sel.start){_kmkV3Sel={bn:String(bn),start:ds,end:ds};}else{_kmkV3Sel.end=ds;if(_kmkV3Sel.end<_kmkV3Sel.start){const t=_kmkV3Sel.start;_kmkV3Sel.start=_kmkV3Sel.end;_kmkV3Sel.end=t;}} renderMobCalV3();};
+function kmkV3Footer(){const info=document.getElementById('kmk-v3-info'),btn=document.getElementById('kmk-v3-book'); if(!info||!btn)return; if(!_kmkV3Sel.bn||!_kmkV3Sel.start){btn.disabled=true;return;} const start=_kmkV3Sel.start,end=_kmkV3Sel.end||start,nights=Math.ceil((new Date(end)-new Date(start))/86400000)+1; info.innerHTML=`<strong>B${_kmkV3Sel.bn} · ${fmtD(start)}${end!==start?' → '+fmtD(end):''}</strong><br><small>${nights} noći · spremno za brzu rezervaciju</small>`; btn.disabled=false;}
+window.kmkV3Book=()=>{if(!_kmkV3Sel.bn||!_kmkV3Sel.start)return; const end=_kmkV3Sel.end||_kmkV3Sel.start; mobPrefillQuickForm(_kmkV3Sel.bn,_kmkV3Sel.start,kmkNextDay(end));};
+
+// Osvježi hero nakon glavnih rendera
+try{setTimeout(()=>{_updateCalViewButtons(); if(isMobile()&&_mobCurrentTab==='calendar')_applyCalView();},300);}catch(e){}
 </script>
 
 <!-- GLOBALNI BULK TOOLBAR — prikazuje se na listi i kalendaru -->
