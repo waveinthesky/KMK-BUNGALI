@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Maja Karanfil Bungali v1.8.8</title>
+<title>Maja Karanfil Bungali v1.9.0</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh;padding:20px}
@@ -351,32 +351,76 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 .mob-sheet-close{background:none;border:none;font-size:1.4em;cursor:pointer;color:#999;padding:4px}
 .mob-sheet-body{padding:14px 18px}
 
-/* Mobilna forma — koraci */
-.mob-steps{display:flex;gap:6px;margin-bottom:16px}
-.mob-step{flex:1;height:4px;border-radius:2px;background:#e0e0e0;transition:background .2s}
-.mob-step.done{background:#667eea}
-.mob-step.active{background:#764ba2}
+
+/* Mobilna forma — premium redesign */
+.mob-steps{display:flex;gap:10px;margin:0 0 14px}
+.mob-step-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px}
+.mob-step{width:34px;height:34px;border-radius:50%;background:#eef2ec;border:1px solid #d7e2d4;color:#6b7b66;display:flex;align-items:center;justify-content:center;font-size:.92em;font-weight:800;transition:all .2s}
+.mob-step.done{background:#68885f;border-color:#68885f;color:#fff}
+.mob-step.active{background:#5f7f56;border-color:#5f7f56;color:#fff;box-shadow:0 6px 18px rgba(95,127,86,.18)}
+.mob-step-label{font-size:.72em;font-weight:700;color:#72806f;text-align:center;line-height:1.15}
 .mob-form-page{display:none}
 .mob-form-page.active{display:block}
-
-/* Mobilna forma — inputi */
+.mob-sheet-kicker{font-size:.74em;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#7a8c76;margin-bottom:2px}
+.mob-sheet-sub{font-size:.84em;color:#6f6f6f;margin:0 0 14px}
+.mob-layout-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.mob-card{background:#fff;border:1px solid #edf1ec;border-radius:16px;padding:14px;box-shadow:0 1px 6px rgba(0,0,0,.04)}
+.mob-card.soft{background:linear-gradient(180deg,#fbfcfb 0%,#f4f7f3 100%)}
+.mob-card-title{font-size:.88em;font-weight:800;color:#2d3a2b;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.mob-chip-row{display:flex;gap:8px;flex-wrap:wrap;margin:4px 0 10px}
+.mob-chip{padding:7px 12px;border-radius:999px;background:#f3f6f2;border:1px solid #e0e8de;font-size:.78em;font-weight:700;color:#5f7159}
 .mob-field{margin-bottom:14px}
-.mob-field label{display:block;font-size:.82em;font-weight:600;color:#555;margin-bottom:5px}
-.mob-field input,.mob-field select,.mob-field textarea{
-  width:100%;padding:12px 14px;border:1.5px solid #e0e0e0;border-radius:10px;
-  font-size:1em;outline:none;transition:border .15s;background:white}
-.mob-field input:focus,.mob-field select:focus{border-color:#667eea}
-.mob-field textarea{height:70px;resize:none}
-
-/* Bungalov checkboxovi — touch friendly */
+.mob-field label{display:block;font-size:.82em;font-weight:700;color:#5a6456;margin-bottom:6px}
+.mob-field input,.mob-field select,.mob-field textarea{width:100%;padding:13px 14px;border:1.5px solid #dde5db;border-radius:12px;font-size:1em;outline:none;transition:border .15s,box-shadow .15s;background:white;color:#1f1f1f}
+.mob-field input:focus,.mob-field select:focus,.mob-field textarea:focus{border-color:#5f7f56;box-shadow:0 0 0 4px rgba(95,127,86,.10)}
+.mob-field textarea{height:88px;resize:none}
+.mob-note{background:#f6f8f5;border:1px dashed #d6ded3;border-radius:12px;padding:10px 12px;font-size:.78em;color:#667061;line-height:1.45}
 .mob-bung-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:6px}
-.mob-bung-btn{padding:12px 6px;border:2px solid #e0e0e0;border-radius:10px;
-  text-align:center;cursor:pointer;font-weight:700;font-size:.9em;
-  background:white;color:#555;transition:all .15s;-webkit-tap-highlight-color:transparent}
-.mob-bung-btn.sel{background:#667eea;border-color:#667eea;color:white}
-.mob-bung-btn:active{transform:scale(.95)}
+.mob-bung-btn{padding:12px 6px;border:1.5px solid #dfe7dd;border-radius:12px;text-align:center;cursor:pointer;font-weight:800;font-size:.9em;background:#fff;color:#587055;transition:all .15s;-webkit-tap-highlight-color:transparent}
+.mob-bung-btn small{display:block;font-size:.68em;font-weight:700;color:#7b8777;margin-top:2px}
+.mob-bung-btn.sel{background:#5f7f56;border-color:#5f7f56;color:white;box-shadow:0 8px 18px rgba(95,127,86,.18)}
+.mob-bung-btn.sel small{color:#e9efe8}
+.mob-bung-btn:active{transform:scale(.97)}
+.mob-bung-card{background:white;border:1px solid #e7ece5;border-radius:16px;padding:12px;margin-top:10px;box-shadow:0 2px 10px rgba(0,0,0,.05)}
+.mob-bung-card.err{border-color:#efb4b4;background:#fff9f9}
+.mob-bung-card.warn{border-color:#e6d4a7;background:#fffdf7}
+.mob-bung-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:10px}
+.mob-bung-title{font-size:1em;font-weight:900;color:#20301e}
+.mob-bung-sub{font-size:.76em;color:#727d70;margin-top:2px}
+.mob-bung-remove{border:none;background:#fff2f1;color:#c74f46;font-weight:800;border-radius:10px;padding:8px 10px;cursor:pointer;font-size:.76em}
+.mob-guest-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.mob-counter{border:1px solid #edf1ec;border-radius:14px;padding:10px 8px;background:#fafcf9;text-align:center}
+.mob-counter label{display:block;font-size:.72em;color:#667061;font-weight:800;margin-bottom:7px}
+.mob-counter-controls{display:flex;align-items:center;justify-content:center;gap:8px}
+.mob-counter-controls button{width:28px;height:28px;border:none;border-radius:50%;background:#edf2eb;color:#50684d;font-size:1.05em;font-weight:800;cursor:pointer}
+.mob-counter-controls strong{min-width:20px;display:inline-block;font-size:1em;color:#21311f}
+.mob-bung-price{margin-top:10px;padding-top:10px;border-top:1px dashed #e4e9e2;font-size:.82em;color:#51614f;line-height:1.4}
+.mob-bung-price .price-main{font-size:1.05em;font-weight:900;color:#2f6d3d}
+.mob-section-title{font-size:.86em;font-weight:900;color:#384736;margin:12px 0 8px}
+.mob-review-block{background:#fff;border:1px solid #e9eee8;border-radius:16px;padding:14px;margin-bottom:10px;box-shadow:0 1px 6px rgba(0,0,0,.04)}
+.mob-review-line{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid #f2f4f1;font-size:.84em;color:#556052}
+.mob-review-line:last-child{border-bottom:none}
+.mob-review-key{font-weight:700;color:#596455}
+.mob-review-val{text-align:right;color:#1e1e1e;font-weight:700}
+.mob-review-price{font-size:.82em;color:#697466;margin-top:4px}
+.mob-review-total{display:flex;justify-content:space-between;align-items:flex-end;gap:8px;padding:14px;border-radius:16px;background:linear-gradient(180deg,#f6faf5 0%,#edf4eb 100%);border:1px solid #dfebdc;margin-top:8px}
+.mob-review-total .label{font-size:.8em;font-weight:800;color:#60715b;letter-spacing:.06em;text-transform:uppercase}
+.mob-review-total .amount{font-size:2em;font-weight:900;color:#356a42;line-height:1}
+.mob-steps-nav{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.mob-btn-ghost{background:#f3f5f2!important;color:#556351!important;border:1px solid #e1e8df!important}
+.mob-bottom-summary{position:sticky;bottom:0;margin:14px -18px -20px;padding:10px 14px calc(10px + env(safe-area-inset-bottom));background:rgba(255,255,255,.96);backdrop-filter:blur(8px);border-top:1px solid #edf1ec;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.mob-summary-left{min-width:0}
+.mob-summary-main{font-size:1.05em;font-weight:900;color:#20301e}
+.mob-summary-sub{font-size:.75em;color:#6a7466;line-height:1.3}
+.mob-summary-cta{flex:0 0 auto;border:none;border-radius:14px;background:#5f7f56;color:#fff;padding:12px 14px;font-weight:800;cursor:pointer;box-shadow:0 10px 20px rgba(95,127,86,.18)}
+.mob-summary-cta.secondary{background:#f3f5f2;color:#556351;box-shadow:none;border:1px solid #e0e6de}
+.mob-kpis-inline{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0 0}
+.mob-kpi-pill{background:#f6f8f5;border:1px solid #e5ebe3;border-radius:14px;padding:10px 8px;text-align:center}
+.mob-kpi-pill strong{display:block;font-size:1.05em;color:#243523}
+.mob-kpi-pill span{font-size:.72em;color:#6d7869;font-weight:700}
 
 /* Mobilna lista */
+
 .mob-res-card{background:white;border-radius:12px;padding:14px;margin-bottom:10px;
   box-shadow:0 1px 6px rgba(0,0,0,.08);border-left:4px solid #667eea}
 .mob-res-card.booking{border-left-color:#003580}
@@ -695,7 +739,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 .shared-bed-row label { font-size: .87em; font-weight: 600; color: #856404; cursor: pointer; }
 
 
-/* MOBILNA REZERVACIJA PRO v1.8.8 */
+/* MOBILNA REZERVACIJA PRO v1.9.0 */
 .mob-bung-card{background:#fff;border:1.5px solid #e7e7f2;border-radius:14px;padding:12px;margin:10px 0;box-shadow:0 1px 8px rgba(0,0,0,.06)}
 .mob-bung-card.warn{border-color:#ffc107;background:#fffdf4}
 .mob-bung-card.err{border-color:#dc3545;background:#fff7f7}
@@ -712,7 +756,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 .mob-total-sub{font-size:.82em;color:#555;margin-top:3px;line-height:1.45}
 .mob-channel-note{font-size:.74em;color:#888;margin-top:5px}
 
-/* MOB APP POLISH v1.8.8 */
+/* MOB APP POLISH v1.9.0 */
 .mob-kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
 .mob-kpi{background:white;border-radius:12px;padding:10px;text-align:center;box-shadow:0 1px 6px rgba(0,0,0,.08);border:1px solid #eee}
 .mob-kpi-num{font-size:1.35em;font-weight:800;color:#667eea;line-height:1}
@@ -783,7 +827,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
       <img src="https://i.imgur.com/DzB2EDR.png" onerror="this.style.display='none'"
            id="login-logo-img" alt="Logo" style="max-width:175px;margin:0 auto 10px;display:block;border-radius:10px">
       <h1 id="login-h1"><span id="login-logo-emoji">🏡</span> Maja Karanfil Bungali</h1>
-      <p>Prijavite se u sistem — <span id="login-ver-txt">v1.8.8</span></p>
+      <p>Prijavite se u sistem — <span id="login-ver-txt">v1.9.0</span></p>
     </div>
     <div class="login-err" id="login-err">Pogrešno korisničko ime ili lozinka!</div>
     <form class="login-form" id="login-form">
@@ -811,7 +855,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
     </button>
     <div>
       <div class="mob-hdr-title">🏡 Maja Karanfil Bungali</div>
-      <div class="mob-hdr-sub" id="mob-hdr-sub">v1.8.8 mobile</div>
+      <div class="mob-hdr-sub" id="mob-hdr-sub">v1.9.0 mobile</div>
     </div>
   </div>
   <div class="mob-hdr-right">
@@ -847,96 +891,130 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 <!-- FAB DUGME -->
 <button class="mob-fab" id="mob-fab" onclick="mobOpenQuickForm()">➕</button>
 
-<!-- MOBILNA BRZA FORMA — BOTTOM SHEET -->
+
+<!-- MOBILNA BRZA FORMA — PREMIUM REDESIGN -->
 <div class="mob-quick-overlay" id="mob-quick-overlay" onclick="mobCloseQuickForm(event)">
   <div class="mob-quick-sheet" id="mob-quick-sheet">
     <div class="mob-sheet-handle"></div>
     <div class="mob-sheet-hdr">
-      <h3 id="mob-form-title">➕ Nova Rezervacija</h3>
+      <div>
+        <div class="mob-sheet-kicker">Maja Karanfil Bungali</div>
+        <h3 id="mob-form-title">➕ Nova rezervacija</h3>
+      </div>
       <button class="mob-sheet-close" onclick="mobCloseQuickForm()">✕</button>
     </div>
-    <!-- Koraci indikator -->
-    <div style="padding:8px 18px 0">
+    <div style="padding:10px 18px 0">
       <div class="mob-steps">
-        <div class="mob-step active" id="mob-s1"></div>
-        <div class="mob-step" id="mob-s2"></div>
-        <div class="mob-step" id="mob-s3"></div>
-      </div>
-      <div style="display:flex;justify-content:space-between;font-size:.75em;color:#888;margin-bottom:4px">
-        <span>Gost</span><span>Datumi</span><span>Bungalovi</span>
+        <div class="mob-step-wrap"><div class="mob-step active" id="mob-s1">1</div><div class="mob-step-label">Detalji</div></div>
+        <div class="mob-step-wrap"><div class="mob-step" id="mob-s2">2</div><div class="mob-step-label">Datumi</div></div>
+        <div class="mob-step-wrap"><div class="mob-step" id="mob-s3">3</div><div class="mob-step-label">Bungalovi</div></div>
+        <div class="mob-step-wrap"><div class="mob-step" id="mob-s4">4</div><div class="mob-step-label">Pregled</div></div>
       </div>
     </div>
     <div class="mob-sheet-body">
-      <!-- KORAK 1: Gost -->
       <div class="mob-form-page active" id="mob-page-1">
-        <div class="mob-field">
-          <label>👤 Ime i Prezime *</label>
-          <input type="text" id="mob-name" placeholder="Npr. Marko Petrović" autocomplete="name">
+        <div class="mob-sheet-sub">Unesite osnovne informacije o gostu i kanalu rezervacije.</div>
+        <div class="mob-card soft">
+          <div class="mob-card-title">Osnovni podaci <span class="mob-chip">Korak 1/4</span></div>
+          <div class="mob-field">
+            <label>👤 Ime i prezime *</label>
+            <input type="text" id="mob-name" placeholder="Npr. Marko Petrović" autocomplete="name">
+          </div>
+          <div class="mob-layout-grid">
+            <div class="mob-field">
+              <label>📞 Telefon</label>
+              <input type="tel" id="mob-phone" placeholder="+382...">
+            </div>
+            <div class="mob-field">
+              <label>📡 Kanal</label>
+              <select id="mob-channel"></select>
+            </div>
+          </div>
+          <div class="mob-note">Savjet: odaberite pravi kanal odmah kako bi kasnije pregled i statistika ostali tačni.</div>
         </div>
-        <div class="mob-field">
-          <label>📞 Telefon</label>
-          <input type="tel" id="mob-phone" placeholder="+387...">
+        <div class="mob-steps-nav">
+          <button onclick="mobCloseQuickForm()" class="btn mob-btn-ghost" style="padding:13px;border-radius:12px">Odustani</button>
+          <button onclick="mobNextStep(2)" class="btn btn-primary" style="padding:13px;border-radius:12px;background:#5f7f56">Dalje → Datumi</button>
         </div>
-        <div class="mob-field">
-          <label>📡 Kanal</label>
-          <select id="mob-channel"></select>
-        </div>
-        <button onclick="mobNextStep(2)" class="btn btn-primary" style="width:100%;padding:13px;font-size:1em;border-radius:10px;margin-top:4px">Dalje → Datumi</button>
       </div>
-      <!-- KORAK 2: Datumi -->
+
       <div class="mob-form-page" id="mob-page-2">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-          <div class="mob-field">
-            <label>📅 Check In *</label>
-            <input type="date" id="mob-ci">
+        <div class="mob-sheet-sub">Odaberite period i postavite podrazumijevane goste za prvi ili novi bungalov.</div>
+        <div class="mob-card soft">
+          <div class="mob-card-title">Boravak <span class="mob-chip">Korak 2/4</span></div>
+          <div class="mob-layout-grid">
+            <div class="mob-field">
+              <label>📅 Check-in *</label>
+              <input type="date" id="mob-ci">
+            </div>
+            <div class="mob-field">
+              <label>📅 Check-out *</label>
+              <input type="date" id="mob-co">
+            </div>
           </div>
-          <div class="mob-field">
-            <label>📅 Check Out *</label>
-            <input type="date" id="mob-co">
+          <div id="mob-nights-show" class="mob-chip-row"></div>
+          <div class="mob-field" style="margin-bottom:8px">
+            <label>Podrazumijevani gosti za prvi / novi bungalov</label>
+          </div>
+          <div class="mob-guest-grid">
+            <div class="mob-counter">
+              <label>Odrasli</label>
+              <div class="mob-counter-controls"><button type="button" onclick="mobDeltaHeader('adults',-1)">−</button><strong id="mob-head-adults">2</strong><button type="button" onclick="mobDeltaHeader('adults',1)">+</button></div>
+              <input type="hidden" id="mob-adults" value="2">
+            </div>
+            <div class="mob-counter">
+              <label>Djeca 4–12</label>
+              <div class="mob-counter-controls"><button type="button" onclick="mobDeltaHeader('children',-1)">−</button><strong id="mob-head-children">0</strong><button type="button" onclick="mobDeltaHeader('children',1)">+</button></div>
+              <input type="hidden" id="mob-children" value="0">
+            </div>
+            <div class="mob-counter">
+              <label>Bebe &lt; 4</label>
+              <div class="mob-counter-controls"><button type="button" onclick="mobDeltaHeader('babies',-1)">−</button><strong id="mob-head-babies">0</strong><button type="button" onclick="mobDeltaHeader('babies',1)">+</button></div>
+              <input type="hidden" id="mob-babies" value="0">
+            </div>
+          </div>
+          <div id="mob-persons-summary" class="mob-note" style="margin-top:10px"></div>
+          <div class="mob-kpis-inline">
+            <div class="mob-kpi-pill"><strong id="mob-kpi-bungs">0</strong><span>Odabrano bungalova</span></div>
+            <div class="mob-kpi-pill"><strong id="mob-kpi-guests">0</strong><span>Ukupno gostiju</span></div>
+            <div class="mob-kpi-pill"><strong id="mob-kpi-total">0€</strong><span>Trenutna procjena</span></div>
           </div>
         </div>
-        <div id="mob-nights-show" style="text-align:center;font-size:.9em;color:#667eea;font-weight:600;margin:4px 0 14px"></div>
-        <div style="font-size:.78em;color:#777;font-weight:700;margin:-2px 0 7px">Podrazumijevani broj gostiju za prvi/novi bungalov — kasnije možeš posebno promijeniti za svaki bungalov.</div>
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
-          <div class="mob-field">
-            <label style="font-size:.78em">👨 Odrasli</label>
-            <input type="number" id="mob-adults" min="1" max="20" value="2" style="padding:10px;text-align:center" oninput="mobUpdateNights()">
-          </div>
-          <div class="mob-field">
-            <label style="font-size:.78em">🧒 Djeca 4-12g</label>
-            <input type="number" id="mob-children" min="0" max="20" value="0" style="padding:10px;text-align:center" oninput="mobUpdateNights()">
-          </div>
-          <div class="mob-field">
-            <label style="font-size:.78em">👶 Bebe &lt;4g</label>
-            <input type="number" id="mob-babies" min="0" max="20" value="0" style="padding:10px;text-align:center" oninput="mobUpdateNights()">
-          </div>
-        </div>
-        <div id="mob-persons-summary" style="text-align:center;font-size:.82em;color:#667eea;font-weight:600;margin:-6px 0 10px"></div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-          <button onclick="mobNextStep(1)" class="btn btn-secondary" style="padding:13px;font-size:.9em;border-radius:10px">← Nazad</button>
-          <button onclick="mobNextStep(3)" class="btn btn-primary" style="padding:13px;font-size:.9em;border-radius:10px">Dalje → Bungalovi</button>
+        <div class="mob-steps-nav">
+          <button onclick="mobNextStep(1)" class="btn mob-btn-ghost" style="padding:13px;border-radius:12px">← Nazad</button>
+          <button onclick="mobNextStep(3)" class="btn btn-primary" style="padding:13px;border-radius:12px;background:#5f7f56">Dalje → Bungalovi</button>
         </div>
       </div>
-      <!-- KORAK 3: Bungalovi -->
+
       <div class="mob-form-page" id="mob-page-3">
-        <div class="mob-field">
-          <label>🏡 Odaberi jedan ili više bungalova *</label>
+        <div class="mob-sheet-sub">Dodajte jedan ili više bungalova. Za svaki posebno podesite goste. Cijena se računa automatski.</div>
+        <div class="mob-card soft">
+          <div class="mob-card-title">Odabir bungalova <span class="mob-chip">Korak 3/4</span></div>
           <div class="mob-bung-grid" id="mob-bung-grid"></div>
-          <div class="mob-mini-note" style="margin-top:7px">Tapni bungalov da ga dodaš. Za svaki odabrani bungalov možeš posebno podesiti odrasle, djecu i bebe.</div>
+          <div class="mob-note" style="margin-top:10px">Tapnite bungalov da ga dodate. Na dnu vidite privremeni ukupni iznos i raspodjelu po bungalovima.</div>
         </div>
         <div id="mob-bung-cards"></div>
-        <div id="mob-overlap-warn" style="display:none;background:#fff3cd;border-left:3px solid #ffc107;padding:10px;border-radius:8px;font-size:.82em;margin:8px 0;color:#856404"></div>
-        <div class="mob-field" style="margin-top:10px">
-          <label>📝 Napomena</label>
-          <textarea id="mob-notes" placeholder="Posebni zahtjevi..."></textarea>
+        <div id="mob-overlap-warn" style="display:none;background:#fff6df;border-left:3px solid #f2bf45;padding:12px;border-radius:10px;font-size:.82em;margin:10px 0;color:#8a6a1e"></div>
+        <div class="mob-steps-nav">
+          <button onclick="mobNextStep(2)" class="btn mob-btn-ghost" style="padding:13px;border-radius:12px">← Nazad</button>
+          <button onclick="mobNextStep(4)" class="btn btn-primary" style="padding:13px;border-radius:12px;background:#5f7f56">Dalje → Pregled</button>
         </div>
-        <div id="mob-price-show" style="text-align:center;font-size:1em;color:#28a745;font-weight:700;margin:8px 0"></div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-          <button onclick="mobNextStep(2)" class="btn btn-secondary" style="padding:13px;font-size:.9em;border-radius:10px">← Nazad</button>
-          <button onclick="mobSaveReservation()" id="mob-save-btn" class="btn btn-primary" style="padding:13px;font-size:.9em;border-radius:10px;background:#28a745">💾 Sačuvaj</button>
+      </div>
+
+      <div class="mob-form-page" id="mob-page-4">
+        <div class="mob-sheet-sub">Prije čuvanja pregledajte sve detalje rezervacije, cijenu po bungalovu i ukupni iznos.</div>
+        <div id="mob-review-content"></div>
+        <div class="mob-field">
+          <label>📝 Napomena</label>
+          <textarea id="mob-notes" placeholder="Posebni zahtjevi, kasni dolazak, dodatne informacije..."></textarea>
+        </div>
+        <div class="mob-steps-nav">
+          <button onclick="mobNextStep(3)" class="btn mob-btn-ghost" style="padding:13px;border-radius:12px">← Nazad</button>
+          <button onclick="mobSaveReservation()" id="mob-save-btn" class="btn btn-primary" style="padding:13px;border-radius:12px;background:#356a42">💾 Sačuvaj rezervaciju</button>
         </div>
       </div>
     </div>
+    <div class="mob-bottom-summary" id="mob-bottom-summary"></div>
   </div>
 </div>
 
@@ -994,7 +1072,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
   <div class="hdr">
     <div class="hdr-l">
       <h1>🏡 Maja Karanfil Bungali</h1>
-      <p id="app-version-hdr">Sistem za upravljanje rezervacijama — v1.8.8</p>
+      <p id="app-version-hdr">Sistem za upravljanje rezervacijama — v1.9.0</p>
     </div>
     <div class="hdr-r">
       <div class="user-row">
@@ -1054,7 +1132,19 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
   <!-- CALENDAR -->
   <div id="pane-calendar" class="tab-pane">
     <!-- Mobilna navigacija kalendara (vidljiva samo na mobu) -->
-    <div id="mob-cal-nav" style="display:none;flex-direction:column;gap:0;background:white;border-radius:12px;overflow:hidden;margin-bottom:10px;box-shadow:0 1px 6px rgba(0,0,0,.08)" class="mob-cal-nav-wrap">
+    
+<div id="mob-cal-hero" style="display:none;background:linear-gradient(180deg,#ffffff 0%,#f7faf6 100%);border:1px solid #e7ede5;border-radius:16px;padding:14px;margin-bottom:10px;box-shadow:0 1px 8px rgba(0,0,0,.06)">
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px">
+    <div>
+      <div style="font-size:.78em;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#758770">Mobilni kalendar</div>
+      <div style="font-size:1.05em;font-weight:900;color:#223221;margin-top:2px">Jedan kalendar. Tri načina pregleda.</div>
+      <div style="font-size:.82em;color:#697565;margin-top:4px">V1 za brz pregled, V2 za mjesec, V3 za vremensku liniju i rezervaciju direktno iz kalendara.</div>
+    </div>
+    <div class="mob-chip">V1 / V2 / V3</div>
+  </div>
+  <div id="mob-cal-hero-kpis" class="mob-kpis-inline" style="margin-top:12px"></div>
+</div>
+<div id="mob-cal-nav" style="display:none;flex-direction:column;gap:0;background:white;border-radius:12px;overflow:hidden;margin-bottom:10px;box-shadow:0 1px 6px rgba(0,0,0,.08)" class="mob-cal-nav-wrap">
 
       <!-- RED 1: Navigacija mjeseca — uvijek vidljiv -->
       <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px">
@@ -5074,7 +5164,7 @@ window.mobCloseMore = (e) => {
   }
 };
 
-// ── MOBILNA BRZA FORMA PRO v1.8.8 ────────────────────────────────
+// ── MOBILNA BRZA FORMA PRO v1.9.0 ────────────────────────────────
 let _mobFormStep = 1;
 let _mobSelBungs = [];
 let _mobEditId = null;
@@ -5131,54 +5221,77 @@ function mobPopulateChannels(currentValue='') {
   if (selected && Array.from(chSel.options).some(o => o.value === selected)) chSel.value = selected;
 }
 
+
+window._mobPriceBreakdown = { total:0, nights:0, totalGuests:0, totalBeds:0, lines:[], tax:0 };
+
+function mobSyncHeaderCounters(){
+  const a = mobNum('mob-adults',2), c = mobNum('mob-children',0), b = mobNum('mob-babies',0);
+  const sa = document.getElementById('mob-head-adults'); if (sa) sa.textContent = a;
+  const sc = document.getElementById('mob-head-children'); if (sc) sc.textContent = c;
+  const sb = document.getElementById('mob-head-babies'); if (sb) sb.textContent = b;
+}
+
+window.mobDeltaHeader = (field, delta) => {
+  const id = field === 'adults' ? 'mob-adults' : field === 'children' ? 'mob-children' : 'mob-babies';
+  const min = field === 'adults' ? 1 : 0;
+  const el = document.getElementById(id);
+  if (!el) return;
+  const next = Math.max(min, (parseInt(el.value,10)||0) + delta);
+  el.value = String(next);
+  mobSyncHeaderCounters();
+  mobUpdateNights();
+};
+
 window.mobOpenQuickForm = (editResId) => {
   _mobEditId = editResId || null;
   _mobSelBungs = [];
   _mobBungGuests = {};
   _mobFormStep = 1;
-  
-  // Reset forme
+  window._mobPriceBreakdown = { total:0, nights:0, totalGuests:0, totalBeds:0, lines:[], tax:0 };
+
   document.getElementById('mob-name').value = '';
   document.getElementById('mob-phone').value = '';
   document.getElementById('mob-notes').value = '';
-  document.getElementById('mob-adults').value   = '2';
+  document.getElementById('mob-adults').value = '2';
   document.getElementById('mob-children').value = '0';
-  document.getElementById('mob-babies').value   = '0';
+  document.getElementById('mob-babies').value = '0';
   document.getElementById('mob-ci').value = '';
   document.getElementById('mob-co').value = '';
-  document.getElementById('mob-nights-show').textContent = '';
-  document.getElementById('mob-price-show').innerHTML = '';
+  document.getElementById('mob-nights-show').innerHTML = '';
   document.getElementById('mob-persons-summary').textContent = '';
   document.getElementById('mob-overlap-warn').style.display = 'none';
   document.getElementById('mob-bung-cards').innerHTML = '';
+  document.getElementById('mob-review-content').innerHTML = '';
+  document.getElementById('mob-bottom-summary').innerHTML = '';
   mobPopulateChannels('');
-  
-  // Popuni bungalove
+  mobSyncHeaderCounters();
+
   const grid = document.getElementById('mob-bung-grid');
   grid.innerHTML = '';
   const bungs = Object.keys(B_CFG || {}).sort((a,b)=>parseInt(a)-parseInt(b));
   (bungs.length ? bungs : Array.from({length:13},(_,i)=>String(i+1))).forEach(b => {
     const btn = document.createElement('button');
-    btn.textContent = 'B' + b;
     btn.className = 'mob-bung-btn';
     btn.dataset.bung = b;
+    const cap = mobBungCapacity(b);
+    btn.innerHTML = `<div>B${escHtml(b)}</div><small>Max ${cap || '?'}</small>`;
     btn.onclick = () => mobToggleBung(b, btn);
     grid.appendChild(btn);
   });
-  
-  // Ako je edit - popuni podatke
+
   if (_mobEditId) {
     const res = reservations.find(r => r.id === _mobEditId);
     if (res) {
-      document.getElementById('mob-name').value  = res.name || '';
+      document.getElementById('mob-name').value = res.name || '';
       document.getElementById('mob-phone').value = res.phone || '';
       document.getElementById('mob-notes').value = res.notes || '';
-      document.getElementById('mob-ci').value    = res.checkIn || '';
-      document.getElementById('mob-co').value    = res.checkOut || '';
-      const first = res.bungalovi?.[0] || {};
-      document.getElementById('mob-adults').value   = first.adults ?? 2;
-      document.getElementById('mob-children').value = first.children ?? 0;
-      document.getElementById('mob-babies').value   = first.babies ?? 0;
+      document.getElementById('mob-ci').value = res.checkIn || '';
+      document.getElementById('mob-co').value = res.checkOut || '';
+      const first = (res.bungalovi || [])[0] || {};
+      document.getElementById('mob-adults').value = String(first.adults ?? first.beds ?? 2);
+      document.getElementById('mob-children').value = String(first.children ?? 0);
+      document.getElementById('mob-babies').value = String(first.babies ?? 0);
+      mobSyncHeaderCounters();
       mobPopulateChannels(res.channel || '');
       _mobSelBungs = (res.bungalovi || []).map(b => String(b.bungalov));
       (res.bungalovi || []).forEach(b => {
@@ -5195,18 +5308,17 @@ window.mobOpenQuickForm = (editResId) => {
         const btn = grid.querySelector(`[data-bung="${b}"]`);
         if (btn) btn.classList.add('sel');
       });
-      setTimeout(() => { mobRenderBungCards(); mobUpdateNights(); }, 50);
+      document.getElementById('mob-form-title').textContent = '✏️ Izmijeni rezervaciju';
     }
-    document.getElementById('mob-form-title').textContent = '✏️ Izmijeni Rezervaciju';
   } else {
-    document.getElementById('mob-form-title').textContent = '➕ Nova Rezervacija';
+    document.getElementById('mob-form-title').textContent = '➕ Nova rezervacija';
     const today = new Date();
     const tomorrow = new Date(today); tomorrow.setDate(tomorrow.getDate() + 1);
     document.getElementById('mob-ci').value = today.toISOString().slice(0,10);
     document.getElementById('mob-co').value = tomorrow.toISOString().slice(0,10);
-    setTimeout(() => { mobRenderBungCards(); mobUpdateNights(); }, 30);
   }
-  
+
+  setTimeout(() => { mobRenderBungCards(); mobUpdateNights(); mobRenderReview(); }, 30);
   mobShowStep(1);
   document.getElementById('mob-quick-overlay').classList.add('open');
   setTimeout(()=>document.getElementById('mob-name')?.focus(), 40);
@@ -5241,33 +5353,42 @@ window.mobRemoveBung = (b) => {
   _mobSelBungs = _mobSelBungs.filter(x => x !== bs);
   delete _mobBungGuests[bs];
   document.querySelector(`#mob-bung-grid [data-bung="${bs}"]`)?.classList.remove('sel');
-  mobRenderBungCards(); mobCheckOverlap(); mobCalcPrice();
+  mobRenderBungCards();
+  mobCheckOverlap();
+  mobCalcPrice();
 };
 
 window.mobBungGuestChange = (b, field, val) => {
   const g = mobGetBungGuest(b);
   g[field] = Math.max(0, parseInt(val,10) || 0);
-  // Ako je prvi bungalov, ažuriraj i gornji summary radi bržeg osjećaja forme
   if (_mobSelBungs[0] === String(b)) {
     if (field === 'adults') document.getElementById('mob-adults').value = g.adults;
     if (field === 'children') document.getElementById('mob-children').value = g.children;
     if (field === 'babies') document.getElementById('mob-babies').value = g.babies;
+    mobSyncHeaderCounters();
   }
-  mobRenderBungCards(false); mobUpdateNights();
+  mobRenderBungCards(false);
+  mobUpdateNights();
+};
+
+window.mobBungGuestDelta = (b, field, delta) => {
+  const g = mobGetBungGuest(b);
+  const next = Math.max(0, (parseInt(g[field]||0,10)||0) + delta);
+  mobBungGuestChange(b, field, next);
 };
 
 function mobRenderBungCards(rebuild=true) {
   const wrap = document.getElementById('mob-bung-cards');
   if (!wrap) return;
   if (!_mobSelBungs.length) {
-    wrap.innerHTML = '<div class="mob-mini-note" style="background:#f8f9fa;border-radius:10px;padding:10px;margin-top:10px">Još nije odabran nijedan bungalov.</div>';
+    wrap.innerHTML = '<div class="mob-note" style="margin-top:10px">Još nije odabran nijedan bungalov. Dodajte barem jedan da biste nastavili.</div>';
     return;
   }
   const ci = document.getElementById('mob-ci')?.value;
   const co = document.getElementById('mob-co')?.value;
   const nights = ci && co ? Math.ceil((new Date(co)-new Date(ci))/86400000) : 0;
   const activePrices = (ci && typeof getActivePrices === 'function') ? getActivePrices(ci) : [];
-  let html = '<div class="mob-section-title" style="margin-top:12px">👥 Gosti i cijena po bungalovu</div>';
+  let html = '<div class="mob-section-title">🏡 Raspodjela gostiju po bungalovu</div>';
   _mobSelBungs.forEach(b => {
     const g = mobGetBungGuest(b);
     const cap = mobBungCapacity(b);
@@ -5276,23 +5397,37 @@ function mobRenderBungCards(rebuild=true) {
     const badCap = cap && beds > cap;
     const noGuest = total <= 0;
     const cls = badCap || noGuest ? 'err' : (beds === cap ? 'warn' : '');
-    let priceHtml = 'Unesi validne datume za obračun.';
+    let priceMain = '—';
+    let metaLine = 'Unesite validne datume za obračun.';
     if (nights > 0 && !noGuest) {
       const pr = calcPrice(parseInt(b,10), g.adults, g.children, g.babies, nights, activePrices);
-      priceHtml = `<strong>${((pr&&pr.subtotal)||0).toFixed(2)}€</strong> · ${nights} noći · ${g.adults} odraslih${g.children?`, ${g.children} djece`:''}${g.babies?`, ${g.babies} beba`:''}`;
-      if (badCap) priceHtml += `<br><span style="color:#c62828">⚠️ Kapacitet B${b}: ${cap}, a uneseno za krevete: ${beds}</span>`;
+      priceMain = `${((pr&&pr.subtotal)||0).toFixed(2)}€`;
+      metaLine = `${nights} noći · ${g.adults} odraslih${g.children?`, ${g.children} djece`:''}${g.babies?`, ${g.babies} beba`:''}`;
+      if (badCap) metaLine += `<br><span style="color:#c62828">⚠️ Kapacitet B${b}: ${cap}, a za krevete je uneseno: ${beds}</span>`;
     }
     html += `<div class="mob-bung-card ${cls}" data-bung-card="${escHtml(b)}">
       <div class="mob-bung-card-head">
-        <div><div class="mob-bung-title">B${escHtml(b)}</div><div class="mob-bung-sub">Kapacitet: ${cap || '?'} osoba/kreveta</div></div>
+        <div>
+          <div class="mob-bung-title">B${escHtml(b)}</div>
+          <div class="mob-bung-sub">Kapacitet ${cap || '?'} · koristi krevete ${beds} · ukupno gostiju ${total}</div>
+        </div>
         <button type="button" class="mob-bung-remove" onclick="mobRemoveBung('${escHtml(b)}')">Ukloni</button>
       </div>
       <div class="mob-guest-grid">
-        <div class="mob-guest-box"><label>Odrasli</label><input type="number" min="0" max="20" value="${g.adults}" oninput="mobBungGuestChange('${escHtml(b)}','adults',this.value)"></div>
-        <div class="mob-guest-box"><label>Djeca 4–12</label><input type="number" min="0" max="20" value="${g.children}" oninput="mobBungGuestChange('${escHtml(b)}','children',this.value)"></div>
-        <div class="mob-guest-box"><label>Bebe &lt;4</label><input type="number" min="0" max="20" value="${g.babies}" oninput="mobBungGuestChange('${escHtml(b)}','babies',this.value)"></div>
+        <div class="mob-counter">
+          <label>Odrasli</label>
+          <div class="mob-counter-controls"><button type="button" onclick="mobBungGuestDelta('${escHtml(b)}','adults',-1)">−</button><strong>${g.adults}</strong><button type="button" onclick="mobBungGuestDelta('${escHtml(b)}','adults',1)">+</button></div>
+        </div>
+        <div class="mob-counter">
+          <label>Djeca 4–12</label>
+          <div class="mob-counter-controls"><button type="button" onclick="mobBungGuestDelta('${escHtml(b)}','children',-1)">−</button><strong>${g.children}</strong><button type="button" onclick="mobBungGuestDelta('${escHtml(b)}','children',1)">+</button></div>
+        </div>
+        <div class="mob-counter">
+          <label>Bebe &lt; 4</label>
+          <div class="mob-counter-controls"><button type="button" onclick="mobBungGuestDelta('${escHtml(b)}','babies',-1)">−</button><strong>${g.babies}</strong><button type="button" onclick="mobBungGuestDelta('${escHtml(b)}','babies',1)">+</button></div>
+        </div>
       </div>
-      <div class="mob-bung-price">💶 ${priceHtml}</div>
+      <div class="mob-bung-price"><div class="price-main">💶 ${priceMain}</div><div>${metaLine}</div></div>
     </div>`;
   });
   wrap.innerHTML = html;
@@ -5311,35 +5446,102 @@ function mobCheckOverlap() {
       r.bungalovi?.some(bv => String(bv.bungalov) === String(b)) &&
       ci < r.checkOut && co > r.checkIn
     );
-    if (ov) conflicts.push('B' + b + ': ' + escHtml(ov.name) + ' (' + fmtD(ov.checkIn) + '→' + fmtD(ov.checkOut) + ')');
+    if (ov) conflicts.push('B' + b + ': ' + escHtml(ov.name) + ' (' + fmtD(ov.checkIn) + ' → ' + fmtD(ov.checkOut) + ')');
   }
   if (conflicts.length) {
     warnEl.style.display = 'block';
-    warnEl.innerHTML = '⚠️ Preklapanje:<br>' + conflicts.join('<br>');
+    warnEl.innerHTML = '⚠️ Preklapanje rezervacija:<br>' + conflicts.join('<br>');
   } else warnEl.style.display = 'none';
+}
+
+function mobRenderSummaryBar(step){
+  const el = document.getElementById('mob-bottom-summary');
+  if (!el) return;
+  const br = window._mobPriceBreakdown || { total:0, nights:0, totalGuests:0, lines:[] };
+  const hasDates = document.getElementById('mob-ci')?.value && document.getElementById('mob-co')?.value;
+  const total = br.total || 0;
+  const subtitle = `${_mobSelBungs.length} bungalov(a) · ${br.nights || 0} noći · ${br.totalGuests || 0} gostiju`;
+  if (step === 4) {
+    el.innerHTML = `<div class="mob-summary-left"><div class="mob-summary-main">Ukupno ${total.toFixed(2)}€</div><div class="mob-summary-sub">Pregledajte stavke i sačuvajte rezervaciju.</div></div><button type="button" class="mob-summary-cta" onclick="mobSaveReservation()">Sačuvaj</button>`;
+    return;
+  }
+  if (step === 3) {
+    el.innerHTML = `<div class="mob-summary-left"><div class="mob-summary-main">${total.toFixed(2)}€</div><div class="mob-summary-sub">${subtitle}</div></div><button type="button" class="mob-summary-cta" onclick="mobNextStep(4)">Pregled</button>`;
+    return;
+  }
+  if (step === 2 && hasDates) {
+    el.innerHTML = `<div class="mob-summary-left"><div class="mob-summary-main">${br.nights || 0} noći</div><div class="mob-summary-sub">Postavite datume i podrazumijevane goste.</div></div><button type="button" class="mob-summary-cta secondary" onclick="mobNextStep(3)">Bungalovi</button>`;
+    return;
+  }
+  el.innerHTML = `<div class="mob-summary-left"><div class="mob-summary-main">Nova rezervacija</div><div class="mob-summary-sub">Detalji → Datumi → Bungalovi → Pregled</div></div><button type="button" class="mob-summary-cta secondary" onclick="mobNextStep(2)">Datumi</button>`;
 }
 
 function mobCalcPrice() {
   const ci = document.getElementById('mob-ci').value;
   const co = document.getElementById('mob-co').value;
-  const priceEl = document.getElementById('mob-price-show');
-  if (!priceEl) return;
-  if (!ci || !co || !_mobSelBungs.length) { priceEl.innerHTML = ''; return; }
+  if (!ci || !co || !_mobSelBungs.length) {
+    window._mobPriceBreakdown = { total:0, nights:0, totalGuests:0, totalBeds:0, lines:[], tax:0 };
+    mobRenderSummaryBar(_mobFormStep || 1);
+    ['mob-kpi-bungs','mob-kpi-guests','mob-kpi-total'].forEach((id,i)=>{ const el=document.getElementById(id); if(el) el.textContent = i===2 ? '0€' : '0'; });
+    return;
+  }
   const nights = Math.ceil((new Date(co) - new Date(ci)) / 86400000);
-  if (nights <= 0) { priceEl.innerHTML = ''; return; }
+  if (nights <= 0) {
+    window._mobPriceBreakdown = { total:0, nights:0, totalGuests:0, totalBeds:0, lines:[], tax:0 };
+    mobRenderSummaryBar(_mobFormStep || 1);
+    return;
+  }
   const activePrices = (typeof getActivePrices === 'function') ? getActivePrices(ci) : [];
-  let grandTotal = 0, totalGuests = 0, totalBeds = 0;
+  let grandTotal = 0, totalGuests = 0, totalBeds = 0, totalAdults = 0;
   const lines = [];
   _mobSelBungs.forEach(b => {
     const g = mobGetBungGuest(b);
     totalGuests += mobGuestTotal(g);
     totalBeds += mobBedsNeeded(g);
+    totalAdults += parseInt(g.adults||0,10)||0;
     const r = calcPrice(parseInt(b,10), g.adults, g.children, g.babies, nights, activePrices);
     const sub = r.subtotal || 0;
     grandTotal += sub;
-    lines.push(`B${b}: ${sub.toFixed(2)}€`);
+    lines.push({ bungalov: String(b), subtotal: sub, adults: parseInt(g.adults||0,10)||0, children: parseInt(g.children||0,10)||0, babies: parseInt(g.babies||0,10)||0, label: `B${b}: ${sub.toFixed(2)}€` });
   });
-  priceEl.innerHTML = `<div class="mob-total-box"><div class="mob-total-main">💰 ${grandTotal.toFixed(2)} €</div><div class="mob-total-sub">${_mobSelBungs.length} bungalov(a) · ${nights} noći · ${totalGuests} gostiju · ${totalBeds} koriste krevet<br>${lines.join(' · ')}</div></div>`;
+  const tax = totalAdults * nights;
+  window._mobPriceBreakdown = { total:grandTotal, nights, totalGuests, totalBeds, totalAdults, lines, tax };
+  const kb = document.getElementById('mob-kpi-bungs'); if (kb) kb.textContent = String(_mobSelBungs.length);
+  const kg = document.getElementById('mob-kpi-guests'); if (kg) kg.textContent = String(totalGuests);
+  const kt = document.getElementById('mob-kpi-total'); if (kt) kt.textContent = `${grandTotal.toFixed(0)}€`;
+  mobRenderSummaryBar(_mobFormStep || 1);
+  mobRenderReview();
+}
+
+function mobRenderReview() {
+  const wrap = document.getElementById('mob-review-content');
+  if (!wrap) return;
+  const name = document.getElementById('mob-name')?.value?.trim() || '—';
+  const phone = document.getElementById('mob-phone')?.value?.trim() || '—';
+  const channel = document.getElementById('mob-channel')?.value || '—';
+  const ci = document.getElementById('mob-ci')?.value || '';
+  const co = document.getElementById('mob-co')?.value || '';
+  const br = window._mobPriceBreakdown || { total:0, nights:0, totalGuests:0, lines:[], tax:0 };
+  let html = '';
+  html += `<div class="mob-review-block"><div class="mob-card-title">Detalji rezervacije</div>`;
+  html += `<div class="mob-review-line"><div class="mob-review-key">Gost</div><div class="mob-review-val">${escHtml(name)}</div></div>`;
+  html += `<div class="mob-review-line"><div class="mob-review-key">Telefon</div><div class="mob-review-val">${escHtml(phone)}</div></div>`;
+  html += `<div class="mob-review-line"><div class="mob-review-key">Kanal</div><div class="mob-review-val">${escHtml(channel)}</div></div>`;
+  html += `<div class="mob-review-line"><div class="mob-review-key">Boravak</div><div class="mob-review-val">${ci?fmtD(ci):'—'} → ${co?fmtD(co):'—'}<br><span style="font-weight:600;color:#6d7769">${br.nights || 0} noći</span></div></div>`;
+  html += `</div>`;
+
+  html += `<div class="mob-review-block"><div class="mob-card-title">Bungalovi i gosti</div>`;
+  if (!br.lines.length) {
+    html += `<div class="mob-note">Još nema odabranih bungalova.</div>`;
+  } else {
+    br.lines.forEach(line => {
+      html += `<div class="mob-review-line"><div><div class="mob-review-key">B${escHtml(line.bungalov)}</div><div class="mob-review-price">${line.adults} odraslih${line.children?`, ${line.children} djece`:''}${line.babies?`, ${line.babies} beba`:''}</div></div><div class="mob-review-val">${line.subtotal.toFixed(2)}€</div></div>`;
+    });
+  }
+  html += `</div>`;
+
+  html += `<div class="mob-review-total"><div><div class="label">Ukupno</div><div style="font-size:.82em;color:#667062;margin-top:6px">${_mobSelBungs.length} bungalov(a) · ${br.totalGuests || 0} gostiju · ${br.nights || 0} noći</div></div><div class="amount">${(br.total || 0).toFixed(2)}€</div></div>`;
+  wrap.innerHTML = html;
 }
 
 function mobUpdateNights() {
@@ -5348,16 +5550,17 @@ function mobUpdateNights() {
   const el = document.getElementById('mob-nights-show');
   if (ci && co) {
     const n = Math.ceil((new Date(co) - new Date(ci)) / 86400000);
-    el.textContent = n > 0 ? n + ' noći' : '❌ Neispravan period';
-  } else el.textContent = '';
-  const adults = mobNum('mob-adults',0), children = mobNum('mob-children',0), babies = mobNum('mob-babies',0);
+    el.innerHTML = n > 0 ? `<span class="mob-chip">${n} noći</span><span class="mob-chip">${fmtD(ci)} → ${fmtD(co)}</span>` : '<span class="mob-chip">❌ Neispravan period</span>';
+  } else el.innerHTML = '';
+  const adults = mobNum('mob-adults',2), children = mobNum('mob-children',0), babies = mobNum('mob-babies',0);
   const sumEl = document.getElementById('mob-persons-summary');
   if (sumEl) {
     const total = adults + children + babies;
-    sumEl.textContent = total > 0 ? `Podrazumijevano za novi bungalov: ${total} ukupno (${adults} odraslih, ${children} djece, ${babies} beba)` : '';
+    sumEl.textContent = total > 0 ? `Podrazumijevano za novi bungalov: ${total} ukupno (${adults} odraslih, ${children} djece, ${babies} beba).` : '';
   }
-  // Kad nema izabranih bungalova, gornji broj ostaje samo predložak. Kad ih ima, ne pregazi ručne izmjene.
-  mobRenderBungCards(false); mobCalcPrice(); mobCheckOverlap();
+  mobRenderBungCards(false);
+  mobCalcPrice();
+  mobCheckOverlap();
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -5377,32 +5580,36 @@ document.addEventListener('DOMContentLoaded', () => {
     mobUpdateNights();
   });
   mobCoEl?.addEventListener('change', mobUpdateNights);
-  ['mob-adults','mob-children','mob-babies'].forEach(id => document.getElementById(id)?.addEventListener('input', mobUpdateNights));
+  ['mob-adults','mob-children','mob-babies'].forEach(id => document.getElementById(id)?.addEventListener('input', ()=>{ mobSyncHeaderCounters(); mobUpdateNights(); }));
+  mobSyncHeaderCounters();
 });
 
 function mobShowStep(step) {
   _mobFormStep = step;
-  [1,2,3].forEach(s => {
+  [1,2,3,4].forEach(s => {
     const page = document.getElementById('mob-page-' + s);
     const stepEl = document.getElementById('mob-s' + s);
     if (page) page.classList.toggle('active', s === step);
-    if (stepEl) { stepEl.classList.toggle('active', s === step); stepEl.classList.toggle('done', s < step); }
+    if (stepEl) {
+      stepEl.classList.toggle('active', s === step);
+      stepEl.classList.toggle('done', s < step);
+    }
   });
+  if (step === 4) mobRenderReview();
+  mobRenderSummaryBar(step);
 }
 
 window.mobNextStep = (step) => {
-  if (step === 2) {
-    const name = document.getElementById('mob-name').value.trim();
-    if (!name) { alert('Unesite ime gosta!'); return; }
+  const name = document.getElementById('mob-name').value.trim();
+  const ci = document.getElementById('mob-ci').value;
+  const co = document.getElementById('mob-co').value;
+  if (step >= 2 && !name) { alert('Unesite ime gosta!'); mobShowStep(1); return; }
+  if (step >= 3) {
+    if (!ci || !co || new Date(co) <= new Date(ci)) { alert('Unesite ispravan check-in i check-out!'); mobShowStep(2); return; }
   }
-  if (step === 3) {
-    const ci = document.getElementById('mob-ci').value;
-    const co = document.getElementById('mob-co').value;
-    if (!ci || !co) { alert('Unesite datume!'); return; }
-    if (ci >= co) { alert('Datum dolaska mora biti prije odlaska!'); return; }
-    mobCheckOverlap(); mobRenderBungCards(); mobCalcPrice();
-  }
+  if (step >= 4 && !_mobSelBungs.length) { alert('Odaberite barem jedan bungalov!'); mobShowStep(3); return; }
   mobShowStep(step);
+  mobCalcPrice();
 };
 
 window.mobSaveReservation = async () => {
@@ -5412,8 +5619,8 @@ window.mobSaveReservation = async () => {
   const ci = document.getElementById('mob-ci').value;
   const co = document.getElementById('mob-co').value;
   const notes = document.getElementById('mob-notes').value.trim();
-  if (!name) { alert('Unesite ime!'); mobShowStep(1); return; }
-  if (!ci || !co || ci >= co) { alert('Unesite ispravan period rezervacije!'); mobShowStep(2); return; }
+  if (!name) { alert('Unesite ime gosta!'); mobShowStep(1); return; }
+  if (!ci || !co || new Date(co) <= new Date(ci)) { alert('Unesite ispravan period rezervacije!'); mobShowStep(2); return; }
   if (!_mobSelBungs.length) { alert('Odaberite barem jedan bungalov!'); mobShowStep(3); return; }
   if (typeof isOffline === 'function' && isOffline()) { alert('❌ Nema internetske veze. Rezervacija ne može biti sačuvana dok se internet ne vrati.'); return; }
 
@@ -5446,7 +5653,7 @@ window.mobSaveReservation = async () => {
   }
 
   const saveBtn = document.getElementById('mob-save-btn');
-  saveBtn.disabled = true; saveBtn.textContent = '⏳ Čuvam...';
+  if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = '⏳ Čuvam...'; }
   try {
     const existing = _mobEditId ? reservations.find(r => r.id === _mobEditId) : null;
     const data = {
@@ -5466,10 +5673,34 @@ window.mobSaveReservation = async () => {
   } catch(err) {
     alert('Greška: ' + err.message);
   } finally {
-    saveBtn.disabled = false; saveBtn.textContent = '💾 Sačuvaj';
+    if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = '💾 Sačuvaj rezervaciju'; }
   }
 };
 
+// Mobile calendar hero / KPI summary
+function mobCalendarHeroStats(){
+  const today = lDate(new Date());
+  const arrivals = (reservations||[]).filter(r=>!r.cancelled && r.checkIn===today).length;
+  const departures = (reservations||[]).filter(r=>!r.cancelled && r.checkOut===today).length;
+  const occupied = new Set();
+  (reservations||[]).filter(r=>!r.cancelled && r.checkIn<=today && r.checkOut>today).forEach(r=>(r.bungalovi||[]).forEach(b=>occupied.add(String(b.bungalov))));
+  const total = Object.keys(B_CFG||{}).length || 13;
+  return {arrivals, departures, free: Math.max(0,total-occupied.size), occupied: occupied.size, total};
+}
+function updateMobCalHero(){
+  const hero = document.getElementById('mob-cal-hero');
+  const kpi = document.getElementById('mob-cal-hero-kpis');
+  if (!hero || !kpi) return;
+  if (typeof isMobile === 'function' && isMobile()) hero.style.display = 'block';
+  const s = mobCalendarHeroStats();
+  kpi.innerHTML = `
+    <div class="mob-kpi-pill"><strong>${s.arrivals}</strong><span>Dolasci danas</span></div>
+    <div class="mob-kpi-pill"><strong>${s.departures}</strong><span>Odlasci danas</span></div>
+    <div class="mob-kpi-pill"><strong>${s.free}</strong><span>Slobodno danas</span></div>`;
+}
+setTimeout(()=>{ try { updateMobCalHero(); } catch(e){} }, 250);
+const __origRenderCal = window.renderCal;
+window.renderCal = function(...args){ const r = __origRenderCal.apply(this,args); try { updateMobCalHero(); } catch(e){} return r; };
 
 function mobPhoneHref(phone, mode){const clean=String(phone||'').replace(/[^\+\d]/g,'');if(!clean)return '#';return mode==='wa'?'https://wa.me/'+clean.replace(/^\+/,''):'tel:'+clean;}
 function mobBungLabel(r){return (r.bungalovi||[]).map(b=>'B'+b.bungalov).join(', ')||'—';}
