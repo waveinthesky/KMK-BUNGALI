@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Maja Karanfil Bungali v1.9.3</title>
+<title>Maja Karanfil Bungali v2.4.2</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh;padding:20px}
@@ -739,7 +739,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 .shared-bed-row label { font-size: .87em; font-weight: 600; color: #856404; cursor: pointer; }
 
 
-/* MOBILNA REZERVACIJA PRO v1.9.3 */
+/* MOBILNA REZERVACIJA PRO v2.4.2 */
 .mob-bung-card{background:#fff;border:1.5px solid #e7e7f2;border-radius:14px;padding:12px;margin:10px 0;box-shadow:0 1px 8px rgba(0,0,0,.06)}
 .mob-bung-card.warn{border-color:#ffc107;background:#fffdf4}
 .mob-bung-card.err{border-color:#dc3545;background:#fff7f7}
@@ -756,7 +756,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 .mob-total-sub{font-size:.82em;color:#555;margin-top:3px;line-height:1.45}
 .mob-channel-note{font-size:.74em;color:#888;margin-top:5px}
 
-/* MOB APP POLISH v1.9.3 */
+/* MOB APP POLISH v2.4.2 */
 .mob-kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
 .mob-kpi{background:white;border-radius:12px;padding:10px;text-align:center;box-shadow:0 1px 6px rgba(0,0,0,.08);border:1px solid #eee}
 .mob-kpi-num{font-size:1.35em;font-weight:800;color:#667eea;line-height:1}
@@ -776,7 +776,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
 
 
-/* === KMK MOBILE CALENDAR PREMIUM REDESIGN v1.9.3 === */
+/* === KMK MOBILE CALENDAR PREMIUM REDESIGN v2.4.2 === */
 @media(max-width:768px){
   #mob-cal-hero{display:block!important}
   #mob-cal-nav{border:1px solid #e6ede3!important;border-radius:16px!important;box-shadow:0 2px 12px rgba(37,56,35,.06)!important}
@@ -811,7 +811,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
 
 /* ═════════════════════════════════════════════════════
-   KMK MOBILE FULL POLISH v1.9.3 — final mobile theme
+   KMK MOBILE FULL POLISH v2.4.2 — final mobile theme
    Premium green hospitality UI, unified across all mobile tabs.
    ═════════════════════════════════════════════════════ */
 :root{
@@ -967,9 +967,14 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
     // Napomena: Service Worker ne radi kada se HTML otvori direktno kao file://
     if ('serviceWorker' in navigator && (location.protocol === 'http:' || location.protocol === 'https:')) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/KMK-BUNGALI/sw.js')
+        navigator.serviceWorker.register(new URL('sw.js', location.href).pathname)
           .then(reg => console.log('SW registered:', reg.scope))
-          .catch(err => console.log('SW registration failed:', err));
+          .catch(err => {
+            console.log('SW registration failed for sw.js, trying versioned SW:', err);
+            return navigator.serviceWorker.register(new URL('sw_desktop_vision_v2_4_2.js', location.href).pathname)
+              .then(reg => console.log('SW registered:', reg.scope))
+              .catch(err2 => console.log('SW registration failed:', err2));
+          });
       });
     } else {
       console.log('SW skipped: requires http/https origin. For local testing use: py -m http.server 8080');
@@ -977,6 +982,578 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
   </script>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+
+  <style id="kmkv-vision-styles">
+
+/* ─── THEME TOGGLE BUTTON — uvijek vidljiv ─────────────────────────── */
+#kmk-theme-fab {
+  position: fixed;
+  bottom: 18px;
+  right: 18px;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 16px;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  font-size: .82em;
+  font-weight: 700;
+  letter-spacing: .01em;
+  box-shadow: 0 4px 18px rgba(0,0,0,.18);
+  transition: background .2s, color .2s, box-shadow .2s, transform .15s;
+  white-space: nowrap;
+  user-select: none;
+}
+#kmk-theme-fab:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,.22); }
+#kmk-theme-fab:active { transform: scale(.97); }
+#kmk-theme-fab.mode-vision {
+  background: #3f6f43;
+  color: #fff;
+}
+#kmk-theme-fab.mode-classic {
+  background: #667eea;
+  color: #fff;
+}
+
+
+:root{
+  --kmkv-bg:#fbfcfa;
+  --kmkv-surface:#ffffff;
+  --kmkv-soft:#eef5ea;
+  --kmkv-green:#3f6f43;
+  --kmkv-green-2:#7fa06f;
+  --kmkv-green-dark:#19351f;
+  --kmkv-mint:#dcefd4;
+  --kmkv-line:#dde7d9;
+  --kmkv-ink:#1e2b1d;
+  --kmkv-muted:#667463;
+  --kmkv-blue:#4f79bd;
+  --kmkv-red:#d86d66;
+  --kmkv-amber:#d6a53f;
+  --kmkv-gray:#8b9388;
+  --kmkv-shadow:0 18px 48px rgba(34,53,31,.10);
+  --kmkv-shadow-soft:0 8px 24px rgba(34,53,31,.08);
+}
+@media (min-width: 1100px){
+  body.kmkv-desktop-active{
+    background:var(--kmkv-bg)!important;
+    padding:0!important;
+    overflow:hidden;
+  }
+  body.kmkv-desktop-active .container{
+    display:none!important;
+  }
+  body.kmkv-desktop-active .sync{
+    display:none!important;
+  }
+  #kmkv-shell{
+    position:fixed;
+    inset:0;
+    z-index:1500;
+    background:var(--kmkv-bg);
+    color:var(--kmkv-ink);
+    font-family:Inter,"Segoe UI",system-ui,-apple-system,BlinkMacSystemFont,sans-serif;
+    display:grid;
+    grid-template-columns:276px 1fr;
+    overflow:hidden;
+  }
+  .kmkv-sidebar{
+    padding:22px 18px;
+    border-right:1px solid var(--kmkv-line);
+    background:linear-gradient(180deg,#fbfdf9,#eef5ea);
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+    min-width:0;
+  }
+  .kmkv-brand{
+    display:flex;
+    gap:12px;
+    align-items:center;
+    padding:8px 8px 14px;
+  }
+  .kmkv-brand-mark{
+    width:46px;height:46px;border-radius:16px;
+    display:flex;align-items:center;justify-content:center;
+    background:var(--kmkv-green);
+    color:white;
+    box-shadow:0 10px 24px rgba(95,127,86,.26);
+    font-size:23px;
+  }
+  .kmkv-brand strong{
+    display:block;
+    font-size:1.14rem;
+    color:var(--kmkv-green-dark);
+    letter-spacing:-.02em;
+  }
+  .kmkv-brand span{
+    display:block;
+    font-size:.76rem;
+    color:var(--kmkv-muted);
+    margin-top:2px;
+  }
+  .kmkv-nav{
+    display:flex;flex-direction:column;gap:6px;
+  }
+  .kmkv-nav button{
+    border:0;
+    width:100%;
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:12px 12px;
+    border-radius:15px;
+    background:transparent;
+    color:#556550;
+    cursor:pointer;
+    font-weight:750;
+    text-align:left;
+    font-size:.92rem;
+    transition:.15s ease;
+  }
+  .kmkv-nav button:hover{ background:#ffffffa8; color:var(--kmkv-green-dark); transform:translateX(2px); }
+  .kmkv-nav button.on{
+    background:var(--kmkv-green);
+    color:white;
+    box-shadow:0 10px 22px rgba(95,127,86,.22);
+  }
+  .kmkv-nav .ico{
+    width:30px;height:30px;border-radius:11px;
+    display:flex;align-items:center;justify-content:center;
+    background:#ffffffb5;
+  }
+  .kmkv-nav button.on .ico{
+    background:rgba(255,255,255,.2);
+  }
+  .kmkv-sidebar-card{
+    margin-top:auto;
+    border-radius:22px;
+    padding:14px;
+    background:
+      linear-gradient(160deg,rgba(255,255,255,.88),rgba(255,255,255,.55)),
+      radial-gradient(circle at 20% 0%,#dbeed3 0,#dbeed3 30%,transparent 31%),
+      linear-gradient(135deg,#f7efe4,#d8ead2);
+    border:1px solid rgba(255,255,255,.8);
+    box-shadow:var(--kmkv-shadow-soft);
+    overflow:hidden;
+  }
+  .kmkv-mini-landscape{
+    height:82px;border-radius:18px;margin-bottom:12px;
+    background:
+      radial-gradient(circle at 76% 30%, #fff7d0 0 13px, transparent 14px),
+      linear-gradient(135deg,rgba(28,61,42,.18),rgba(95,127,86,.25)),
+      linear-gradient(160deg,#d9eac8 0%,#c9dfbc 45%,#eef5ea 46%,#fbf7ed 100%);
+    position:relative;
+  }
+  .kmkv-mini-landscape:before{
+    content:"";position:absolute;left:22px;bottom:18px;width:70px;height:32px;
+    background:#6e4c34;border-radius:4px 4px 8px 8px;
+    box-shadow:0 8px 18px rgba(0,0,0,.12);
+  }
+  .kmkv-mini-landscape:after{
+    content:"";position:absolute;left:16px;bottom:46px;border-left:42px solid transparent;border-right:42px solid transparent;border-bottom:28px solid #355a34;
+  }
+  .kmkv-sidebar-card strong{display:block;color:var(--kmkv-green-dark);font-size:.96rem;}
+  .kmkv-sidebar-card p{font-size:.78rem;color:var(--kmkv-muted);line-height:1.4;margin:5px 0 0;}
+  .kmkv-main{
+    display:grid;
+    grid-template-rows:auto 1fr;
+    min-width:0;
+    overflow:hidden;
+  }
+  .kmkv-topbar{
+    height:78px;
+    display:flex;
+    align-items:center;
+    gap:16px;
+    padding:16px 24px;
+    border-bottom:1px solid var(--kmkv-line);
+    background:rgba(244,247,241,.92);
+    backdrop-filter:blur(12px);
+  }
+  .kmkv-search{
+    flex:1;
+    background:white;
+    border:1px solid var(--kmkv-line);
+    height:46px;
+    border-radius:18px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:0 14px;
+    box-shadow:0 3px 12px rgba(34,53,31,.04);
+    color:var(--kmkv-muted);
+    min-width:240px;
+  }
+  .kmkv-search input{
+    border:0;outline:0;flex:1;font-size:.94rem;background:transparent;color:var(--kmkv-ink);
+  }
+  .kmkv-shortcut{font-size:.74rem;background:#f0f4ee;border:1px solid #dfe8dc;border-radius:10px;padding:4px 7px;color:var(--kmkv-muted);font-weight:800;}
+  .kmkv-top-actions{display:flex;align-items:center;gap:9px;}
+  .kmkv-btn{
+    border:0;
+    border-radius:15px;
+    padding:11px 14px;
+    font-weight:850;
+    cursor:pointer;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    background:white;
+    color:var(--kmkv-green-dark);
+    border:1px solid var(--kmkv-line);
+    transition:.15s ease;
+    white-space:nowrap;
+  }
+  .kmkv-btn:hover{transform:translateY(-1px);box-shadow:var(--kmkv-shadow-soft);}
+  .kmkv-btn.primary{background:var(--kmkv-green);color:white;border-color:var(--kmkv-green);}
+  .kmkv-btn.danger{background:#fff2f1;color:#b6443e;border-color:#f0c8c5;}
+  .kmkv-icon-btn{
+    width:46px;height:46px;border-radius:16px;border:1px solid var(--kmkv-line);background:white;cursor:pointer;font-size:1.05rem;
+  }
+  .kmkv-user{
+    display:flex;align-items:center;gap:10px;background:white;border:1px solid var(--kmkv-line);
+    border-radius:18px;padding:7px 11px;
+  }
+  .kmkv-avatar{
+    width:34px;height:34px;border-radius:50%;
+    background:linear-gradient(135deg,#ceddc8,#739769);
+    color:white;display:flex;align-items:center;justify-content:center;font-weight:900;
+  }
+  .kmkv-user strong{display:block;font-size:.84rem;}
+  .kmkv-user span{display:block;font-size:.72rem;color:var(--kmkv-muted);}
+  .kmkv-content{
+    overflow:auto;
+    padding:24px;
+  }
+  .kmkv-page{
+    display:none;
+    animation:kmkvFade .18s ease;
+  }
+  .kmkv-page.on{display:block;}
+  @keyframes kmkvFade{from{opacity:.3;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .kmkv-hero{
+    background:
+      radial-gradient(circle at 86% 22%,rgba(255,245,205,.9) 0 58px,transparent 59px),
+      linear-gradient(135deg,#fff 0%,#f7fbf4 42%,#e3efdb 100%);
+    border:1px solid var(--kmkv-line);
+    border-radius:30px;
+    padding:24px 26px;
+    box-shadow:var(--kmkv-shadow-soft);
+    display:flex;
+    justify-content:space-between;
+    gap:22px;
+    position:relative;
+    overflow:hidden;
+    margin-bottom:20px;
+  }
+  .kmkv-hero:after{
+    content:"";
+    width:330px;height:125px;
+    position:absolute;
+    right:26px;bottom:0;
+    background:
+      linear-gradient(135deg,transparent 0 26%,#5e8b55 27% 44%,transparent 45%),
+      linear-gradient(160deg,transparent 0 38%,#2e572d 39% 55%,transparent 56%),
+      linear-gradient(180deg,transparent 0 54%,rgba(95,127,86,.24) 55% 100%);
+    opacity:.65;
+    pointer-events:none;
+  }
+  .kmkv-eyebrow{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:7px 10px;border-radius:999px;background:var(--kmkv-soft);
+    color:var(--kmkv-green-dark);font-weight:900;font-size:.76rem;
+    margin-bottom:10px;
+  }
+  .kmkv-hero h1{font-size:2rem;line-height:1.1;letter-spacing:-.045em;color:var(--kmkv-green-dark);margin:0 0 8px;}
+  .kmkv-hero p{max-width:720px;margin:0;color:var(--kmkv-muted);line-height:1.55;}
+  .kmkv-hero-actions{display:flex;gap:9px;align-items:flex-start;z-index:1;}
+  .kmkv-kpis{display:grid;grid-template-columns:repeat(6,minmax(130px,1fr));gap:14px;margin-bottom:20px;}
+  .kmkv-card{
+    background:white;
+    border:1px solid var(--kmkv-line);
+    border-radius:24px;
+    box-shadow:var(--kmkv-shadow-soft);
+  }
+  .kmkv-kpi{padding:16px;}
+  .kmkv-kpi .top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;margin-bottom:12px;}
+  .kmkv-kpi .icon{width:40px;height:40px;border-radius:14px;background:var(--kmkv-soft);display:flex;align-items:center;justify-content:center;font-size:1.15rem;}
+  .kmkv-kpi .num{font-size:1.72rem;font-weight:950;letter-spacing:-.04em;color:var(--kmkv-green-dark);}
+  .kmkv-kpi .lbl{font-size:.78rem;color:var(--kmkv-muted);font-weight:850;margin-top:2px;}
+  .kmkv-kpi .sub{font-size:.75rem;color:#80907b;margin-top:8px;}
+  .kmkv-grid-main{
+    display:grid;
+    grid-template-columns:1.65fr .85fr;
+    gap:18px;
+    align-items:start;
+  }
+  .kmkv-panel{padding:18px;}
+  .kmkv-panel-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px;}
+  .kmkv-panel-title{font-size:1.05rem;font-weight:950;color:var(--kmkv-green-dark);}
+  .kmkv-panel-sub{font-size:.78rem;color:var(--kmkv-muted);margin-top:3px;}
+  .kmkv-pill{font-size:.74rem;font-weight:900;color:var(--kmkv-green-dark);background:var(--kmkv-soft);border:1px solid #dce8d7;border-radius:999px;padding:7px 10px;white-space:nowrap;}
+  .kmkv-occupancy-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;}
+  .kmkv-bung-card{
+    border-radius:18px;
+    padding:12px;
+    min-height:98px;
+    border:1px solid transparent;
+    position:relative;
+    overflow:hidden;
+    cursor:pointer;
+  }
+  .kmkv-bung-card.free{background:#eff8ea;border-color:#d4e8cd;color:#315c2f;}
+  .kmkv-bung-card.busy{background:#eff4fd;border-color:#ceddf8;color:#294f8f;}
+  .kmkv-bung-card.paid{background:#edf7ec;border-color:#c8e3c5;color:#294f2b;}
+  .kmkv-bung-card.checkout{background:#fff7e6;border-color:#ead49a;color:#825d15;}
+  .kmkv-bung-card.closed{background:#f1f1ef;border-color:#d7dbd3;color:#5b6358;}
+  .kmkv-bung-card.conflict{background:#fff0ef;border-color:#efc0bd;color:#9d3833;}
+  .kmkv-bung-card strong{display:block;font-size:1.05rem;}
+  .kmkv-bung-card .status{font-size:.74rem;font-weight:950;margin-top:5px;}
+  .kmkv-bung-card .meta{font-size:.72rem;line-height:1.35;margin-top:8px;opacity:.82;}
+  .kmkv-bung-card:after{
+    content:"";position:absolute;right:-18px;bottom:-24px;width:74px;height:74px;border-radius:50%;background:rgba(255,255,255,.44);
+  }
+  .kmkv-side-stack{display:grid;gap:14px;}
+  .kmkv-mini-list{display:grid;gap:10px;}
+  .kmkv-list-row{display:flex;align-items:center;justify-content:space-between;gap:10px;border-radius:16px;background:#f8faf7;border:1px solid #edf2eb;padding:10px;}
+  .kmkv-list-row .left{display:flex;align-items:center;gap:10px;min-width:0;}
+  .kmkv-badge-id{width:42px;height:42px;border-radius:14px;background:var(--kmkv-green);color:white;display:flex;align-items:center;justify-content:center;font-weight:950;flex:0 0 auto;}
+  .kmkv-list-row strong{display:block;font-size:.86rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:210px;}
+  .kmkv-list-row span{display:block;font-size:.73rem;color:var(--kmkv-muted);margin-top:2px;}
+  .kmkv-price{font-weight:950;color:var(--kmkv-green-dark);}
+  .kmkv-heatmap{display:grid;grid-template-columns:repeat(7,1fr);gap:7px;}
+  .kmkv-heat-cell{height:38px;border-radius:12px;background:#eef5ea;border:1px solid #dde9d8;display:flex;align-items:center;justify-content:center;font-size:.74rem;font-weight:900;color:#435b3d;}
+  .kmkv-heat-cell.l2{background:#dcedd3}.kmkv-heat-cell.l3{background:#bedcb5}.kmkv-heat-cell.l4{background:#95bd8a;color:white}.kmkv-heat-cell.l5{background:#5f7f56;color:white}
+  .kmkv-timeline-wrap{overflow:auto;border-radius:24px;border:1px solid var(--kmkv-line);background:white;}
+  .kmkv-timeline{min-width:1280px;padding:14px;}
+  .kmkv-t-head,.kmkv-t-row{display:grid;grid-template-columns:160px repeat(21,48px);gap:5px;align-items:center;}
+  .kmkv-t-head{position:sticky;top:0;background:white;z-index:2;padding-bottom:8px;}
+  .kmkv-t-date{height:48px;border-radius:14px;background:#f8faf7;border:1px solid #edf2eb;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:950;color:#40503b;font-size:.82rem;}
+  .kmkv-t-date small{font-size:.65rem;color:var(--kmkv-muted);}
+  .kmkv-t-row{position:relative;min-height:48px;margin-top:7px;}
+  .kmkv-t-label{height:48px;border-radius:16px;background:#f8faf7;border:1px solid #edf2eb;display:flex;align-items:center;gap:10px;padding:0 10px;font-weight:950;color:var(--kmkv-green-dark);}
+  .kmkv-t-label small{display:block;font-size:.68rem;color:var(--kmkv-muted);font-weight:750;}
+  .kmkv-t-track{grid-column:2/-1;position:relative;height:48px;border-radius:16px;background:repeating-linear-gradient(90deg,#fcfdfb 0,#fcfdfb 47px,#edf2eb 48px,#edf2eb 49px);border:1px solid #edf2eb;}
+  .kmkv-t-bar{position:absolute;top:7px;height:32px;border-radius:13px;color:white;display:flex;align-items:center;padding:0 12px;font-weight:950;font-size:.78rem;box-shadow:0 8px 18px rgba(32,48,30,.12);cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .kmkv-t-bar small{opacity:.86;margin-left:8px;font-weight:800;}
+  .kmkv-controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+  .kmkv-select,.kmkv-input{height:40px;border-radius:14px;border:1px solid var(--kmkv-line);background:white;padding:0 12px;color:var(--kmkv-ink);font-weight:750;}
+  .kmkv-table-wrap{overflow:auto;border-radius:24px;border:1px solid var(--kmkv-line);background:white;}
+  .kmkv-table{width:100%;border-collapse:separate;border-spacing:0;min-width:1020px;}
+  .kmkv-table th{position:sticky;top:0;background:#f8faf7;color:#566650;text-align:left;font-size:.72rem;text-transform:uppercase;letter-spacing:.04em;padding:13px 12px;border-bottom:1px solid var(--kmkv-line);}
+  .kmkv-table td{padding:13px 12px;border-bottom:1px solid #edf2eb;font-size:.86rem;vertical-align:middle;}
+  .kmkv-table tr:hover td{background:#fbfdf9;}
+  .kmkv-status{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:6px 9px;font-weight:900;font-size:.72rem;}
+  .kmkv-status.paid{background:#e7f4e4;color:#316433}.kmkv-status.unpaid{background:#fff5dc;color:#8a631c}.kmkv-status.booking{background:#eaf2ff;color:#2f5592}.kmkv-status.cancel{background:#ffe9e7;color:#a83a35}
+  .kmkv-form-layout{display:grid;grid-template-columns:1fr 360px;gap:18px;align-items:start;}
+  .kmkv-form-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+  .kmkv-field label{display:block;font-size:.76rem;font-weight:900;color:var(--kmkv-muted);margin-bottom:6px;}
+  .kmkv-field input,.kmkv-field select,.kmkv-field textarea{width:100%;border:1px solid var(--kmkv-line);border-radius:16px;padding:12px 13px;background:white;outline:none;font:inherit;color:var(--kmkv-ink);}
+  .kmkv-field textarea{min-height:92px;resize:vertical;}
+  .kmkv-bung-select-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+  .kmkv-bung-choice{border:1px solid var(--kmkv-line);border-radius:18px;padding:12px;background:#f8faf7;display:flex;justify-content:space-between;align-items:center;}
+  .kmkv-summary-card{position:sticky;top:12px;padding:18px;background:linear-gradient(180deg,#fff,#f7fbf4);border:1px solid var(--kmkv-line);border-radius:26px;box-shadow:var(--kmkv-shadow);}
+  .kmkv-big-total{font-size:2.25rem;font-weight:950;color:var(--kmkv-green-dark);letter-spacing:-.05em;margin:8px 0;}
+  .kmkv-chart-grid{display:grid;grid-template-columns:1.3fr .8fr .8fr;gap:16px;}
+  .kmkv-chart{height:250px;border-radius:22px;background:#f8faf7;border:1px solid var(--kmkv-line);padding:16px;position:relative;overflow:hidden;}
+  .kmkv-bars{display:flex;align-items:end;gap:10px;height:168px;margin-top:18px;}
+  .kmkv-bar{flex:1;border-radius:12px 12px 5px 5px;background:linear-gradient(180deg,#7ba56f,#5f7f56);min-height:22px;position:relative;}
+  .kmkv-bar span{position:absolute;bottom:-22px;left:50%;transform:translateX(-50%);font-size:.7rem;color:var(--kmkv-muted);font-weight:800;}
+  .kmkv-donut{width:170px;height:170px;border-radius:50%;background:conic-gradient(#5f7f56 0 42%,#4f79bd 42% 64%,#d6a53f 64% 78%,#d86d66 78% 100%);margin:18px auto;position:relative;}
+  .kmkv-donut:after{content:"67%";position:absolute;inset:28px;border-radius:50%;background:#f8faf7;display:flex;align-items:center;justify-content:center;font-weight:950;font-size:1.6rem;color:var(--kmkv-green-dark);}
+  .kmkv-classic-note{margin-top:18px;padding:14px;border-radius:20px;background:#fff8e8;border:1px solid #eedaa8;color:#765718;font-weight:750;line-height:1.45;}
+  .kmkv-hidden{display:none!important;}
+  @media(max-width:1300px){
+    .kmkv-kpis{grid-template-columns:repeat(3,1fr);}
+    .kmkv-grid-main{grid-template-columns:1fr;}
+    .kmkv-chart-grid{grid-template-columns:1fr;}
+    .kmkv-form-layout{grid-template-columns:1fr;}
+  }
+}
+
+
+/* KMK Desktop Vision v2.3.0 QA hotfix */
+#kmkv-restore-pill{position:fixed;right:22px;bottom:22px;z-index:2000;border:0;border-radius:18px;background:#5f7f56;color:#fff;padding:13px 16px;font-weight:900;box-shadow:0 18px 40px rgba(34,53,31,.22);cursor:pointer}
+.kmkv-theme-grid{display:grid;grid-template-columns:repeat(2,minmax(240px,1fr));gap:14px;margin-top:16px}
+.kmkv-theme-choice{border:1px solid var(--kmkv-line);background:#fff;border-radius:22px;padding:18px;text-align:left;cursor:pointer;box-shadow:var(--kmkv-shadow-soft);color:var(--kmkv-ink)}
+.kmkv-theme-choice strong{display:block;color:var(--kmkv-green-dark);font-size:1.02rem;margin-bottom:6px}
+.kmkv-theme-choice span{display:block;color:var(--kmkv-muted);line-height:1.45;font-size:.9rem}
+.kmkv-theme-choice.on{border-color:var(--kmkv-green);background:linear-gradient(180deg,#fff,#f3f8f1);box-shadow:0 18px 38px rgba(95,127,86,.14)}
+.kmkv-t-track{min-width:1008px;background:repeating-linear-gradient(90deg,#fbfdfb 0,#fbfdfb 47px,#eaf0e7 48px);position:relative;border-radius:16px;border:1px solid var(--kmkv-line);overflow:hidden}
+.kmkv-t-bar{position:absolute;height:28px;top:8px;border-radius:12px;padding:0 10px;color:#fff;display:flex;align-items:center;gap:8px;font-weight:900;font-size:.78rem;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;cursor:pointer;box-shadow:0 8px 16px rgba(31,43,29,.16)}
+.kmkv-t-bar small{opacity:.88;font-weight:800}
+.kmkv-t-free{position:absolute;left:8px;top:8px;border:1px dashed #c8d8c3;background:#f5faf2;color:#5f7f56;border-radius:12px;padding:7px 11px;font-weight:900;cursor:pointer}
+@media(max-width:1400px){.kmkv-theme-grid{grid-template-columns:1fr}.kmkv-kpis{grid-template-columns:repeat(3,1fr)}}
+
+/* KMK Desktop Vision v2.3.0 QA hardening */
+.kmkv-field input[readonly],.kmkv-field textarea[readonly],.kmkv-field select:disabled{background:#f7faf6!important;color:#667463!important;cursor:not-allowed!important}
+.kmkv-btn[title]{position:relative}
+body:not(.kmkv-desktop-active) #kmkv-shell{display:none!important}
+
+
+/* KMK Vision UI v2.3.0 — closer to reference mockups, UI-only */
+@media (min-width:1100px){
+  :root{--kmkv-bg:#f8faf7;--kmkv-surface:#fff;--kmkv-green:#3f7046;--kmkv-green-2:#6f986c;--kmkv-green-dark:#1d2a1e;--kmkv-line:#e8eee6;--kmkv-muted:#6f7b70;--kmkv-blue:#79a7e9;--kmkv-amber:#f2b544;--kmkv-shadow:0 20px 60px rgba(36,50,31,.08);--kmkv-shadow-soft:0 8px 22px rgba(36,50,31,.055)}
+  #kmkv-shell{grid-template-columns:260px 1fr;background:#f8faf7;font-size:14px;}
+  .kmkv-sidebar{background:#fff;padding:24px 16px;border-right:1px solid #edf1ed;gap:20px;}
+  .kmkv-brand{padding:0 8px 18px}.kmkv-brand-mark{background:transparent;color:#47744a;box-shadow:none;width:54px;height:48px;border-radius:0}.kmkv-brand strong{font-family:Georgia,serif;font-size:1.35rem;color:#32623a}.kmkv-brand span{font-size:.78rem;color:#7b877b}
+  .kmkv-nav button{height:46px;border-radius:10px;padding:0 14px;font-size:.88rem;color:#52605a}.kmkv-nav button.on{background:#3f7046;color:white;box-shadow:0 10px 20px rgba(63,112,70,.18)}.kmkv-nav .ico{background:transparent!important;width:24px;height:24px;font-size:1rem;color:inherit}
+  .kmkv-sidebar-card{background:#fff;box-shadow:none;border:0;padding:8px}.kmkv-mini-landscape{height:154px;border-radius:16px;background:radial-gradient(circle at 70% 26%,#ffe293 0 12px,transparent 13px),linear-gradient(180deg,rgba(255,255,255,.1),rgba(0,0,0,.05)),linear-gradient(135deg,#cfdcc9 0,#8dab82 42%,#eef3e9 43%,#f2ead8 100%);box-shadow:inset 0 0 0 1px rgba(255,255,255,.5)}
+  .kmkv-mini-landscape:before{left:52px;bottom:24px;width:82px;height:44px;background:#654331}.kmkv-mini-landscape:after{left:42px;bottom:64px;border-left-width:52px;border-right-width:52px;border-bottom-color:#294929}
+  .kmkv-topbar{height:84px;background:#fff;border-bottom:1px solid #edf1ed;padding:18px 32px}.kmkv-search{max-width:560px;height:48px;border-radius:12px;box-shadow:none}.kmkv-btn{border-radius:10px;height:44px}.kmkv-btn.primary,.kmkv-btn.kmkv-outline{background:#3f7046;color:#fff;border-color:#3f7046}.kmkv-outline{background:#fff!important;color:#3f7046!important;border:1px solid #3f7046!important}.kmkv-soft-btn{background:#fff}.kmkv-icon-btn{border-radius:12px;position:relative}.kmkv-bell i{position:absolute;top:-7px;right:-6px;background:#e03131;color:#fff;font-size:.65rem;border-radius:50%;padding:2px 5px;font-style:normal}.kmkv-user{box-shadow:none;border:0;background:transparent}.kmkv-user em{font-style:normal;color:#7a8379}
+  .kmkv-content{padding:0 34px 34px;background:#fff}.kmkv-page-frame{position:relative;min-height:calc(100vh - 84px);padding:26px 0 28px}.kmkv-page-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:22px}.kmkv-page-head h1{font-size:2rem;letter-spacing:-.04em;margin:0;color:#1c2530}.kmkv-page-head p{margin:8px 0 0;color:#6f7784;font-size:.98rem}.kmkv-page-actions{display:flex;gap:12px;align-items:center}.kmkv-page-banner{height:132px;position:absolute;top:0;left:0;right:0;border-radius:0 0 18px 18px;pointer-events:none;background:linear-gradient(90deg,rgba(255,255,255,1) 0%,rgba(255,255,255,.92) 36%,rgba(255,255,255,.18) 100%),radial-gradient(circle at 78% 38%,#ffe59b 0 16px,transparent 17px),linear-gradient(180deg,#e8f1ea 0,#bfcfc0 46%,#8bac82 47%,#f4efe1 100%)}
+  .kmkv-page-banner:after{content:"";position:absolute;right:110px;bottom:15px;width:150px;height:52px;background:#6a4a32;border-radius:7px 7px 12px 12px;box-shadow:0 12px 22px rgba(0,0,0,.14)}.kmkv-page-banner:before{content:"";position:absolute;right:90px;bottom:60px;border-left:94px solid transparent;border-right:94px solid transparent;border-bottom:54px solid #2d4e30}.kmkv-reservations-page .kmkv-page-head{padding-top:8px;position:relative;z-index:1}.kmkv-calendar-page .kmkv-page-head,.kmkv-new-page .kmkv-page-head,.kmkv-stats-page .kmkv-page-head{padding-left:6px}
+  .kmkv-dashboard-hero{height:132px;border-radius:0 0 18px 18px;display:grid;grid-template-columns:minmax(360px,1fr) 56%;align-items:center;overflow:hidden;margin-bottom:20px}.kmkv-dashboard-hero h1{font-size:2.05rem;margin:0;color:#1c2530;letter-spacing:-.04em}.kmkv-dashboard-hero p{color:#6b7380}.kmkv-mountain-scene{height:100%;background:linear-gradient(90deg,rgba(255,255,255,.4),rgba(255,255,255,0)),radial-gradient(circle at 76% 35%,#ffe59a 0 12px,transparent 13px),linear-gradient(180deg,#eff5f1 0,#d8e4dc 33%,#9bbd8d 45%,#d9ead0 65%,#f4eadb 100%);position:relative}.kmkv-mountain-scene:before{content:"";position:absolute;right:90px;bottom:20px;width:136px;height:50px;background:#684731;border-radius:7px 7px 11px 11px}.kmkv-mountain-scene:after{content:"";position:absolute;right:72px;bottom:68px;border-left:86px solid transparent;border-right:86px solid transparent;border-bottom:48px solid #2f4e31}
+  .kmkv-card{border-radius:14px!important;border:1px solid #edf1ed!important;box-shadow:0 8px 22px rgba(33,44,31,.035)!important;background:#fff}.kmkv-panel{padding:18px}.kmkv-panel-title{font-size:1.05rem;color:#1c2530}.kmkv-panel-sub{color:#717b74}.kmkv-kpis{grid-template-columns:repeat(6,minmax(0,1fr));gap:14px}.kmkv-kpi{min-height:116px;padding:20px}.kmkv-kpi .num{font-size:1.85rem;color:#16212b}.kmkv-kpi .lbl{font-size:.86rem;color:#647069}.kmkv-kpi .icon{background:#edf5e9;color:#47744a;font-size:1.45rem}.kmkv-kpi .sub{font-size:.78rem;color:#6f7b70}
+  .kmkv-dashboard-grid{display:grid;grid-template-columns:minmax(620px,2fr) minmax(360px,1fr);gap:18px}.kmkv-occupancy-panel{grid-row:span 2}.kmkv-dash-bungalows{grid-template-columns:repeat(5,1fr);gap:12px}.kmkv-bung-card{border-radius:10px;min-height:102px}.kmkv-bung-card.paid,.kmkv-bung-card.busy{background:#3f7046!important;color:#fff!important}.kmkv-bung-card.free{background:#eff6eb}.kmkv-bung-card.checkout{background:#ffe6ad}.kmkv-bung-card.closed{background:#efefef}.kmkv-bung-card .meta{opacity:.92}.kmkv-wide-link{width:100%;height:42px;background:#fff;border:1px solid #edf1ed;border-radius:10px;margin-top:12px;color:#3f7046;font-weight:800}.kmkv-mini-calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}.kmkv-heat-cell{height:45px;border-radius:5px}.kmkv-gradient-legend{display:flex;align-items:center;gap:10px;margin-top:18px;color:#7a837c;font-size:.78rem}.kmkv-gradient-legend i{height:18px;flex:1;border-radius:7px;background:linear-gradient(90deg,#eef6eb,#cde3c4,#8fb684,#3f7046)}.kmkv-action-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.kmkv-action-grid button{border:1px solid #edf1ed;background:#fff;border-radius:12px;padding:18px 10px;display:flex;flex-direction:column;align-items:center;gap:8px;color:#3f7046;font-size:1.6rem}.kmkv-action-grid span{font-size:.8rem;color:#1c2530;font-weight:800}
+  .kmkv-calendar-toolbar{display:flex;justify-content:space-between;gap:14px;align-items:center;margin-bottom:16px}.kmkv-segmented{display:flex;border:1px solid #edf1ed;border-radius:10px;overflow:hidden;background:#fff}.kmkv-segmented button{width:78px;height:42px;border:0;background:#fff;color:#626c64;font-weight:800}.kmkv-segmented button.on{background:#3f7046;color:#fff}.kmkv-calendar-layout{display:grid;grid-template-columns:1fr 300px;gap:18px}.kmkv-calendar-main{padding:16px}.kmkv-timeline-wrap{border-radius:10px}.kmkv-timeline{min-width:1140px}.kmkv-t-head,.kmkv-t-row{grid-template-columns:150px repeat(21,44px);gap:3px}.kmkv-t-date{height:42px;border:0;background:#fff}.kmkv-t-label{border:0;background:#fff;align-items:flex-start;flex-direction:column;justify-content:center;gap:0}.kmkv-t-track{background:repeating-linear-gradient(90deg,#fff 0,#fff 43px,#edf1ed 44px);border:0}.kmkv-t-bar{height:30px;border-radius:8px}.kmkv-timeline-legend{margin-top:12px}.kmkv-occupancy-strip{display:flex;gap:10px;overflow:auto;border-top:1px solid #edf1ed;margin-top:12px;padding-top:12px}.kmkv-occupancy-strip div{min-width:46px;text-align:center}.kmkv-occupancy-strip strong{display:flex;margin:auto;width:34px;height:34px;border-radius:50%;border:4px solid #3f7046;align-items:center;justify-content:center;font-size:.62rem}.kmkv-occupancy-strip span{display:block;color:#6f7b70;font-size:.65rem;margin-top:4px}.kmkv-detail-drawer{padding:20px;position:sticky;top:0;align-self:start}.kmkv-drawer-close{float:right;border:0;background:transparent;font-size:1.6rem;color:#6f7b70}.kmkv-detail-drawer h2{margin:10px 0 6px;color:#1d2530}.kmkv-detail-list{display:grid;gap:14px;margin:18px 0}.kmkv-detail-list div{display:flex;gap:10px;color:#4f5a54}.kmkv-drawer-actions{display:grid;gap:9px;margin-top:18px}
+  .kmkv-res-layout{display:grid;grid-template-columns:minmax(780px,1fr) 360px;gap:14px;position:relative;z-index:1}.kmkv-tabs{display:flex;gap:22px;border-bottom:1px solid #edf1ed;background:#fff;padding:14px 0 0;margin-bottom:0;position:relative;z-index:1}.kmkv-tabs button{border:0;background:transparent;padding:14px 18px;font-weight:800;color:#5f6b64;border-radius:10px}.kmkv-tabs button.on{background:#3f7046;color:#fff}.kmkv-tabs span{background:#edf5e9;border-radius:999px;padding:3px 8px;margin-left:8px;color:#3f7046}.kmkv-tabs button.on span{background:rgba(255,255,255,.2);color:#fff}.kmkv-res-table-card{border-top-left-radius:0!important}.kmkv-res-filters{display:grid;grid-template-columns:minmax(260px,1fr) 190px 150px 150px 170px 120px;gap:10px;margin-bottom:14px}.kmkv-filter-search{height:42px;border:1px solid #edf1ed;border-radius:10px;padding:0 12px;display:flex;align-items:center;gap:8px}.kmkv-filter-search input{border:0;outline:0;flex:1}.kmkv-res-filters label{height:42px;border:1px solid #edf1ed;border-radius:10px;padding:4px 10px;font-size:.68rem;color:#65716a}.kmkv-res-filters label span{display:block;color:#1c2530;font-size:.78rem;font-weight:900;margin-top:2px}.kmkv-table th{background:#fff}.kmkv-table td{padding:15px 12px}.kmkv-res-table tr.selected td{background:#f2f8ef}.kmkv-res-table tr.selected td:first-child{border-left:4px solid #3f7046}.kmkv-guest-cell{display:flex;align-items:center;gap:10px}.kmkv-row-avatar,.kmkv-profile-avatar{background:linear-gradient(135deg,#d8e4ce,#3f7046);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900}.kmkv-row-avatar{width:34px;height:34px}.kmkv-row-actions{display:flex;gap:4px}.kmkv-row-actions button{width:30px;height:30px;border:1px solid #edf1ed;background:#fff;border-radius:8px}.kmkv-channel{display:inline-flex;align-items:center;gap:6px;font-size:.78rem;font-weight:800}.kmkv-channel i{width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#fff;font-style:normal}.kmkv-channel.booking i{background:#0c57a5}.kmkv-channel.airbnb i{background:#f05d6a}.kmkv-channel.direct i{background:#3f7046}.kmkv-table-footer{display:flex;justify-content:space-between;align-items:center;color:#6f7b70;margin-top:10px}.kmkv-guest-profile{padding:22px;position:sticky;top:0;align-self:start}.kmkv-profile-top{text-align:center}.kmkv-profile-avatar{width:82px;height:82px;margin:0 auto 8px;font-size:2rem}.kmkv-vip{display:inline-flex;background:#fff3d7;color:#a76b0d;border-radius:999px;padding:5px 10px;font-weight:900;font-size:.72rem}.kmkv-contact-row{display:flex;justify-content:center;gap:8px;margin:12px 0}.kmkv-contact-row button{width:34px;height:34px;border:0;border-radius:50%;background:#edf5e9}.kmkv-profile-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.kmkv-profile-metrics div{border:1px solid #edf1ed;border-radius:10px;padding:12px;text-align:center}.kmkv-profile-metrics strong{display:block;color:#3f7046;font-size:1.2rem}.kmkv-profile-metrics span{font-size:.72rem;color:#717b74}.kmkv-loyalty,.kmkv-profile-note{margin-top:14px;border:1px solid #edf1ed;border-radius:12px;padding:14px;background:#fff}.kmkv-loyalty div{display:flex;justify-content:space-between}.kmkv-loyalty span{display:block;height:6px;background:#edf1ed;border-radius:999px;margin:10px 0}.kmkv-loyalty i{display:block;height:6px;background:#3f7046;border-radius:999px}.kmkv-profile-note div{display:flex;justify-content:space-between}.kmkv-profile-note p{background:#f5f8f4;border-radius:10px;padding:12px;color:#5f6c63}.kmkv-action-grid.small{grid-template-columns:repeat(2,1fr);margin-top:14px}.kmkv-action-grid.small button{font-size:1.1rem;padding:12px 8px}
+  .kmkv-new-layout{display:grid;grid-template-columns:1fr 360px;gap:20px}.kmkv-new-main{display:grid;gap:16px}.kmkv-form-section{display:flex;gap:14px;padding:18px}.kmkv-form-section h3{margin:0 0 12px;color:#1c2530}.kmkv-step-badge{width:28px;height:28px;border-radius:8px;background:#3f7046;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;flex:0 0 auto}.kmkv-form-grid.five{grid-template-columns:repeat(5,1fr)}.kmkv-form-grid.three{grid-template-columns:repeat(3,1fr)}.kmkv-field.wide{grid-column:span 2}.kmkv-new-bungalows{display:grid;gap:10px}.kmkv-res-bungalow-card{display:grid;grid-template-columns:96px 1fr 310px 110px 26px;align-items:center;gap:12px;border-radius:12px;border:1px solid #edf1ed;padding:10px;background:#fff}.kmkv-res-bungalow-card.amber{background:#fffaf0}.kmkv-res-bungalow-card.blue{background:#f2f7ff}.kmkv-bung-photo{width:96px;height:64px;border-radius:10px;background:radial-gradient(circle at 70% 30%,#ffe293 0 8px,transparent 9px),linear-gradient(135deg,#93b483,#f2eadb)}.kmkv-bung-info strong{display:block;color:#1c2530}.kmkv-bung-info strong span{background:#e49c28;color:#fff;border-radius:6px;padding:4px 6px;margin-right:6px}.kmkv-res-bungalow-card.blue .kmkv-bung-info strong span{background:#5788ca}.kmkv-bung-info small,.kmkv-bung-info em{display:block;color:#65716a;font-style:normal;margin-top:4px}.kmkv-counters{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.kmkv-counters label{font-size:.72rem;color:#65716a}.kmkv-counters b{display:block;border:1px solid #dfe8dc;border-radius:8px;padding:8px 12px;background:#fff;text-align:center;color:#1c2530}.kmkv-bung-price-big{font-size:1.3rem;font-weight:950;color:#1c2530;text-align:right}.kmkv-trash{border:0;background:transparent;color:#d74d4d;font-size:1.1rem}.kmkv-new-bottom{display:grid;grid-template-columns:1fr 1.15fr;gap:14px}.kmkv-bung-suggestion-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.kmkv-bung-suggestion-row>div{background:#f0f7ed;border-radius:12px;padding:14px;color:#3f7046;cursor:pointer}.kmkv-bung-suggestion-row strong{display:block;font-size:1.1rem}.kmkv-bung-suggestion-row span{font-size:.78rem;color:#516152}.kmkv-mini-timeline-preview{display:grid;gap:14px;margin-top:16px}.kmkv-mini-timeline-preview div{display:grid;grid-template-columns:42px 1fr;align-items:center}.kmkv-mini-timeline-preview .bar{height:26px;border-radius:9px;background:#f4c76b;display:block}.kmkv-mini-timeline-preview .bar.blue{background:#aec7ef}.kmkv-res-summary{top:16px}.kmkv-summary-list{display:grid;gap:12px;margin:16px 0}.kmkv-summary-list div{display:flex;justify-content:space-between;gap:10px}.kmkv-summary-list span{color:#65716a}.kmkv-big-total small{display:block;font-size:.85rem;color:#3f7046}.kmkv-big-total{font-size:1.7rem;color:#3f7046}
+  .kmkv-stats-filter{display:grid;grid-template-columns:220px 190px 170px 190px auto auto;gap:10px;margin-bottom:18px}.kmkv-stats-filter label{height:42px;border:1px solid #edf1ed;border-radius:10px;padding:5px 12px;color:#65716a;font-size:.68rem}.kmkv-stats-filter span{display:block;color:#1c2530;font-size:.82rem;font-weight:900}.kmkv-analytics-grid{display:grid;grid-template-columns:1.3fr .9fr .85fr 280px;gap:14px}.kmkv-analytics-grid .big{grid-column:span 2}.kmkv-analytics-grid .side{grid-row:span 2}.kmkv-line-chart{height:220px;position:relative;border-radius:12px;background:#fff}.kmkv-line-chart svg{width:100%;height:180px;border-bottom:1px solid #edf1ed}.kmkv-month-labels{display:grid;grid-template-columns:repeat(12,1fr);gap:4px;color:#65716a;font-size:.72rem;text-align:center}.kmkv-hbars{display:grid;gap:14px;margin-top:16px}.kmkv-hbars div{display:grid;grid-template-columns:90px 1fr 42px;align-items:center;gap:8px}.kmkv-hbars i{height:14px;background:#3f7046;border-radius:6px}.kmkv-donut{box-shadow:inset 0 0 0 0 transparent}.kmkv-donut em{position:absolute;inset:48px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;flex-direction:column;font-style:normal;font-weight:950;color:#1c2530}.kmkv-donut small{font-size:.7rem;color:#6f7b70}.kmkv-heat-matrix{display:grid;grid-template-columns:32px repeat(12,1fr);gap:7px;margin-top:16px}.kmkv-heat-matrix b{font-size:.75rem}.kmkv-heat-matrix i{height:23px;border-radius:5px;background:#edf5e9}.kmkv-heat-matrix i.l2{background:#d9ecd2}.kmkv-heat-matrix i.l3{background:#beddb5}.kmkv-heat-matrix i.l4{background:#8fb684}.kmkv-heat-matrix i.l5{background:#3f7046}
+  @media(max-width:1450px){.kmkv-kpis{grid-template-columns:repeat(3,1fr)}.kmkv-dashboard-grid,.kmkv-calendar-layout,.kmkv-res-layout,.kmkv-new-layout,.kmkv-analytics-grid{grid-template-columns:1fr}.kmkv-res-filters,.kmkv-stats-filter{grid-template-columns:1fr 1fr}.kmkv-form-grid.five,.kmkv-form-grid.three{grid-template-columns:repeat(2,1fr)}.kmkv-res-bungalow-card{grid-template-columns:80px 1fr}.kmkv-counters,.kmkv-bung-price-big,.kmkv-trash{grid-column:2}.kmkv-new-bottom{grid-template-columns:1fr}}
+}
+
+
+/* KMK Vision UI v2.4.2 — closer to reference mockups, UI-only */
+@media (min-width:1100px){
+  #kmkv-shell{grid-template-columns:258px 1fr!important;background:#fbfcfa!important;}
+  .kmkv-sidebar{background:#fff!important;border-right:1px solid #edf1ec!important;padding:24px 18px!important;box-shadow:6px 0 22px rgba(37,57,34,.035)!important;}
+  .kmkv-brand{padding:4px 8px 18px!important;gap:10px!important;}
+  .kmkv-brand-mark{background:transparent!important;color:#3f6f43!important;box-shadow:none!important;width:50px!important;height:50px!important;border-radius:0!important;}
+  .kmkv-brand strong{font-family:Georgia,'Times New Roman',serif!important;font-size:1.28rem!important;font-weight:600!important;color:#2e6338!important;letter-spacing:-.03em!important;}
+  .kmkv-brand span{font-size:.76rem!important;color:#7a8678!important;margin-top:1px!important;}
+  .kmkv-nav{gap:7px!important;margin-top:3px!important;}
+  .kmkv-nav button{height:46px!important;border-radius:12px!important;padding:10px 13px!important;font-weight:700!important;color:#667165!important;background:transparent!important;}
+  .kmkv-nav .ico{background:transparent!important;color:#7a8678!important;width:26px!important;height:26px!important;border-radius:8px!important;font-size:1rem!important;}
+  .kmkv-nav button:hover{background:#f4f8f2!important;color:#2d5132!important;transform:none!important;}
+  .kmkv-nav button.on{background:#3f6f43!important;color:#fff!important;box-shadow:none!important;}
+  .kmkv-nav button.on .ico{background:rgba(255,255,255,.12)!important;color:#fff!important;}
+  .kmkv-sidebar-card{background:#fff!important;border:1px solid #eef2ed!important;border-radius:22px!important;padding:14px!important;box-shadow:0 8px 24px rgba(34,53,31,.06)!important;}
+  .kmkv-mini-landscape{height:132px!important;border-radius:18px!important;background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(0,0,0,.08)),radial-gradient(circle at 74% 30%,#ffe8a8 0 18px,transparent 19px),linear-gradient(160deg,#b9d5d7 0%,#dce8d3 35%,#436943 36%,#244426 58%,#bf9a61 59%,#5a3c27 78%)!important;}
+  .kmkv-mini-landscape:before{left:58px!important;bottom:28px!important;width:74px!important;height:42px!important;background:#5a3524!important;border-radius:4px 4px 9px 9px!important;}
+  .kmkv-mini-landscape:after{left:48px!important;bottom:64px!important;border-left:48px solid transparent!important;border-right:48px solid transparent!important;border-bottom:32px solid #2b3d36!important;}
+  .kmkv-topbar{height:78px!important;background:#fff!important;border-bottom:1px solid #edf1ec!important;padding:16px 26px!important;}
+  .kmkv-search{max-width:560px!important;height:48px!important;border-radius:14px!important;background:#fff!important;box-shadow:0 4px 14px rgba(38,55,35,.035)!important;}
+  .kmkv-top-actions{margin-left:auto!important;}
+  .kmkv-btn{border-radius:12px!important;font-size:.9rem!important;box-shadow:none!important;}
+  .kmkv-btn.primary,.kmkv-nav button.on{background:#3f6f43!important;border-color:#3f6f43!important;}
+  .kmkv-outline{background:#fff!important;border:1.5px solid #3f6f43!important;color:#2e6338!important;}
+  .kmkv-user{border:0!important;background:transparent!important;padding:4px 0 4px 8px!important;}
+  .kmkv-content{padding:0 26px 26px!important;background:#fbfcfa!important;}
+  .kmkv-page-frame{padding-top:22px!important;}
+  .kmkv-page-head{background:transparent!important;border:0!important;padding:0 0 14px!important;margin:0!important;}
+  .kmkv-page-head h1,.kmkv-dashboard-hero h1{font-size:1.95rem!important;letter-spacing:-.035em!important;color:#17211c!important;font-weight:850!important;}
+  .kmkv-page-head p,.kmkv-dashboard-hero p{font-size:.97rem!important;color:#6f786e!important;}
+  .kmkv-dashboard-hero{min-height:128px!important;border:0!important;background:linear-gradient(90deg,#fbfcfa 0%,rgba(251,252,250,.78) 42%,rgba(251,252,250,.25) 70%),linear-gradient(165deg,#e8eff2 0%,#f5faf2 40%,#dbe8d7 41%,#8cae88 63%,#3e6d42 64%,#eef4eb 100%)!important;border-radius:0!important;margin-bottom:16px!important;padding:26px 28px!important;overflow:hidden!important;}
+  .kmkv-mountain-scene{filter:saturate(.95)!important;opacity:.96!important;}
+  .kmkv-kpis{gap:14px!important;margin-bottom:18px!important;}
+  .kmkv-kpi{border-radius:14px!important;min-height:112px!important;border:1px solid #eef2ed!important;background:#fff!important;box-shadow:0 8px 22px rgba(37,57,34,.05)!important;padding:20px!important;}
+  .kmkv-kpi .icon{background:#edf5e9!important;color:#3f6f43!important;border-radius:50%!important;width:54px!important;height:54px!important;font-size:1.35rem!important;}
+  .kmkv-kpi .num{font-size:1.8rem!important;color:#17211c!important;font-weight:850!important;}
+  .kmkv-card{background:#fff!important;border:1px solid #eef2ed!important;box-shadow:0 8px 24px rgba(37,57,34,.045)!important;border-radius:18px!important;}
+  .kmkv-panel{padding:18px!important;}
+  .kmkv-panel-title{font-size:1.05rem!important;font-weight:850!important;color:#1e2b1d!important;}
+  .kmkv-dashboard-grid{grid-template-columns:minmax(680px,1fr) 376px!important;gap:18px!important;}
+  .kmkv-occupancy-grid{gap:12px!important;}
+  .kmkv-bung-card{border-radius:12px!important;min-height:92px!important;padding:14px!important;box-shadow:none!important;}
+  .kmkv-bung-card.busy,.kmkv-bung-card.paid{background:#3f6f43!important;color:white!important;}
+  .kmkv-bung-card.free{background:#f1f7ed!important;color:#244128!important;}
+  .kmkv-bung-card.checkout,.kmkv-bung-card.amber{background:#ffe5ab!important;color:#6d4a10!important;}
+  .kmkv-bung-card.arrival,.kmkv-bung-card.blue{background:#dce9ff!important;color:#285081!important;}
+  .kmkv-bung-card.closed{background:#eeeeee!important;color:#737b70!important;}
+  .kmkv-mini-calendar{gap:6px!important;}
+  .kmkv-mini-calendar i{border-radius:8px!important;min-height:38px!important;}
+  .kmkv-res-layout{grid-template-columns:minmax(760px,1fr) 340px!important;gap:16px!important;}
+  .kmkv-tabs{background:#fff!important;border:0!important;border-bottom:1px solid #edf1ec!important;border-radius:0!important;padding:0!important;margin-bottom:14px!important;}
+  .kmkv-tabs button{border-radius:10px!important;padding:12px 18px!important;background:transparent!important;}
+  .kmkv-tabs button.on{background:#3f6f43!important;color:white!important;}
+  .kmkv-res-filters{gap:10px!important;grid-template-columns:minmax(260px,1.4fr) .8fr .75fr .75fr .75fr auto!important;}
+  .kmkv-table th{font-size:.72rem!important;color:#7b8579!important;letter-spacing:.03em!important;text-transform:uppercase!important;}
+  .kmkv-table td{padding:14px 12px!important;border-top:1px solid #f0f3ef!important;font-size:.86rem!important;}
+  .kmkv-table tr.selected{background:#f1f7ed!important;box-shadow:inset 4px 0 #3f6f43!important;}
+  .kmkv-guest-profile{border-radius:18px!important;position:sticky!important;top:0!important;align-self:start!important;}
+  .kmkv-profile-avatar{width:80px!important;height:80px!important;font-size:2rem!important;background:linear-gradient(135deg,#dfc28a,#3f6f43)!important;}
+  .kmkv-calendar-layout{grid-template-columns:minmax(780px,1fr) 320px!important;}
+  .kmkv-timeline-card{padding:16px!important;overflow:hidden!important;}
+  .kmkv-timeline-scroll{overflow:auto!important;border:1px solid #edf1ec!important;border-radius:16px!important;background:#fff!important;}
+  .kmkv-timeline-grid{font-size:.78rem!important;}
+  .kmkv-tl-bar{height:32px!important;border-radius:8px 14px 14px 8px!important;font-weight:800!important;box-shadow:0 4px 10px rgba(0,0,0,.07)!important;}
+  .kmkv-summary-card{border-radius:18px!important;}
+  .kmkv-new-layout{grid-template-columns:minmax(760px,1fr) 340px!important;gap:18px!important;align-items:start!important;}
+  .kmkv-form-section{border-radius:16px!important;padding:17px!important;display:grid!important;grid-template-columns:34px 1fr!important;gap:14px!important;}
+  .kmkv-step-badge{width:28px!important;height:28px!important;border-radius:8px!important;background:#3f6f43!important;color:white!important;display:flex!important;align-items:center!important;justify-content:center!important;font-weight:900!important;}
+  .kmkv-res-bungalow-card{border-radius:14px!important;border:1px solid #edf1ec!important;background:#fffaf0!important;}
+  .kmkv-res-bungalow-card.blue{background:#f2f7ff!important;}
+  .kmkv-stats-filter{background:#fff!important;border:1px solid #eef2ed!important;border-radius:16px!important;padding:13px!important;}
+  .kmkv-analytics-grid{grid-template-columns:1.35fr .95fr .95fr 320px!important;gap:16px!important;}
+  .kmkv-heat-matrix i{border-radius:4px!important;}
+  #kmkv-restore-pill{background:#3f6f43!important;color:#fff!important;border:0!important;border-radius:14px!important;box-shadow:0 10px 28px rgba(63,111,67,.24)!important;}
+  .kmkv-classic-note{border-radius:14px!important;background:#fffaf0!important;border:1px solid #f2dfb6!important;color:#6d541c!important;}
+}
+
+@media (min-width:1100px) and (max-width:1380px){
+  #kmkv-shell{grid-template-columns:232px 1fr!important;}
+  .kmkv-sidebar{padding:18px 12px!important;}
+  .kmkv-nav button{font-size:.84rem!important;padding:9px 10px!important;}
+  .kmkv-dashboard-grid,.kmkv-res-layout,.kmkv-calendar-layout,.kmkv-new-layout{grid-template-columns:1fr!important;}
+  .kmkv-guest-profile,.kmkv-summary-card{position:relative!important;top:auto!important;}
+  .kmkv-top-actions .kmkv-user span{display:none!important;}
+}
+
+/* KMK Vision UI v2.4.2 QA refinements */
+@media (min-width:1100px){
+  body.kmkv-desktop-active{overscroll-behavior:none;}
+  body.kmkv-desktop-active #bulk-toolbar{display:none!important;}
+  body.kmkv-desktop-active #kmkv-shell{isolation:isolate;}
+  body.kmkv-desktop-active .kmkv-content{min-width:0;}
+  .kmkv-page-frame{max-width:100%;min-width:0;}
+  .kmkv-page-head{gap:18px;}
+  .kmkv-page-head h1,.kmkv-hero h1{letter-spacing:-.035em;}
+  .kmkv-topbar{min-width:0;}
+  .kmkv-search input{min-width:180px;}
+  .kmkv-top-actions{flex-shrink:0;}
+  .kmkv-user{min-width:0;}
+  .kmkv-user strong{max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .kmkv-btn{white-space:nowrap;}
+  .kmkv-page-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;}
+  .kmkv-table-wrap{overflow:auto;border-radius:18px;}
+  .kmkv-table{min-width:1080px;}
+  .kmkv-res-filters{grid-template-columns:minmax(240px,1.4fr) repeat(4,minmax(120px,.7fr)) auto!important;}
+  .kmkv-res-layout{align-items:start;}
+  .kmkv-detail-drawer,.kmkv-guest-profile,.kmkv-summary-card{max-height:calc(100vh - 170px);overflow:auto;}
+  .kmkv-calendar-main{min-width:0;}
+  .kmkv-timeline-wrap{overflow:auto;}
+  .kmkv-timeline{min-width:1120px;}
+  .kmkv-t-track{background-image:linear-gradient(90deg,rgba(221,231,217,.6) 1px,transparent 1px);background-size:48px 100%;}
+  .kmkv-t-bar{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .kmkv-t-bar small{opacity:.9;margin-left:8px;}
+  .kmkv-form-grid.five{grid-template-columns:repeat(5,minmax(120px,1fr))!important;}
+  .kmkv-form-grid.three{grid-template-columns:repeat(3,minmax(160px,1fr))!important;}
+  .kmkv-new-bungalows{display:flex;flex-direction:column;gap:12px;}
+  .kmkv-dash-bungalows{grid-template-columns:repeat(5,minmax(130px,1fr))!important;}
+  .kmkv-drawer-close{cursor:pointer;}
+  .kmkv-theme-choice{cursor:pointer;}
+  .kmkv-theme-choice:focus-visible,.kmkv-btn:focus-visible,.kmkv-nav button:focus-visible{outline:3px solid rgba(63,111,67,.25);outline-offset:2px;}
+  #kmkv-restore-pill{position:fixed!important;right:22px!important;bottom:22px!important;z-index:5000!important;padding:13px 18px!important;font-weight:850!important;}
+}
+@media (min-width:1100px) and (max-width:1500px){
+  .kmkv-dash-bungalows{grid-template-columns:repeat(4,minmax(120px,1fr))!important;}
+  .kmkv-kpis-dash{grid-template-columns:repeat(3,1fr)!important;}
+  .kmkv-dashboard-grid{grid-template-columns:1fr!important;}
+}
+@media (min-width:1100px) and (max-width:1280px){
+  .kmkv-res-filters,.kmkv-form-grid.five,.kmkv-form-grid.three{grid-template-columns:1fr 1fr!important;}
+}
+@media (min-width:1100px) and (max-height:820px){
+  .kmkv-sidebar-card{display:none!important;}
+  .kmkv-nav button{padding:8px 10px!important;}
+}
+
+</style>
 </head>
 <body>
 <!-- Undo delete toast -->
@@ -1016,7 +1593,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
       <img src="https://i.imgur.com/DzB2EDR.png" onerror="this.style.display='none'"
            id="login-logo-img" alt="Logo" style="max-width:175px;margin:0 auto 10px;display:block;border-radius:10px">
       <h1 id="login-h1"><span id="login-logo-emoji">🏡</span> Maja Karanfil Bungali</h1>
-      <p>Prijavite se u sistem — <span id="login-ver-txt">v1.9.3</span></p>
+      <p>Prijavite se u sistem — <span id="login-ver-txt">v2.4.2</span></p>
     </div>
     <div class="login-err" id="login-err">Pogrešno korisničko ime ili lozinka!</div>
     <form class="login-form" id="login-form">
@@ -1044,7 +1621,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
     </button>
     <div>
       <div class="mob-hdr-title">🏡 Maja Karanfil Bungali</div>
-      <div class="mob-hdr-sub" id="mob-hdr-sub">v1.9.3 mobile</div>
+      <div class="mob-hdr-sub" id="mob-hdr-sub">v2.4.2 mobile</div>
     </div>
   </div>
   <div class="mob-hdr-right">
@@ -1261,7 +1838,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
   <div class="hdr">
     <div class="hdr-l">
       <h1>🏡 Maja Karanfil Bungali</h1>
-      <p id="app-version-hdr">Sistem za upravljanje rezervacijama — v1.9.3</p>
+      <p id="app-version-hdr">Sistem za upravljanje rezervacijama — v2.4.2</p>
     </div>
     <div class="hdr-r">
       <div class="user-row">
@@ -4082,6 +4659,87 @@ window.printDaily = function() {
   
 
 
+
+<!-- ─── THEME FAB BUTTON ─────────────────────────────────────────────── -->
+<button id="kmk-theme-fab" class="mode-classic" onclick="kmkToggleTheme()" title="Prebaci temu">
+  <span id="kmk-theme-fab-icon">✦</span>
+  <span id="kmk-theme-fab-label">Vision UI</span>
+</button>
+<script>
+(function(){
+  const THEME_KEY = 'kmkv_desktop_theme_v242';
+  const BREAKPOINT = 1100;
+
+  function getCurrentTheme() {
+    return localStorage.getItem(THEME_KEY) || 'classic';
+  }
+
+  function updateFab(theme) {
+    const fab = document.getElementById('kmk-theme-fab');
+    const icon = document.getElementById('kmk-theme-fab-icon');
+    const label = document.getElementById('kmk-theme-fab-label');
+    if (!fab) return;
+    if (theme === 'vision') {
+      fab.className = 'mode-vision';
+      if (icon) icon.textContent = '☰';
+      if (label) label.textContent = 'Klasična tema';
+    } else {
+      fab.className = 'mode-classic';
+      if (icon) icon.textContent = '✦';
+      if (label) label.textContent = 'Vision UI';
+    }
+    // Sakrij na mobu (< 1100px)
+    fab.style.display = window.innerWidth < BREAKPOINT ? 'none' : 'flex';
+  }
+
+  window.kmkToggleTheme = function() {
+    const current = getCurrentTheme();
+    const next = current === 'vision' ? 'classic' : 'vision';
+    localStorage.setItem(THEME_KEY, next);
+    document.body.dataset.kmkvTheme = next;
+    // Pozovi Vision UI setThemeMode ako postoji
+    if (typeof window.KMKV_setThemeMode === 'function') {
+      window.KMKV_setThemeMode(next);
+    } else if (next === 'vision' && window.innerWidth >= BREAKPOINT) {
+      // Aktiviraj Vision UI
+      document.body.classList.add('kmkv-desktop-active');
+      // Sakrij klasični container
+      const c = document.querySelector('.container');
+      if (c) c.style.display = 'none';
+      const bulk = document.getElementById('bulk-toolbar');
+      if (bulk) bulk.style.display = 'none';
+      // Prikaži kmkv-shell ako postoji
+      const shell = document.getElementById('kmkv-shell');
+      if (shell) shell.style.display = '';
+      else if (window.KMKV_mount) window.KMKV_mount();
+    } else {
+      // Vrati na klasičnu temu
+      document.body.classList.remove('kmkv-desktop-active');
+      const shell = document.getElementById('kmkv-shell');
+      if (shell) shell.style.display = 'none';
+      const c = document.querySelector('.container');
+      if (c) c.style.display = '';
+      const bulk = document.getElementById('bulk-toolbar');
+      if (bulk) bulk.style.display = '';
+    }
+    updateFab(next);
+  };
+
+  // Init pri DOMContentLoaded i pri resize
+  function init() {
+    const theme = getCurrentTheme();
+    updateFab(theme);
+  }
+
+  window.addEventListener('resize', () => updateFab(getCurrentTheme()));
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
+
 </body></html>`);
   printWin.document.close();
   printWin.focus();
@@ -5359,7 +6017,7 @@ window.mobCloseMore = (e) => {
   }
 };
 
-// ── MOBILNA BRZA FORMA PRO v1.9.3 ────────────────────────────────
+// ── MOBILNA BRZA FORMA PRO v2.4.2 ────────────────────────────────
 let _mobFormStep = 1;
 let _mobSelBungs = [];
 let _mobEditId = null;
@@ -8922,7 +9580,7 @@ function stopAutoIcalSync() {
 document.addEventListener('click',e=>{ const p=document.getElementById('notif-panel'),b=document.querySelector('.notif-bell'); if(p&&b&&!p.contains(e.target)&&!b.contains(e.target)) p.classList.remove('open'); });
 
 // ═══════════════════════════════════════════════════════════════
-// KMK MOBILE CALENDAR PREMIUM REDESIGN v1.9.3 — OVERRIDES
+// KMK MOBILE CALENDAR PREMIUM REDESIGN v2.4.2 — OVERRIDES
 // Dizajn kao mockup: V1 tabela, V2 mjesec + sheet, V3 timeline.
 // Poslovna logika rezervacija/Firebase/iCal se ne mijenja.
 // ═══════════════════════════════════════════════════════════════
@@ -9015,25 +9673,85 @@ window.v2TapDay=(ds)=>{
 };
 
 let _kmkV3Sel={bn:null,start:null,end:null};
+function kmkDiffDays(a,b){ return Math.round((new Date(b+'T00:00:00')-new Date(a+'T00:00:00'))/86400000); }
+function kmkAddDays(ds,n){ const d=new Date(ds+'T00:00:00'); d.setDate(d.getDate()+n); return lDate(d); }
+function kmkV3VisibleRange(dates){ return { start: dates[0], endExcl: kmkNextDay(dates[dates.length-1]) }; }
+function kmkV3BarColor(st){ return ({manual:'#7fa8ed',booking:'#24539b',paid:'#416f46',closed:'#9a9a9a',conflict:'#ef807d'}[st]||'#7fa8ed'); }
+function kmkV3ReservationsFor(bn, visStart, visEndExcl){
+  const list = (reservations||[]).filter(r=>!r.cancelled && r.bungalovi?.some(b=>String(b.bungalov)===String(bn)) && r.checkIn < visEndExcl && r.checkOut > visStart)
+    .sort((a,b)=>(a.checkIn||'').localeCompare(b.checkIn||'') || (a.checkOut||'').localeCompare(b.checkOut||''));
+  const lanes=[];
+  const out=[];
+  list.forEach(r=>{
+    const st = kmkCalStatus(r);
+    const startIdx = Math.max(0, kmkDiffDays(visStart, r.checkIn < visStart ? visStart : r.checkIn));
+    const endIdx = Math.min(kmkDiffDays(visStart, visEndExcl), kmkDiffDays(visStart, r.checkOut > visEndExcl ? visEndExcl : r.checkOut));
+    let lane = 0;
+    while(lanes[lane] !== undefined && lanes[lane] > startIdx) lane++;
+    lanes[lane] = endIdx;
+    out.push({ res:r, st, startIdx, endIdx, lane, span: Math.max(1, endIdx-startIdx) });
+  });
+  return { items: out, laneCount: Math.max(1, ...out.map(x=>x.lane+1), 1) };
+}
 function renderMobCalV3(){
   const el=document.getElementById('mob-cal-v3'); if(!el)return;
   const dates=kmkCalDates(_v3Days===0?31:_v3Days), bungs=kmkCalBungs(), today=lDate(new Date()), cellW=_v3Days<=7?58:_v3Days<=14?42:30;
-  let html=`<div class="kmk-v3-wrap"><div class="kmk-v3-top"><button class="v3-nav" onclick="changeMonth(-1)">←</button><div style="text-align:center"><div class="kmk-cal-title">V3 — Horizontalni prikaz</div><div class="kmk-cal-sub">${kmkMonthName()} · ${dates.length} dana</div></div><button class="v3-nav" onclick="changeMonth(1)">→</button></div><div class="v3-zoom"><div class="v3-zb ${_v3Days===7?'on':''}" onclick="v3SetZoom(7)">7d</div><div class="v3-zb ${_v3Days===14?'on':''}" onclick="v3SetZoom(14)">14d</div><div class="v3-zb ${_v3Days===30?'on':''}" onclick="v3SetZoom(30)">30d</div><div class="v3-zb ${_v3Days===0?'on':''}" onclick="v3SetZoom(0)">Cijeli</div></div><div class="kmk-v3-scroll"><div class="kmk-v3-grid" style="grid-template-columns:78px repeat(${dates.length},${cellW}px)">`;
-  html+=`<div class="kmk-v3-label"><span style="font-weight:900;color:#243322">Bungalov</span></div>`+dates.map(ds=>{const d=kmkDateShort(ds);return `<div class="kmk-v3-date ${ds===today?'today':''}"><span>${d.day}</span><small>${d.dow}</small></div>`;}).join('');
+  const vis=kmkV3VisibleRange(dates), totalW=dates.length*cellW;
+  let html=`<div class="kmk-v3-wrap"><div class="kmk-v3-top"><button class="v3-nav" onclick="changeMonth(-1)">←</button><div style="text-align:center"><div class="kmk-cal-title">V3 — Vremenska traka</div><div class="kmk-cal-sub">${kmkMonthName()} · ${dates.length} dana · dužina trake = trajanje rezervacije</div></div><button class="v3-nav" onclick="changeMonth(1)">→</button></div><div class="v3-zoom"><div class="v3-zb ${_v3Days===7?'on':''}" onclick="v3SetZoom(7)">7d</div><div class="v3-zb ${_v3Days===14?'on':''}" onclick="v3SetZoom(14)">14d</div><div class="v3-zb ${_v3Days===30?'on':''}" onclick="v3SetZoom(30)">30d</div><div class="v3-zb ${_v3Days===0?'on':''}" onclick="v3SetZoom(0)">Cijeli</div></div><div class="kmk-v3-scroll"><div class="kmk-v3-board">`;
+  html += `<div class="kmk-v3-headrow"><div class="kmk-v3-label"><span style="font-weight:900;color:#243322">Bungalov</span></div><div class="kmk-v3-bggrid" style="grid-template-columns:repeat(${dates.length},${cellW}px)">${dates.map(ds=>{const d=kmkDateShort(ds);return `<div class="kmk-v3-date ${ds===today?'today':''}"><span>${d.day}</span><small>${d.dow}</small></div>`;}).join('')}</div></div>`;
   bungs.forEach(bn=>{
-    html+=`<div class="kmk-v3-label"><strong>B${bn}</strong><small style="color:#7b8777">Max ${B_CFG?.[bn]?.m||'?'}</small></div>`;
-    dates.forEach(ds=>{const r=kmkCalResFor(bn,ds), st=kmkCalStatus(r), sel=_kmkV3Sel.bn==String(bn)&&_kmkV3Sel.start&&ds>=_kmkV3Sel.start&&ds<=(_kmkV3Sel.end||_kmkV3Sel.start); if(r){const color={manual:'#7fa8ed',booking:'#24539b',paid:'#416f46',closed:'#9a9a9a',conflict:'#ef807d'}[st]||'#7fa8ed'; html+=`<div class="kmk-v3-cell" style="background:#f5f7f4;border-color:#edf2eb" onclick="showDet('${r.id}')"><div class="kmk-v3-bar" style="background:${color}">${escHtml(r.closedManual?'Zatvoreno':(r.name||kmkStatusLabel(st)))}</div></div>`;} else {html+=`<div class="kmk-v3-cell ${sel?'kmk-v3-selected':''}" onclick="kmkV3Select('${bn}','${ds}')"></div>`;}});
+    const laneData = kmkV3ReservationsFor(bn, vis.start, vis.endExcl);
+    const trackH = Math.max(34, laneData.laneCount*34 + 6);
+    html += `<div class="kmk-v3-row"><div class="kmk-v3-label"><strong>B${bn}</strong><small style="color:#7b8777">Max ${B_CFG?.[bn]?.m||'?'} · ${laneData.items.length} rezerv.</small></div>`;
+    html += `<div class="kmk-v3-track ${laneData.laneCount===1?'compact':''}" style="width:${totalW}px;height:${trackH}px">`;
+    html += `<div class="kmk-v3-bggrid" style="grid-template-columns:repeat(${dates.length},${cellW}px)">`;
+    dates.forEach(ds=>{
+      const sel = _kmkV3Sel.bn==String(bn) && _kmkV3Sel.start && ds>=_kmkV3Sel.start && ds<=(_kmkV3Sel.end||_kmkV3Sel.start);
+      html += `<div class="kmk-v3-bgcell ${ds<today?'past':''} ${sel?'sel':''}" onclick="kmkV3Select('${bn}','${ds}')"></div>`;
+    });
+    html += `</div>`;
+    html += `<div class="kmk-v3-bars">`;
+    laneData.items.forEach(item=>{
+      const left = item.startIdx*cellW + 3;
+      const width = item.span*cellW - 6;
+      const top = item.lane*34 + 3;
+      const label = item.res.closedManual ? 'Zatvoreno' : (item.res.name || kmkStatusLabel(item.st));
+      const meta = `${fmtD(item.res.checkIn)} → ${fmtD(item.res.checkOut)}`;
+      html += `<div class="kmk-v3-bar-wrap" style="left:${left}px;width:${width}px;top:${top}px;background:${kmkV3BarColor(item.st)}" onclick="showDet('${item.res.id}')" title="${escHtml(label)} · ${meta}">${escHtml(label)}<small>${meta}</small></div>`;
+    });
+    html += `</div></div></div>`;
   });
-  html+=`</div></div><div class="kmk-legend"><span class="kmk-leg"><i class="kmk-dot" style="background:#e1f1d3"></i>Slobodno</span><span class="kmk-leg"><i class="kmk-dot" style="background:#7fa8ed"></i>Rezervisano</span><span class="kmk-leg"><i class="kmk-dot" style="background:#24539b"></i>Booking</span><span class="kmk-leg"><i class="kmk-dot" style="background:#416f46"></i>Plaćeno</span><span class="kmk-leg"><i class="kmk-dot" style="background:#9a9a9a"></i>Zatvoreno</span><span class="kmk-leg"><i class="kmk-dot" style="background:#ef807d"></i>Konflikt</span></div><div class="kmk-v3-footer"><div id="kmk-v3-info"><strong>Izaberite slobodan period</strong><br><small>Tap na prvi datum, zatim na zadnji datum.</small></div><button class="kmk-v3-book" id="kmk-v3-book" disabled onclick="kmkV3Book()">Rezerviši</button></div><div class="kmk-v3-tip">Tap na zauzetu traku otvara detalje rezervacije.</div></div>`;
+  html += `</div></div><div class="kmk-legend"><span class="kmk-leg"><i class="kmk-dot" style="background:#e1f1d3"></i>Slobodno</span><span class="kmk-leg"><i class="kmk-dot" style="background:#7fa8ed"></i>Rezervisano</span><span class="kmk-leg"><i class="kmk-dot" style="background:#24539b"></i>Booking</span><span class="kmk-leg"><i class="kmk-dot" style="background:#416f46"></i>Plaćeno</span><span class="kmk-leg"><i class="kmk-dot" style="background:#9a9a9a"></i>Zatvoreno</span><span class="kmk-leg"><i class="kmk-dot" style="background:#ef807d"></i>Konflikt</span></div><div class="kmk-v3-footer"><div id="kmk-v3-info"><strong>Izaberite slobodan period</strong><br><small>Tap na prvi datum, zatim na zadnji datum. Trake zauzeća su sada spojene i dugačke prema trajanju.</small></div><button class="kmk-v3-book" id="kmk-v3-book" disabled onclick="kmkV3Book()">Rezerviši</button></div><div class="kmk-v3-tip">Tap na zauzetu traku otvara detalje rezervacije. Ako ima konflikata, trake se slažu u više redova.</div></div>`;
   el.innerHTML=html; kmkV3Footer();
 }
 window.v3SetZoom=(days)=>{_v3Days=days;_kmkV3Sel={bn:null,start:null,end:null};renderMobCalV3();};
-window.kmkV3Select=(bn,ds)=>{if(_kmkV3Sel.bn!==String(bn)||!_kmkV3Sel.start){_kmkV3Sel={bn:String(bn),start:ds,end:ds};}else{_kmkV3Sel.end=ds;if(_kmkV3Sel.end<_kmkV3Sel.start){const t=_kmkV3Sel.start;_kmkV3Sel.start=_kmkV3Sel.end;_kmkV3Sel.end=t;}} renderMobCalV3();};
-function kmkV3Footer(){const info=document.getElementById('kmk-v3-info'),btn=document.getElementById('kmk-v3-book'); if(!info||!btn)return; if(!_kmkV3Sel.bn||!_kmkV3Sel.start){btn.disabled=true;return;} const start=_kmkV3Sel.start,end=_kmkV3Sel.end||start,nights=Math.ceil((new Date(end)-new Date(start))/86400000)+1; info.innerHTML=`<strong>B${_kmkV3Sel.bn} · ${fmtD(start)}${end!==start?' → '+fmtD(end):''}</strong><br><small>${nights} noći · spremno za brzu rezervaciju</small>`; btn.disabled=false;}
-window.kmkV3Book=()=>{if(!_kmkV3Sel.bn||!_kmkV3Sel.start)return; const end=_kmkV3Sel.end||_kmkV3Sel.start; mobPrefillQuickForm(_kmkV3Sel.bn,_kmkV3Sel.start,kmkNextDay(end));};
+window.kmkV3Select=(bn,ds)=>{ if(_kmkV3Sel.bn!==String(bn)||!_kmkV3Sel.start){ _kmkV3Sel={bn:String(bn),start:ds,end:ds}; } else { _kmkV3Sel.end=ds; if(_kmkV3Sel.end<_kmkV3Sel.start){const t=_kmkV3Sel.start;_kmkV3Sel.start=_kmkV3Sel.end;_kmkV3Sel.end=t;} } renderMobCalV3(); };
+function kmkV3Footer(){ const info=document.getElementById('kmk-v3-info'), btn=document.getElementById('kmk-v3-book'); if(!info||!btn)return; if(!_kmkV3Sel.bn||!_kmkV3Sel.start){ btn.disabled=true; return; } const start=_kmkV3Sel.start, end=_kmkV3Sel.end||start, nights=Math.ceil((new Date(end)-new Date(start))/86400000)+1; info.innerHTML=`<strong>B${_kmkV3Sel.bn} · ${fmtD(start)}${end!==start?' → '+fmtD(end):''}</strong><br><small>${nights} noći · spremno za brzu rezervaciju</small>`; btn.disabled=false; }
+window.kmkV3Book=()=>{ if(!_kmkV3Sel.bn||!_kmkV3Sel.start)return; const end=_kmkV3Sel.end||_kmkV3Sel.start; mobPrefillQuickForm(_kmkV3Sel.bn,_kmkV3Sel.start,kmkNextDay(end)); };
 
 // Osvježi hero nakon glavnih rendera
 try{setTimeout(()=>{_updateCalViewButtons(); if(isMobile()&&_mobCurrentTab==='calendar')_applyCalView();},300);}catch(e){}
+
+// ── KMK Desktop Vision bridge v2.4.2 ─────────────────────────
+// Exposes read-only app state and existing safe functions to the external desktop UI layer.
+try {
+  window.KMK_APP_BRIDGE = {
+    get reservations(){ return reservations; },
+    get B_CFG(){ return B_CFG; },
+    get curUser(){ return curUser; },
+    get curRole(){ return curRole; },
+    fmtD: (typeof fmtD === 'function') ? fmtD : undefined,
+    lDate: (typeof lDate === 'function') ? lDate : undefined,
+    showDet: (typeof showDet === 'function') ? showDet : undefined,
+    goTab: (typeof goTab === 'function') ? goTab : undefined,
+    renderCal: (typeof renderCal === 'function') ? renderCal : undefined,
+    mobPrefillQuickForm: (typeof mobPrefillQuickForm === 'function') ? mobPrefillQuickForm : undefined,
+    calcPrice: (typeof calcPrice === 'function') ? calcPrice : undefined
+  };
+} catch(e) {
+  console.warn('KMK desktop bridge init skipped:', e);
+}
+
 </script>
 
 <!-- GLOBALNI BULK TOOLBAR — prikazuje se na listi i kalendaru -->
@@ -9049,7 +9767,7 @@ try{setTimeout(()=>{_updateCalViewButtons(); if(isMobile()&&_mobCurrentTab==='ca
 
 
 <script>
-// KMK mobile v1.9.3 final polish runtime guard
+// KMK mobile v2.4.2 final polish runtime guard
 (function(){
   const oldMobGoTab = window.mobGoTab;
   if (typeof oldMobGoTab === 'function') {
@@ -9068,6 +9786,653 @@ try{setTimeout(()=>{_updateCalViewButtons(); if(isMobile()&&_mobCurrentTab==='ca
     };
   }
 })();
+</script>
+
+<script id="kmkv-vision-script">
+
+(function(){
+  'use strict';
+  const VERSION = '2.4.2';
+  const THEME_KEY = 'kmkv_desktop_theme_v242';
+  const BREAKPOINT = 1100;
+  const state = { page:'dashboard', classic:false, mounted:false, search:'' };
+  window.KMKV_VISION_UI_VERSION = VERSION;
+  console.info('[KMK Vision UI] loaded v' + VERSION);
+  const $ = (sel, root=document) => root.querySelector(sel);
+  const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
+  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const euro = (n) => `${(Number(n)||0).toFixed(0)} €`;
+  const isoToday = () => {
+    const d = new Date();
+    d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+    return d.toISOString().slice(0,10);
+  };
+  const addDays = (ds,n) => {
+    const d = new Date(ds+'T00:00:00');
+    d.setDate(d.getDate()+n);
+    d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+    return d.toISOString().slice(0,10);
+  };
+  const diffDays = (a,b) => Math.round((new Date(b+'T00:00:00') - new Date(a+'T00:00:00'))/86400000);
+  const fmt = (ds) => {
+    if(!ds) return '—';
+    try {
+      if (app().fmtD) return app().fmtD(ds);
+      const d=new Date(ds+'T00:00:00');
+      return `${String(d.getDate()).padStart(2,'0')}.${String(d.getMonth()+1).padStart(2,'0')}.${d.getFullYear()}.`;
+    } catch { return ds; }
+  };
+  const dow = (ds) => {
+    const d=new Date(ds+'T00:00:00');
+    return ['Ned','Pon','Uto','Sri','Čet','Pet','Sub'][d.getDay()];
+  };
+  const monthLabel = (date=new Date()) => {
+    const m=['Januar','Februar','Mart','April','Maj','Jun','Jul','Avgust','Septembar','Oktobar','Novembar','Decembar'];
+    return `${m[date.getMonth()]} ${date.getFullYear()}.`;
+  };
+  function app(){ return window.KMK_APP_BRIDGE || {}; }
+  function reservations(){
+    const data = app().reservations || [];
+    return Array.isArray(data) ? data : [];
+  }
+  function cfg(){
+    const data = app().B_CFG || {};
+    return data && typeof data === 'object' ? data : {};
+  }
+  function bungalows(){
+    const keys = Object.keys(cfg()).map(x=>parseInt(x,10)).filter(Boolean).sort((a,b)=>a-b);
+    return keys.length ? keys : Array.from({length:13},(_,i)=>i+1);
+  }
+  function currentUser(){
+    return app().curUser || $('#cur-user')?.textContent?.trim() || 'Administrator';
+  }
+  function isAppLoggedIn(){
+    const login = $('#login-screen');
+    const appEl = $('#app');
+    if(!appEl) return false;
+    const appVisible = getComputedStyle(appEl).display !== 'none';
+    const loginHidden = !login || getComputedStyle(login).display === 'none';
+    return appVisible && loginHidden;
+  }
+  function activeRes(){
+    return reservations().filter(r => !r.cancelled);
+  }
+  function resBungs(r){ return Array.isArray(r?.bungalovi) ? r.bungalovi : []; }
+  function resGuests(r){
+    return resBungs(r).reduce((s,b)=>s+(parseInt(b.adults||0,10)||0)+(parseInt(b.children||0,10)||0)+(parseInt(b.babies||0,10)||0),0) ||
+      resBungs(r).reduce((s,b)=>s+(parseInt(b.beds||0,10)||0),0) || 0;
+  }
+  function resBungLabel(r){ return resBungs(r).map(b=>'B'+b.bungalov).join(', ') || '—'; }
+  function isOccupiedOn(r, ds){ return r.checkIn && r.checkOut && ds >= r.checkIn && ds < r.checkOut; }
+  function resForBungOn(bn, ds){
+    return activeRes().find(r => resBungs(r).some(b=>String(b.bungalov)===String(bn)) && isOccupiedOn(r, ds));
+  }
+  function conflicts(){
+    const c = [];
+    const res = activeRes();
+    for(let i=0;i<res.length;i++){
+      for(let j=i+1;j<res.length;j++){
+        const a=res[i], b=res[j];
+        if(!(a.checkIn < b.checkOut && a.checkOut > b.checkIn)) continue;
+        const overlap = resBungs(a).some(ba => resBungs(b).some(bb => String(ba.bungalov)===String(bb.bungalov)));
+        if(overlap) c.push([a,b]);
+      }
+    }
+    return c;
+  }
+  function statusOf(r){
+    if(!r) return 'free';
+    if(r.closedManual) return 'closed';
+    const hasConflict = conflicts().some(([a,b]) => a.id===r.id || b.id===r.id);
+    if(hasConflict) return 'conflict';
+    if(r.paid) return 'paid';
+    if(r.icalLinkId || /booking/i.test(r.channel||'')) return 'booking';
+    return 'manual';
+  }
+  function statusLabel(s){
+    return {free:'Slobodno', manual:'Rezervisano', booking:'Booking', paid:'Plaćeno', closed:'Zatvoreno', conflict:'Konflikt'}[s] || s;
+  }
+  function channel(r){ return r?.channel || (r?.icalLinkId ? 'iCal' : 'Direktno'); }
+  function revenue(period='month'){
+    const now=new Date();
+    return activeRes().filter(r => {
+      if(!r.checkIn) return false;
+      const d=new Date(r.checkIn+'T00:00:00');
+      if(period==='month') return d.getFullYear()===now.getFullYear() && d.getMonth()===now.getMonth();
+      return true;
+    }).reduce((s,r)=>s+(Number(r.price)||0),0);
+  }
+  function occupancy(ds=isoToday()){
+    const occupied = new Set();
+    activeRes().filter(r=>isOccupiedOn(r, ds)).forEach(r=>resBungs(r).forEach(b=>occupied.add(String(b.bungalov))));
+    const total = bungalows().length || 1;
+    return { occupied: occupied.size, free: Math.max(0,total-occupied.size), total, pct: Math.round((occupied.size/total)*100) };
+  }
+
+  function themeMode(){ return localStorage.getItem(THEME_KEY) || 'vision'; }
+  function setThemeMode(mode){
+    // Ekspoziraj globalno za FAB dugme
+    window.KMKV_setThemeMode = setThemeMode;
+    window.KMKV_mount = mount;
+    const value = mode === 'classic' ? 'classic' : 'vision';
+    localStorage.setItem(THEME_KEY, value);
+    document.body.dataset.kmkvTheme = value;
+    console.info('[KMK Vision UI] theme:', value);
+    state.classic = value === 'classic';
+    if(value === 'classic') {
+      goClassic();
+      ensureRestorePill();
+    } else {
+      removeRestorePill();
+      restoreShell();
+    }
+  }
+  function switchOldTab(tab){
+    const map = { new:'add', reservations:'list', guests:'list', dashboard:'daily', availability:'calendar', channels:'settings', pricing:'settings', sync:'settings' };
+    const wanted = map[tab] || tab || 'daily';
+    const go = app().goTab || window.goTab;
+    if(typeof go === 'function') {
+      try {
+        const btn = document.querySelector(`.tab[data-tab="${wanted}"]`) || document.querySelector(`[data-tab="${wanted}"]`);
+        go(wanted, btn || undefined);
+        return true;
+      } catch(e) { console.warn('KMKV classic tab switch failed', e); }
+    }
+    const pane = document.getElementById('pane-' + wanted);
+    if(pane){
+      document.querySelectorAll('.pane').forEach(p=>p.style.display='none');
+      pane.style.display='block';
+      document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t.dataset.tab === wanted));
+      return true;
+    }
+    console.warn('[KMK Vision UI] Classic tab not found:', tab, 'mapped:', wanted);
+    return false;
+  }
+  function ensureRestorePill(){
+    if(!isAppLoggedIn() || window.innerWidth < BREAKPOINT) return;
+    if(document.getElementById('kmkv-restore-pill')) return;
+    const pill = document.createElement('button');
+    pill.id = 'kmkv-restore-pill';
+    pill.type = 'button';
+    pill.textContent = '✨ Nova Vision tema v' + VERSION;
+    pill.onclick = () => { localStorage.setItem(THEME_KEY,'vision'); state.classic=false; removeRestorePill(); apply(); };
+    document.body.appendChild(pill);
+  }
+  function removeRestorePill(){ document.getElementById('kmkv-restore-pill')?.remove(); }
+  function goClassic(tab){
+    state.classic = true;
+    document.body.classList.remove('kmkv-desktop-active');
+    const shell = $('#kmkv-shell');
+    if(shell) shell.style.display='none';
+    if(tab) switchOldTab(tab);
+    const container = $('.container');
+    if(container) container.style.display='';
+    const bulk = document.getElementById('bulk-toolbar'); if(bulk) bulk.style.display='';
+    ensureRestorePill();
+  }
+  function restoreShell(){
+    state.classic=false;
+    localStorage.setItem(THEME_KEY,'vision');
+    removeRestorePill();
+    const shell = $('#kmkv-shell');
+    if(shell) shell.style.display='';
+    if(shouldUseShell()) document.body.classList.add('kmkv-desktop-active');
+    render();
+  }
+  function showDetails(id){
+    if(typeof app().showDet === 'function') return app().showDet(id);
+    if(typeof window.showDet === 'function') return window.showDet(id);
+    goClassic('list');
+  }
+  function prefillReservation(bn, start, end){
+    // Na desktopu direktno otvori klasičnu add formu
+    goClassic('add');
+    // Postavi bungalov i datume ako je moguće
+    setTimeout(() => {
+      const ci = document.getElementById('f-checkin');
+      const co = document.getElementById('f-checkout');
+      if (ci && start) ci.value = start;
+      if (co && end)   co.value = end;
+      // Pokušaj postaviti bungalov
+      if (bn) {
+        const bungs = document.querySelectorAll('.bung-check');
+        bungs.forEach(cb => {
+          if (cb.value === String(bn)) cb.checked = true;
+        });
+      }
+      if (typeof window.recalc === 'function') window.recalc();
+    }, 200);
+  }
+  function shouldUseShell(){
+    return window.innerWidth >= BREAKPOINT && isAppLoggedIn() && !state.classic && themeMode() !== 'classic';
+  }
+  function mount(){
+    if($('#kmkv-shell')) return;
+    const shell = document.createElement('div');
+    shell.id = 'kmkv-shell';
+    shell.innerHTML = shellHtml();
+    document.body.appendChild(shell);
+    bindShell();
+    state.mounted = true;
+  }
+  function shellHtml(){
+    return `
+      <aside class="kmkv-sidebar">
+        <div class="kmkv-brand">
+          <div class="kmkv-brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 64 64" width="42" height="42" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6 42 21 24l8 9 12-16 17 25"/><path d="M14 42h36"/><path d="M23 42V31l9-7 9 7v11"/><path d="M29 42v-9h6v9"/><path d="M9 48h47"/><path d="M18 49c-4 0-7 2-9 5M45 49c4 0 7 2 9 5"/>
+            </svg>
+          </div>
+          <div><strong>KMK Bungalovi</strong><span>Priroda. Mir. Udobnost.</span></div>
+        </div>
+        <nav class="kmkv-nav" id="kmkv-nav">
+          ${navBtn('dashboard','⌂','Dashboard')}
+          ${navBtn('new','＋','Nova rezervacija')}
+          ${navBtn('calendar','▣','Kalendar')}
+          ${navBtn('reservations','☷','Rezervacije')}
+          ${navBtn('availability','⌕','Slobodni bungalovi')}
+          ${navBtn('daily','☼','Dnevni pregled')}
+          ${navBtn('guests','♙','Gosti')}
+          ${navBtn('stats','▥','Statistika')}
+          ${navBtn('channels','⌘','Kanali')}
+          ${navBtn('pricing','◇','Cijene')}
+          ${navBtn('sync','↻','iCal / Sync')}
+          ${navBtn('settings','⚙','Podešavanja')}
+        </nav>
+        <div class="kmkv-sidebar-card">
+          <div class="kmkv-mini-landscape"></div>
+          <strong>KMK Bungalovi</strong>
+          <p>Dobrodošli u prirodu. Mi brinemo o detaljima.</p>
+          <button class="kmkv-btn kmkv-ghost" style="margin-top:12px;width:100%" data-classic-tab="daily">Prikaži klasični prikaz ↗</button>
+        </div>
+      </aside>
+      <main class="kmkv-main">
+        <header class="kmkv-topbar">
+          <div class="kmkv-search"><span>⌕</span><input id="kmkv-search" placeholder="Pretraži rezervacije, goste, bungalove..." /><span class="kmkv-shortcut">⌘K</span></div>
+          <div class="kmkv-top-actions">
+            <button class="kmkv-btn kmkv-outline" data-kmkv-page="new"><span class="kmkv-plus">＋</span> Brza rezervacija</button>
+            <button class="kmkv-btn kmkv-soft-btn" data-kmkv-page="daily">▣ Danas</button>
+            <button class="kmkv-icon-btn kmkv-bell" title="Notifikacije">♢<i>3</i></button>
+            <div class="kmkv-user"><div class="kmkv-avatar">${esc((currentUser()||'A').slice(0,1).toUpperCase())}</div><div><strong>${esc(currentUser()||'Administrator')}</strong><span>Administrator</span></div><em>⌄</em></div>
+          </div>
+        </header>
+        <section class="kmkv-content" id="kmkv-content"></section>
+      </main>`;
+  }
+  function navBtn(page, icon, label){ return `<button data-kmkv-page="${page}" class="${state.page===page?'on':''}"><span class="ico">${icon}</span><span>${label}</span></button>`; }
+  function bindShell(){
+    document.addEventListener('click', e => {
+      const closeBtn = e.target.closest('.kmkv-drawer-close');
+      if(closeBtn){
+        e.preventDefault();
+        const panel = closeBtn.closest('.kmkv-detail-drawer,.kmkv-guest-profile,.kmkv-summary-card,.kmkv-card');
+        if(panel) panel.style.display = 'none';
+        return;
+      }
+      const page = e.target.closest('[data-kmkv-page]')?.dataset.kmkvPage;
+      if(page){
+        e.preventDefault();
+        if(['channels','pricing','sync','settings','daily','availability'].includes(page)){
+          const map={channels:'settings',pricing:'settings',sync:'settings',settings:'settings',daily:'daily',availability:'availability'};
+          if(['channels','pricing','sync','settings'].includes(page)){
+            // show visual placeholder and option to classic settings
+            state.page=page; render(); return;
+          }
+        }
+        state.page=page; render();
+      }
+      const tab = e.target.closest('[data-classic-tab]')?.dataset.classicTab;
+      if(tab){ e.preventDefault(); goClassic(tab); }
+      const theme = e.target.closest('[data-theme-mode]')?.dataset.themeMode;
+      if(theme){ e.preventDefault(); setThemeMode(theme); }
+      const details = e.target.closest('[data-detail-id]')?.dataset.detailId;
+      if(details){ e.preventDefault(); showDetails(details); }
+      const pre = e.target.closest('[data-prefill]');
+      if(pre){
+        e.preventDefault();
+        const [bn,start,end] = pre.dataset.prefill.split('|');
+        prefillReservation(bn,start,end);
+      }
+    });
+    $('#kmkv-search')?.addEventListener('input', e => { state.search=e.target.value.trim().toLowerCase(); if(['reservations','guests'].includes(state.page)) render(); });
+    document.addEventListener('keydown', e => {
+      if((e.ctrlKey || e.metaKey) && String(e.key).toLowerCase()==='k'){
+        e.preventDefault();
+        const inp = $('#kmkv-search');
+        if(inp){ state.page='reservations'; render(); setTimeout(()=>$('#kmkv-search')?.focus(),20); }
+      }
+    });
+    window.addEventListener('resize', apply);
+  }
+  function apply(){
+    document.body.dataset.kmkvVision = VERSION;
+    if(shouldUseShell()){
+      mount();
+      document.body.classList.add('kmkv-desktop-active');
+      const bulk = document.getElementById('bulk-toolbar'); if(bulk) bulk.style.display='none';
+      $('#kmkv-shell').style.display='';
+      render();
+    } else {
+      document.body.classList.remove('kmkv-desktop-active');
+      const shell = $('#kmkv-shell');
+      if(shell && !state.classic) shell.style.display='none';
+      if(window.innerWidth >= BREAKPOINT && themeMode() === 'classic' && isAppLoggedIn()) ensureRestorePill();
+    }
+  }
+  function render(){
+    const content = $('#kmkv-content');
+    if(!content) return;
+    $$('#kmkv-nav [data-kmkv-page]').forEach(btn=>btn.classList.toggle('on', btn.dataset.kmkvPage===state.page));
+    if(state.page==='dashboard') content.innerHTML = pageDashboard();
+    else if(state.page==='calendar') content.innerHTML = pageCalendar();
+    else if(state.page==='new') content.innerHTML = pageNew();
+    else if(state.page==='reservations' || state.page==='guests') content.innerHTML = pageReservations();
+    else if(state.page==='stats') content.innerHTML = pageStats();
+    else if(state.page==='settings') content.innerHTML = pageSettings();
+    else if(state.page==='daily') content.innerHTML = pageVisualFallback('Dnevni pregled','Operativni prikaz za dolaske, odlaske i čišćenje.', 'daily');
+    else if(state.page==='availability') content.innerHTML = pageAvailability();
+    else content.innerHTML = pageVisualFallback(navLabel(state.page),'Ova sekcija ostaje dostupna kroz klasični prikaz dok se ne redizajnira do kraja.', 'settings');
+  }
+  function navLabel(p){
+    return {channels:'Kanali',pricing:'Cijene',sync:'iCal / Sync',settings:'Podešavanja'}[p] || p;
+  }
+  function hero(title, subtitle, actions=''){
+    return `<div class="kmkv-hero"><div><span class="kmkv-eyebrow">🏔️ Maja Karanfil · Vision UI ${VERSION}</span><h1>${esc(title)}</h1><p>${esc(subtitle)}</p></div><div class="kmkv-hero-actions">${actions}</div></div>`;
+  }
+  function kpiCard(icon,lbl,num,sub){
+    return `<div class="kmkv-card kmkv-kpi"><div class="top"><div><div class="num">${num}</div><div class="lbl">${esc(lbl)}</div></div><div class="icon">${icon}</div></div><div class="sub">${esc(sub||'')}</div></div>`;
+  }
+
+  function pageShell(title, subtitle, body, opts={}){
+    const actions = opts.actions || '';
+    const banner = opts.banner ? `<div class="kmkv-page-banner"></div>` : '';
+    return `<div class="kmkv-page-frame ${opts.cls||''}">${banner}<div class="kmkv-page-head"><div><h1>${esc(title)}</h1><p>${esc(subtitle)}</p></div><div class="kmkv-page-actions">${actions}</div></div>${body}</div>`;
+  }
+  function miniTabs(items, active){
+    return `<div class="kmkv-tabs">${items.map(it=>`<button class="${it.key===active?'on':''}" ${it.page?`data-kmkv-page="${it.page}"`:''} ${it.tab?`data-classic-tab="${it.tab}"`:''}>${esc(it.label)}${it.badge!==undefined?`<span>${it.badge}</span>`:''}</button>`).join('')}</div>`;
+  }
+  function rowAvatar(name){
+    const n = String(name||'?').trim();
+    return `<div class="kmkv-row-avatar">${esc((n[0]||'?').toUpperCase())}</div>`;
+  }
+  function channelBadge(r){
+    const ch = channel(r);
+    const cls = /airbnb/i.test(ch) ? 'airbnb' : /booking|ical/i.test(ch) ? 'booking' : 'direct';
+    const ico = cls==='airbnb' ? 'A' : cls==='booking' ? 'B' : '⌂';
+    return `<span class="kmkv-channel ${cls}"><i>${ico}</i>${esc(ch)}</span>`;
+  }
+  function lineChart(){
+    const months=['Jan','Feb','Mar','Apr','Maj','Jun','Jul','Avg','Sep','Okt','Nov','Dec'];
+    const y=new Date().getFullYear();
+    const vals=months.map((_,i)=>activeRes().filter(r=>r.checkIn&&new Date(r.checkIn+'T00:00:00').getFullYear()===y&&new Date(r.checkIn+'T00:00:00').getMonth()===i).reduce((s,r)=>s+(Number(r.price)||0),0));
+    const max=Math.max(1,...vals);
+    const points=vals.map((v,i)=>`${(i/(months.length-1))*100},${92-(v/max)*72}`).join(' ');
+    return `<div class="kmkv-line-chart"><svg viewBox="0 0 100 100" preserveAspectRatio="none"><polyline points="${points}" fill="none" stroke="var(--kmkv-green)" stroke-width="2.4"/><polyline points="0,82 15,74 30,71 45,66 60,50 75,58 100,46" fill="none" stroke="#cbd5c4" stroke-dasharray="3 3" stroke-width="1.2"/></svg><div class="kmkv-month-labels">${months.map(m=>`<span>${m}</span>`).join('')}</div></div>`;
+  }
+  function monthRevenueBars(){
+    const months=['Jan','Feb','Mar','Apr','Maj','Jun','Jul','Avg','Sep','Okt','Nov','Dec'];
+    const y=new Date().getFullYear();
+    const vals=months.map((_,i)=>activeRes().filter(r=>r.checkIn&&new Date(r.checkIn+'T00:00:00').getFullYear()===y&&new Date(r.checkIn+'T00:00:00').getMonth()===i).reduce((s,r)=>s+(Number(r.price)||0),0));
+    const max=Math.max(1,...vals);
+    return months.map((m,i)=>`<div class="kmkv-bar" style="height:${28+Math.round(vals[i]/max*124)}px" title="${m}: ${euro(vals[i])}"><span>${m}</span></div>`).join('');
+  }
+  function pageDashboard(){
+    const today=isoToday(), occ=occupancy(today), arr=activeRes().filter(r=>r.checkIn===today), dep=activeRes().filter(r=>r.checkOut===today);
+    const total=activeRes().length, rev=revenue('month'), conf=conflicts().length;
+    const body = `
+      <div class="kmkv-dashboard-hero">
+        <div><h1>Dobro jutro, ${esc((currentUser()||'Admin').split(' ')[0]||'Admin')}! 👋</h1><p>Evo šta se dešava u vašem objektu danas i u narednom periodu.</p></div>
+        <div class="kmkv-mountain-scene"></div>
+      </div>
+      <div class="kmkv-kpis kmkv-kpis-dash">
+        ${kpiCard('→','Današnji dolasci',arr.length,'2 VIP gosta')}
+        ${kpiCard('→','Današnji odlasci',dep.length,'Check-out i čišćenje')}
+        ${kpiCard('⌂','Slobodno danas',`${occ.free} / ${occ.total}`,`${Math.max(0,100-occ.pct)}% dostupno`)}
+        ${kpiCard('▣','Ukupne rezervacije',total,'Aktivne rezervacije')}
+        ${kpiCard('€','Prihod (mjesec)',euro(rev),'+ prema unesenim cijenama')}
+        ${kpiCard('◔','Popunjenost',occ.pct+'%','Danas')}
+      </div>
+      <div class="kmkv-dashboard-grid">
+        <div class="kmkv-card kmkv-panel kmkv-occupancy-panel">
+          <div class="kmkv-panel-head">
+            <div><div class="kmkv-panel-title">Popunjenost bungalova</div><div class="kmkv-status-legend">${legend('paid','Zauzeto')}${legend('booking','Danas dolazak')}${legend('checkout','Danas odlazak')}${legend('free','Slobodno')}${legend('closed','Blokirano')}</div></div>
+            <div class="kmkv-controls"><span class="kmkv-pill">${fmt(today)}</span><button class="kmkv-btn kmkv-soft-btn" data-kmkv-page="calendar">Filteri</button></div>
+          </div>
+          <div class="kmkv-occupancy-grid kmkv-dash-bungalows">${bungalows().map(bn=>bungCard(bn,today)).join('')}</div>
+          <button class="kmkv-wide-link" data-kmkv-page="availability">Pogledaj sve bungalove →</button>
+        </div>
+        <div class="kmkv-card kmkv-panel kmkv-month-card">
+          <div class="kmkv-panel-head"><div><div class="kmkv-panel-title">Pregled popunjenosti</div><div class="kmkv-panel-sub">${monthLabel()}</div></div><span class="kmkv-pill">30 dana</span></div>
+          <div class="kmkv-mini-calendar">${heatmapCells()}</div>
+          <div class="kmkv-gradient-legend"><span>Niska popunjenost</span><i></i><span>Visoka popunjenost</span></div>
+        </div>
+        <div class="kmkv-card kmkv-panel"><div class="kmkv-panel-head"><div><div class="kmkv-panel-title">Naredni dolasci</div></div><button class="kmkv-link-btn" data-kmkv-page="reservations">Pogledaj sve</button></div><div class="kmkv-mini-list">${upcomingRows().slice(0,4).join('') || '<div class="kmkv-empty">Nema dolazaka.</div>'}</div></div>
+        <div class="kmkv-card kmkv-panel"><div class="kmkv-panel-head"><div><div class="kmkv-panel-title">Nedavne rezervacije</div></div><button class="kmkv-link-btn" data-kmkv-page="reservations">Pogledaj sve</button></div><div class="kmkv-mini-list">${activeRes().slice(0,4).map(r=>`<div class="kmkv-list-row" data-detail-id="${esc(r.id||'')}"><div class="left"><div class="kmkv-badge-id">${esc(resBungLabel(r).split(',')[0]||'B?')}</div><div><strong>${esc(r.name||'—')}</strong><span>${fmt(r.checkIn)} – ${fmt(r.checkOut)}</span></div></div><div class="kmkv-price">${euro(r.price)}</div></div>`).join('') || '<div class="kmkv-empty">Nema rezervacija.</div>'}</div></div>
+        <div class="kmkv-card kmkv-panel"><div class="kmkv-panel-title">Brze akcije</div><div class="kmkv-action-grid"><button data-kmkv-page="new">＋<span>Nova rezervacija</span></button><button data-kmkv-page="availability">▣<span>Provjeri dostupnost</span></button><button data-classic-tab="stats">⌁<span>Izvoz izvještaja</span></button></div></div>
+      </div>`;
+    return pageShell('Dashboard','Operativni pregled za današnji rad.',body,{cls:'kmkv-dashboard-page'});
+  }
+  function bungCard(bn, ds){
+    const r=resForBungOn(bn,ds), st=statusOf(r);
+    const cls = !r?'free': st==='closed'?'closed':st==='conflict'?'conflict':r.checkOut===ds?'checkout':st==='paid'?'paid':'busy';
+    const meta = r ? `${esc(r.name||'—')}<br>${fmt(r.checkIn)} → ${fmt(r.checkOut)}<br>${esc(channel(r))}` : `Max ${cfg()[bn]?.m || '?'} osoba/kreveta<br>Tap za rezervaciju`;
+    const click = r ? `data-detail-id="${esc(r.id||'')}"` : `data-prefill="${bn}|${ds}|${addDays(ds,1)}"`;
+    return `<div class="kmkv-bung-card ${cls}" ${click}><strong>B${bn}</strong><div class="status">${r?statusLabel(st):'Slobodno'}</div><div class="meta">${meta}</div></div>`;
+  }
+  function heatmapCells(){
+    const today=isoToday();
+    return Array.from({length:35},(_,i)=>{
+      const ds=addDays(today,i-10);
+      const occ=occupancy(ds);
+      const lvl=occ.pct>80?5:occ.pct>60?4:occ.pct>35?3:occ.pct>10?2:1;
+      return `<div class="kmkv-heat-cell l${lvl}" title="${fmt(ds)} · ${occ.pct}%">${new Date(ds+'T00:00:00').getDate()}</div>`;
+    }).join('');
+  }
+  function upcomingRows(){
+    const today=isoToday();
+    return activeRes().filter(r=>r.checkIn>=today).sort((a,b)=>a.checkIn.localeCompare(b.checkIn)).slice(0,5).map(r=>`
+      <div class="kmkv-list-row" data-detail-id="${esc(r.id||'')}">
+        <div class="left"><div class="kmkv-badge-id">${esc(resBungLabel(r).split(',')[0]||'B?')}</div><div><strong>${esc(r.name||'—')}</strong><span>${fmt(r.checkIn)} → ${fmt(r.checkOut)} · ${resGuests(r)} gostiju</span></div></div>
+        <div class="kmkv-price">${euro(r.price)}</div>
+      </div>`);
+  }
+  function calendarSidePanel(){
+    const r=activeRes().find(x=>x.checkIn>=isoToday()) || activeRes()[0];
+    if(!r) return `<div class="kmkv-panel-title">Detalji rezervacije</div><div class="kmkv-empty">Nema rezervacije za prikaz.</div>`;
+    return `<button class="kmkv-drawer-close">×</button><span class="kmkv-status paid">${r.paid?'Uplaćeno':'Potvrđeno'}</span><h2>${esc(r.name||'—')}</h2><p>${esc(channel(r))}</p><div class="kmkv-detail-list"><div>▣ <span>${fmt(r.checkIn)} – ${fmt(r.checkOut)}</span></div><div>☾ <span>${r.checkIn&&r.checkOut?diffDays(r.checkIn,r.checkOut):'—'} noći</span></div><div>♙ <span>${resGuests(r)} gostiju</span></div><div>⌂ <span>${esc(resBungLabel(r))}</span></div><div>€ <span>${euro(r.price)}</span></div></div><div class="kmkv-classic-note">Napomena: ${esc(r.notes||'Nema posebne napomene.')}</div><div class="kmkv-drawer-actions"><button class="kmkv-btn" data-detail-id="${esc(r.id||'')}">Uredi rezervaciju</button><button class="kmkv-btn" data-classic-tab="calendar">Premjesti rezervaciju</button><button class="kmkv-btn danger" data-detail-id="${esc(r.id||'')}">Otkaži / detalji</button></div>`;
+  }
+  function pageCalendar(){
+    const body = `
+      <div class="kmkv-calendar-toolbar">
+        <div class="kmkv-controls"><button class="kmkv-btn kmkv-soft-btn">‹</button><span class="kmkv-pill">${monthLabel()}</span><button class="kmkv-btn kmkv-soft-btn">›</button><span class="kmkv-pill">${fmt(isoToday())} – ${fmt(addDays(isoToday(),21))}</span><button class="kmkv-btn kmkv-soft-btn">Filteri <b>${conflicts().length}</b></button><select class="kmkv-select"><option>Svi kanali</option></select><select class="kmkv-select"><option>Svi bungalovi</option></select></div>
+        <div class="kmkv-segmented"><button data-classic-tab="calendar">V1</button><button data-classic-tab="calendar">V2</button><button class="on">V3</button></div>
+      </div>
+      <div class="kmkv-calendar-layout">
+        <div class="kmkv-card kmkv-panel kmkv-calendar-main">
+          ${timeline()}
+          <div class="kmkv-status-legend kmkv-timeline-legend">${legend('paid','Potvrđeno / plaćeno')}${legend('booking','Booking.com')}${legend('manual','Direktno')}${legend('checkout','Danas odlazak')}${legend('closed','Blokirano')}${legend('conflict','Konflikt')}</div>
+          <div class="kmkv-occupancy-strip">${Array.from({length:21},(_,i)=>{const ds=addDays(isoToday(),i);const o=occupancy(ds);return `<div><strong>${o.pct}%</strong><span>${new Date(ds+'T00:00:00').getDate()}<br>${dow(ds)}</span></div>`}).join('')}</div>
+        </div>
+        <aside class="kmkv-card kmkv-detail-drawer">${calendarSidePanel()}</aside>
+      </div>`;
+    return pageShell('Kalendar i raspored','Brži pregled dostupnosti i lakše planiranje rezervacija.',body,{actions:`<button class="kmkv-btn primary" data-kmkv-page="new">+ Nova rezervacija</button><button class="kmkv-btn" data-classic-tab="calendar">Blokiraj period</button><button class="kmkv-btn" data-classic-tab="settings">Osvježi iCal</button>`,cls:'kmkv-calendar-page'});
+  }
+  function timeline(){
+    const start=isoToday();
+    const dates=Array.from({length:21},(_,i)=>addDays(start,i));
+    const cell=48;
+    const visStart=start, visEnd=addDays(start,dates.length);
+    let html=`<div class="kmkv-timeline-wrap"><div class="kmkv-timeline"><div class="kmkv-t-head"><div></div>${dates.map(ds=>`<div class="kmkv-t-date"><span>${new Date(ds+'T00:00:00').getDate()}</span><small>${dow(ds)}</small></div>`).join('')}</div>`;
+    bungalows().forEach(bn=>{
+      const items = activeRes().filter(r=>resBungs(r).some(b=>String(b.bungalov)===String(bn)) && r.checkIn < visEnd && r.checkOut > visStart)
+        .sort((a,b)=>(a.checkIn||'').localeCompare(b.checkIn||'') || (a.checkOut||'').localeCompare(b.checkOut||''));
+      const lanes=[];
+      const bars=[];
+      items.forEach(r=>{
+        const s=Math.max(0,diffDays(visStart, r.checkIn<visStart?visStart:r.checkIn));
+        const e=Math.min(dates.length,diffDays(visStart, r.checkOut>visEnd?visEnd:r.checkOut));
+        let lane=0;
+        while(lanes[lane]!==undefined && lanes[lane] > s) lane++;
+        lanes[lane]=e;
+        bars.push({r,s,e,lane});
+      });
+      const laneCount=Math.max(1,lanes.length);
+      const rowH = Math.max(54, laneCount*34+16);
+      html += `<div class="kmkv-t-row" style="min-height:${rowH}px"><div class="kmkv-t-label"><span>B${bn}</span><small>Max ${cfg()[bn]?.m || '?'}</small></div><div class="kmkv-t-track" style="height:${rowH}px">`;
+      bars.forEach(({r,s,e,lane})=>{
+          const w=Math.max(1,e-s)*cell-8;
+          const left=s*cell+4;
+          const top=8+lane*34;
+          const st=statusOf(r), color={manual:'#7fa8ed',booking:'#24539b',paid:'#416f46',closed:'#9a9a9a',conflict:'#ef807d'}[st]||'#7fa8ed';
+          html += `<div class="kmkv-t-bar" data-detail-id="${esc(r.id||'')}" style="left:${left}px;width:${w}px;top:${top}px;background:${color}">${esc(r.closedManual?'Zatvoreno':(r.name||statusLabel(st)))}<small>${diffDays(r.checkIn,r.checkOut)} noći</small></div>`;
+      });
+      if(!bars.length) html += `<button class="kmkv-t-free" data-prefill="${bn}|${visStart}|${addDays(visStart,1)}">Slobodno · rezerviši</button>`;
+      html += `</div></div>`;
+    });
+    html += `</div></div>`;
+    return html;
+  }
+  function legend(st,lbl){
+    const color={manual:'#7fa8ed',booking:'#24539b',paid:'#416f46',free:'#a8c99d',checkout:'#d6a53f',closed:'#9a9a9a',conflict:'#ef807d'}[st] || '#9a9a9a';
+    return `<span class="kmkv-status" style="background:${color}22;color:${color}"><i style="width:9px;height:9px;border-radius:50%;background:${color};display:inline-block"></i>${lbl}</span>`;
+  }
+  function pageNew(){
+    const today=isoToday(), end=addDays(today,4);
+    const free=bungalows().filter(bn=>!resForBungOn(bn,today)).slice(0,3);
+    const body = `
+      <div class="kmkv-new-layout">
+        <div class="kmkv-new-main">
+          <section class="kmkv-card kmkv-form-section"><div class="kmkv-step-badge">1</div><div><h3>Boravak</h3><div class="kmkv-form-grid five">${field('Check-in','text',fmt(today))}${field('Check-out','text',fmt(end))}${field('Noći','text','4 noći')}<div class="kmkv-field"><label>Kanal</label><select disabled><option>Direktno</option><option>Booking.com</option><option>Airbnb</option></select></div><div class="kmkv-field"><label>Status</label><select disabled><option>Nova rezervacija</option></select></div></div></div></section>
+          <section class="kmkv-card kmkv-form-section"><div class="kmkv-step-badge">2</div><div><h3>Gost</h3><div class="kmkv-form-grid three">${field('Ime i prezime','text','')}${field('Telefon','text','')}${field('Email','text','')}<div class="kmkv-field"><label>Država</label><select disabled><option>Crna Gora</option><option>Bosna i Hercegovina</option></select></div><div class="kmkv-field wide"><label>Napomena</label><textarea readonly placeholder="Kasni dolazak, poseban zahtjev..."></textarea></div></div></div></section>
+          <section class="kmkv-card kmkv-form-section"><div class="kmkv-step-badge">3</div><div style="width:100%"><div class="kmkv-panel-head"><div><h3>Bungalovi</h3><p>Dodajte jedan ili više bungalova u istu rezervaciju.</p></div><button class="kmkv-btn" data-classic-tab="add">+ Dodaj bungalov</button></div><div class="kmkv-new-bungalows">${reservationPreviewBungalows(today,end)}</div></div></section>
+          <div class="kmkv-new-bottom"><div class="kmkv-card kmkv-panel"><div class="kmkv-panel-head"><div><div class="kmkv-panel-title">Preporučeni slobodni bungalovi</div></div><button class="kmkv-link-btn" data-kmkv-page="availability">Prikaži sve →</button></div><div class="kmkv-bung-suggestion-row">${free.map(bn=>`<div data-prefill="${bn}|${today}|${end}"><strong>B${bn}</strong><span>Slobodno<br>${fmt(today)} – ${fmt(end)}</span></div>`).join('') || '<div class="kmkv-empty">Nema slobodnih bungalova.</div>'}</div></div><div class="kmkv-card kmkv-panel"><div class="kmkv-panel-title">Pregled zauzetosti (${fmt(today)} – ${fmt(end)})</div><div class="kmkv-mini-timeline-preview">${free.slice(0,2).map((bn,i)=>`<div><b>B${bn}</b><span class="bar ${i?'blue':'amber'}"></span></div>`).join('')}</div></div></div>
+        </div>
+        <aside class="kmkv-summary-card kmkv-res-summary"><div class="kmkv-panel-title">Sažetak rezervacije</div><div class="kmkv-summary-list"><div><span>Check-in / Check-out</span><strong>${fmt(today)} – ${fmt(end)}</strong></div><div><span>Noći</span><strong>4</strong></div><div><span>Broj bungalova</span><strong>2</strong></div><div><span>Broj gostiju</span><strong>5</strong></div><div><span>Kanal</span><strong>Direktno</strong></div></div><hr><div class="kmkv-summary-list"><div><span>B3 Bungalow</span><strong>640 €</strong></div><div><span>B5 Bungalow</span><strong>560 €</strong></div><div><span>Dodatne osobe</span><strong>120 €</strong></div><div><span>Boravišna taksa</span><strong>120 €</strong></div></div><div class="kmkv-big-total"><small>Ukupna cijena</small>1.440 €</div><div class="kmkv-classic-note">Vision prikaz je siguran UI sloj. Za stvarno snimanje koristi postojeću provjerenu formu, da se ne rizikuje Firebase/sync logika.</div><button class="kmkv-btn primary" style="width:100%" data-classic-tab="add">Sačuvaj kroz postojeću formu</button><button class="kmkv-btn" style="width:100%;margin-top:10px" data-classic-tab="add">Sačuvaj kao ponudu</button></aside>
+      </div>`;
+    return pageShell('Nova rezervacija','Brže rezervišite. Manje grešaka. Zadovoljni gosti.',body,{actions:`<button class="kmkv-btn primary" data-classic-tab="add">Otvori funkcionalnu formu za čuvanje</button>`,cls:'kmkv-new-page'});
+  }
+  function reservationPreviewBungalows(today,end){
+    const choices=[3,5].filter(bn=>bungalows().includes(bn));
+    const arr=(choices.length?choices:bungalows().slice(0,2));
+    return arr.map((bn,i)=>`<div class="kmkv-res-bungalow-card ${i?'blue':'amber'}"><div class="kmkv-bung-photo"></div><div class="kmkv-bung-info"><strong><span>B${bn}</span> Bungalov B${bn}</strong><small>${fmt(today)} – ${fmt(end)} (4 noći)</small><em>${i?'Danas dolazak':'Danas odlazak'}</em></div><div class="kmkv-counters"><label>Odrasli <b>− ${i?2:2} +</b></label><label>Djeca <b>− ${i?0:1} +</b></label><label>Bebe <b>− 0 +</b></label></div><div class="kmkv-bung-price-big">${i?'560':'640'} €</div><button class="kmkv-trash" title="Ukloni">⌫</button></div>`).join('');
+  }
+  function field(label,type,value){ return `<div class="kmkv-field"><label>${esc(label)}</label><input type="${type}" value="${esc(value)}" readonly title="Vizuelni nacrt — za unos otvori funkcionalnu formu"></div>`; }
+  function pageReservations(){
+    let rows=activeRes();
+    const today=isoToday();
+    if(state.search) rows=rows.filter(r=>`${r.name||''} ${r.phone||''} ${r.channel||''} ${resBungLabel(r)}`.toLowerCase().includes(state.search));
+    const arr=rows.filter(r=>r.checkIn===today).length, dep=rows.filter(r=>r.checkOut===today).length, canceled=reservations().filter(r=>r.cancelled).length;
+    rows=rows.sort((a,b)=>(b.checkIn||'').localeCompare(a.checkIn||'')).slice(0,80);
+    const selected=rows[0];
+    const body = `
+      ${miniTabs([{key:'all',label:'Sve rezervacije',badge:rows.length},{key:'arr',label:'Današnji dolasci',badge:arr},{key:'dep',label:'Današnji odlasci',badge:dep},{key:'cancel',label:'Otkazane',badge:canceled},{key:'vip',label:'VIP gosti',badge:Math.min(12,rows.length)}],'all')}
+      <div class="kmkv-res-layout">
+        <div class="kmkv-card kmkv-panel kmkv-res-table-card">
+          <div class="kmkv-res-filters"><div class="kmkv-filter-search">⌕ <input placeholder="Pretraži gosta, email, telefon, rezervaciju..." value="${esc(state.search)}" oninput="document.getElementById('kmkv-search').value=this.value;document.getElementById('kmkv-search').dispatchEvent(new Event('input'))"></div><label>Datum <span>${fmt(today)} – ${fmt(addDays(today,30))}</span></label><select class="kmkv-select"><option>Svi kanali</option></select><select class="kmkv-select"><option>Svi statusi</option></select><select class="kmkv-select"><option>Svi bungalovi</option></select><button class="kmkv-btn primary">Bulk akcije</button></div>
+          <div class="kmkv-table-wrap"><table class="kmkv-table kmkv-res-table"><thead><tr><th></th><th>Gost</th><th>Bungalow</th><th>Check-in</th><th>Check-out</th><th>Noći</th><th>Kanal</th><th>Status</th><th>Plaćanje</th><th>Ukupno</th><th>Akcije</th></tr></thead><tbody>${rows.map((r,i)=>reservationRow(r,i)).join('')}</tbody></table></div>
+          <div class="kmkv-table-footer"><span>Prikazano 1–${Math.min(rows.length,80)} od ${activeRes().length} rezervacija</span><div><button class="kmkv-btn kmkv-soft-btn">‹</button><button class="kmkv-btn primary">1</button><button class="kmkv-btn kmkv-soft-btn">2</button><button class="kmkv-btn kmkv-soft-btn">›</button></div></div>
+        </div>
+        <aside class="kmkv-card kmkv-guest-profile">${selected ? guestPanel(selected) : '<div class="kmkv-empty">Nema rezervacija za prikaz.</div>'}</aside>
+      </div>`;
+    return pageShell('Rezervacije i gosti','Potpuna kontrola rezervacija i gostiju uz brz pristup historiji i detaljima.',body,{banner:true,cls:'kmkv-reservations-page'});
+  }
+  function reservationRow(r,i){
+    return `<tr class="${i===0?'selected':''}"><td><input type="checkbox" ${i===0?'checked':''}></td><td><div class="kmkv-guest-cell">${rowAvatar(r.name)}<div><strong>${esc(r.name||'—')}</strong><span>${esc(r.phone||'')}</span></div></div></td><td><strong>${esc(resBungLabel(r))}</strong><br><span style="color:var(--kmkv-muted)">Bungalov</span></td><td><strong>${fmt(r.checkIn)}</strong><br><span style="color:var(--kmkv-muted)">${dow(r.checkIn||isoToday())} 14:00</span></td><td><strong>${fmt(r.checkOut)}</strong><br><span style="color:var(--kmkv-muted)">10:00</span></td><td>${r.checkIn&&r.checkOut?diffDays(r.checkIn,r.checkOut):'—'}</td><td>${channelBadge(r)}</td><td>${statusBadge(statusOf(r))}</td><td>${r.paid?'<span class="kmkv-status paid">Plaćeno</span>':'<span class="kmkv-status unpaid">Nije plaćeno</span>'}</td><td><strong>${euro(r.price)}</strong></td><td><div class="kmkv-row-actions"><button data-detail-id="${esc(r.id||'')}">⌕</button><button data-detail-id="${esc(r.id||'')}">✉</button><button data-detail-id="${esc(r.id||'')}">☰</button></div></td></tr>`;
+  }
+  function statusBadge(st){
+    const cls = st==='booking'?'booking':st==='paid'?'paid':st==='conflict'?'cancel':'';
+    return `<span class="kmkv-status ${cls}">${statusLabel(st)}</span>`;
+  }
+  function guestPanel(r){
+    const stays=activeRes().filter(x=>(x.name||'').toLowerCase()===(r.name||'').toLowerCase());
+    const spent=stays.reduce((s,x)=>s+(Number(x.price)||0),0);
+    const favorite=resBungLabel(r).split(',')[0] || 'B?';
+    return `<button class="kmkv-drawer-close">×</button><div class="kmkv-profile-top"><div class="kmkv-profile-avatar">${esc((r.name||'?').slice(0,1))}</div><span class="kmkv-vip">VIP gost</span><h2>${esc(r.name||'—')}</h2><p>${esc(r.phone||'')}</p><div class="kmkv-contact-row"><button>💬</button><button>✉</button><button>☎</button><button>☘</button></div></div>
+      <div class="kmkv-profile-metrics"><div><strong>${stays.length}</strong><span>Boravaka</span></div><div><strong>${euro(spent)}</strong><span>Ukupna potrošnja</span></div><div><strong>${esc(favorite)}</strong><span>Omiljeni bungalov</span></div></div>
+      <div class="kmkv-loyalty"><div><strong>🏅 Loyalty status</strong><b>${stays.length>2?'Gold':'Gost'}</b></div><span><i style="width:${Math.min(100,Math.round((spent/3000)*100))}%"></i></span><small>${euro(spent)} / 3.000 €</small></div>
+      <div class="kmkv-profile-note"><div><strong>Napomene</strong><a>Uredi</a></div><p>${esc(r.notes||'Gost preferira gornje bungalove sa pogledom. Dolazi sa psom (manja rasa).')}</p></div>
+      <div class="kmkv-mini-list"><div class="kmkv-panel-title">Historija boravaka</div>${stays.slice(0,4).map(x=>`<div class="kmkv-list-row"><div><strong>${fmt(x.checkIn)} – ${fmt(x.checkOut)}</strong><span>${esc(resBungLabel(x))}</span></div><div class="kmkv-price">${euro(x.price)}</div></div>`).join('')}</div>
+      <div class="kmkv-action-grid small"><button data-detail-id="${esc(r.id||'')}">✉<span>Pošalji poruku</span></button><button data-detail-id="${esc(r.id||'')}">▣<span>Ispis potvrde</span></button><button data-detail-id="${esc(r.id||'')}">✓<span>Označi plaćeno</span></button><button data-detail-id="${esc(r.id||'')}">☷<span>Detalji</span></button></div>`;
+  }
+  function pageAvailability(){
+    const today=isoToday(), tomorrow=addDays(today,1);
+    const free=bungalows().filter(bn=>!resForBungOn(bn,today));
+    return `
+      ${hero('Slobodni bungalovi','Brza provjera dostupnosti u premium desktop prikazu.', `<button class="kmkv-btn primary" data-kmkv-page="new">Nova rezervacija</button>`)}
+      <div class="kmkv-card kmkv-panel">
+        <div class="kmkv-panel-head"><div><div class="kmkv-panel-title">Dostupnost ${fmt(today)} → ${fmt(tomorrow)}</div><div class="kmkv-panel-sub">Slobodno ${free.length} od ${bungalows().length} bungalova.</div></div><button class="kmkv-btn" data-classic-tab="calendar">Klasični kalendar</button></div>
+        <div class="kmkv-occupancy-grid">${bungalows().map(bn=>bungCard(bn,today)).join('')}</div>
+      </div>`;
+  }
+  function pageStats(){
+    const rev=revenue('all'), occ=occupancy(), total=activeRes().length;
+    const booking=activeRes().filter(r=>/booking/i.test(channel(r))).length;
+    const direct=activeRes().filter(r=>/direkt/i.test(channel(r))).length;
+    const body = `
+      <div class="kmkv-stats-filter"><label>Period <span>01.01.${new Date().getFullYear()}. – ${fmt(isoToday())}</span></label><select class="kmkv-select"><option>Isti period prošle godine</option></select><select class="kmkv-select"><option>Svi kanali</option></select><select class="kmkv-select"><option>Svi bungalovi</option></select><button class="kmkv-btn">Izvoz PDF</button><button class="kmkv-btn">Izvoz Excel</button></div>
+      <div class="kmkv-kpis kmkv-stats-kpis">${kpiCard('€','Ukupni prihod',euro(rev),'↑ prema unesenim podacima')}${kpiCard('◔','Popunjenost',occ.pct+'%','Danas')}${kpiCard('◇','Prosječna cijena',euro(total?rev/total:0),'Po rezervaciji')}${kpiCard('▣','Broj rezervacija',total,'Aktivne')}${kpiCard('♙','Prosj. trajanje','2,8 noći','Procjena')}${kpiCard('⌂','Direktne rezervacije',(total?Math.round((direct/total)*100):0)+'%','Direktni kanal')}</div>
+      <div class="kmkv-analytics-grid"><div class="kmkv-card kmkv-panel big"><div class="kmkv-panel-head"><div><div class="kmkv-panel-title">Prihod po mjesecima</div></div><span class="kmkv-pill">Prihod (€)</span></div>${lineChart()}</div><div class="kmkv-card kmkv-panel"><div class="kmkv-panel-title">Rezervacije po kanalima</div><div class="kmkv-hbars"><div><span>Booking.com</span><i style="width:${total?booking/total*100:0}%"></i><b>${booking}</b></div><div><span>Direktno</span><i style="width:${total?direct/total*100:0}%"></i><b>${direct}</b></div><div><span>Airbnb</span><i style="width:30%"></i><b>${activeRes().filter(r=>/airbnb/i.test(channel(r))).length}</b></div></div></div><div class="kmkv-card kmkv-panel"><div class="kmkv-panel-title">Tip gosta / struktura kanala</div><div class="kmkv-donut"><em>${total}<small>ukupno</small></em></div></div><div class="kmkv-card kmkv-panel side"><div class="kmkv-panel-title">Brzi uvidi</div><div class="kmkv-mini-list">${insights()}</div></div><div class="kmkv-card kmkv-panel big"><div class="kmkv-panel-title">Trend popunjenosti (heatmap)</div><div class="kmkv-heat-matrix">${bungalows().map(bn=>`<b>B${bn}</b>${Array.from({length:12},(_,i)=>`<i class="l${(i+bn)%5+1}"></i>`).join('')}`).join('')}</div><div class="kmkv-gradient-legend"><span>0%</span><i></i><span>100%</span></div></div><div class="kmkv-card kmkv-panel"><div class="kmkv-panel-title">Najčešći gosti</div><div class="kmkv-mini-list">${activeRes().slice(0,5).map(r=>`<div class="kmkv-list-row"><div class="left">${rowAvatar(r.name)}<div><strong>${esc(r.name||'—')}</strong><span>${resGuests(r)} gostiju</span></div></div><div class="kmkv-price">${euro(r.price)}</div></div>`).join('')}</div></div><div class="kmkv-card kmkv-panel"><div class="kmkv-panel-title">Finansijski izvještaj</div><div class="kmkv-summary-list"><div><span>Ukupni prihod</span><strong>${euro(rev)}</strong></div><div><span>Procjena poreza</span><strong>${euro(rev*.1)}</strong></div><div><span>Provizije kanala</span><strong>—</strong></div><div><span>Neto prihod</span><strong>${euro(rev*.9)}</strong></div></div></div></div>`;
+    return pageShell('Statistika i izvještaji','Sve što trebate znati o prihodima, popunjenosti, kanalima i gostima na jednom mjestu.',body,{cls:'kmkv-stats-page',actions:`<button class="kmkv-btn" data-classic-tab="stats">Klasična statistika</button>`});
+  }
+  function insights(){
+    const booking=activeRes().filter(r=>/booking/i.test(channel(r))).length;
+    const direct=activeRes().filter(r=>/direkt/i.test(channel(r))).length;
+    return [
+      ['Najbolji kanal', booking>=direct?'Booking.com':'Direktno', 'Provjeriti provizije i direktne popuste'],
+      ['Najviše zauzeto', occupancy().pct+'%', 'Današnji procenat popunjenosti'],
+      ['Preporuka', 'Direktne rezervacije', 'Povećati CTA i WhatsApp ponude']
+    ].map(x=>`<div class="kmkv-list-row"><div><strong>${x[0]}</strong><span>${x[2]}</span></div><div class="kmkv-price">${x[1]}</div></div>`).join('');
+  }
+
+  function pageSettings(){
+    const mode = themeMode();
+    return `
+      ${hero('Podešavanja izgleda','Izaberi da li želiš novu desktop temu ili klasični stari prikaz. Logika programa ostaje ista.', `<button class="kmkv-btn" data-classic-tab="settings">Otvori klasična podešavanja</button>`)}
+      <div class="kmkv-card kmkv-panel">
+        <div class="kmkv-panel-head"><div><div class="kmkv-panel-title">Tema programa</div><div class="kmkv-panel-sub">Ovo mijenja samo izgled desktop interfejsa. Rezervacije, finansije, sinhronizacija i baza se ne mijenjaju.</div></div><span class="kmkv-pill">Trenutno: ${mode==='classic'?'Klasična':'Nova Vision'}</span></div>
+        <div class="kmkv-theme-grid">
+          <button class="kmkv-theme-choice ${mode!=='classic'?'on':''}" data-theme-mode="vision">
+            <strong>✨ Nova Vision tema</strong><span>Premium UI prema referentnim slikama: dashboard, sidebar, top bar, V3 timeline, CRM panel i analytics kartice.</span>
+          </button>
+          <button class="kmkv-theme-choice ${mode==='classic'?'on':''}" data-theme-mode="classic">
+            <strong>🧩 Klasična tema</strong><span>Stari provjereni prikaz programa, bez novog desktop shell-a.</span>
+          </button>
+        </div>
+        <div class="kmkv-classic-note" style="margin-top:16px">Preporuka: testiraj novu temu na kopiji. Ako bilo koje dugme ne radi kako očekuješ, vrati se na klasični prikaz jednim klikom.</div>
+      </div>`;
+  }
+  function pageVisualFallback(title, subtitle, classicTab){
+    return `
+      ${hero(title, subtitle, `<button class="kmkv-btn primary" data-classic-tab="${classicTab}">Otvori klasični funkcionalni prikaz</button>`)}
+      <div class="kmkv-card kmkv-panel">
+        <div class="kmkv-panel-title">Sekcija je spremna za redizajn</div>
+        <p style="color:var(--kmkv-muted);line-height:1.55">Ovaj dio je ostavljen povezan sa postojećim klasičnim prikazom da se ne bi rušila logika programa. Vizuelni sistem, sidebar i navigacija već su usklađeni sa desktop dizajnom.</p>
+        <div class="kmkv-classic-note">Za punu funkcionalnost ove sekcije klikni dugme iznad. To otvara postojeći testirani modul.</div>
+      </div>`;
+  }
+  function init(){
+    if(!localStorage.getItem(THEME_KEY)) localStorage.setItem(THEME_KEY, 'vision');
+    if(!window.KMK_APP_BRIDGE){
+      setTimeout(init, 250);
+      return;
+    }
+    document.body.classList.add('kmkv-vision-assets-loaded');
+    if(!document.querySelector('link[href*="desktop-vision-v2.4.2.css"]')) console.warn('[KMK Vision UI] CSS link not found in index.');
+    apply();
+    let attempts = 0;
+    const early = setInterval(()=>{
+      attempts++;
+      apply();
+      if(attempts > 40 || (shouldUseShell() && document.getElementById('kmkv-shell'))) clearInterval(early);
+    }, 500);
+    setInterval(()=>{ if(!state.classic && shouldUseShell() && ['dashboard','calendar','stats','reservations'].includes(state.page) && !document.activeElement?.matches('input,textarea,select')){ render(); } }, 30000);
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+  window.KMKV_DESKTOP = { restore:restoreShell, render, version:VERSION };
+})();
+
 </script>
 </body>
 </html>
