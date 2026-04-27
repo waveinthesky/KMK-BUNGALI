@@ -9,7 +9,7 @@
 body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh;padding:20px}
 
 /* LOGIN */
-.login-wrap{display:flex;align-items:center;justify-content:center;min-height:100vh;position:relative;z-index:99999}
+.login-wrap{display:flex;align-items:center;justify-content:center;min-height:100vh}
 .login-box{background:white;padding:40px;border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,.3);max-width:400px;width:100%}
 .login-head{text-align:center;margin-bottom:28px}
 .login-head h1{color:#667eea;font-size:1.7em;margin-top:10px}
@@ -984,39 +984,12 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 
   <style id="kmkv-vision-styles">
-
-/* ─── THEME TOGGLE BUTTON — uvijek vidljiv ─────────────────────────── */
-#kmk-theme-fab {
-  position: fixed;
-  bottom: 18px;
-  right: 18px;
-  z-index: 99999;
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  padding: 9px 16px;
-  border-radius: 999px;
-  border: none;
-  cursor: pointer;
-  font-size: .82em;
-  font-weight: 700;
-  letter-spacing: .01em;
-  box-shadow: 0 4px 18px rgba(0,0,0,.18);
-  transition: background .2s, color .2s, box-shadow .2s, transform .15s;
-  white-space: nowrap;
-  user-select: none;
-}
-#kmk-theme-fab:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,.22); }
-#kmk-theme-fab:active { transform: scale(.97); }
-#kmk-theme-fab.mode-vision {
-  background: #3f6f43;
-  color: #fff;
-}
-#kmk-theme-fab.mode-classic {
-  background: #667eea;
-  color: #fff;
-}
-
+/* FAB toggle */
+#kmk-theme-fab{position:fixed;bottom:18px;right:18px;z-index:99999;display:flex;align-items:center;gap:7px;padding:9px 16px;border-radius:999px;border:none;cursor:pointer;font-size:.82em;font-weight:700;box-shadow:0 4px 18px rgba(0,0,0,.18);transition:background .2s,transform .15s;white-space:nowrap}
+#kmk-theme-fab:hover{transform:translateY(-2px)}
+#kmk-theme-fab.mode-vision{background:#3f6f43;color:#fff}
+#kmk-theme-fab.mode-classic{background:#667eea;color:#fff}
+.login-wrap{position:relative;z-index:99999}
 
 :root{
   --kmkv-bg:#fbfcfa;
@@ -4658,101 +4631,6 @@ window.printDaily = function() {
     </div>
   
 
-
-
-<!-- ─── THEME FAB BUTTON ─────────────────────────────────────────────── -->
-<button id="kmk-theme-fab" class="mode-classic" onclick="kmkToggleTheme()" title="Prebaci temu">
-  <span id="kmk-theme-fab-icon">✦</span>
-  <span id="kmk-theme-fab-label">Vision UI</span>
-</button>
-<script>
-(function(){
-  const THEME_KEY = 'kmkv_desktop_theme_v242';
-  const BREAKPOINT = 1100;
-
-  function getCurrentTheme() {
-    return localStorage.getItem(THEME_KEY) || 'classic';
-  }
-
-  function updateFab(theme) {
-    const fab = document.getElementById('kmk-theme-fab');
-    const icon = document.getElementById('kmk-theme-fab-icon');
-    const label = document.getElementById('kmk-theme-fab-label');
-    if (!fab) return;
-    if (theme === 'vision') {
-      fab.className = 'mode-vision';
-      if (icon) icon.textContent = '☰';
-      if (label) label.textContent = 'Klasična tema';
-    } else {
-      fab.className = 'mode-classic';
-      if (icon) icon.textContent = '✦';
-      if (label) label.textContent = 'Vision UI';
-    }
-    // Sakrij na mobu (< 1100px)
-    fab.style.display = window.innerWidth < BREAKPOINT ? 'none' : 'flex';
-  }
-
-  window.kmkToggleTheme = function() {
-    const current = getCurrentTheme();
-    const next = current === 'vision' ? 'classic' : 'vision';
-    localStorage.setItem(THEME_KEY, next);
-    document.body.dataset.kmkvTheme = next;
-    // Pozovi Vision UI setThemeMode ako postoji
-    if (typeof window.KMKV_setThemeMode === 'function') {
-      window.KMKV_setThemeMode(next);
-    } else if (next === 'vision' && window.innerWidth >= BREAKPOINT) {
-      // Aktiviraj Vision UI
-      document.body.classList.add('kmkv-desktop-active');
-      // Sakrij klasični container
-      const c = document.querySelector('.container');
-      if (c) c.style.display = 'none';
-      const bulk = document.getElementById('bulk-toolbar');
-      if (bulk) bulk.style.display = 'none';
-      // Prikaži kmkv-shell ako postoji
-      const shell = document.getElementById('kmkv-shell');
-      if (shell) shell.style.display = '';
-      else if (window.KMKV_mount) window.KMKV_mount();
-    } else {
-      // Vrati na klasičnu temu
-      document.body.classList.remove('kmkv-desktop-active');
-      const shell = document.getElementById('kmkv-shell');
-      if (shell) shell.style.display = 'none';
-      const c = document.querySelector('.container');
-      if (c) c.style.display = '';
-      const bulk = document.getElementById('bulk-toolbar');
-      if (bulk) bulk.style.display = '';
-    }
-    updateFab(next);
-  };
-
-  // Init pri DOMContentLoaded i pri resize
-  function init() {
-    const theme = getCurrentTheme();
-    updateFab(theme);
-  }
-  
-  // Sakrij FAB dok je login ekran vidljiv
-  function checkFabVisibility() {
-    const fab = document.getElementById('kmk-theme-fab');
-    if (!fab) return;
-    const loginEl = document.getElementById('login-screen');
-    const loginVisible = loginEl && getComputedStyle(loginEl).display !== 'none';
-    if (loginVisible) {
-      fab.style.display = 'none';
-      return;
-    }
-    updateFab(getCurrentTheme());
-  }
-  setInterval(checkFabVisibility, 500);
-
-  window.addEventListener('resize', () => updateFab(getCurrentTheme()));
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
-})();
-</script>
 
 </body></html>`);
   printWin.document.close();
@@ -9802,6 +9680,53 @@ try {
 })();
 </script>
 
+
+<!-- THEME FAB -->
+<button id="kmk-theme-fab" class="mode-classic" onclick="kmkToggleTheme()" title="Prebaci temu">
+  <span id="kmk-theme-fab-icon">✦</span>
+  <span id="kmk-theme-fab-label">Vision UI</span>
+</button>
+<script>
+(function(){
+  var THEME_KEY='kmkv_desktop_theme_v242', BP=1100;
+  function getTheme(){ return localStorage.getItem(THEME_KEY)||'classic'; }
+  function updateFab(t){
+    var f=document.getElementById('kmk-theme-fab');
+    var i=document.getElementById('kmk-theme-fab-icon');
+    var l=document.getElementById('kmk-theme-fab-label');
+    if(!f) return;
+    // Sakrij na mobu i tokom login
+    var login=document.getElementById('login-screen');
+    var loginOn=login&&getComputedStyle(login).display!=='none';
+    if(window.innerWidth<BP||loginOn){ f.style.display='none'; return; }
+    f.style.display='flex';
+    if(t==='vision'){ f.className='mode-vision'; if(i)i.textContent='☰'; if(l)l.textContent='Klasična tema'; }
+    else{ f.className='mode-classic'; if(i)i.textContent='✦'; if(l)l.textContent='Vision UI'; }
+  }
+  window.kmkToggleTheme=function(){
+    var cur=getTheme(), next=cur==='vision'?'classic':'vision';
+    localStorage.setItem(THEME_KEY,next);
+    document.body.dataset.kmkvTheme=next;
+    if(typeof window.KMKV_setThemeMode==='function') window.KMKV_setThemeMode(next);
+    else if(next==='vision'&&window.innerWidth>=BP){
+      document.body.classList.add('kmkv-desktop-active');
+      var c=document.querySelector('.container'); if(c)c.style.display='none';
+      var b=document.getElementById('bulk-toolbar'); if(b)b.style.display='none';
+      var s=document.getElementById('kmkv-shell');
+      if(s)s.style.display=''; else if(window.KMKV_mount)window.KMKV_mount();
+    } else {
+      document.body.classList.remove('kmkv-desktop-active');
+      var s=document.getElementById('kmkv-shell'); if(s)s.style.display='none';
+      var c=document.querySelector('.container'); if(c)c.style.display='';
+      var b=document.getElementById('bulk-toolbar'); if(b)b.style.display='';
+    }
+    updateFab(next);
+  };
+  setInterval(function(){ updateFab(getTheme()); }, 500);
+  window.addEventListener('resize',function(){ updateFab(getTheme()); });
+  document.addEventListener('DOMContentLoaded',function(){ updateFab(getTheme()); });
+})();
+</script>
 <script id="kmkv-vision-script">
 
 (function(){
@@ -9925,7 +9850,6 @@ try {
 
   function themeMode(){ return localStorage.getItem(THEME_KEY) || 'vision'; }
   function setThemeMode(mode){
-    // Ekspoziraj globalno za FAB dugme
     window.KMKV_setThemeMode = setThemeMode;
     window.KMKV_mount = mount;
     const value = mode === 'classic' ? 'classic' : 'vision';
@@ -9999,23 +9923,9 @@ try {
     goClassic('list');
   }
   function prefillReservation(bn, start, end){
-    // Na desktopu direktno otvori klasičnu add formu
+    if(typeof app().mobPrefillQuickForm === 'function') return app().mobPrefillQuickForm(bn,start,end);
+    if(typeof window.mobPrefillQuickForm === 'function') return window.mobPrefillQuickForm(bn,start,end);
     goClassic('add');
-    // Postavi bungalov i datume ako je moguće
-    setTimeout(() => {
-      const ci = document.getElementById('f-checkin');
-      const co = document.getElementById('f-checkout');
-      if (ci && start) ci.value = start;
-      if (co && end)   co.value = end;
-      // Pokušaj postaviti bungalov
-      if (bn) {
-        const bungs = document.querySelectorAll('.bung-check');
-        bungs.forEach(cb => {
-          if (cb.value === String(bn)) cb.checked = true;
-        });
-      }
-      if (typeof window.recalc === 'function') window.recalc();
-    }, 200);
   }
   function shouldUseShell(){
     return window.innerWidth >= BREAKPOINT && isAppLoggedIn() && !state.classic && themeMode() !== 'classic';
@@ -10121,13 +10031,11 @@ try {
   }
   function apply(){
     document.body.dataset.kmkvVision = VERSION;
-    // Ne aktiviraj Vision shell dok je login ekran vidljiv
-    const loginEl = document.getElementById('login-screen');
-    const loginVisible = loginEl && getComputedStyle(loginEl).display !== 'none';
-    if(loginVisible){
+    // Ne aktiviraj Vision dok je login ekran vidljiv
+    var loginEl=document.getElementById('login-screen');
+    if(loginEl&&getComputedStyle(loginEl).display!=='none'){
       document.body.classList.remove('kmkv-desktop-active');
-      const shell = document.getElementById('kmkv-shell');
-      if(shell) shell.style.display = 'none';
+      var sh=document.getElementById('kmkv-shell'); if(sh)sh.style.display='none';
       return;
     }
     if(shouldUseShell()){
