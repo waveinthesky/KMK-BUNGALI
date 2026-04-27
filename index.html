@@ -10020,7 +10020,42 @@ try {
       }
     });
     $('#kmkv-search')?.addEventListener('input', e => { state.search=e.target.value.trim().toLowerCase(); if(['reservations','guests'].includes(state.page)) render(); });
-    document.addEventListener('keydown', e => {
+
+      // Row akcije u tabeli rezervacija
+      const editBtn = e.target.closest('[data-action-edit]');
+      if(editBtn){ e.preventDefault(); const id=editBtn.dataset.actionEdit; if(id){ goClassic('add'); setTimeout(()=>{ if(typeof window.editRes==='function') window.editRes(id); },300); } return; }
+
+      const cancelBtn = e.target.closest('[data-action-cancel]');
+      if(cancelBtn){ e.preventDefault(); const id=cancelBtn.dataset.actionCancel; if(id&&typeof window.cancelRes==='function') window.cancelRes(id); return; }
+
+      const paidBtn = e.target.closest('[data-action-paid]');
+      if(paidBtn){ e.preventDefault(); const id=paidBtn.dataset.actionPaid; if(id&&typeof window.togglePaid==='function') window.togglePaid(id); else if(id){ const r=(window.reservations||[]).find(x=>x.id===id); if(r&&typeof window.updateDoc==='function'){} } return; }
+
+      // Filter dugmad u rezervacijama
+      const filterBtn = e.target.closest('[data-res-filter]');
+      if(filterBtn){ e.preventDefault();
+        $$('[data-res-filter]').forEach(b=>b.classList.remove('on'));
+        filterBtn.classList.add('on');
+        state.resFilter = filterBtn.dataset.resFilter;
+        if(['reservations','guests'].includes(state.page)) render();
+        return;
+      }
+
+      // Per-user theme u settings
+      const themeChoice = e.target.closest('[data-theme-mode]');
+      if(themeChoice){ e.preventDefault();
+        const m = themeChoice.dataset.themeMode;
+        const u = currentUser()||'';
+        localStorage.setItem('kmkv_user_theme_'+u, m);
+        if(typeof window.KMKV_setThemeMode==='function') window.KMKV_setThemeMode(m);
+        else if(typeof setThemeMode==='function') setThemeMode(m);
+        else { localStorage.setItem('kmkv_desktop_theme_v242', m); }
+        $$('.kmkv-theme-choice').forEach(b=>b.classList.remove('on'));
+        themeChoice.classList.add('on');
+        return;
+      }
+
+        document.addEventListener('keydown', e => {
       if((e.ctrlKey || e.metaKey) && String(e.key).toLowerCase()==='k'){
         e.preventDefault();
         const inp = $('#kmkv-search');
@@ -10174,84 +10209,35 @@ try {
     return `<button class="kmkv-drawer-close">×</button><span class="kmkv-status paid">${r.paid?'Uplaćeno':'Potvrđeno'}</span><h2>${esc(r.name||'—')}</h2><p>${esc(channel(r))}</p><div class="kmkv-detail-list"><div>▣ <span>${fmt(r.checkIn)} – ${fmt(r.checkOut)}</span></div><div>☾ <span>${r.checkIn&&r.checkOut?diffDays(r.checkIn,r.checkOut):'—'} noći</span></div><div>♙ <span>${resGuests(r)} gostiju</span></div><div>⌂ <span>${esc(resBungLabel(r))}</span></div><div>€ <span>${euro(r.price)}</span></div></div><div class="kmkv-classic-note">Napomena: ${esc(r.notes||'Nema posebne napomene.')}</div><div class="kmkv-drawer-actions"><button class="kmkv-btn" data-detail-id="${esc(r.id||'')}">Uredi rezervaciju</button><button class="kmkv-btn" data-classic-tab="calendar">Premjesti rezervaciju</button><button class="kmkv-btn danger" data-detail-id="${esc(r.id||'')}">Otkaži / detalji</button></div>`;
   }
   function pageCalendar(){
-    const body = `
-      <div class="kmkv-calendar-toolbar">
-        <div class="kmkv-controls"><button class="kmkv-btn kmkv-soft-btn">‹</button><span class="kmkv-pill">${monthLabel()}</span><button class="kmkv-btn kmkv-soft-btn">›</button><span class="kmkv-pill">${fmt(isoToday())} – ${fmt(addDays(isoToday(),21))}</span><button class="kmkv-btn kmkv-soft-btn">Filteri <b>${conflicts().length}</b></button><select class="kmkv-select"><option>Svi kanali</option></select><select class="kmkv-select"><option>Svi bungalovi</option></select></div>
-        <div class="kmkv-segmented"><button data-classic-tab="calendar">V1</button><button data-classic-tab="calendar">V2</button><button class="on">V3</button></div>
-      </div>
-      <div class="kmkv-calendar-layout">
-        <div class="kmkv-card kmkv-panel kmkv-calendar-main">
-          ${timeline()}
-          <div class="kmkv-status-legend kmkv-timeline-legend">${legend('paid','Potvrđeno / plaćeno')}${legend('booking','Booking.com')}${legend('manual','Direktno')}${legend('checkout','Danas odlazak')}${legend('closed','Blokirano')}${legend('conflict','Konflikt')}</div>
-          <div class="kmkv-occupancy-strip">${Array.from({length:21},(_,i)=>{const ds=addDays(isoToday(),i);const o=occupancy(ds);return `<div><strong>${o.pct}%</strong><span>${new Date(ds+'T00:00:00').getDate()}<br>${dow(ds)}</span></div>`}).join('')}</div>
-        </div>
-        <aside class="kmkv-card kmkv-detail-drawer">${calendarSidePanel()}</aside>
-      </div>`;
-    return pageShell('Kalendar i raspored','Brži pregled dostupnosti i lakše planiranje rezervacija.',body,{actions:`<button class="kmkv-btn primary" data-kmkv-page="new">+ Nova rezervacija</button><button class="kmkv-btn" data-classic-tab="calendar">Blokiraj period</button><button class="kmkv-btn" data-classic-tab="settings">Osvježi iCal</button>`,cls:'kmkv-calendar-page'});
+    goClassic('calendar');
+    return `<div style="display:flex;align-items:center;justify-content:center;height:300px;color:#667463">
+      <div style="text-align:center"><div style="font-size:2em;margin-bottom:12px">📅</div><div>Otvaram kalendar...</div></div>
+    </div>`;
   }
-  function timeline(){
-    const start=isoToday();
-    const dates=Array.from({length:21},(_,i)=>addDays(start,i));
-    const cell=48;
-    const visStart=start, visEnd=addDays(start,dates.length);
-    let html=`<div class="kmkv-timeline-wrap"><div class="kmkv-timeline"><div class="kmkv-t-head"><div></div>${dates.map(ds=>`<div class="kmkv-t-date"><span>${new Date(ds+'T00:00:00').getDate()}</span><small>${dow(ds)}</small></div>`).join('')}</div>`;
-    bungalows().forEach(bn=>{
-      const items = activeRes().filter(r=>resBungs(r).some(b=>String(b.bungalov)===String(bn)) && r.checkIn < visEnd && r.checkOut > visStart)
-        .sort((a,b)=>(a.checkIn||'').localeCompare(b.checkIn||'') || (a.checkOut||'').localeCompare(b.checkOut||''));
-      const lanes=[];
-      const bars=[];
-      items.forEach(r=>{
-        const s=Math.max(0,diffDays(visStart, r.checkIn<visStart?visStart:r.checkIn));
-        const e=Math.min(dates.length,diffDays(visStart, r.checkOut>visEnd?visEnd:r.checkOut));
-        let lane=0;
-        while(lanes[lane]!==undefined && lanes[lane] > s) lane++;
-        lanes[lane]=e;
-        bars.push({r,s,e,lane});
-      });
-      const laneCount=Math.max(1,lanes.length);
-      const rowH = Math.max(54, laneCount*34+16);
-      html += `<div class="kmkv-t-row" style="min-height:${rowH}px"><div class="kmkv-t-label"><span>B${bn}</span><small>Max ${cfg()[bn]?.m || '?'}</small></div><div class="kmkv-t-track" style="height:${rowH}px">`;
-      bars.forEach(({r,s,e,lane})=>{
-          const w=Math.max(1,e-s)*cell-8;
-          const left=s*cell+4;
-          const top=8+lane*34;
-          const st=statusOf(r), color={manual:'#7fa8ed',booking:'#24539b',paid:'#416f46',closed:'#9a9a9a',conflict:'#ef807d'}[st]||'#7fa8ed';
-          html += `<div class="kmkv-t-bar" data-detail-id="${esc(r.id||'')}" style="left:${left}px;width:${w}px;top:${top}px;background:${color}">${esc(r.closedManual?'Zatvoreno':(r.name||statusLabel(st)))}<small>${diffDays(r.checkIn,r.checkOut)} noći</small></div>`;
-      });
-      if(!bars.length) html += `<button class="kmkv-t-free" data-prefill="${bn}|${visStart}|${addDays(visStart,1)}">Slobodno · rezerviši</button>`;
-      html += `</div></div>`;
-    });
-    html += `</div></div>`;
-    return html;
-  }
-  function legend(st,lbl){
-    const color={manual:'#7fa8ed',booking:'#24539b',paid:'#416f46',free:'#a8c99d',checkout:'#d6a53f',closed:'#9a9a9a',conflict:'#ef807d'}[st] || '#9a9a9a';
-    return `<span class="kmkv-status" style="background:${color}22;color:${color}"><i style="width:9px;height:9px;border-radius:50%;background:${color};display:inline-block"></i>${lbl}</span>`;
-  }
+
   function pageNew(){
-    const today=isoToday(), end=addDays(today,4);
-    const free=bungalows().filter(bn=>!resForBungOn(bn,today)).slice(0,3);
-    const body = `
-      <div class="kmkv-new-layout">
-        <div class="kmkv-new-main">
-          <section class="kmkv-card kmkv-form-section"><div class="kmkv-step-badge">1</div><div><h3>Boravak</h3><div class="kmkv-form-grid five">${field('Check-in','text',fmt(today))}${field('Check-out','text',fmt(end))}${field('Noći','text','4 noći')}<div class="kmkv-field"><label>Kanal</label><select disabled><option>Direktno</option><option>Booking.com</option><option>Airbnb</option></select></div><div class="kmkv-field"><label>Status</label><select disabled><option>Nova rezervacija</option></select></div></div></div></section>
-          <section class="kmkv-card kmkv-form-section"><div class="kmkv-step-badge">2</div><div><h3>Gost</h3><div class="kmkv-form-grid three">${field('Ime i prezime','text','')}${field('Telefon','text','')}${field('Email','text','')}<div class="kmkv-field"><label>Država</label><select disabled><option>Crna Gora</option><option>Bosna i Hercegovina</option></select></div><div class="kmkv-field wide"><label>Napomena</label><textarea readonly placeholder="Kasni dolazak, poseban zahtjev..."></textarea></div></div></div></section>
-          <section class="kmkv-card kmkv-form-section"><div class="kmkv-step-badge">3</div><div style="width:100%"><div class="kmkv-panel-head"><div><h3>Bungalovi</h3><p>Dodajte jedan ili više bungalova u istu rezervaciju.</p></div><button class="kmkv-btn" data-classic-tab="add">+ Dodaj bungalov</button></div><div class="kmkv-new-bungalows">${reservationPreviewBungalows(today,end)}</div></div></section>
-          <div class="kmkv-new-bottom"><div class="kmkv-card kmkv-panel"><div class="kmkv-panel-head"><div><div class="kmkv-panel-title">Preporučeni slobodni bungalovi</div></div><button class="kmkv-link-btn" data-kmkv-page="availability">Prikaži sve →</button></div><div class="kmkv-bung-suggestion-row">${free.map(bn=>`<div data-prefill="${bn}|${today}|${end}"><strong>B${bn}</strong><span>Slobodno<br>${fmt(today)} – ${fmt(end)}</span></div>`).join('') || '<div class="kmkv-empty">Nema slobodnih bungalova.</div>'}</div></div><div class="kmkv-card kmkv-panel"><div class="kmkv-panel-title">Pregled zauzetosti (${fmt(today)} – ${fmt(end)})</div><div class="kmkv-mini-timeline-preview">${free.slice(0,2).map((bn,i)=>`<div><b>B${bn}</b><span class="bar ${i?'blue':'amber'}"></span></div>`).join('')}</div></div></div>
-        </div>
-        <aside class="kmkv-summary-card kmkv-res-summary"><div class="kmkv-panel-title">Sažetak rezervacije</div><div class="kmkv-summary-list"><div><span>Check-in / Check-out</span><strong>${fmt(today)} – ${fmt(end)}</strong></div><div><span>Noći</span><strong>4</strong></div><div><span>Broj bungalova</span><strong>2</strong></div><div><span>Broj gostiju</span><strong>5</strong></div><div><span>Kanal</span><strong>Direktno</strong></div></div><hr><div class="kmkv-summary-list"><div><span>B3 Bungalow</span><strong>640 €</strong></div><div><span>B5 Bungalow</span><strong>560 €</strong></div><div><span>Dodatne osobe</span><strong>120 €</strong></div><div><span>Boravišna taksa</span><strong>120 €</strong></div></div><div class="kmkv-big-total"><small>Ukupna cijena</small>1.440 €</div><div class="kmkv-classic-note">Vision prikaz je siguran UI sloj. Za stvarno snimanje koristi postojeću provjerenu formu, da se ne rizikuje Firebase/sync logika.</div><button class="kmkv-btn primary" style="width:100%" data-classic-tab="add">Sačuvaj kroz postojeću formu</button><button class="kmkv-btn" style="width:100%;margin-top:10px" data-classic-tab="add">Sačuvaj kao ponudu</button></aside>
-      </div>`;
-    return pageShell('Nova rezervacija','Brže rezervišite. Manje grešaka. Zadovoljni gosti.',body,{actions:`<button class="kmkv-btn primary" data-classic-tab="add">Otvori funkcionalnu formu za čuvanje</button>`,cls:'kmkv-new-page'});
+    // Direktno otvori klasičnu formu za novu rezervaciju
+    // Vision UI forma je preview - koristimo originalnu funkcionalnu formu
+    goClassic('add');
+    return `<div style="display:flex;align-items:center;justify-content:center;height:300px;color:#667463;font-size:.95em">
+      <div style="text-align:center">
+        <div style="font-size:2em;margin-bottom:12px">➕</div>
+        <div>Otvaram formu za novu rezervaciju...</div>
+      </div>
+    </div>`;
   }
-  function reservationPreviewBungalows(today,end){
-    const choices=[3,5].filter(bn=>bungalows().includes(bn));
-    const arr=(choices.length?choices:bungalows().slice(0,2));
-    return arr.map((bn,i)=>`<div class="kmkv-res-bungalow-card ${i?'blue':'amber'}"><div class="kmkv-bung-photo"></div><div class="kmkv-bung-info"><strong><span>B${bn}</span> Bungalov B${bn}</strong><small>${fmt(today)} – ${fmt(end)} (4 noći)</small><em>${i?'Danas dolazak':'Danas odlazak'}</em></div><div class="kmkv-counters"><label>Odrasli <b>− ${i?2:2} +</b></label><label>Djeca <b>− ${i?0:1} +</b></label><label>Bebe <b>− 0 +</b></label></div><div class="kmkv-bung-price-big">${i?'560':'640'} €</div><button class="kmkv-trash" title="Ukloni">⌫</button></div>`).join('');
-  }
-  function field(label,type,value){ return `<div class="kmkv-field"><label>${esc(label)}</label><input type="${type}" value="${esc(value)}" readonly title="Vizuelni nacrt — za unos otvori funkcionalnu formu"></div>`; }
+
   function pageReservations(){
     let rows=activeRes();
     const today=isoToday();
+    // Status filter
+    const rf=state.resFilter||'all';
+    if(rf==='paid') rows=rows.filter(r=>r.paid&&!r.cancelled);
+    else if(rf==='unpaid') rows=rows.filter(r=>!r.paid&&!r.cancelled);
+    else if(rf==='confirmed') rows=rows.filter(r=>r.confirmed&&!r.cancelled);
+    else if(rf==='booking') rows=rows.filter(r=>/booking/i.test(r.channel||''));
+    else if(rf==='cancelled') rows=rows.filter(r=>r.cancelled);
+    // Search filter
     if(state.search) rows=rows.filter(r=>`${r.name||''} ${r.phone||''} ${r.channel||''} ${resBungLabel(r)}`.toLowerCase().includes(state.search));
     const arr=rows.filter(r=>r.checkIn===today).length, dep=rows.filter(r=>r.checkOut===today).length, canceled=reservations().filter(r=>r.cancelled).length;
     rows=rows.sort((a,b)=>(b.checkIn||'').localeCompare(a.checkIn||'')).slice(0,80);
@@ -10260,8 +10246,16 @@ try {
       ${miniTabs([{key:'all',label:'Sve rezervacije',badge:rows.length},{key:'arr',label:'Današnji dolasci',badge:arr},{key:'dep',label:'Današnji odlasci',badge:dep},{key:'cancel',label:'Otkazane',badge:canceled},{key:'vip',label:'VIP gosti',badge:Math.min(12,rows.length)}],'all')}
       <div class="kmkv-res-layout">
         <div class="kmkv-card kmkv-panel kmkv-res-table-card">
-          <div class="kmkv-res-filters"><div class="kmkv-filter-search">⌕ <input placeholder="Pretraži gosta, email, telefon, rezervaciju..." value="${esc(state.search)}" oninput="document.getElementById('kmkv-search').value=this.value;document.getElementById('kmkv-search').dispatchEvent(new Event('input'))"></div><label>Datum <span>${fmt(today)} – ${fmt(addDays(today,30))}</span></label><select class="kmkv-select"><option>Svi kanali</option></select><select class="kmkv-select"><option>Svi statusi</option></select><select class="kmkv-select"><option>Svi bungalovi</option></select><button class="kmkv-btn primary">Bulk akcije</button></div>
-          <div class="kmkv-table-wrap"><table class="kmkv-table kmkv-res-table"><thead><tr><th></th><th>Gost</th><th>Bungalow</th><th>Check-in</th><th>Check-out</th><th>Noći</th><th>Kanal</th><th>Status</th><th>Plaćanje</th><th>Ukupno</th><th>Akcije</th></tr></thead><tbody>${rows.map((r,i)=>reservationRow(r,i)).join('')}</tbody></table></div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center">
+        <div style="display:flex;border:1px solid #edf1ec;border-radius:10px;overflow:hidden;background:#fff">
+          ${['all','paid','unpaid','confirmed','booking','cancelled'].map(f=>`<button data-res-filter="${f}" class="kmkv-segmented-btn${(state.resFilter||'all')===f?' on':''}" style="border:0;padding:8px 12px;background:${(state.resFilter||'all')===f?'#3f6f43':'#fff'};color:${(state.resFilter||'all')===f?'#fff':'#667463'};font-size:.78em;font-weight:700;cursor:pointer">${{all:'Sve',paid:'Plaćeno',unpaid:'Neplaćeno',confirmed:'Potvrđeno',booking:'Booking',cancelled:'Otkazano'}[f]}</button>`).join('')}
+        </div>
+        <div style="flex:1;min-width:200px;display:flex;align-items:center;gap:8px;border:1px solid #edf1ec;border-radius:10px;padding:8px 12px;background:#fff">
+          <span>⌕</span><input id="kmkv-search" value="${esc(state.search||'')}" placeholder="Pretraži ime, telefon, bungalov..." style="border:0;outline:0;flex:1;font-size:.9em">
+        </div>
+      </div>
+      <div class="kmkv-table-wrap">
+      <table class="kmkv-table kmkv-res-table"><thead><tr><th></th><th>Gost</th><th>Bungalow</th><th>Check-in</th><th>Check-out</th><th>Noći</th><th>Kanal</th><th>Status</th><th>Plaćanje</th><th>Ukupno</th><th>Akcije</th></tr></thead><tbody>${rows.map((r,i)=>reservationRow(r,i)).join('')}</tbody></table></div>
           <div class="kmkv-table-footer"><span>Prikazano 1–${Math.min(rows.length,80)} od ${activeRes().length} rezervacija</span><div><button class="kmkv-btn kmkv-soft-btn">‹</button><button class="kmkv-btn primary">1</button><button class="kmkv-btn kmkv-soft-btn">2</button><button class="kmkv-btn kmkv-soft-btn">›</button></div></div>
         </div>
         <aside class="kmkv-card kmkv-guest-profile">${selected ? guestPanel(selected) : '<div class="kmkv-empty">Nema rezervacija za prikaz.</div>'}</aside>
@@ -10269,7 +10263,7 @@ try {
     return pageShell('Rezervacije i gosti','Potpuna kontrola rezervacija i gostiju uz brz pristup historiji i detaljima.',body,{banner:true,cls:'kmkv-reservations-page'});
   }
   function reservationRow(r,i){
-    return `<tr class="${i===0?'selected':''}"><td><input type="checkbox" ${i===0?'checked':''}></td><td><div class="kmkv-guest-cell">${rowAvatar(r.name)}<div><strong>${esc(r.name||'—')}</strong><span>${esc(r.phone||'')}</span></div></div></td><td><strong>${esc(resBungLabel(r))}</strong><br><span style="color:var(--kmkv-muted)">Bungalov</span></td><td><strong>${fmt(r.checkIn)}</strong><br><span style="color:var(--kmkv-muted)">${dow(r.checkIn||isoToday())} 14:00</span></td><td><strong>${fmt(r.checkOut)}</strong><br><span style="color:var(--kmkv-muted)">10:00</span></td><td>${r.checkIn&&r.checkOut?diffDays(r.checkIn,r.checkOut):'—'}</td><td>${channelBadge(r)}</td><td>${statusBadge(statusOf(r))}</td><td>${r.paid?'<span class="kmkv-status paid">Plaćeno</span>':'<span class="kmkv-status unpaid">Nije plaćeno</span>'}</td><td><strong>${euro(r.price)}</strong></td><td><div class="kmkv-row-actions"><button data-detail-id="${esc(r.id||'')}">⌕</button><button data-detail-id="${esc(r.id||'')}">✉</button><button data-detail-id="${esc(r.id||'')}">☰</button></div></td></tr>`;
+    return `<tr class="${i===0?'selected':''}"><td><input type="checkbox" ${i===0?'checked':''}></td><td><div class="kmkv-guest-cell">${rowAvatar(r.name)}<div><strong>${esc(r.name||'—')}</strong><span>${esc(r.phone||'')}</span></div></div></td><td><strong>${esc(resBungLabel(r))}</strong><br><span style="color:var(--kmkv-muted)">Bungalov</span></td><td><strong>${fmt(r.checkIn)}</strong><br><span style="color:var(--kmkv-muted)">${dow(r.checkIn||isoToday())} 14:00</span></td><td><strong>${fmt(r.checkOut)}</strong><br><span style="color:var(--kmkv-muted)">10:00</span></td><td>${r.checkIn&&r.checkOut?diffDays(r.checkIn,r.checkOut):'—'}</td><td>${channelBadge(r)}</td><td>${statusBadge(statusOf(r))}</td><td>${r.paid?'<span class="kmkv-status paid">Plaćeno</span>':'<span class="kmkv-status unpaid">Nije plaćeno</span>'}</td><td><strong>${euro(r.price)}</strong></td><td><div class="kmkv-row-actions"><button data-detail-id="${esc(r.id||'')}" title="Detalji">⌕</button><button data-action-edit="${esc(r.id||'')}" title="Izmijeni" style="color:#667eea">✏️</button><button data-action-cancel="${esc(r.id||'')}" title="Otkaži" style="color:#dc3545">✕</button></div></td></tr>`;
   }
   function statusBadge(st){
     const cls = st==='booking'?'booking':st==='paid'?'paid':st==='conflict'?'cancel':'';
@@ -10287,52 +10281,66 @@ try {
       <div class="kmkv-action-grid small"><button data-detail-id="${esc(r.id||'')}">✉<span>Pošalji poruku</span></button><button data-detail-id="${esc(r.id||'')}">▣<span>Ispis potvrde</span></button><button data-detail-id="${esc(r.id||'')}">✓<span>Označi plaćeno</span></button><button data-detail-id="${esc(r.id||'')}">☷<span>Detalji</span></button></div>`;
   }
   function pageAvailability(){
-    const today=isoToday(), tomorrow=addDays(today,1);
-    const free=bungalows().filter(bn=>!resForBungOn(bn,today));
-    return `
-      ${hero('Slobodni bungalovi','Brza provjera dostupnosti u premium desktop prikazu.', `<button class="kmkv-btn primary" data-kmkv-page="new">Nova rezervacija</button>`)}
-      <div class="kmkv-card kmkv-panel">
-        <div class="kmkv-panel-head"><div><div class="kmkv-panel-title">Dostupnost ${fmt(today)} → ${fmt(tomorrow)}</div><div class="kmkv-panel-sub">Slobodno ${free.length} od ${bungalows().length} bungalova.</div></div><button class="kmkv-btn" data-classic-tab="calendar">Klasični kalendar</button></div>
-        <div class="kmkv-occupancy-grid">${bungalows().map(bn=>bungCard(bn,today)).join('')}</div>
-      </div>`;
+    goClassic('availability');
+    return `<div style="display:flex;align-items:center;justify-content:center;height:300px;color:#667463">
+      <div style="text-align:center"><div style="font-size:2em;margin-bottom:12px">🔍</div><div>Otvaram slobodne termine...</div></div>
+    </div>`;
   }
+
   function pageStats(){
-    const rev=revenue('all'), occ=occupancy(), total=activeRes().length;
-    const booking=activeRes().filter(r=>/booking/i.test(channel(r))).length;
-    const direct=activeRes().filter(r=>/direkt/i.test(channel(r))).length;
-    const body = `
-      <div class="kmkv-stats-filter"><label>Period <span>01.01.${new Date().getFullYear()}. – ${fmt(isoToday())}</span></label><select class="kmkv-select"><option>Isti period prošle godine</option></select><select class="kmkv-select"><option>Svi kanali</option></select><select class="kmkv-select"><option>Svi bungalovi</option></select><button class="kmkv-btn">Izvoz PDF</button><button class="kmkv-btn">Izvoz Excel</button></div>
-      <div class="kmkv-kpis kmkv-stats-kpis">${kpiCard('€','Ukupni prihod',euro(rev),'↑ prema unesenim podacima')}${kpiCard('◔','Popunjenost',occ.pct+'%','Danas')}${kpiCard('◇','Prosječna cijena',euro(total?rev/total:0),'Po rezervaciji')}${kpiCard('▣','Broj rezervacija',total,'Aktivne')}${kpiCard('♙','Prosj. trajanje','2,8 noći','Procjena')}${kpiCard('⌂','Direktne rezervacije',(total?Math.round((direct/total)*100):0)+'%','Direktni kanal')}</div>
-      <div class="kmkv-analytics-grid"><div class="kmkv-card kmkv-panel big"><div class="kmkv-panel-head"><div><div class="kmkv-panel-title">Prihod po mjesecima</div></div><span class="kmkv-pill">Prihod (€)</span></div>${lineChart()}</div><div class="kmkv-card kmkv-panel"><div class="kmkv-panel-title">Rezervacije po kanalima</div><div class="kmkv-hbars"><div><span>Booking.com</span><i style="width:${total?booking/total*100:0}%"></i><b>${booking}</b></div><div><span>Direktno</span><i style="width:${total?direct/total*100:0}%"></i><b>${direct}</b></div><div><span>Airbnb</span><i style="width:30%"></i><b>${activeRes().filter(r=>/airbnb/i.test(channel(r))).length}</b></div></div></div><div class="kmkv-card kmkv-panel"><div class="kmkv-panel-title">Tip gosta / struktura kanala</div><div class="kmkv-donut"><em>${total}<small>ukupno</small></em></div></div><div class="kmkv-card kmkv-panel side"><div class="kmkv-panel-title">Brzi uvidi</div><div class="kmkv-mini-list">${insights()}</div></div><div class="kmkv-card kmkv-panel big"><div class="kmkv-panel-title">Trend popunjenosti (heatmap)</div><div class="kmkv-heat-matrix">${bungalows().map(bn=>`<b>B${bn}</b>${Array.from({length:12},(_,i)=>`<i class="l${(i+bn)%5+1}"></i>`).join('')}`).join('')}</div><div class="kmkv-gradient-legend"><span>0%</span><i></i><span>100%</span></div></div><div class="kmkv-card kmkv-panel"><div class="kmkv-panel-title">Najčešći gosti</div><div class="kmkv-mini-list">${activeRes().slice(0,5).map(r=>`<div class="kmkv-list-row"><div class="left">${rowAvatar(r.name)}<div><strong>${esc(r.name||'—')}</strong><span>${resGuests(r)} gostiju</span></div></div><div class="kmkv-price">${euro(r.price)}</div></div>`).join('')}</div></div><div class="kmkv-card kmkv-panel"><div class="kmkv-panel-title">Finansijski izvještaj</div><div class="kmkv-summary-list"><div><span>Ukupni prihod</span><strong>${euro(rev)}</strong></div><div><span>Procjena poreza</span><strong>${euro(rev*.1)}</strong></div><div><span>Provizije kanala</span><strong>—</strong></div><div><span>Neto prihod</span><strong>${euro(rev*.9)}</strong></div></div></div></div>`;
-    return pageShell('Statistika i izvještaji','Sve što trebate znati o prihodima, popunjenosti, kanalima i gostima na jednom mjestu.',body,{cls:'kmkv-stats-page',actions:`<button class="kmkv-btn" data-classic-tab="stats">Klasična statistika</button>`});
-  }
-  function insights(){
-    const booking=activeRes().filter(r=>/booking/i.test(channel(r))).length;
-    const direct=activeRes().filter(r=>/direkt/i.test(channel(r))).length;
-    return [
-      ['Najbolji kanal', booking>=direct?'Booking.com':'Direktno', 'Provjeriti provizije i direktne popuste'],
-      ['Najviše zauzeto', occupancy().pct+'%', 'Današnji procenat popunjenosti'],
-      ['Preporuka', 'Direktne rezervacije', 'Povećati CTA i WhatsApp ponude']
-    ].map(x=>`<div class="kmkv-list-row"><div><strong>${x[0]}</strong><span>${x[2]}</span></div><div class="kmkv-price">${x[1]}</div></div>`).join('');
+    goClassic('stats');
+    return `<div style="display:flex;align-items:center;justify-content:center;height:300px;color:#667463">
+      <div style="text-align:center"><div style="font-size:2em;margin-bottom:12px">📊</div><div>Otvaram statistiku...</div></div>
+    </div>`;
   }
 
   function pageSettings(){
     const mode = themeMode();
+    const user = currentUser() || '';
+    // Per-user theme key
+    const perUserKey = 'kmkv_user_theme_' + user;
+    const userTheme = localStorage.getItem(perUserKey) || mode;
     return `
-      ${hero('Podešavanja izgleda','Izaberi da li želiš novu desktop temu ili klasični stari prikaz. Logika programa ostaje ista.', `<button class="kmkv-btn" data-classic-tab="settings">Otvori klasična podešavanja</button>`)}
-      <div class="kmkv-card kmkv-panel">
-        <div class="kmkv-panel-head"><div><div class="kmkv-panel-title">Tema programa</div><div class="kmkv-panel-sub">Ovo mijenja samo izgled desktop interfejsa. Rezervacije, finansije, sinhronizacija i baza se ne mijenjaju.</div></div><span class="kmkv-pill">Trenutno: ${mode==='classic'?'Klasična':'Nova Vision'}</span></div>
+      ${hero('Tema i Izgled','Izaberite vizuelni stil programa za desktop. Podešavanje je vezano za korisnika — svaki korisnik može imati svoju preferencu.', `<button class="kmkv-btn" data-classic-tab="settings">⚙️ Klasična podešavanja</button>`)}
+      <div class="kmkv-card kmkv-panel" style="margin-bottom:18px">
+        <div class="kmkv-panel-head">
+          <div>
+            <div class="kmkv-panel-title">🎨 Desktop tema — ${esc(user)}</div>
+            <div class="kmkv-panel-sub">Mijenja samo izgled. Rezervacije, finansije i sinhronizacija ostaju nepromijenjeni.</div>
+          </div>
+        </div>
         <div class="kmkv-theme-grid">
-          <button class="kmkv-theme-choice ${mode!=='classic'?'on':''}" data-theme-mode="vision">
-            <strong>✨ Nova Vision tema</strong><span>Premium UI prema referentnim slikama: dashboard, sidebar, top bar, V3 timeline, CRM panel i analytics kartice.</span>
+          <button class="kmkv-theme-choice ${userTheme==='vision'?'on':''}" data-theme-mode="vision">
+            <strong>✦ Vision UI (Nova tema)</strong>
+            <span>Moderna desktop tema sa sidebar navigacijom, karticama i naprednim pregledima. Preporučeno za desktop.</span>
           </button>
-          <button class="kmkv-theme-choice ${mode==='classic'?'on':''}" data-theme-mode="classic">
-            <strong>🧩 Klasična tema</strong><span>Stari provjereni prikaz programa, bez novog desktop shell-a.</span>
+          <button class="kmkv-theme-choice ${userTheme==='classic'?'on':''}" data-theme-mode="classic">
+            <strong>☰ Klasična tema</strong>
+            <span>Originalni prikaz koji radi na svim uređajima. Identičan mobilnom. Preporučeno ako imaš problema.</span>
           </button>
         </div>
-        <div class="kmkv-classic-note" style="margin-top:16px">Preporuka: testiraj novu temu na kopiji. Ako bilo koje dugme ne radi kako očekuješ, vrati se na klasični prikaz jednim klikom.</div>
+        <div class="kmkv-classic-note" style="margin-top:14px">
+          💡 Mobilni uređaji uvijek koriste mobilnu verziju bez obzira na ovu postavku.
+        </div>
+      </div>
+      <div class="kmkv-card kmkv-panel">
+        <div class="kmkv-panel-title" style="margin-bottom:12px">📱 Pregled korisnika</div>
+        <div style="display:grid;gap:8px;font-size:.88em">
+          ${(()=>{
+            const u = currentUser()||'';
+            const rows = ['vision','classic'].map(t=>{
+              const key='kmkv_user_theme_'+u;
+              const cur=localStorage.getItem(key)||themeMode();
+              return '';
+            });
+            return '<div style="padding:10px;background:#f8faf7;border-radius:10px;border:1px solid #edf1ec">'
+              +'<strong>'+esc(u||'Nepoznat')+'</strong> — Trenutna tema: <strong>'+(localStorage.getItem('kmkv_user_theme_'+u)||themeMode())+'</strong>'
+              +'</div>';
+          })()}
+        </div>
       </div>`;
   }
+
   function pageVisualFallback(title, subtitle, classicTab){
     return `
       ${hero(title, subtitle, `<button class="kmkv-btn primary" data-classic-tab="${classicTab}">Otvori klasični funkcionalni prikaz</button>`)}
