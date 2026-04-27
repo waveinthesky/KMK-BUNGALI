@@ -9,7 +9,7 @@
 body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh;padding:20px}
 
 /* LOGIN */
-.login-wrap{display:flex;align-items:center;justify-content:center;min-height:100vh}
+.login-wrap{display:flex;align-items:center;justify-content:center;min-height:100vh;position:relative;z-index:99999}
 .login-box{background:white;padding:40px;border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,.3);max-width:400px;width:100%}
 .login-head{text-align:center;margin-bottom:28px}
 .login-head h1{color:#667eea;font-size:1.7em;margin-top:10px}
@@ -4730,6 +4730,20 @@ window.printDaily = function() {
     const theme = getCurrentTheme();
     updateFab(theme);
   }
+  
+  // Sakrij FAB dok je login ekran vidljiv
+  function checkFabVisibility() {
+    const fab = document.getElementById('kmk-theme-fab');
+    if (!fab) return;
+    const loginEl = document.getElementById('login-screen');
+    const loginVisible = loginEl && getComputedStyle(loginEl).display !== 'none';
+    if (loginVisible) {
+      fab.style.display = 'none';
+      return;
+    }
+    updateFab(getCurrentTheme());
+  }
+  setInterval(checkFabVisibility, 500);
 
   window.addEventListener('resize', () => updateFab(getCurrentTheme()));
   if (document.readyState === 'loading') {
@@ -10107,6 +10121,15 @@ try {
   }
   function apply(){
     document.body.dataset.kmkvVision = VERSION;
+    // Ne aktiviraj Vision shell dok je login ekran vidljiv
+    const loginEl = document.getElementById('login-screen');
+    const loginVisible = loginEl && getComputedStyle(loginEl).display !== 'none';
+    if(loginVisible){
+      document.body.classList.remove('kmkv-desktop-active');
+      const shell = document.getElementById('kmkv-shell');
+      if(shell) shell.style.display = 'none';
+      return;
+    }
     if(shouldUseShell()){
       mount();
       document.body.classList.add('kmkv-desktop-active');
