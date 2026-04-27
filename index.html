@@ -10041,69 +10041,88 @@ try {
         if(panel) panel.style.display = 'none';
         return;
       }
+
+      // Nav page
       const page = e.target.closest('[data-kmkv-page]')?.dataset.kmkvPage;
       if(page){
         e.preventDefault();
-        if(['channels','pricing','sync','settings','daily','availability'].includes(page)){
-          const map={channels:'settings',pricing:'settings',sync:'settings',settings:'settings',daily:'daily',availability:'availability'};
-          if(['channels','pricing','sync','settings'].includes(page)){
-            // show visual placeholder and option to classic settings
-            state.page=page; render(); return;
-          }
-        }
-        state.page=page; render();
+        state.page = page;
+        render();
+        return;
       }
+
+      // Classic tab
       const tab = e.target.closest('[data-classic-tab]')?.dataset.classicTab;
-      if(tab){ e.preventDefault(); goClassic(tab); }
+      if(tab){ e.preventDefault(); goClassic(tab); return; }
 
       // Settings sub-tabs
       const stab = e.target.closest('[data-classic-settings]')?.dataset.classicSettings;
       if(stab){ e.preventDefault();
         goClassic('settings');
         setTimeout(()=>{
-          // Nađi ssb dugme za odabrani settings tab i klikni ga
           const allSsb = document.querySelectorAll('#pane-settings .ssb');
           let found = false;
           allSsb.forEach(b=>{
-            if(b.getAttribute('onclick')&&b.getAttribute('onclick').includes("'"+stab+"'")) {
-              b.click(); found=true;
+            if(!found && b.getAttribute('onclick') && b.getAttribute('onclick').includes("'"+stab+"'")){
+              b.click(); found = true;
             }
           });
-          if(!found && typeof window.switchSetTab==='function') {
-            // Fallback: pozovi direktno sa prvim .ssb kao dummy btn
+          if(!found && typeof window.switchSetTab==='function'){
             const firstSsb = document.querySelector('#pane-settings .ssb');
             if(firstSsb) window.switchSetTab(stab, firstSsb);
           }
         }, 350);
         return;
       }
+
+      // Theme mode
       const theme = e.target.closest('[data-theme-mode]')?.dataset.themeMode;
-      if(theme){ e.preventDefault(); setThemeMode(theme); }
+      if(theme){ e.preventDefault();
+        const u = currentUser()||'';
+        localStorage.setItem('kmkv_user_theme_'+u, theme);
+        setThemeMode(theme);
+        $$('.kmkv-theme-choice').forEach(b=>b.classList.toggle('on', b.dataset.themeMode===theme));
+        return;
+      }
+
+      // Detalji rezervacije
       const details = e.target.closest('[data-detail-id]')?.dataset.detailId;
-      if(details){ e.preventDefault(); showDetails(details); }
+      if(details){ e.preventDefault(); showDetails(details); return; }
+
+      // Prefill nova rezervacija
       const pre = e.target.closest('[data-prefill]');
       if(pre){
         e.preventDefault();
-        const [bn,start,end] = pre.dataset.prefill.split('|');
-        prefillReservation(bn,start,end);
+        const [bn,start,end] = (pre.dataset.prefill||'').split('|');
+        prefillReservation(bn, start, end);
+        return;
       }
-    });
-    $('#kmkv-search')?.addEventListener('input', e => { state.search=e.target.value.trim().toLowerCase(); if(['reservations','guests'].includes(state.page)) render(); });
 
-      // Row akcije u tabeli rezervacija
+      // Edit rezervacije
       const editBtn = e.target.closest('[data-action-edit]');
-      if(editBtn){ e.preventDefault(); const id=editBtn.dataset.actionEdit; if(id){ goClassic('add'); setTimeout(()=>{ if(typeof window.editRes==='function') window.editRes(id); },300); } return; }
+      if(editBtn){ e.preventDefault();
+        const id = editBtn.dataset.actionEdit;
+        if(id){
+          goClassic('add');
+          setTimeout(()=>{ if(typeof window.editRes==='function') window.editRes(id); }, 350);
+        }
+        return;
+      }
 
+      // Otkazivanje rezervacije
       const cancelBtn = e.target.closest('[data-action-cancel]');
-      if(cancelBtn){ e.preventDefault(); const id=cancelBtn.dataset.actionCancel; if(id&&typeof window.cancelRes==='function') window.cancelRes(id); return; }
+      if(cancelBtn){ e.preventDefault();
+        const id = cancelBtn.dataset.actionCancel;
+        if(id && typeof window.cancelRes==='function') window.cancelRes(id);
+        return;
+      }
 
+      // Plaćeno toggle
       const paidBtn = e.target.closest('[data-action-paid]');
       if(paidBtn){ e.preventDefault();
-        const id = paidBtn.dataset.actionPaid;
-        if(id) {
-          const bridge = app();
-          if(typeof bridge.togglePaid === 'function') bridge.togglePaid(id);
-          else if(typeof window._kmkUpdatePaid === 'function') {
+        const id = paidBtn.dataset.actionPaid ? paidBtn.dataset.actionPaid.trim() : null;
+        if(id){
+          if(typeof window._kmkUpdatePaid === 'function'){
             const r = (reservations()||[]).find(x=>x.id===id);
             if(r) window._kmkUpdatePaid(id, !r.paid);
           }
@@ -10111,37 +10130,32 @@ try {
         return;
       }
 
-      // Filter dugmad u rezervacijama
+      // Filter rezervacija
       const filterBtn = e.target.closest('[data-res-filter]');
       if(filterBtn){ e.preventDefault();
-        $$('[data-res-filter]').forEach(b=>b.classList.remove('on'));
-        filterBtn.classList.add('on');
-        state.resFilter = filterBtn.dataset.resFilter;
+        state.resFilter = filterBtn.dataset.resFilter || 'all';
         if(['reservations','guests'].includes(state.page)) render();
         return;
       }
+    });
 
-      // Per-user theme u settings
-      const themeChoice = e.target.closest('[data-theme-mode]');
-      if(themeChoice){ e.preventDefault();
-        const m = themeChoice.dataset.themeMode;
-        const u = currentUser()||'';
-        localStorage.setItem('kmkv_user_theme_'+u, m);
-        if(typeof window.KMKV_setThemeMode==='function') window.KMKV_setThemeMode(m);
-        else if(typeof setThemeMode==='function') setThemeMode(m);
-        else { localStorage.setItem('kmkv_desktop_theme_v242', m); }
-        $$('.kmkv-theme-choice').forEach(b=>b.classList.remove('on'));
-        themeChoice.classList.add('on');
-        return;
-      }
-
-        document.addEventListener('keydown', e => {
-      if((e.ctrlKey || e.metaKey) && String(e.key).toLowerCase()==='k'){
-        e.preventDefault();
-        const inp = $('#kmkv-search');
-        if(inp){ state.page='reservations'; render(); setTimeout(()=>$('#kmkv-search')?.focus(),20); }
+    // Pretraga
+    document.addEventListener('input', e => {
+      if(e.target.id === 'kmkv-search'){
+        state.search = e.target.value.trim().toLowerCase();
+        if(['reservations','guests'].includes(state.page)) render();
       }
     });
+
+    // Keyboard shortcut Ctrl+K
+    document.addEventListener('keydown', e => {
+      if((e.ctrlKey || e.metaKey) && String(e.key).toLowerCase()==='k'){
+        e.preventDefault();
+        state.page = 'reservations'; render();
+        setTimeout(()=>{ const s=$('#kmkv-search'); if(s)s.focus(); }, 20);
+      }
+    });
+
     window.addEventListener('resize', apply);
   }
   function apply(){
@@ -10166,6 +10180,25 @@ try {
       if(window.innerWidth >= BREAKPOINT && themeMode() === 'classic' && isAppLoggedIn()) ensureRestorePill();
     }
   }
+  // Helper: legend item za status boje
+  function legend(status, label){
+    const colors = {
+      paid:'#3f6f43', busy:'#3f6f43', booking:'#0c57a5', free:'#8fb684',
+      checkout:'#d6a53f', closed:'#666', conflict:'#d86d66', arrival:'#4f79bd'
+    };
+    const c = colors[status] || '#aaa';
+    return `<span style="display:inline-flex;align-items:center;gap:4px;font-size:.75em;color:#667463;margin-right:10px">
+      <span style="width:10px;height:10px;border-radius:3px;background:${c};display:inline-block"></span>${esc(label)}</span>`;
+  }
+
+  // Helper: form field za novu rezervaciju
+  function field(label, type, val, attrs=''){
+    return `<div class="kmkv-field"><label>${esc(label)}</label>
+      <input type="${type}" value="${esc(val||'')}" ${attrs} style="width:100%;border:1px solid #edf1ec;border-radius:10px;padding:10px 12px;background:#fff;font:inherit;color:#1e2b1d;outline:none">
+    </div>`;
+  }
+
+
   function render(){
     const content = $('#kmkv-content');
     if(!content) return;
