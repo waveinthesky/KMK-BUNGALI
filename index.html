@@ -4024,6 +4024,17 @@ window.restoreRes = async hId => {
   } catch(err) { console.error(err); alert('Greška: '+err.message); syncUI('er','Greška'); }
 };
 
+// Helper za Vision UI - toggle paid status
+window._kmkUpdatePaid = async (id, paid) => {
+  if (!id) return;
+  try {
+    const ref = doc(db, 'reservations', id);
+    await updateDoc(ref, { paid, updatedAt: new Date().toISOString(), updatedBy: curUser });
+    // Notifikacija
+    if (typeof updNotif === 'function') updNotif();
+  } catch(e) { console.error('_kmkUpdatePaid error:', e); alert('Greška pri ažuriranju: ' + e.message); }
+};
+
 // ── HISTORY LOG ──────────────────────────────────────────────
 async function logH(action,res,old=null,reason=null) {
   const changes=[];
@@ -9628,17 +9639,53 @@ try{setTimeout(()=>{_updateCalViewButtons(); if(isMobile()&&_mobCurrentTab==='ca
 // Exposes read-only app state and existing safe functions to the external desktop UI layer.
 try {
   window.KMK_APP_BRIDGE = {
+    // Data getters — live access
     get reservations(){ return reservations; },
+    get history(){ return hist || []; },
     get B_CFG(){ return B_CFG; },
     get curUser(){ return curUser; },
     get curRole(){ return curRole; },
+    get pricePeriods(){ return window.pricePeriods || []; },
+    get appChannels(){ return window.appChannels || []; },
+    get icalLinks(){ return window.icalLinks || []; },
+    get notifs(){ return notifs || []; },
+    // Util functions
     fmtD: (typeof fmtD === 'function') ? fmtD : undefined,
     lDate: (typeof lDate === 'function') ? lDate : undefined,
-    showDet: (typeof showDet === 'function') ? showDet : undefined,
+    escHtml: (typeof escHtml === 'function') ? escHtml : undefined,
+    // Navigation
+    showDet: (typeof window.showDet === 'function') ? (...a)=>window.showDet(...a) : undefined,
     goTab: (typeof goTab === 'function') ? goTab : undefined,
+    goTabDirect: (typeof goTabDirect === 'function') ? goTabDirect : undefined,
     renderCal: (typeof renderCal === 'function') ? renderCal : undefined,
+    // Rezervacije
+    editRes: (typeof window.editRes === 'function') ? (...a)=>window.editRes(...a) : undefined,
+    cancelRes: (typeof window.cancelRes === 'function') ? (...a)=>window.cancelRes(...a) : undefined,
+    resetForm: (typeof resetForm === 'function') ? resetForm : undefined,
+    calcPrice: (typeof calcPrice === 'function') ? calcPrice : undefined,
+    // Plaćeno toggle — koristi updateDoc direktno jer nema window.togglePaid
+    togglePaid: async function(id) {
+      const r = (reservations||[]).find(x=>x.id===id);
+      if(!r) return;
+      try {
+        const { doc, updateDoc } = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js');
+        // Koristimo updateDoc koji je dostupan u main script scope
+        if(typeof window._kmkUpdatePaid === 'function') window._kmkUpdatePaid(id, !r.paid);
+        else if(typeof window.editRes === 'function') { alert('Otvorite rezervaciju i označite kao plaćenu.'); window.editRes(id); }
+      } catch(e) { console.warn('togglePaid error', e); }
+    },
+    // Backup/export
+    downloadBackup: (typeof downloadBackup === 'function') ? downloadBackup : undefined,
+    exportToXLSX: (typeof exportToXLSX === 'function') ? exportToXLSX : undefined,
+    exportReservationsCSV: (typeof exportReservationsCSV === 'function') ? exportReservationsCSV : undefined,
+    // iCal
+    syncAllIcal: (typeof syncAllIcal === 'function') ? syncAllIcal : undefined,
+    // Statistika
+    renderStats: (typeof renderStats === 'function') ? renderStats : undefined,
+    // iCal
+    syncAllIcal: (typeof syncAllIcal === 'function') ? syncAllIcal : undefined,
+    // Mobile
     mobPrefillQuickForm: (typeof mobPrefillQuickForm === 'function') ? mobPrefillQuickForm : undefined,
-    calcPrice: (typeof calcPrice === 'function') ? calcPrice : undefined
   };
 } catch(e) {
   console.warn('KMK desktop bridge init skipped:', e);
@@ -9734,7 +9781,7 @@ try {
   const VERSION = '2.4.2';
   const THEME_KEY = 'kmkv_desktop_theme_v242';
   const BREAKPOINT = 1100;
-  const state = { page:'dashboard', classic:false, mounted:false, search:'' };
+  const state = { page:'dashboard', classic:false, mounted:false, search:'', resFilter:'all' };
   window.KMKV_VISION_UI_VERSION = VERSION;
   console.info('[KMK Vision UI] loaded v' + VERSION);
   const $ = (sel, root=document) => root.querySelector(sel);
@@ -10008,6 +10055,28 @@ try {
       }
       const tab = e.target.closest('[data-classic-tab]')?.dataset.classicTab;
       if(tab){ e.preventDefault(); goClassic(tab); }
+
+      // Settings sub-tabs
+      const stab = e.target.closest('[data-classic-settings]')?.dataset.classicSettings;
+      if(stab){ e.preventDefault();
+        goClassic('settings');
+        setTimeout(()=>{
+          // Nađi ssb dugme za odabrani settings tab i klikni ga
+          const allSsb = document.querySelectorAll('#pane-settings .ssb');
+          let found = false;
+          allSsb.forEach(b=>{
+            if(b.getAttribute('onclick')&&b.getAttribute('onclick').includes("'"+stab+"'")) {
+              b.click(); found=true;
+            }
+          });
+          if(!found && typeof window.switchSetTab==='function') {
+            // Fallback: pozovi direktno sa prvim .ssb kao dummy btn
+            const firstSsb = document.querySelector('#pane-settings .ssb');
+            if(firstSsb) window.switchSetTab(stab, firstSsb);
+          }
+        }, 350);
+        return;
+      }
       const theme = e.target.closest('[data-theme-mode]')?.dataset.themeMode;
       if(theme){ e.preventDefault(); setThemeMode(theme); }
       const details = e.target.closest('[data-detail-id]')?.dataset.detailId;
@@ -10029,7 +10098,18 @@ try {
       if(cancelBtn){ e.preventDefault(); const id=cancelBtn.dataset.actionCancel; if(id&&typeof window.cancelRes==='function') window.cancelRes(id); return; }
 
       const paidBtn = e.target.closest('[data-action-paid]');
-      if(paidBtn){ e.preventDefault(); const id=paidBtn.dataset.actionPaid; if(id&&typeof window.togglePaid==='function') window.togglePaid(id); else if(id){ const r=(window.reservations||[]).find(x=>x.id===id); if(r&&typeof window.updateDoc==='function'){} } return; }
+      if(paidBtn){ e.preventDefault();
+        const id = paidBtn.dataset.actionPaid;
+        if(id) {
+          const bridge = app();
+          if(typeof bridge.togglePaid === 'function') bridge.togglePaid(id);
+          else if(typeof window._kmkUpdatePaid === 'function') {
+            const r = (reservations()||[]).find(x=>x.id===id);
+            if(r) window._kmkUpdatePaid(id, !r.paid);
+          }
+        }
+        return;
+      }
 
       // Filter dugmad u rezervacijama
       const filterBtn = e.target.closest('[data-res-filter]');
@@ -10297,46 +10377,41 @@ try {
   function pageSettings(){
     const mode = themeMode();
     const user = currentUser() || '';
-    // Per-user theme key
-    const perUserKey = 'kmkv_user_theme_' + user;
-    const userTheme = localStorage.getItem(perUserKey) || mode;
+    const userTheme = localStorage.getItem('kmkv_user_theme_'+user) || mode;
     return `
-      ${hero('Tema i Izgled','Izaberite vizuelni stil programa za desktop. Podešavanje je vezano za korisnika — svaki korisnik može imati svoju preferencu.', `<button class="kmkv-btn" data-classic-tab="settings">⚙️ Klasična podešavanja</button>`)}
-      <div class="kmkv-card kmkv-panel" style="margin-bottom:18px">
-        <div class="kmkv-panel-head">
-          <div>
-            <div class="kmkv-panel-title">🎨 Desktop tema — ${esc(user)}</div>
-            <div class="kmkv-panel-sub">Mijenja samo izgled. Rezervacije, finansije i sinhronizacija ostaju nepromijenjeni.</div>
+      ${hero('Podešavanja','Vizualni stil i sistemske opcije.')}
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
+
+        <!-- Tema -->
+        <div class="kmkv-card kmkv-panel">
+          <div class="kmkv-panel-title" style="margin-bottom:12px">🎨 Desktop tema — ${esc(user)}</div>
+          <div class="kmkv-theme-grid">
+            <button class="kmkv-theme-choice ${userTheme==='vision'?'on':''}" data-theme-mode="vision">
+              <strong>✦ Vision UI</strong>
+              <span>Moderna desktop tema sa sidebar navigacijom. Preporučeno za desktop ekrane ≥ 1100px.</span>
+            </button>
+            <button class="kmkv-theme-choice ${userTheme==='classic'?'on':''}" data-theme-mode="classic">
+              <strong>☰ Klasična tema</strong>
+              <span>Originalni prikaz. Isti na desktop i mobilnom. Preporučeno ako imaš problema sa novom temom.</span>
+            </button>
           </div>
+          <p style="font-size:.8em;color:#8a9589;margin-top:12px">💡 Mobilni uređaji uvijek koriste mobilnu verziju.</p>
         </div>
-        <div class="kmkv-theme-grid">
-          <button class="kmkv-theme-choice ${userTheme==='vision'?'on':''}" data-theme-mode="vision">
-            <strong>✦ Vision UI (Nova tema)</strong>
-            <span>Moderna desktop tema sa sidebar navigacijom, karticama i naprednim pregledima. Preporučeno za desktop.</span>
-          </button>
-          <button class="kmkv-theme-choice ${userTheme==='classic'?'on':''}" data-theme-mode="classic">
-            <strong>☰ Klasična tema</strong>
-            <span>Originalni prikaz koji radi na svim uređajima. Identičan mobilnom. Preporučeno ako imaš problema.</span>
-          </button>
-        </div>
-        <div class="kmkv-classic-note" style="margin-top:14px">
-          💡 Mobilni uređaji uvijek koriste mobilnu verziju bez obzira na ovu postavku.
-        </div>
-      </div>
-      <div class="kmkv-card kmkv-panel">
-        <div class="kmkv-panel-title" style="margin-bottom:12px">📱 Pregled korisnika</div>
-        <div style="display:grid;gap:8px;font-size:.88em">
-          ${(()=>{
-            const u = currentUser()||'';
-            const rows = ['vision','classic'].map(t=>{
-              const key='kmkv_user_theme_'+u;
-              const cur=localStorage.getItem(key)||themeMode();
-              return '';
-            });
-            return '<div style="padding:10px;background:#f8faf7;border-radius:10px;border:1px solid #edf1ec">'
-              +'<strong>'+esc(u||'Nepoznat')+'</strong> — Trenutna tema: <strong>'+(localStorage.getItem('kmkv_user_theme_'+u)||themeMode())+'</strong>'
-              +'</div>';
-          })()}
+
+        <!-- Brzi pristup podešavanjima -->
+        <div class="kmkv-card kmkv-panel">
+          <div class="kmkv-panel-title" style="margin-bottom:12px">⚙️ Sistemska podešavanja</div>
+          <div style="display:grid;gap:8px">
+            ${[
+              ['👤','Korisnici','users'],['🏨','Gosti','guests'],['🔒','Sigurnost','security'],
+              ['💰','Cjenovnik','prices'],['📡','Kanali','channels'],['📅','Kalendar','calendar-set'],
+              ['💾','Backup & Export','backup'],['🔄','iCal Sync','ical'],['📥','Import','import'],['ℹ️','About','about']
+            ].map(([ico,lbl,tab])=>`
+              <button class="kmkv-btn" data-classic-settings="${tab}"
+                style="justify-content:flex-start;gap:10px;padding:10px 14px;font-size:.88em">
+                ${ico} ${lbl}
+              </button>`).join('')}
+          </div>
         </div>
       </div>`;
   }
@@ -10357,7 +10432,7 @@ try {
       return;
     }
     document.body.classList.add('kmkv-vision-assets-loaded');
-    if(!document.querySelector('link[href*="desktop-vision-v2.4.2.css"]')) console.warn('[KMK Vision UI] CSS link not found in index.');
+    if(!document.getElementById('kmkv-vision-styles')) console.warn('[KMK Vision UI] CSS style element not found.');
     apply();
     let attempts = 0;
     const early = setInterval(()=>{
