@@ -378,7 +378,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 .mob-bung-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:6px}
 .mob-bung-btn{padding:12px 6px;border:1.5px solid #dfe7dd;border-radius:12px;text-align:center;cursor:pointer;font-weight:800;font-size:.9em;background:#fff;color:#587055;transition:all .15s;-webkit-tap-highlight-color:transparent}
 .mob-bung-busy{background:#ffebee!important;border:2px solid #c62828!important;color:#c62828!important;cursor:not-allowed!important;opacity:.85}
-.mob-bung-busy small,.mob-bung-busy .mob-bung-status-lbl{color:#c62828!important;font-size:.72em;font-weight:700}
+.mob-bung-busy small{color:#c62828!important;font-weight:700}
 .mob-bung-btn.sel{background:#3f6f43!important;border-color:#3f6f43!important;color:#fff!important}
 .mob-bung-btn small{display:block;font-size:.68em;font-weight:700;color:#7b8777;margin-top:2px}
 .mob-bung-btn.sel{background:#5f7f56;border-color:#5f7f56;color:white;box-shadow:0 8px 18px rgba(95,127,86,.18)}
@@ -1026,16 +1026,6 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 .v2-counter.free{color:#2e7d32}
 .v2-counter.partial{color:#e65100}
 .v2-counter.full{color:#c62828}
-
-/* ─── Legenda show/hide toggle ──────────────────────────── */
-.kmk-legend-wrap{padding:6px 10px 4px 10px}
-.kmk-legend-toggle{
-  background:none;border:1px solid #dfe7dd;border-radius:20px;
-  padding:4px 12px;font-size:.75em;color:#587055;cursor:pointer;
-  margin-bottom:4px;display:inline-block;font-weight:600
-}
-.kmk-legend-toggle:active{background:#f0f5ee}
-.kmk-legend{flex-wrap:wrap;gap:6px 12px;padding:4px 0}
 </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script>
@@ -5536,6 +5526,81 @@ window.mobDeltaHeader = (field, delta) => {
   if (typeof window.mobCalcPrice === 'function') window.mobCalcPrice();
 };
 
+
+// _mobBuildBungGrid: grid dugmadi sa provjerom zauzetosti
+// Poziva se NAKON sto su datumi postavljeni
+window._mobBuildBungGrid = function() {
+  var grid = document.getElementById('mob-bung-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  var bungs = Object.keys(B_CFG || {}).sort(function(a,b){return parseInt(a)-parseInt(b);});
+  var bungList = bungs.length ? bungs : Array.from({length:13},function(_,i){return String(i+1);});
+  var ci = (document.getElementById('mob-ci') ? document.getElementById('mob-ci').value : '').trim();
+  var co = (document.getElementById('mob-co') ? document.getElementById('mob-co').value : '').trim();
+  var busyMap = new Map();
+  if (ci && co && ci < co) {
+    (reservations || []).forEach(function(r) {
+      if (r.cancelled) return;
+      if (!r.checkIn || !r.checkOut) return;
+      if (r.checkIn < co && r.checkOut > ci) {
+        (r.bungalovi || []).forEach(function(b) {
+          var k = String(b.bungalov);
+          if (!busyMap.has(k)) busyMap.set(k, r);
+        });
+      }
+    });
+  }
+  bungList.forEach(function(b) {
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.dataset.bung = b;
+    var cap = (typeof mobBungCapacity === 'function') ? mobBungCapacity(b) : ((B_CFG && B_CFG[b]) ? B_CFG[b].m : '?');
+    var busyRes = busyMap.get(String(b));
+    if (busyRes) {
+      var isClosed = !!busyRes.closedManual;
+      btn.className = 'mob-bung-btn mob-bung-busy';
+      btn.disabled = true;
+      btn.title = isClosed ? 'Zatvoren termin' : ('Zauzeto: ' + (busyRes.name || ''));
+      btn.innerHTML = '<div style="font-weight:800">B' + escHtml(String(b)) + '</div>' +
+        '<small style="color:#c62828;font-weight:700;font-size:.72em">' +
+        (isClosed ? 'Zatvoreno' : 'Zauzeto') + '</small>';
+      btn.onclick = (function(bv, closedV) {
+        return function(e) {
+          e.preventDefault(); e.stopPropagation();
+          var ex = document.getElementById('_mob_busy_toast');
+          if (ex) ex.remove();
+          var t = document.createElement('div');
+          t.id = '_mob_busy_toast';
+          t.style.cssText = 'position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#c62828;color:#fff;padding:10px 22px;border-radius:20px;font-size:.85em;font-weight:600;z-index:9999;pointer-events:none;max-width:85vw;text-align:center;box-shadow:0 4px 14px rgba(0,0,0,.25)';
+          t.textContent = closedV ? ('B' + bv + ' je zatvoren za ovaj period') : ('B' + bv + ' nije slobodan za izabrani period');
+          document.body.appendChild(t);
+          setTimeout(function(){ var el=document.getElementById('_mob_busy_toast'); if(el)el.remove(); }, 2500);
+        };
+      })(b, isClosed);
+    } else {
+      btn.className = 'mob-bung-btn';
+      btn.innerHTML = '<div>B' + escHtml(String(b)) + '</div><small>Max ' + (cap || '?') + '</small>';
+      btn.onclick = (function(bv) { return function() { mobToggleBung(bv, btn); }; })(b);
+    }
+    grid.appendChild(btn);
+  });
+  if (typeof _mobSelBungs !== 'undefined') {
+    var toRemove = [];
+    _mobSelBungs.forEach(function(bs) {
+      var sel = grid.querySelector('[data-bung="' + bs + '"]');
+      if (sel && !sel.classList.contains('mob-bung-busy')) {
+        sel.classList.add('sel');
+      } else if (sel && sel.classList.contains('mob-bung-busy')) {
+        toRemove.push(bs);
+      }
+    });
+    if (toRemove.length) {
+      _mobSelBungs = _mobSelBungs.filter(function(x){ return toRemove.indexOf(x) < 0; });
+      toRemove.forEach(function(bs){ if(typeof _mobBungGuests==='object') delete _mobBungGuests[bs]; });
+    }
+  }
+};
+
 window.mobOpenQuickForm = (editResId) => {
   _mobEditId = editResId || null;
   _mobSelBungs = [];
@@ -5560,71 +5625,7 @@ window.mobOpenQuickForm = (editResId) => {
   mobPopulateChannels('');
   mobSyncHeaderCounters();
 
-  const grid = document.getElementById('mob-bung-grid');
-  grid.innerHTML = '';
-  const bungs = Object.keys(B_CFG || {}).sort((a,b)=>parseInt(a)-parseInt(b));
-
-  // ── Provjeri zauzetost za izabrani period ─────────────────────────
-  const _gridCi = document.getElementById('mob-ci')?.value || '';
-  const _gridCo = document.getElementById('mob-co')?.value || '';
-  const _busyBungs = new Map(); // bn -> rezervacija koja blokira
-
-  if (_gridCi && _gridCo && _gridCi < _gridCo) {
-    (reservations || []).forEach(r => {
-      // Uključi: obične rezervacije + iCal + ručno zatvorene termine
-      // Isključi samo storno-ovane
-      if (r.cancelled) return;
-      if (!r.checkIn || !r.checkOut) return;
-      // Provjeri preklapanje: r.checkIn < co I r.checkOut > ci
-      if (r.checkIn < _gridCo && r.checkOut > _gridCi) {
-        (r.bungalovi || []).forEach(b => {
-          const k = String(b.bungalov);
-          if (!_busyBungs.has(k)) _busyBungs.set(k, r);
-        });
-      }
-    });
-  }
-  // ─────────────────────────────────────────────────────────────────
-
-  (bungs.length ? bungs : Array.from({length:13},(_,i)=>String(i+1))).forEach(b => {
-    const btn = document.createElement('button');
-    const cap = mobBungCapacity(b);
-    const busyRes = _busyBungs.get(String(b));
-
-    if (busyRes) {
-      // ── ZAUZET ────────────────────────────────────────────────────
-      const isClosed = !!busyRes.closedManual;
-      const label = isClosed ? 'Zatvoreno' : (busyRes.name ? escHtml(busyRes.name.split(' ')[0]) : 'Zauzeto');
-      btn.className = 'mob-bung-btn mob-bung-busy';
-      btn.dataset.bung = b;
-      btn.disabled = true;
-      btn.title = isClosed
-        ? `B${b} — Ručno zatvoren termin`
-        : `B${b} — Zauzeto: ${busyRes.name || ''}`;
-      btn.innerHTML = `<div>B${escHtml(b)}</div><small class="mob-bung-status-lbl">🔴 ${label}</small>`;
-      btn.onclick = (e) => {
-        e.preventDefault();
-        // Kratka toast poruka
-        const msg = isClosed
-          ? `B${b} je zatvoren za ovaj period.`
-          : `B${b} nije slobodan za izabrani period.`;
-        if (document.getElementById('_mob_bung_toast')) document.getElementById('_mob_bung_toast').remove();
-        const t = document.createElement('div');
-        t.id = '_mob_bung_toast';
-        t.textContent = '⛔ ' + msg;
-        t.style.cssText = 'position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#c62828;color:#fff;padding:10px 20px;border-radius:20px;font-size:.85em;font-weight:600;z-index:9999;pointer-events:none;max-width:85vw;text-align:center';
-        document.body.appendChild(t);
-        setTimeout(() => { const el = document.getElementById('_mob_bung_toast'); if(el) el.remove(); }, 2500);
-      };
-    } else {
-      // ── SLOBODAN ──────────────────────────────────────────────────
-      btn.className = 'mob-bung-btn';
-      btn.dataset.bung = b;
-      btn.innerHTML = `<div>B${escHtml(b)}</div><small>Max ${cap || '?'}</small>`;
-      btn.onclick = () => mobToggleBung(b, btn);
-    }
-    grid.appendChild(btn);
-  });
+  // Grid gradi _mobBuildBungGrid() pozvan nakon postavljanja datuma
 
   if (_mobEditId) {
     const res = reservations.find(r => r.id === _mobEditId);
@@ -5666,6 +5667,7 @@ window.mobOpenQuickForm = (editResId) => {
   }
 
   setTimeout(() => { mobRenderBungCards(); mobUpdateNights(); mobRenderReview(); }, 30);
+    window._mobBuildBungGrid();
   mobShowStep(1);
   document.getElementById('mob-quick-overlay').classList.add('open');
   setTimeout(()=>document.getElementById('mob-name')?.focus(), 40);
@@ -9139,20 +9141,8 @@ function _applyCalView(){
 
 function renderMobCalV1(){
   const el=document.getElementById('mob-cal-v1'); if(!el)return;
-
-  // Svi dani aktivnog calMonth (28/29/30/31)
-  const yr=calMonth.getFullYear(), mo=calMonth.getMonth();
-  const daysInMonth=new Date(yr,mo+1,0).getDate();
-  const dates=[];
-  for(let d=1;d<=daysInMonth;d++){
-    dates.push(`${yr}-${String(mo+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`);
-  }
-
-  const bungs=kmkCalBungs(), today=lDate(new Date());
-  const legendId='mob-v1-lg';
-  const legendHidden=sessionStorage.getItem('mobLegendHidden')==='1';
-
-  let html=`<div class="kmk-cal-card"><div class="kmk-cal-head"><div><div class="kmk-cal-title">V1 \u2014 Tabelarni pregled</div><div class="kmk-cal-sub">Svi dani: ${daysInMonth} dana \u2014 ${kmkMonthName()}</div></div><span class="kmk-pill">${kmkMonthName()}</span></div>`;
+  const dates=kmkCalDates(7), bungs=kmkCalBungs(), today=lDate(new Date());
+  let html=`<div class="kmk-cal-card"><div class="kmk-cal-head"><div><div class="kmk-cal-title">V1 — Tabelarni pregled</div><div class="kmk-cal-sub">Brz pregled dostupnosti po bungalovima</div></div><span class="kmk-pill">${kmkMonthName()}</span></div>`;
   html+=`<div class="kmk-v1-scroll"><div class="kmk-v1-grid" style="grid-template-columns:76px repeat(${dates.length},42px)">`;
   html+=`<div class="kmk-v1-cell kmk-v1-label"><div><div class="kmk-v1-bn">Bungalov</div><div class="kmk-v1-type">status</div></div></div>`;
   dates.forEach(ds=>{const d=kmkDateShort(ds);html+=`<div class="kmk-v1-cell kmk-v1-date ${ds===today?'today':''}"><div>${d.day}</div><small>${d.dow}</small></div>`;});
@@ -9160,22 +9150,12 @@ function renderMobCalV1(){
     const cap=B_CFG?.[bn]?.m||'?';
     html+=`<div class="kmk-v1-cell kmk-v1-label"><div><div class="kmk-v1-bn">B${bn}</div><div class="kmk-v1-type">Max ${cap}</div></div></div>`;
     dates.forEach(ds=>{
-      const res=kmkCalResFor(bn,ds), st=kmkCalStatus(res);
-      let cls=`kmk-v1-cell kmk-st-${st}`; if(ds<today)cls+=' kmk-st-past';
+      const res=kmkCalResFor(bn,ds), st=kmkCalStatus(res); let cls=`kmk-v1-cell kmk-st-${st}`; if(ds<today)cls+=' kmk-st-past';
       if(res) html+=`<div class="${cls}" onclick="showDet('${res.id}')"><div class="kmk-v1-name">${escHtml(res.closedManual?'Zatvoreno':(res.name||kmkStatusLabel(st)))}</div></div>`;
-      else    html+=`<div class="${cls}" onclick="mobPrefillQuickForm('${bn}','${ds}','${kmkNextDay(ds)}')"><span style="font-size:.75em;color:#2e7d32;font-weight:700">Slob.</span></div>`;
+      else html+=`<div class="${cls}" onclick="mobPrefillQuickForm('${bn}','${ds}','${kmkNextDay(ds)}')">✓</div>`;
     });
   });
-  html+=`</div></div>`;
-  html+=`<div class="kmk-legend-wrap"><button class="kmk-legend-toggle" onclick="(function(btn){const w=document.getElementById('mob-v1-lg');const h=w.style.display==='none';w.style.display=h?'flex':'none';btn.textContent=h?'\u25b2 Sakrij legendu':'\u25bc Prika\u017ei legendu';sessionStorage.setItem('mobLegendHidden',h?'0':'1');})(this)">${legendHidden?'\u25bc Prika\u017ei legendu':'\u25b2 Sakrij legendu'}</button>`;
-  html+=`<div id="${legendId}" class="kmk-legend" style="display:${legendHidden?'none':'flex'}">`;
-  html+=`<span class="kmk-leg"><i class="kmk-dot" style="background:#d8efc9"></i>Slobodno</span>`;
-  html+=`<span class="kmk-leg"><i class="kmk-dot" style="background:#7fa8ed"></i>Rezervisano</span>`;
-  html+=`<span class="kmk-leg"><i class="kmk-dot" style="background:#24539b"></i>Booking</span>`;
-  html+=`<span class="kmk-leg"><i class="kmk-dot" style="background:#416f46"></i>Plaćeno</span>`;
-  html+=`<span class="kmk-leg"><i class="kmk-dot" style="background:#9a9a9a"></i>Zatvoreno</span>`;
-  html+=`<span class="kmk-leg"><i class="kmk-dot" style="background:#ef807d"></i>Konflikt</span>`;
-  html+=`</div></div></div>`;
+  html+=`</div></div><div class="kmk-legend"><span class="kmk-leg"><i class="kmk-dot" style="background:#d8efc9"></i>Slobodno</span><span class="kmk-leg"><i class="kmk-dot" style="background:#7fa8ed"></i>Rezervisano</span><span class="kmk-leg"><i class="kmk-dot" style="background:#24539b"></i>Booking</span><span class="kmk-leg"><i class="kmk-dot" style="background:#416f46"></i>Plaćeno</span><span class="kmk-leg"><i class="kmk-dot" style="background:#9a9a9a"></i>Zatvoreno</span><span class="kmk-leg"><i class="kmk-dot" style="background:#ef807d"></i>Konflikt</span></div></div>`;
   el.innerHTML=html;
 }
 
@@ -9191,7 +9171,7 @@ function renderMobCalV2(){
     const conflict=sts.includes('conflict');
     html+=`<div class="kmk-v2-day ${ds===today?'today':''} ${conflict?'conflict':''}" onclick="v2TapDay('${ds}')"><div class="kmk-v2-num">${d}</div><div class="kmk-v2-dots">${sts.slice(0,4).map(st=>`<i class="kmk-v2-dot" style="background:${{manual:'#7fa8ed',booking:'#24539b',paid:'#416f46',closed:'#9a9a9a',conflict:'#ef807d'}[st]||'#d8efc9'}"></i>`).join('')}</div>${dayRes.length?`<div class="kmk-v2-count">${dayRes.length} rez.</div>`:''}</div>`;
   }
-  html+=`</div></div><div class="kmk-legend-wrap"><button class="kmk-legend-toggle" onclick="(function(btn){var w=document.getElementById('mob-v2-lg');var h=w.style.display==='none';w.style.display=h?'flex':'none';btn.textContent=h?'▲ Sakrij legendu':'▼ Prikaži legendu';sessionStorage.setItem('mobLegendHidden',h?'0':'1');})(this)">▼ Prikaži legendu</button><div id="mob-v2-lg" class="kmk-legend" style="display:none"><span class="kmk-leg"><i class="kmk-dot round" style="background:#7fa8ed"></i>Rez.</span><span class="kmk-leg"><i class="kmk-dot round" style="background:#24539b"></i>Booking</span><span class="kmk-leg"><i class="kmk-dot round" style="background:#416f46"></i>Plaćeno</span><span class="kmk-leg"><i class="kmk-dot round" style="background:#ef807d"></i>Konflikt</span></div></div></div>`;
+  html+=`</div></div><div class="kmk-legend"><span class="kmk-leg"><i class="kmk-dot round" style="background:#7fa8ed"></i>Rez.</span><span class="kmk-leg"><i class="kmk-dot round" style="background:#24539b"></i>Booking</span><span class="kmk-leg"><i class="kmk-dot round" style="background:#416f46"></i>Plaćeno</span><span class="kmk-leg"><i class="kmk-dot round" style="background:#ef807d"></i>Konflikt</span></div></div>`;
   el.innerHTML=html;
 }
 
@@ -9258,7 +9238,7 @@ function renderMobCalV3(){
     });
     html += `</div></div></div>`;
   });
-  html += `</div></div><div class="kmk-legend-wrap"><button class="kmk-legend-toggle" onclick="(function(btn){var w=document.getElementById('mob-v3-lg');var h=w.style.display==='none';w.style.display=h?'flex':'none';btn.textContent=h?'▲ Sakrij legendu':'▼ Prikaži legendu';sessionStorage.setItem('mobLegendHidden',h?'0':'1');})(this)">▼ Prikaži legendu</button><div id="mob-v3-lg" class="kmk-legend" style="display:none"><span class="kmk-leg"><i class="kmk-dot" style="background:#e1f1d3"></i>Slobodno</span><span class="kmk-leg"><i class="kmk-dot" style="background:#7fa8ed"></i>Rezervisano</span><span class="kmk-leg"><i class="kmk-dot" style="background:#24539b"></i>Booking</span><span class="kmk-leg"><i class="kmk-dot" style="background:#416f46"></i>Plaćeno</span><span class="kmk-leg"><i class="kmk-dot" style="background:#9a9a9a"></i>Zatvoreno</span><span class="kmk-leg"><i class="kmk-dot" style="background:#ef807d"></i>Konflikt</span></div></div><div class="kmk-v3-footer"><div id="kmk-v3-info"><strong>Izaberite slobodan period</strong><br><small>Tap na prvi datum, zatim na zadnji datum. Trake zauzeća su sada spojene i dugačke prema trajanju.</small></div><button class="kmk-v3-book" id="kmk-v3-book" disabled onclick="kmkV3Book()">Rezerviši</button></div><div class="kmk-v3-tip">Tap na zauzetu traku otvara detalje rezervacije. Ako ima konflikata, trake se slažu u više redova.</div></div>`;
+  html += `</div></div><div class="kmk-legend"><span class="kmk-leg"><i class="kmk-dot" style="background:#e1f1d3"></i>Slobodno</span><span class="kmk-leg"><i class="kmk-dot" style="background:#7fa8ed"></i>Rezervisano</span><span class="kmk-leg"><i class="kmk-dot" style="background:#24539b"></i>Booking</span><span class="kmk-leg"><i class="kmk-dot" style="background:#416f46"></i>Plaćeno</span><span class="kmk-leg"><i class="kmk-dot" style="background:#9a9a9a"></i>Zatvoreno</span><span class="kmk-leg"><i class="kmk-dot" style="background:#ef807d"></i>Konflikt</span></div><div class="kmk-v3-footer"><div id="kmk-v3-info"><strong>Izaberite slobodan period</strong><br><small>Tap na prvi datum, zatim na zadnji datum. Trake zauzeća su sada spojene i dugačke prema trajanju.</small></div><button class="kmk-v3-book" id="kmk-v3-book" disabled onclick="kmkV3Book()">Rezerviši</button></div><div class="kmk-v3-tip">Tap na zauzetu traku otvara detalje rezervacije. Ako ima konflikata, trake se slažu u više redova.</div></div>`;
   el.innerHTML=html; kmkV3Footer();
 }
 window.v3SetZoom=(days)=>{_v3Days=days;_kmkV3Sel={bn:null,start:null,end:null};renderMobCalV3();};
