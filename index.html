@@ -1026,6 +1026,18 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 .v2-counter.free{color:#2e7d32}
 .v2-counter.partial{color:#e65100}
 .v2-counter.full{color:#c62828}
+
+/* ─── Daily date picker nav ─────────────────────────── */
+#daily-date-picker::-webkit-calendar-picker-indicator {
+  opacity: 0.7;
+  cursor: pointer;
+}
+#daily-date-picker:hover {
+  color: #007bff;
+}
+@media print {
+  #daily-date-picker, .no-print { display: none !important; }
+}
 </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script>
@@ -1370,9 +1382,18 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
   <!-- DAILY -->
   <div id="pane-daily" class="tab-pane active">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:10px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px">
       <h2>📆 Dnevni Pregled — <span id="daily-date"></span></h2>
-      <div style="display:flex;gap:9px;flex-wrap:wrap">
+      <div style="display:flex;gap:9px;flex-wrap:wrap;align-items:center">
+        <!-- Date picker za odabir dana -->
+        <div class="no-print" style="display:flex;align-items:center;gap:6px;background:#f8f9fa;border:1px solid #dee2e6;border-radius:8px;padding:5px 10px">
+          <button onclick="dailySetDate(-1)" style="background:none;border:none;cursor:pointer;font-size:1.1em;padding:0 4px;color:#495057">◀</button>
+          <input type="date" id="daily-date-picker"
+            style="border:none;background:none;font-size:.92em;font-weight:600;color:#2c3e50;cursor:pointer;outline:none;padding:0"
+            onchange="renderDailyView(this.value)">
+          <button onclick="dailySetDate(1)" style="background:none;border:none;cursor:pointer;font-size:1.1em;padding:0 4px;color:#495057">▶</button>
+          <button onclick="renderDailyView('today')" style="background:none;border:none;cursor:pointer;font-size:.78em;font-weight:700;color:#007bff;padding:0 4px" title="Vrati na danas">📅 Danas</button>
+        </div>
         <button class="btn btn-primary no-print" onclick="printDaily()" style="padding:9px 18px">🖨️ Detaljan</button>
         <button class="btn no-print" onclick="printSimple()" style="padding:9px 18px;background:#28a745;color:white">🧹 Za Higijeničara</button>
       </div>
@@ -3970,11 +3991,17 @@ function renderOccupancyDash() {
     </div>`;
 }
 
-window.renderDaily = function() {
+window.renderDaily = function(dateStr) {
   renderOccupancyDash();
-  const now=new Date();
-  const ts=lDate(now);
-  document.getElementById('daily-date').textContent=fmtD(ts);
+  // Podrazumijevano: danas. Ako je proslijeđen datum, koristi njega.
+  var _d = (dateStr && dateStr !== 'today') ? new Date(dateStr + 'T00:00:00') : new Date();
+  var ts = lDate(_d);
+  var isToday = (ts === lDate(new Date()));
+
+  // Postavi date picker i naslov
+  var picker = document.getElementById('daily-date-picker');
+  if (picker) picker.value = ts;
+  document.getElementById('daily-date').textContent = fmtD(ts) + (isToday ? ' (danas)' : '');
   const arr=reservations.filter(r=>r.checkIn===ts&&!r.cancelled);
   const dep=reservations.filter(r=>r.checkOut===ts&&!r.cancelled);
   const cur=reservations.filter(r=>r.checkIn<=ts&&r.checkOut>ts&&!r.cancelled);
@@ -4040,11 +4067,28 @@ window.renderDaily = function() {
   html+='</div>';
 
   document.getElementById('daily-ov').innerHTML=html;
+}
+// renderDailyView — alias koji mogu pozivati HTML i JS
+window.renderDailyView = function(dateStr) {
+  renderDaily(dateStr && dateStr !== 'today' ? dateStr : null);
 };
+
+// dailySetDate — pomak +1/-1 dan od trenutno prikazanog datuma
+window.dailySetDate = function(delta) {
+  var picker = document.getElementById('daily-date-picker');
+  var base = (picker && picker.value) ? new Date(picker.value + 'T00:00:00') : new Date();
+  base.setDate(base.getDate() + delta);
+  var iso = lDate(base);
+  renderDaily(iso);
+};
+
+;
 
 // ── PRINT DAILY ──────────────────────────────────────────────
 window.printDaily = function() {
-  const now=new Date();
+  // Koristi datum iz pickera ako postoji, inače danas
+  var picker = document.getElementById('daily-date-picker');
+  var now = (picker && picker.value) ? new Date(picker.value + 'T00:00:00') : new Date();
   const ts=lDate(now);
   const arr=reservations.filter(r=>r.checkIn===ts&&!r.cancelled);
   const dep=reservations.filter(r=>r.checkOut===ts&&!r.cancelled);
@@ -4173,7 +4217,8 @@ window.printDaily = function() {
 };
 // ── SIMPLE PRINT ─────────────────────────────────────────────
 window.printSimple = function() {
-  const ts = lDate(new Date());
+  var picker = document.getElementById('daily-date-picker');
+  const ts = (picker && picker.value) ? picker.value : lDate(new Date());
   const dep = reservations.filter(r=>r.checkOut===ts&&!r.cancelled);
   const arr = reservations.filter(r=>r.checkIn===ts&&!r.cancelled);
   const cb={}, ab={};
@@ -6108,27 +6153,154 @@ function renderMobAvailability(){
 }
 
 // ── MOBILNI DNEVNI PREGLED ────────────────────────────
-function renderMobDaily() {
-  const pane=document.getElementById('pane-daily'); if(!pane||!isMobile())return;
-  let mobDiv=document.getElementById('mob-daily-content'); if(mobDiv)mobDiv.remove();
-  const today=new Date(), todayStr=lDate(today);
-  const arrivals=reservations.filter(r=>!r.cancelled&&r.checkIn===todayStr);
-  const departures=reservations.filter(r=>!r.cancelled&&r.checkOut===todayStr);
-  const occupied=reservations.filter(r=>!r.cancelled&&r.checkIn<todayStr&&r.checkOut>todayStr);
-  const unpaid=reservations.filter(r=>!r.cancelled&&!r.paid&&r.checkIn<=todayStr&&r.checkOut>=todayStr&&!r.closedManual);
-  const freeToday=mobGetAvailability(todayStr,lDate(new Date(today.getFullYear(),today.getMonth(),today.getDate()+1)),2).free;
-  const cfCount=(_activeConflicts||[]).length;
-  let html='<div id="mob-daily-content" style="padding-bottom:8px">';
-  if(typeof isOffline==='function'&&isOffline())html+='<div class="mob-safe-warn">📵 Offline režim — pregled je moguć, ali ne unositi nove rezervacije dok se internet ne vrati.</div>';
-  html+=`<div style="background:linear-gradient(135deg,#5f7f56,#356a42);color:white;border-radius:18px;padding:15px;margin-bottom:12px"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><div><div style="font-size:1.08em;font-weight:900">${today.toLocaleDateString('sr-Latn',{weekday:'long',day:'numeric',month:'long'})}</div><div style="font-size:.78em;opacity:.86;margin-top:2px">Operativni pregled smještaja</div></div><button onclick="mobOpenQuickForm()" style="border:none;background:rgba(255,255,255,.22);color:white;border-radius:10px;padding:9px 11px;font-weight:800">➕ Nova</button></div></div>`;
-  html+=`<div class="mob-kpi-grid"><div class="mob-kpi"><div class="mob-kpi-num">${arrivals.length}</div><div class="mob-kpi-lbl">Dolazi</div></div><div class="mob-kpi"><div class="mob-kpi-num">${departures.length}</div><div class="mob-kpi-lbl">Odlazi</div></div><div class="mob-kpi"><div class="mob-kpi-num">${occupied.length}</div><div class="mob-kpi-lbl">U objektu</div></div><div class="mob-kpi" onclick="mobGoTab('availability')"><div class="mob-kpi-num">${freeToday.length}</div><div class="mob-kpi-lbl">Slobodno</div></div><div class="mob-kpi"><div class="mob-kpi-num">${unpaid.length}</div><div class="mob-kpi-lbl">Za naplatu</div></div><div class="mob-kpi" onclick="mobGoTab('conflicts')"><div class="mob-kpi-num" style="color:${cfCount?'#dc3545':'#28a745'}">${cfCount}</div><div class="mob-kpi-lbl">Konflikti</div></div></div>`;
-  function section(title,list,emptyTxt,accent){html+=`<div class="mob-section-title">${title}<span style="color:#999">${list.length}</span></div>`;if(!list.length){html+=`<div class="mob-daily-card" style="color:#aaa;text-align:center">${emptyTxt}</div>`;return;}list.forEach(r=>{const n=r.checkIn&&r.checkOut?Math.ceil((new Date(r.checkOut)-new Date(r.checkIn))/86400000):0;html+=`<div class="mob-daily-card" style="border-left:4px solid ${accent||'#667eea'}"><div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start"><div style="min-width:0"><div style="font-weight:900;color:#222;font-size:1em">${mobBungLabel(r)} · ${escHtml(r.name||'—')}</div><div class="mob-mini-note">${fmtD(r.checkIn)} → ${fmtD(r.checkOut)} · ${n}n · ${mobPersons(r)} os. ${r.channel?'· '+escHtml(r.channel):''}</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">${mobStatusChips(r)}</div></div>${r.notes?`<div class="mob-mini-note" style="margin-top:7px;background:#f8f9fa;border-radius:8px;padding:7px">📝 ${escHtml(r.notes)}</div>`:''}<div class="mob-action-row">${mobContactActions(r)}</div></div>`;});}
-  section('👋 Dolasci danas',arrivals,'Nema dolazaka danas.','#28a745');
-  section('🧹 Odjave / čišćenje',departures,'Nema odjava danas.','#fd7e14');
-  section('🏡 Trenutno u objektu',occupied,'Niko trenutno nije označen kao boravak.','#667eea');
-  if(unpaid.length)section('💶 Za naplatu',unpaid,'','#ffc107');
-  html+='</div>'; pane.insertAdjacentHTML('beforeend',html);
+function renderMobDaily(dateStr) {
+  const pane = document.getElementById('pane-daily');
+  if (!pane || !isMobile()) return;
+
+  // Datum: proslijeđen, ili iz mob pickera, ili danas
+  let _d;
+  if (dateStr && dateStr !== 'today') {
+    _d = new Date(dateStr + 'T00:00:00');
+  } else {
+    const picker = document.getElementById('mob-daily-date-picker');
+    _d = (picker && picker.value && picker.value !== '') ? new Date(picker.value + 'T00:00:00') : new Date();
+    if (picker && !picker.value) picker.value = lDate(new Date()); // postavi default na danas
+  }
+  const ts = lDate(_d);
+  const todayStr = lDate(new Date());
+  const isToday = (ts === todayStr);
+
+  let mobDiv = document.getElementById('mob-daily-content');
+  if (mobDiv) mobDiv.remove();
+
+  const arrivals   = reservations.filter(r => !r.cancelled && r.checkIn  === ts);
+  const departures = reservations.filter(r => !r.cancelled && r.checkOut === ts);
+  const occupied   = reservations.filter(r => !r.cancelled && r.checkIn  <  ts && r.checkOut > ts);
+  const unpaid     = reservations.filter(r => !r.cancelled && !r.paid && r.checkIn <= ts && r.checkOut >= ts && !r.closedManual);
+  const nextDay    = new Date(_d); nextDay.setDate(_d.getDate() + 1);
+  const freeToday  = (typeof mobGetAvailability === 'function') ? mobGetAvailability(ts, lDate(nextDay), 2).free : [];
+  const cfCount    = (_activeConflicts || []).length;
+
+  const dayLabel = _d.toLocaleDateString('sr-Latn', {weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'});
+
+  let html = '<div id="mob-daily-content" style="padding-bottom:8px">';
+
+  if (typeof isOffline === 'function' && isOffline())
+    html += '<div class="mob-safe-warn">📵 Offline režim — pregled moguć, bez unosa.</div>';
+
+  // ── HERO + DATE PICKER ───────────────────────────────────────────────────
+  html += `<div style="background:linear-gradient(135deg,#5f7f56,#356a42);color:white;border-radius:18px;padding:15px;margin-bottom:12px">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+      <div>
+        <div style="font-size:1.05em;font-weight:900">${isToday ? '📅 Danas — ' : '📅 '}${dayLabel}</div>
+        <div style="font-size:.78em;opacity:.86;margin-top:2px">Operativni pregled smještaja</div>
+      </div>
+      <button onclick="mobOpenQuickForm()" style="border:none;background:rgba(255,255,255,.22);color:white;border-radius:10px;padding:9px 11px;font-weight:800;flex-shrink:0">➕ Nova</button>
+    </div>
+
+    <div style="margin-top:12px;display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+      <button onclick="(function(){var p=document.getElementById('mob-daily-date-picker');var d=new Date(p.value||new Date());d.setDate(d.getDate()-1);p.value=d.toISOString().slice(0,10);renderMobDaily(p.value);})()"
+        style="background:rgba(255,255,255,.18);border:none;color:white;border-radius:8px;padding:5px 10px;font-size:1em;cursor:pointer">◀</button>
+
+      <input type="date" id="mob-daily-date-picker"
+        value="${ts}"
+        onchange="renderMobDaily(this.value)"
+        style="border:none;background:rgba(255,255,255,.18);color:white;border-radius:8px;padding:5px 10px;font-size:.88em;font-weight:700;cursor:pointer;outline:none;flex:1;min-width:120px">
+
+      <button onclick="(function(){var p=document.getElementById('mob-daily-date-picker');var d=new Date(p.value||new Date());d.setDate(d.getDate()+1);p.value=d.toISOString().slice(0,10);renderMobDaily(p.value);})()"
+        style="background:rgba(255,255,255,.18);border:none;color:white;border-radius:8px;padding:5px 10px;font-size:1em;cursor:pointer">▶</button>
+
+      ${!isToday ? `<button onclick="(function(){var p=document.getElementById('mob-daily-date-picker');p.value='${todayStr}';renderMobDaily('today');})()"
+        style="background:rgba(255,255,255,.28);border:none;color:white;border-radius:8px;padding:5px 11px;font-size:.8em;font-weight:700;cursor:pointer">📅 Danas</button>` : ''}
+
+      <button onclick="mobPrintDaily('${ts}')"
+        style="background:rgba(255,255,255,.18);border:none;color:white;border-radius:8px;padding:5px 11px;font-size:.8em;font-weight:700;cursor:pointer">🖨️ Štampaj</button>
+    </div>
+  </div>`;
+
+  // ── KPI ──────────────────────────────────────────────────────────────────
+  html += `<div class="mob-kpi-grid">
+    <div class="mob-kpi"><div class="mob-kpi-num">${arrivals.length}</div><div class="mob-kpi-lbl">Dolazi</div></div>
+    <div class="mob-kpi"><div class="mob-kpi-num">${departures.length}</div><div class="mob-kpi-lbl">Odlazi</div></div>
+    <div class="mob-kpi"><div class="mob-kpi-num">${occupied.length}</div><div class="mob-kpi-lbl">U objektu</div></div>
+    <div class="mob-kpi" style="${cfCount ? 'color:#e74c3c' : ''}"><div class="mob-kpi-num">${cfCount}</div><div class="mob-kpi-lbl">Konflikti</div></div>
+  </div>`;
+
+  // ── SEKCIJE ──────────────────────────────────────────────────────────────
+  function card(r, badge, color) {
+    const nights = Math.ceil((new Date(r.checkOut) - new Date(r.checkIn)) / 86400000);
+    const bungs  = (r.bungalovi || []).map(b => 'B' + b.bungalov).join(', ');
+    const guests = (r.bungalovi || []).reduce((s,b) => s + (b.adults||0) + (b.children||0), 0);
+    return `<div class="mob-daily-card" style="border-left:4px solid ${color}" onclick="showDet('${r.id}')">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div>
+          <div style="font-weight:800;font-size:.95em">${escHtml(r.name || '—')}</div>
+          <div style="font-size:.8em;color:#555;margin-top:2px">${escHtml(bungs)} · ${nights} noć · ${guests} gost${guests !== 1 ? 'iju' : ''}</div>
+        </div>
+        <span style="font-size:.72em;font-weight:700;padding:3px 8px;border-radius:12px;background:${color}22;color:${color};white-space:nowrap">${badge}</span>
+      </div>
+      ${!r.paid ? '<div style="font-size:.75em;color:#e67e22;margin-top:4px">⚠ Nije plaćeno</div>' : ''}
+    </div>`;
+  }
+
+  function section(title, list, emptyMsg, color) {
+    html += `<div class="mob-daily-section"><div class="mob-daily-title" style="color:${color}">${title} (${list.length})</div>`;
+    if (!list.length) {
+      html += `<div class="mob-daily-card" style="color:#aaa;text-align:center;font-size:.85em">${emptyMsg}</div>`;
+    } else {
+      list.forEach(r => { html += card(r, title.split(' ')[0], color); });
+    }
+    html += '</div>';
+  }
+
+  section('✈️ Ko Dolazi Danas',     arrivals,   'Nema dolazaka.',             '#27ae60');
+  section('🧹 Bungalovi za Čišćenje / Ko Odlazi', departures, 'Nema odlazaka.',   '#e67e22');
+  section('🏠 Trenutno u Objektu',  occupied,   'Niko trenutno u objektu.',   '#667eea');
+  if (unpaid.length) section('💶 Za Naplatu', unpaid, '', '#ffc107');
+
+  html += '</div>';
+  pane.insertAdjacentHTML('beforeend', html);
 }
+
+// Stampanje mobilnog dnevnog pregleda
+window.mobPrintDaily = function(dateStr) {
+  var d = (dateStr && dateStr !== 'today') ? new Date(dateStr + 'T00:00:00') : new Date();
+  var ts = lDate(d);
+  var dayLabel = d.toLocaleDateString('sr-Latn', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
+
+  var arr = reservations.filter(r => !r.cancelled && r.checkIn  === ts);
+  var dep = reservations.filter(r => !r.cancelled && r.checkOut === ts);
+  var cur = reservations.filter(r => !r.cancelled && r.checkIn  <  ts && r.checkOut > ts);
+
+  function rows(list, label) {
+    if (!list.length) return '<p style="color:#999;font-style:italic">/' + label + ' nema/</p>';
+    return list.map(r => {
+      var bungs = (r.bungalovi||[]).map(b=>'B'+b.bungalov).join(', ');
+      var guests = (r.bungalovi||[]).reduce((s,b)=>s+(b.adults||0)+(b.children||0),0);
+      var nights = Math.ceil((new Date(r.checkOut)-new Date(r.checkIn))/86400000);
+      return '<div style="border-bottom:1px solid #eee;padding:6px 0">' +
+        '<strong>' + escHtml(r.name||'—') + '</strong> — ' + escHtml(bungs) + ' · ' +
+        guests + ' gostiju · ' + nights + ' noći' +
+        (!r.paid ? ' <span style="color:#e67e22">(⚠ Nije plaćeno)</span>' : '') +
+        '</div>';
+    }).join('');
+  }
+
+  var win = window.open('', '_blank', 'width=700,height=900');
+  win.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8">');
+  win.document.write('<title>Dnevni Pregled — ' + escHtml(dayLabel) + '</title>');
+  win.document.write('<style>body{font-family:Arial,sans-serif;padding:20px;font-size:14px}h1{font-size:1.2em;margin-bottom:4px}h2{font-size:1em;margin:18px 0 6px;border-bottom:2px solid #333;padding-bottom:4px}@media print{button{display:none}}</style>');
+  win.document.write('</head><body>');
+  win.document.write('<h1>Katun Maja Karanfil — Dnevni Pregled</h1>');
+  win.document.write('<p style="color:#555;margin-bottom:20px">' + escHtml(dayLabel) + '</p>');
+  win.document.write('<h2>✈️ Ko Dolazi (' + arr.length + ')</h2>' + rows(arr, 'dolasci'));
+  win.document.write('<h2>🧹 Ko Odlazi / Čišćenje (' + dep.length + ')</h2>' + rows(dep, 'odlasci'));
+  win.document.write('<h2>🏠 Trenutno u Objektu (' + cur.length + ')</h2>' + rows(cur, 'boravak'));
+  win.document.write('<br><hr><p style="font-size:.8em;color:#aaa">Odštampano: ' + new Date().toLocaleString('sr-Latn') + '</p>');
+  win.document.write('</body></html>');
+  win.document.close();
+  setTimeout(function(){ win.print(); }, 300);
+};
 
 // ── MOBILNA LISTA REZERVACIJA ─────────────────────────
 function renderMobList() {
