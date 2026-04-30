@@ -6258,6 +6258,87 @@ function renderMobDaily(dateStr) {
   section('🏠 Trenutno u Objektu',  occupied,   'Niko trenutno u objektu.',   '#667eea');
   if (unpaid.length) section('💶 Za Naplatu', unpaid, '', '#ffc107');
 
+  // ── FINANSIJSKI SAŽETAK sa show/hide ────────────────────────────────────
+  // Sve rezervacije koje su aktivne na izabrani dan
+  var finRes = reservations.filter(function(r) {
+    return !r.cancelled && !r.closedManual &&
+           r.checkIn <= ts && r.checkOut > ts;
+  });
+
+  var totalSum   = finRes.reduce(function(s,r){ return s + (parseFloat(r.price)||0); }, 0);
+  var paidSum    = finRes.filter(function(r){ return r.paid; }).reduce(function(s,r){ return s + (parseFloat(r.price)||0); }, 0);
+  var unpaidSum  = totalSum - paidSum;
+  var paidCount  = finRes.filter(function(r){ return r.paid; }).length;
+  var unpaidCount= finRes.length - paidCount;
+
+  var finCollapsed = sessionStorage.getItem('mobDailyFinHidden') === '1';
+
+  html += '<div style="background:#fff;border-radius:14px;border:1px solid #edf1ec;margin-bottom:10px;overflow:hidden">';
+
+  // Zaglavlje sekcije — uvijek vidljivo, sa + / - toggleom
+  html += '<div data-fin-toggle="1" style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;cursor:pointer;user-select:none">' +
+    '<div style="font-size:.82em;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:.04em">💰 Finansijski sažetak</div>' +
+    '<div style="display:flex;align-items:center;gap:8px">' +
+      '<span style="font-weight:800;color:#2e7d32;font-size:.95em">€' + totalSum.toFixed(2) + '</span>' +
+      '<span id="mob-fin-ico" style="width:22px;height:22px;border-radius:50%;background:#f0f4ef;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.9em;color:#556b52;flex-shrink:0">' +
+        (finCollapsed ? '+' : '-') +
+      '</span>' +
+    '</div>' +
+  '</div>';
+
+  // Tijelo — collapsible
+  html += '<div id="mob-fin-body" style="display:' + (finCollapsed ? 'none' : 'block') + ';border-top:1px solid #edf1ec">';
+
+  if (!finRes.length) {
+    html += '<div style="padding:12px 14px;color:#aaa;font-size:.85em;text-align:center">Nema aktivnih rezervacija za ovaj dan.</div>';
+  } else {
+    // Ukupni redovi
+    html += '<div style="padding:10px 14px;display:flex;flex-direction:column;gap:6px">';
+
+    // Red: ukupno
+    html += '<div style="display:flex;justify-content:space-between;align-items:center;font-size:.88em">' +
+      '<span style="color:#333">Ukupno rezervacija</span>' +
+      '<span style="font-weight:700">' + finRes.length + ' · <strong style="color:#2e7d32">€' + totalSum.toFixed(2) + '</strong></span>' +
+    '</div>';
+
+    // Red: naplaćeno
+    html += '<div style="display:flex;justify-content:space-between;align-items:center;font-size:.88em">' +
+      '<span style="color:#27ae60">✔ Naplaćeno (' + paidCount + ')</span>' +
+      '<span style="font-weight:700;color:#27ae60">€' + paidSum.toFixed(2) + '</span>' +
+    '</div>';
+
+    // Red: nije naplaćeno
+    if (unpaidCount > 0) {
+      html += '<div style="display:flex;justify-content:space-between;align-items:center;font-size:.88em">' +
+        '<span style="color:#e67e22">⚠ Nije naplaćeno (' + unpaidCount + ')</span>' +
+        '<span style="font-weight:700;color:#e67e22">€' + unpaidSum.toFixed(2) + '</span>' +
+      '</div>';
+    }
+
+    html += '<div style="border-top:1px solid #f0f0f0;margin-top:4px;padding-top:8px">';
+
+    // Detalji po rezervaciji
+    finRes.forEach(function(r) {
+      var bungs = (r.bungalovi||[]).map(function(b){ return 'B'+b.bungalov; }).join(', ');
+      var price = parseFloat(r.price)||0;
+      var paidStyle = r.paid ? 'color:#27ae60' : 'color:#e67e22';
+      var paidMark  = r.paid ? ' ✔' : ' ⚠';
+      html += '<div data-res-id="' + escHtml(r.id||'') + '" style="display:flex;justify-content:space-between;align-items:center;font-size:.82em;padding:4px 0;border-bottom:1px solid #f8f8f8;cursor:pointer">' +
+        '<span style="color:#444;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:60%">' +
+          escHtml(r.name||'—') + ' <span style="color:#aaa">(' + escHtml(bungs) + ')</span>' +
+        '</span>' +
+        '<span style="font-weight:700;' + paidStyle + ';flex-shrink:0;margin-left:8px">' +
+          '€' + price.toFixed(2) + paidMark +
+        '</span>' +
+      '</div>';
+    });
+
+    html += '</div></div>';
+  }
+
+  html += '</div>';
+  // ────────────────────────────────────────────────────────────────────────
+
   html += '</div>';
   pane.insertAdjacentHTML('beforeend', html);
 }
@@ -6329,6 +6410,28 @@ function renderMobList() {
   html += '</div></div>';
   
   pane.insertAdjacentHTML('beforeend', html);
+
+  // Toggle za finansijski sažetak
+  var finToggle = pane.querySelector('[data-fin-toggle]');
+  if (finToggle) {
+    finToggle.addEventListener('click', function() {
+      var body = document.getElementById('mob-fin-body');
+      var ico  = document.getElementById('mob-fin-ico');
+      if (!body) return;
+      var hidden = body.style.display === 'none';
+      body.style.display = hidden ? 'block' : 'none';
+      if (ico) ico.textContent = hidden ? '-' : '+';
+      sessionStorage.setItem('mobDailyFinHidden', hidden ? '0' : '1');
+    });
+  }
+
+  // Klik na detalj rezervacije
+  pane.querySelectorAll('[data-res-id]').forEach(function(el) {
+    el.addEventListener('click', function() {
+      var id = el.getAttribute('data-res-id');
+      if (id && typeof showDet === 'function') showDet(id);
+    });
+  });
 }
 
 function renderMobCards(list) {
