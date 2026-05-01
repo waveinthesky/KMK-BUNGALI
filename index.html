@@ -6251,22 +6251,18 @@ function renderMobDaily(dateStr) {
   </div>`;
 
   // ── SEKCIJE ──────────────────────────────────────────────────────────────
-  // Quick action: Plaćeno toggle
+  // Quick action: Plaćeno toggle — koristi isti mehanizam kao editRes
   function quickPaid(id) {
     var r = (reservations||[]).find(function(x){ return x.id===id; });
     if (!r) return;
-    var db = window.firebaseDb || (window.firebase && window.firebase.firestore ? window.firebase.firestore() : null);
-    if (!db && typeof doc !== 'undefined' && typeof updateDoc !== 'undefined') {
-      var ref = doc(db, 'reservations', id);
-      updateDoc(ref, { paid: !r.paid, updatedAt: new Date().toISOString(), updatedBy: curUser })
-        .then(function(){ renderMobDaily(); });
-    } else if (typeof updateDoc !== 'undefined') {
-      // updateDoc je dostupan u scope
-      try {
-        var dbRef = doc(window._firebaseDb||window.db, 'reservations', id);
-        updateDoc(dbRef, { paid: !r.paid, updatedAt: new Date().toISOString(), updatedBy: curUser||'' })
-          .then(function(){ renderMobDaily(); });
-      } catch(e) { console.warn('quickPaid error', e); }
+    // Koristimo window._kmkQuickUpdate ako postoji, inače direktno updateDoc
+    if (typeof window._kmkQuickUpdate === 'function') {
+      window._kmkQuickUpdate(id, { paid: !r.paid });
+    } else if (typeof updateDoc !== 'undefined' && typeof doc !== 'undefined') {
+      updateDoc(doc(db, 'reservations', id),
+        { paid: !r.paid, updatedAt: new Date().toISOString(), updatedBy: curUser||'' })
+        .then(function(){ renderMobDaily(); })
+        .catch(function(e){ alert('Greška: ' + e.message); });
     }
   }
 
@@ -6274,11 +6270,14 @@ function renderMobDaily(dateStr) {
   function quickArrived(id) {
     var r = (reservations||[]).find(function(x){ return x.id===id; });
     if (!r) return;
-    try {
-      var dbRef = doc(window._firebaseDb||window.db, 'reservations', id);
-      updateDoc(dbRef, { arrived: !r.arrived, updatedAt: new Date().toISOString(), updatedBy: curUser||'' })
-        .then(function(){ renderMobDaily(); });
-    } catch(e) { console.warn('quickArrived error', e); }
+    if (typeof window._kmkQuickUpdate === 'function') {
+      window._kmkQuickUpdate(id, { arrived: !r.arrived });
+    } else if (typeof updateDoc !== 'undefined' && typeof doc !== 'undefined') {
+      updateDoc(doc(db, 'reservations', id),
+        { arrived: !r.arrived, updatedAt: new Date().toISOString(), updatedBy: curUser||'' })
+        .then(function(){ renderMobDaily(); })
+        .catch(function(e){ alert('Greška: ' + e.message); });
+    }
   }
 
   function card(r, badge, color) {
