@@ -4090,6 +4090,99 @@ window.renderDaily = function(dateStr) {
   else cur.forEach(r=>html+=mkItem(r,'Zauzeto',{bg:'#6c757d',tx:'white'},false));
   html+='</div>';
 
+  // ══ PREGLED NAPLATE ══════════════════════════════════════════════════════
+  const activeToday = reservations.filter(r=>!r.cancelled&&!r.closedManual&&r.checkIn<=ts&&r.checkOut>ts);
+  const paidToday   = activeToday.filter(r=>r.paid);
+  const unpaidToday = activeToday.filter(r=>!r.paid);
+  // Zaostale: checkOut <= danas, nije plaćeno
+  const overdueUnpaid = reservations.filter(r=>!r.cancelled&&!r.closedManual&&!r.paid&&r.checkOut<=ts&&r.checkIn<ts);
+
+  const totalSum  = activeToday.reduce((s,r)=>s+(parseFloat(r.price)||0),0);
+  const paidSum   = paidToday.reduce((s,r)=>s+(parseFloat(r.price)||0),0);
+  const unpaidSum = unpaidToday.reduce((s,r)=>s+(parseFloat(r.price)||0),0);
+
+  html += `<div style="margin-top:18px">`;
+
+  // ── Brzi status naplate ─────────────────────────────────────────────────
+  html += `<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px">
+    <div style="flex:1;min-width:140px;background:#e8f5e9;border:1.5px solid #27ae60;border-radius:10px;padding:12px 14px">
+      <div style="font-size:.8em;color:#27ae60;font-weight:700;margin-bottom:4px">✔ NAPLAĆENO (${paidToday.length})</div>
+      <div style="font-size:1.3em;font-weight:900;color:#27ae60">€${paidSum.toFixed(2)}</div>
+    </div>
+    <div style="flex:1;min-width:140px;background:#fff3e0;border:1.5px solid #e67e22;border-radius:10px;padding:12px 14px">
+      <div style="font-size:.8em;color:#e67e22;font-weight:700;margin-bottom:4px">⚠ NIJE NAPLAĆENO (${unpaidToday.length})</div>
+      <div style="font-size:1.3em;font-weight:900;color:#e67e22">€${unpaidSum.toFixed(2)}</div>
+    </div>
+    ${overdueUnpaid.length ? `<div style="flex:1;min-width:140px;background:#ffebee;border:1.5px solid #c62828;border-radius:10px;padding:12px 14px">
+      <div style="font-size:.8em;color:#c62828;font-weight:700;margin-bottom:4px">🔴 ZAOSTALE (${overdueUnpaid.length})</div>
+      <div style="font-size:.85em;color:#c62828">${overdueUnpaid.map(r=>escHtml(r.name||'—')).join(', ')}</div>
+    </div>` : ''}
+  </div>`;
+
+  // ── Detaljna lista po statusu naplate ───────────────────────────────────
+  if (unpaidToday.length || overdueUnpaid.length) {
+    html += `<div style="background:#fff;border:1px solid #eee;border-radius:10px;overflow:hidden;margin-bottom:14px">
+      <div style="background:#fff3e0;padding:10px 14px;font-weight:700;color:#e67e22;display:flex;justify-content:space-between;align-items:center">
+        <span>⚠ Nije naplaćeno danas (${unpaidToday.length})</span>
+        <span style="font-weight:900">€${unpaidSum.toFixed(2)}</span>
+      </div>`;
+    unpaidToday.forEach(r=>{
+      const bungs=(r.bungalovi||[]).map(b=>'B'+b.bungalov).join(', ');
+      html+=`<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid #f5f5f5">
+        <div>
+          <div style="font-weight:700">${escHtml(r.name||'—')}</div>
+          <div style="font-size:.82em;color:#888">${escHtml(bungs)} · €${(parseFloat(r.price)||0).toFixed(2)}</div>
+        </div>
+        <button onclick="(function(){if(typeof window._kmkQuickUpdate==='function'){window._kmkQuickUpdate('${r.id}',{paid:true});setTimeout(()=>renderDailyView(),300);}else{editRes('${r.id}');}})()"
+          style="padding:6px 14px;background:#27ae60;color:#fff;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:.82em;white-space:nowrap">
+          ✔ Naplati
+        </button>
+      </div>`;
+    });
+    html += '</div>';
+  }
+
+  if (overdueUnpaid.length) {
+    html += `<div style="background:#fff;border:1.5px solid #c62828;border-radius:10px;overflow:hidden;margin-bottom:14px">
+      <div style="background:#ffebee;padding:10px 14px;font-weight:700;color:#c62828">
+        🔴 Zaostale nenaplaćene rezervacije (${overdueUnpaid.length})
+      </div>`;
+    overdueUnpaid.forEach(r=>{
+      const bungs=(r.bungalovi||[]).map(b=>'B'+b.bungalov).join(', ');
+      const daysAgo=Math.round((new Date(ts)-new Date(r.checkOut))/86400000)||0;
+      html+=`<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid #fdd;background:#fff8f8">
+        <div>
+          <div style="font-weight:700;color:#c62828">${escHtml(r.name||'—')}</div>
+          <div style="font-size:.82em;color:#888">${escHtml(bungs)} · €${(parseFloat(r.price)||0).toFixed(2)} · odjavili ${daysAgo>0?daysAgo+' dan/a':'danas'}</div>
+        </div>
+        <button onclick="(function(){if(typeof window._kmkQuickUpdate==='function'){window._kmkQuickUpdate('${r.id}',{paid:true});setTimeout(()=>renderDailyView(),300);}else{editRes('${r.id}');}})()"
+          style="padding:6px 14px;background:#c62828;color:#fff;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:.82em;white-space:nowrap">
+          Naplati
+        </button>
+      </div>`;
+    });
+    html += '</div>';
+  }
+
+  // ── Plaćene rezervacije ─────────────────────────────────────────────────
+  if (paidToday.length) {
+    html += `<details style="background:#fff;border:1px solid #eee;border-radius:10px;overflow:hidden;margin-bottom:14px">
+      <summary style="background:#e8f5e9;padding:10px 14px;font-weight:700;color:#27ae60;cursor:pointer;display:flex;justify-content:space-between">
+        <span>✔ Naplaćeno danas (${paidToday.length})</span><span>€${paidSum.toFixed(2)}</span>
+      </summary>`;
+    paidToday.forEach(r=>{
+      const bungs=(r.bungalovi||[]).map(b=>'B'+b.bungalov).join(', ');
+      html+=`<div style="display:flex;justify-content:space-between;padding:8px 14px;border-bottom:1px solid #f5f5f5;font-size:.88em">
+        <span><strong>${escHtml(r.name||'—')}</strong> <span style="color:#888">${escHtml(bungs)}</span></span>
+        <span style="color:#27ae60;font-weight:700">€${(parseFloat(r.price)||0).toFixed(2)} ✔</span>
+      </div>`;
+    });
+    html += '</details>';
+  }
+
+  html += '</div>';
+  // ════════════════════════════════════════════════════════════════════════
+
   document.getElementById('daily-ov').innerHTML=html;
 }
 // renderDailyView — alias koji mogu pozivati HTML i JS
