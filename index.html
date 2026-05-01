@@ -4041,32 +4041,64 @@ window.renderDaily = function(dateStr) {
     const bungInfo=r.bungalovi?.map(b=>{
       const g=[b.adults&&`${b.adults} odraslih`,b.children&&`${b.children} djece`,b.babies&&`${b.babies} beba`].filter(Boolean).join(', ');
       return `<div style="margin:3px 0;padding:5px 8px;background:#f8f9fa;border-radius:5px;font-size:.9em">
-        <strong style="color:#667eea">B${b.bungalov}</strong> — ${b.beds} kreveta · ${g}${b.sharedBed?' <span style="color:#ffc107">🛏️ Zajednički krevet</span>':''}
+        <strong style="color:#667eea">B${b.bungalov}</strong> — ${b.beds} kreveta · ${g}${b.sharedBed?' <span style="color:#ffc107">🛏️ Zajednički</span>':''}
       </div>`;
     }).join('')||'';
-    const totalPrice = r.price ? `<div style="margin-top:8px;padding:8px;background:#e8f4fd;border-radius:6px;font-weight:700;color:#1565c0;font-size:1em">
-      💰 Ukupna cijena: ${parseFloat(r.price).toFixed(2)} €
-    </div>` : '';
+
+    const price    = parseFloat(r.price)||0;
+    const paidBg   = r.paid    ? '#e8f5e9' : '#fff3e0';
+    const paidClr  = r.paid    ? '#27ae60' : '#e67e22';
+    const paidTxt  = r.paid    ? '✔ PLAĆENO' : '⚠ NIJE PLAĆENO';
+    const arrBg    = r.arrived ? '#e3f2fd' : '#f5f5f5';
+    const arrClr   = r.arrived ? '#1565c0' : '#aaa';
+    const arrTxt   = r.arrived ? '✈ STIGAO'  : '○ NIJE STIGAO';
+
     return `
-    <div class="ov-item" style="${isDup?'border:2px solid #dc3545':''}">
+    <div class="ov-item" style="border-left:5px solid ${r.paid?'#27ae60':'#e67e22'};${isDup?'border:2px solid #dc3545':''}">
       <div class="ov-item-info" style="flex:1">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+
+        <!-- IME + TELEFON -->
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:6px">
           <strong style="font-size:1.1em;${isDup?'color:#dc3545':''}">
-            👤 ${escHtml(r.name)}${isDup?' &nbsp;⚠️ <span style="color:#dc3545;font-size:.85em">DUPLIKAT!</span>':''}
+            👤 ${escHtml(r.name)}${isDup?' ⚠️ <span style="color:#dc3545;font-size:.85em">DUPLIKAT!</span>':''}
           </strong>
-          <span style="font-size:.9em;color:#666">📞 ${r.phone||'—'}</span>
+          <span style="font-size:.88em;color:#666">📞 ${r.phone||'—'}</span>
         </div>
-        <div style="margin:6px 0;color:#555;font-size:.88em">
-          📅 ${fmtD(r.checkIn)} → ${fmtD(r.checkOut)} <strong style="color:#667eea">(${nights} ${nights===1?'noć':nights<5?'noći':'noći'})</strong>
+
+        <!-- STATUS NAPLATE I DOLASKA — JASNO ISTAKNUTO -->
+        <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+          <span style="padding:6px 16px;border-radius:20px;font-weight:800;font-size:.85em;background:${paidBg};color:${paidClr};border:2px solid ${paidClr}">
+            ${paidTxt}${price>0?' · €'+price.toFixed(2):''}
+          </span>
+          <span style="padding:6px 16px;border-radius:20px;font-weight:700;font-size:.85em;background:${arrBg};color:${arrClr};border:2px solid ${arrClr}">
+            ${arrTxt}
+          </span>
         </div>
-        <div style="margin:6px 0;color:#555;font-size:.88em">
-          📡 Kanal: <strong>${r.channel||'—'}</strong> · 🏳️ Zemlja: <strong>${r.country||'—'}</strong>
+
+        <!-- BRZE AKCIJE — klikabilna dugmad -->
+        <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+          <button onclick="(function(){if(window._kmkQuickUpdate){window._kmkQuickUpdate('${r.id}',{paid:${!r.paid}});setTimeout(renderDailyView,400);}else{editRes('${r.id}');}})()"
+            style="padding:6px 14px;border-radius:8px;border:1.5px solid ${paidClr};background:${r.paid?'#27ae60':'#fff'};color:${r.paid?'#fff':'#e67e22'};font-weight:700;cursor:pointer;font-size:.82em">
+            ${r.paid ? '✔ Plaćeno — poništi' : '⚠ Označi kao plaćeno'}
+          </button>
+          <button onclick="(function(){if(window._kmkQuickUpdate){window._kmkQuickUpdate('${r.id}',{arrived:${!r.arrived}});setTimeout(renderDailyView,400);}else{editRes('${r.id}');}})()"
+            style="padding:6px 14px;border-radius:8px;border:1.5px solid ${arrClr};background:${r.arrived?'#1565c0':'#fff'};color:${r.arrived?'#fff':'#aaa'};font-weight:700;cursor:pointer;font-size:.82em">
+            ${r.arrived ? '✈ Stigao — poništi' : '○ Označi kao stigao'}
+          </button>
+        </div>
+
+        <!-- DATUMI, KANAL -->
+        <div style="margin:4px 0;color:#555;font-size:.88em">
+          📅 ${fmtD(r.checkIn)} → ${fmtD(r.checkOut)}
+          <strong style="color:#667eea">(${nights} ${nights===1?'noć':nights<5?'noći':'noći'})</strong>
+        </div>
+        <div style="margin:4px 0;color:#555;font-size:.88em">
+          📡 ${r.channel||'—'} · 🏳️ ${r.country||'—'}
         </div>
         ${bungInfo}
         ${r.notes?`<div style="margin-top:6px;padding:6px 8px;background:#fff3cd;border-left:3px solid #ffc107;border-radius:4px;font-size:.85em;color:#856404">
           📝 ${escHtml(r.notes)}
         </div>`:''}
-        ${totalPrice}
       </div>
       <div class="ov-badge" style="background:${isDup?'#dc3545':color.bg};color:${isDup?'white':color.tx};min-width:80px;text-align:center">
         ${isDup?'PROBLEM':badge}
