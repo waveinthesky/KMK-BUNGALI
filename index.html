@@ -3720,13 +3720,18 @@ window.renderCal = function() {
           if (chStyle) cls += ' ' + chStyle.cls;
         }
         let label;
+        // Ikonica plaćeno/nije — brzo vidljivo u ćeliji kalendara
+        const paidIco = (!isManualClosed && !isIcalClosed)
+          ? (res.paid ? '<span title="Plaćeno" style="font-size:.75em;opacity:.9">✔</span> '
+                      : '<span title="Nije plaćeno" style="font-size:.75em;opacity:.85;color:#ffcc80">⚠</span> ')
+          : '';
         if (isManualClosed) label = '🔒 ' + (res.name && res.name !== 'Zatvoreno' ? escHtml(res.name) : 'Zatvoreno');
         else if (isIcalClosed) label = '🔒 Booking.com';
         else if (isIcal) label = (CHANNEL_LOGOS.booking||'') + (res.name && res.name !== 'Booking.com' ? escHtml(res.name) : 'Booking.com');
         else {
           const chStyle = getChannelStyle(res.channel);
           const chIcon = chStyle ? chStyle.svg : '';
-          label = chIcon + escHtml(res.name);
+          label = paidIco + chIcon + escHtml(res.name);
         }
         html+=`<div class="${cls}" style="grid-column:span ${span};position:relative" onclick="showDet('${res.id}')">
           ${curRole==='admin'&&!res.cancelled&&!res.icalLinkId?`<input type="checkbox" class="cal-res-chk"
