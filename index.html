@@ -3801,7 +3801,10 @@ window.renderCal = function() {
     for (let d=1;d<=dim;d++) {
       if (d<skip) continue;
       const dt=new Date(yr,mo,d), ds=lDate(dt), past=dt<now;
-      const res=reservations.find(r=>!r.cancelled&&r.bungalovi?.some(b=>b.bungalov==bn)&&ds>=r.checkIn&&ds<r.checkOut);
+      // Sve aktivne rezervacije za ovaj bungalov i dan
+      const allRes=reservations.filter(r=>!r.cancelled&&r.bungalovi?.some(b=>b.bungalov==bn)&&ds>=r.checkIn&&ds<r.checkOut);
+      const res=allRes[0]; // prikaži prvu, ostatak kao badge
+      const dupCount = allRes.length; // broj preklapanja za isti bungalov/dan
       if (res&&ds===res.checkIn) {
         // Rezervacija počinje ovdje
         const nights=Math.ceil((new Date(res.checkOut)-new Date(res.checkIn))/86400000);
@@ -3816,12 +3819,10 @@ window.renderCal = function() {
         else {
           cls = `cc ${tog?'c1':'c2'}`;
           if (res.paid) cls+=' paid'; else if (res.confirmed) cls+=' conf';
-          // Provjeri kanal i dodaj CSS klasu za boju
           const chStyle = getChannelStyle(res.channel);
           if (chStyle) cls += ' ' + chStyle.cls;
         }
         let label;
-        // Ikonica plaćeno/nije — brzo vidljivo u ćeliji kalendara
         const paidIco = (!isManualClosed && !isIcalClosed)
           ? (res.paid ? '<span title="Plaćeno" style="font-size:.75em;opacity:.9">✔</span> '
                       : '<span title="Nije plaćeno" style="font-size:.75em;opacity:.85;color:#ffcc80">⚠</span> ')
@@ -3834,7 +3835,12 @@ window.renderCal = function() {
           const chIcon = chStyle ? chStyle.svg : '';
           label = paidIco + chIcon + escHtml(res.name);
         }
+        // Badge za duplikate — crveni broj u gornjem lijevom uglu
+        const dupBadge = dupCount > 1
+          ? `<span title="${dupCount} preklapajućih rezervacija!" style="position:absolute;top:2px;left:2px;background:#dc3545;color:#fff;border-radius:50%;width:16px;height:16px;font-size:.65em;font-weight:900;display:flex;align-items:center;justify-content:center;z-index:6;line-height:1">×${dupCount}</span>`
+          : '';
         html+=`<div class="${cls}" style="grid-column:span ${span};position:relative" onclick="showDet('${res.id}')">
+          ${dupBadge}
           ${curRole==='admin'&&!res.cancelled&&!res.icalLinkId?`<input type="checkbox" class="cal-res-chk"
             id="calchk-${res.id}" title="Označi za grupno otkazivanje"
             onclick="event.stopPropagation();toggleBulkSelect('${res.id}',this)"
@@ -9655,21 +9661,106 @@ async function syncIcalLink(id, silent) {
   const events = parseIcal(text);
   const isClosedLink = lnk.linkType === 'closed';
 
-  // Postojece ical rezervacije za ovaj link
+  // Postojece ical rezervacije za ovaj link (za brisanje otkazanih)
   const existing = reservations.filter(r => r.icalLinkId === id);
+
+  // ── GLOBALNI UID index iz CIJELE baze ──────────────────────────────────
+  // VAŽNO: Booking.com može poslati isti UID kroz više iCal linkova (npr.
+  // reservation link + availability link za isti bungalov). Ako gledamo
+  // samo icalLinkId === id, drugi link ne vidi već dodani UID → duplikat.
+  // Rješenje: grade globalni map UID→rezervacija iz SVIH ical rezervacija.
+  const globalUidMap = {}; // uid → rezervacija (bilo koji link)
+  reservations.forEach(r => {
+    if (r.icalUid && !r.cancelled) globalUidMap[r.icalUid] = r;
+  });
+  // existingByUid za ovaj link — potreban za update datuma
   const existingByUid = {};
   existing.forEach(r => { if (r.icalUid) existingByUid[r.icalUid] = r; });
-  // Ukljuci i UID-ove dodane od DRUGIH linkova u ovom sync ciklusu (Firestore jos nije osvjezio array)
-  const existingUids = new Set([...Object.keys(existingByUid), ..._icalSessionUids]);
 
-  // Dolazeci eventi (samo buduce)
-  const incoming = events.filter(ev => ev.checkOut >= today);
-  const incomingUids = new Set(incoming.map(ev => ev.uid).filter(Boolean));
+  // Kombinirani set poznatih UID-ova: baza + session (race condition zaštita)
+  const existingUids = new Set([...Object.keys(globalUidMap), ..._icalSessionUids]);
 
-  // OTKAZANE: bile u bazi, nema ih vise u iCal → obrisi
+  // ── AUTOMATSKA DEDUPLIKACIJA ────────────────────────────────────────────
+  // Briše duplikate koje je prethodni buggy sync napravio za ovaj bungalov.
+  // SIGURNOSNI UVJETI — brišemo ISKLJUČIVO ako:
+  //   • rezervacija ima icalLinkId (nije ručna)
+  //   • rezervacija ima icalUid (nije ručna)
+  //   • postoji IDENTIČNA druga ical rezervacija (isti bungalov + isti checkIn + isti checkOut)
+  //   • biramo "pobjednika": prednost ima ona sa promijenjenim imenom (≠ 'Booking.com')
+  //     zatim ona koja pripada ovom linku, zatim prva po createdAt
+  // NIKAD ne dirajmo rezervacije bez icalLinkId — to su ručne rezervacije
+  {
+    // Grupiši sve ical rezervacije za ovaj bungalov po ključu checkIn|checkOut
+    const icalForThisBung = reservations.filter(r =>
+      !r.cancelled &&
+      r.icalLinkId &&   // mora biti ical (ne ručna)
+      r.icalUid &&      // mora imati UID
+      r.bungalovi?.some(b => b.bungalov == lnk.bungalov)
+    );
+    const byPeriod = {}; // 'checkIn|checkOut' → [rez1, rez2, ...]
+    icalForThisBung.forEach(r => {
+      const key = r.checkIn + '|' + r.checkOut;
+      if (!byPeriod[key]) byPeriod[key] = [];
+      byPeriod[key].push(r);
+    });
+    let deduped = 0;
+    for (const [key, group] of Object.entries(byPeriod)) {
+      if (group.length < 2) continue; // nema duplikata za ovaj period
+      // Odaberi pobjednika:
+      // 1. prednost: promijenjena imena (≠ 'Booking.com' i ≠ 'Automatski uvezeno')
+      // 2. prednost: pripada ovom linku (icalLinkId === id)
+      // 3. fallback: najstarija (createdAt asc)
+      const hasCustomName = r => r.name && r.name !== 'Booking.com' && !r.name.startsWith('Automatski');
+      group.sort((a, b) => {
+        const aCustom = hasCustomName(a) ? 0 : 1;
+        const bCustom = hasCustomName(b) ? 0 : 1;
+        if (aCustom !== bCustom) return aCustom - bCustom;
+        const aOwn = a.icalLinkId === id ? 0 : 1;
+        const bOwn = b.icalLinkId === id ? 0 : 1;
+        if (aOwn !== bOwn) return aOwn - bOwn;
+        return (a.createdAt||'').localeCompare(b.createdAt||'');
+      });
+      const winner = group[0];
+      const losers = group.slice(1);
+      for (const loser of losers) {
+        // Finalna provjera: loser mora biti ical rezervacija bez promijenjenog imena
+        if (!loser.icalLinkId || !loser.icalUid) {
+          console.warn('iCal dedup: preskačem brisanje — nije ical rez:', loser.id);
+          continue;
+        }
+        if (hasCustomName(loser)) {
+          // Ako i loser ima custom ime, loger ali ne briši — admin neka ručno sredi
+          console.warn('iCal dedup: oba duplikata imaju custom ime! B'+lnk.bungalov+' '+key+'. Preskačem.');
+          continue;
+        }
+        try {
+          await deleteDoc(doc(db,'reservations',loser.id));
+          deduped++;
+          // Ukloni iz globalUidMap i existingUids da ne blokira nova unosa
+          if (loser.icalUid) {
+            delete globalUidMap[loser.icalUid];
+            existingUids.delete(loser.icalUid);
+          }
+          console.log('iCal dedup: obrisao duplikat '+loser.id+' (zadrzan: '+winner.id+') za B'+lnk.bungalov+' '+key);
+        } catch(e) { console.warn('iCal dedup error:', e); }
+      }
+    }
+    if (deduped > 0 && !silent) console.log('iCal dedup B'+lnk.bungalov+': uklonjeno '+deduped+' duplikata');
+  }
+  // ── KRAJ DEDUPLIKACIJE ──────────────────────────────────────────────────
+
+  // Svi eventi iz iCal — i prošli i budući (historija se čuva)
+  const incoming = events; // bez filtera — Booking.com šalje ~2 god. historije
+  // Za brisanje koristimo samo buduće UID-ove (prošle ne brišemo nikad)
+  const incomingFutureUids = new Set(
+    events.filter(ev => ev.checkOut >= today).map(ev => ev.uid).filter(Boolean)
+  );
+
+  // OTKAZANE (samo buduće): bile u bazi za ovaj link, nema ih više u iCal → briši
+  // Prošle rezervacije (checkOut < today) se NIKAD ne brišu — historija
   let deleted = 0;
   for (const r of existing) {
-    if (r.icalUid && !incomingUids.has(r.icalUid)) {
+    if (r.icalUid && r.checkOut >= today && !incomingFutureUids.has(r.icalUid)) {
       try { await deleteDoc(doc(db,'reservations',r.id)); deleted++; }
       catch(e) { console.warn('iCal delete error:', e); }
     }
@@ -9680,9 +9771,10 @@ async function syncIcalLink(id, silent) {
   const warnings = [];
   for (const ev of incoming) {
     if (ev.uid && existingUids.has(ev.uid)) {
-      // UID postoji — provjeri da li su se datumi promijenili
-      const old = existingByUid[ev.uid];
-      if (old.checkIn !== ev.checkIn || old.checkOut !== ev.checkOut) {
+      // UID već postoji u bazi (ovaj ili drugi link) — preskoci, ne dodaj duplikat
+      // Ako je pod OVIM linkom i datumi su se promijenili → ažuriraj
+      const old = existingByUid[ev.uid]; // samo ako je pod ovim linkom
+      if (old && (old.checkIn !== ev.checkIn || old.checkOut !== ev.checkOut)) {
         // Datumi izmijenjeni — provjeri preklapanje sa novim datumima
         const conflicts = reservations.filter(r =>
           !r.cancelled &&
@@ -9697,7 +9789,6 @@ async function syncIcalLink(id, silent) {
           warnings.push({ type: isConfClosed && isClosedLink ? 'ok' : 'problem', ev, conf });
           skipped++;
         } else {
-          // Nema konflikta — azuriraj datume
           try {
             await updateDoc(doc(db,'reservations',old.id), {
               checkIn: ev.checkIn, checkOut: ev.checkOut,
@@ -9708,10 +9799,11 @@ async function syncIcalLink(id, silent) {
           } catch(e) { console.warn('iCal update error:', e); }
         }
       }
-      continue; // UID postoji i datumi su isti — preskoci
+      // UID postoji (ovaj ili drugi link) — u svakom slučaju ne dodavaj ponovo
+      continue;
     }
 
-    // Provjeri preklapanje sa svim postojecim rezervacijama (osim od ovog linka)
+    // Novi UID — provjeri preklapanje sa svim postojecim rezervacijama (osim od ovog linka)
     const conflicts = reservations.filter(r =>
       !r.cancelled &&
       r.icalLinkId !== id &&
