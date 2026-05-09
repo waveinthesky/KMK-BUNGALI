@@ -1067,6 +1067,8 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 .kmk-radial-btn .rbavatar { font-size:1.5em;line-height:1; }
 .kmk-radial-btn.rb-cancel { border-color:#e53935;color:#c62828; }
 .kmk-radial-btn.rb-cancel:hover { background:#e53935;color:#fff; }
+.kmk-radial-btn.rb-admin { border-color:#7b1fa2;color:#4a148c; }
+.kmk-radial-btn.rb-admin:hover { background:#7b1fa2;color:#fff; }
 #kmk-radial-title {
   position:absolute;bottom:-38px;left:50%;transform:translateX(-50%);
   color:#fff;font-size:.82em;font-weight:700;white-space:nowrap;
@@ -4190,7 +4192,8 @@ window.renderDaily = function(dateStr) {
         <!-- DESNO: dva dugmeta -->
         <div style="display:flex;flex-direction:column;gap:3px;flex-shrink:0">
           <button
-            onclick="${r.paid?`window._kmkQuickUpdate('${r.id}',{paid:false},this);this.style.opacity='.5';this.disabled=true;`:`window.kmkOpenOperatorPicker('${r.id}',false);`}"
+            data-resid="${r.id}" data-paid="${r.paid?'1':'0'}"
+            onclick="(function(btn){var id=btn.dataset.resid;var paid=btn.dataset.paid==='1';if(paid){window._kmkQuickUpdate(id,{paid:false},btn);btn.style.opacity='.5';btn.disabled=true;}else{window.kmkOpenOperatorPicker(id,false);}})(this)"
             style="padding:5px 11px;border-radius:5px;border:none;background:${pBg};color:#fff;font-weight:700;font-size:.72em;cursor:pointer;min-width:96px;text-align:center">
             ${pTxt}
           </button>
@@ -10212,76 +10215,78 @@ function _initPickerSettingUI() {
 // Poziva se klikom na "✔ Plaćeno" dugme umjesto direktnog _kmkQuickUpdate
 // Prikazuje radial menu sa operatorima — korisnik bira ko je primio uplatu
 window.kmkOpenOperatorPicker = function(resId, currentPaid) {
-  // Ako se poništava plaćanje, idi direktno na _kmkQuickUpdate (postoji locker tamo)
   if (currentPaid) {
     window._kmkQuickUpdate(resId, {paid: false});
     return;
   }
 
-  // Prikupi operatore iz appUsers
   const showAdmin = getPickerAdminSetting();
   const operators = Object.entries(appUsers)
-    .filter(([uname, u]) => {
-      if (u.role === 'admin' && !showAdmin) return false;
-      return true;
-    })
+    .filter(([uname, u]) => !(u.role === 'admin' && !showAdmin))
     .map(([uname, u]) => ({ username: uname, name: u.name || uname, role: u.role }));
 
-  // Ako nema operatora ili samo jedan — odmah naplati bez pickera
+  // Jedan ili nula operatora — odmah naplati bez pickera
   if (operators.length <= 1) {
-    const op = operators[0]?.username || curUser;
-    window._kmkQuickUpdate(resId, {paid: true}, null, op);
+    window._kmkQuickUpdate(resId, {paid: true}, null, operators[0]?.username || curUser);
     return;
   }
 
-  // Kreiraj overlay
+  // Ukloni stari overlay ako postoji
+  const old = document.getElementById('kmk-radial-overlay');
+  if (old) old.remove();
+
   const overlay = document.createElement('div');
   overlay.id = 'kmk-radial-overlay';
 
-  // Izračunaj pozicije za radial raspored
+  const wrap = document.createElement('div');
+  wrap.id = 'kmk-radial-wrap';
+
+  // Postavi dugmad programski (bez inline onclick + string escape problema)
   const N = operators.length;
-  const R = 95; // radius od centra
-  const buttons = operators.map((op, i) => {
-    const angle = (2 * Math.PI * i / N) - (Math.PI / 2); // počni od vrha
+  const R = 95;
+  operators.forEach((op, i) => {
+    const angle = (2 * Math.PI * i / N) - (Math.PI / 2);
     const x = 130 + R * Math.cos(angle);
     const y = 130 + R * Math.sin(angle);
-    const initials = (op.name||op.username).split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+    const initials = (op.name||op.username).split(' ').map(w=>w[0]||'').join('').toUpperCase().slice(0,2) || op.username.slice(0,2).toUpperCase();
     const isAdmin = op.role === 'admin';
-    return `<div class="kmk-radial-btn${isAdmin?' rb-admin':''}" 
-      style="left:${x}px;top:${y}px"
-      onclick="kmkPickOperator('${resId}','${op.username}',this)">
-      <div class="rbavatar">${isAdmin?'👑':'👷'}</div>
-      <div>${initials}</div>
-      <div style="font-size:.85em;opacity:.8">${escHtml(op.name||op.username).split(' ')[0]}</div>
-    </div>`;
-  }).join('');
 
-  overlay.innerHTML = `
-    <div id="kmk-radial-wrap">
-      ${buttons}
-      <div id="kmk-radial-center" onclick="document.getElementById('kmk-radial-overlay').remove()">
-        💳
-        <span>Otkaži</span>
-      </div>
-      <div id="kmk-radial-title">Ko je primio uplatu?</div>
-    </div>`;
-
-  // Klik van zatvara
-  overlay.addEventListener('click', function(e) {
-    if (e.target === overlay) overlay.remove();
+    const btn = document.createElement('div');
+    btn.className = 'kmk-radial-btn' + (isAdmin ? ' rb-admin' : '');
+    btn.style.cssText = `left:${x}px;top:${y}px`;
+    btn.title = op.name || op.username;
+    btn.innerHTML = `<div class="rbavatar">${isAdmin?'👑':'👷'}</div><div style="font-weight:800">${initials}</div><div style="font-size:.82em;opacity:.85">${escHtml((op.name||op.username).split(' ')[0])}</div>`;
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      overlay.remove();
+      window._kmkQuickUpdate(resId, {paid: true}, btn, op.username);
+    });
+    wrap.appendChild(btn);
   });
 
+  // Centar — otkaži
+  const center = document.createElement('div');
+  center.id = 'kmk-radial-center';
+  center.innerHTML = '💳<span>Otkaži</span>';
+  center.addEventListener('click', (e) => { e.stopPropagation(); overlay.remove(); });
+  wrap.appendChild(center);
+
+  const title = document.createElement('div');
+  title.id = 'kmk-radial-title';
+  title.textContent = 'Ko je primio uplatu?';
+  wrap.appendChild(title);
+
+  overlay.appendChild(wrap);
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+
   document.body.appendChild(overlay);
-  // Animacija pojavljivanja
   overlay.style.opacity = '0';
-  requestAnimationFrame(() => { overlay.style.transition='opacity .15s'; overlay.style.opacity='1'; });
+  requestAnimationFrame(() => { overlay.style.transition = 'opacity .15s'; overlay.style.opacity = '1'; });
 };
 
 window.kmkPickOperator = function(resId, operatorUsername, btn) {
-  // Zatvori overlay
   const overlay = document.getElementById('kmk-radial-overlay');
   if (overlay) overlay.remove();
-  // Naplati sa odabranim operatorom
   window._kmkQuickUpdate(resId, {paid: true}, btn, operatorUsername);
 };
 
