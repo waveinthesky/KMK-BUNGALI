@@ -1038,6 +1038,40 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 @media print {
   #daily-date-picker, .no-print { display: none !important; }
 }
+/* ── RADIAL OPERATOR PICKER ─────────────────────────────── */
+#kmk-radial-overlay {
+  position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.45);
+  display:flex;align-items:center;justify-content:center;
+  backdrop-filter:blur(2px);
+}
+#kmk-radial-wrap { position:relative;width:260px;height:260px; }
+#kmk-radial-center {
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:64px;height:64px;border-radius:50%;
+  background:#1565c0;color:#fff;font-size:1.5em;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 2px 14px rgba(21,101,192,.5);cursor:pointer;
+  border:3px solid #fff;flex-direction:column;gap:0;
+}
+#kmk-radial-center span { font-size:.45em;font-weight:700;color:#cfe8ff;line-height:1; }
+.kmk-radial-btn {
+  position:absolute;width:60px;height:60px;border-radius:50%;
+  background:#fff;border:2.5px solid #27ae60;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  cursor:pointer;transition:transform .15s,background .15s,border-color .15s;
+  box-shadow:0 2px 8px rgba(0,0,0,.18);font-size:.68em;font-weight:700;
+  color:#1b5e20;text-align:center;line-height:1.2;gap:1px;
+  transform:translate(-50%,-50%);
+}
+.kmk-radial-btn:hover { background:#27ae60;color:#fff;transform:translate(-50%,-50%) scale(1.18); }
+.kmk-radial-btn .rbavatar { font-size:1.5em;line-height:1; }
+.kmk-radial-btn.rb-cancel { border-color:#e53935;color:#c62828; }
+.kmk-radial-btn.rb-cancel:hover { background:#e53935;color:#fff; }
+#kmk-radial-title {
+  position:absolute;bottom:-38px;left:50%;transform:translateX(-50%);
+  color:#fff;font-size:.82em;font-weight:700;white-space:nowrap;
+  text-shadow:0 1px 4px rgba(0,0,0,.6);
+}
 </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script>
@@ -1578,9 +1612,32 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
         <label for="f-closed" style="color:white;font-weight:700;cursor:pointer;font-size:.95em">🔒 Zatvaranje bungalova (bez gosta)</label>
       </div>
       <div id="f-guest-fields">
-      <div style="display:flex;gap:20px;margin-bottom:18px">
+      <div style="display:flex;gap:20px;margin-bottom:10px">
         <div class="chk"><input type="checkbox" id="f-confirmed"><label for="f-confirmed">Potvrđeno</label></div>
-        <div class="chk"><input type="checkbox" id="f-paid"><label for="f-paid">Plaćeno</label></div>
+        <div class="chk"><input type="checkbox" id="f-paid" onchange="_togglePaidMeta()"><label for="f-paid">Plaćeno</label></div>
+      </div>
+      <!-- Admin: izmjena datuma i operatora naplate — prikazuje se samo pri editu plaćene rez. -->
+      <div id="f-paid-meta" style="display:none;background:#e3f2fd;border:1px solid #90caf9;border-radius:8px;padding:10px 14px;margin-bottom:14px">
+        <div style="font-size:.8em;font-weight:700;color:#1565c0;margin-bottom:8px">💳 Detalji naplate (admin)</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end">
+          <div style="flex:1;min-width:140px">
+            <label style="font-size:.78em;color:#555;display:block;margin-bottom:3px">Datum naplate</label>
+            <input type="date" id="f-paidAt"
+              style="width:100%;padding:6px 8px;border:1px solid #90caf9;border-radius:6px;font-size:.9em;background:#fff">
+          </div>
+          <div style="flex:1;min-width:120px">
+            <label style="font-size:.78em;color:#555;display:block;margin-bottom:3px">Operater naplate</label>
+            <select id="f-paidBy"
+              style="width:100%;padding:6px 8px;border:1px solid #90caf9;border-radius:6px;font-size:.9em;background:#fff">
+              <option value="">— odaberi —</option>
+            </select>
+          </div>
+          <div style="flex:1;min-width:80px">
+            <label style="font-size:.78em;color:#555;display:block;margin-bottom:3px">Sat naplate</label>
+            <input type="time" id="f-paidTime"
+              style="width:100%;padding:6px 8px;border:1px solid #90caf9;border-radius:6px;font-size:.9em;background:#fff">
+          </div>
+        </div>
       </div>
       </div>
 
@@ -1873,6 +1930,21 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
           style="margin-top:10px;font-size:.82em;padding:8px 12px;
                  border-radius:6px;background:#e8f4fd;color:#1a5276">
         </div>
+      </div>
+
+      <!-- OPERATORI NAPLATE — koji korisnici se prikazuju u pickeru -->
+      <div style="background:#f8f9fa;border-radius:10px;padding:16px;margin-bottom:20px;border:1px solid #e0e0e0">
+        <h4 style="margin:0 0 8px;font-size:.95em">💳 Operator Naplate — Radial Picker</h4>
+        <p style="font-size:.85em;color:#666;margin-bottom:12px">
+          Kada se klikne "Plaćeno" na rezervaciji, pojavi se brzi picker operatora.
+          Ovdje odaberite da li se administrator prikazuje u tom pickeru.
+        </p>
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:.9em;margin-bottom:8px">
+          <input type="checkbox" id="setting-admin-in-picker" style="width:16px;height:16px"
+            onchange="savePickerSetting()">
+          <span><strong>Prikaži admina u pickeru operatora</strong> — ako je isključeno, admin se ne pojavljuje kao opcija</span>
+        </label>
+        <div id="picker-setting-saved" style="display:none;font-size:.8em;color:#28a745;margin-top:4px">✅ Sačuvano</div>
       </div>
 
       <!-- DANGER ZONE — Brisanje podataka -->
@@ -3418,6 +3490,18 @@ document.getElementById('res-form').addEventListener('submit', async e => {
     if (editId) {
       const old=reservations.find(r=>r.id===editId);
       const updateData = { ...data, updatedAt: new Date().toISOString(), updatedBy: curUser };
+      // Admin može ručno promijeniti datum i operatora naplate
+      if (curRole === 'admin' && data.paid) {
+        const paidAtDate = document.getElementById('f-paidAt')?.value || '';
+        const paidAtTime = document.getElementById('f-paidTime')?.value || '00:00';
+        const paidByVal  = document.getElementById('f-paidBy')?.value || '';
+        if (paidAtDate) {
+          updateData.paidAt = paidAtDate + 'T' + paidAtTime + ':00.000Z';
+        }
+        if (paidByVal) {
+          updateData.paidBy = paidByVal;
+        }
+      }
       await updateDoc(doc(db,'reservations',editId), updateData);
       await logH('modified', { ...updateData, id: editId }, old);
       // Notificiraj admina ako je worker editovao
@@ -4100,7 +4184,7 @@ window.renderDaily = function(dateStr) {
         <!-- DESNO: dva dugmeta -->
         <div style="display:flex;flex-direction:column;gap:3px;flex-shrink:0">
           <button
-            onclick="window._kmkQuickUpdate('${r.id}',{paid:${!r.paid}},this);this.style.opacity='.5';this.disabled=true;"
+            onclick="${r.paid?`window._kmkQuickUpdate('${r.id}',{paid:false},this);this.style.opacity='.5';this.disabled=true;`:`window.kmkOpenOperatorPicker('${r.id}',false);`}"
             style="padding:5px 11px;border-radius:5px;border:none;background:${pBg};color:#fff;font-weight:700;font-size:.72em;cursor:pointer;min-width:96px;text-align:center">
             ${pTxt}
           </button>
@@ -4648,6 +4732,31 @@ window.editRes = id => {
   document.getElementById('f-notes').value=r.notes||'';
   document.getElementById('f-confirmed').checked=r.confirmed;
   document.getElementById('f-paid').checked=r.paid;
+  // Admin: popuni paidAt/paidBy meta polja i prikaži sekciju
+  const paidMetaEl = document.getElementById('f-paid-meta');
+  if (paidMetaEl) {
+    if (curRole === 'admin' && r.paid) {
+      // Popuni datum naplate
+      const paidAtDate = r.paidAt ? r.paidAt.slice(0,10) : '';
+      const paidAtTime = r.paidAt ? r.paidAt.slice(11,16) : '';
+      const paidAtEl = document.getElementById('f-paidAt');
+      if (paidAtEl) paidAtEl.value = paidAtDate;
+      const paidTimeEl = document.getElementById('f-paidTime');
+      if (paidTimeEl) paidTimeEl.value = paidAtTime;
+      // Popuni operatora — select sa svim korisnicima
+      const paidByEl = document.getElementById('f-paidBy');
+      if (paidByEl) {
+        paidByEl.innerHTML = '<option value="">— odaberi —</option>' +
+          Object.entries(appUsers).map(([uname, u]) =>
+            `<option value="${escHtml(uname)}"${uname === (r.paidBy||'') ? ' selected' : ''}>${escHtml(u.name||uname)} (@${escHtml(uname)})</option>`
+          ).join('');
+        paidByEl.value = r.paidBy || '';
+      }
+      paidMetaEl.style.display = 'block';
+    } else {
+      paidMetaEl.style.display = 'none';
+    }
+  }
   document.getElementById('svc-pp').checked=r.services?.polupansion||false;
   document.getElementById('svc-fp').checked=r.services?.fullPansion||false;
   document.getElementById('svc-lp').checked=r.services?.lunchPaket||false;
@@ -8963,7 +9072,7 @@ window.switchSetTab = (tab, btn) => {
   if (tab === 'channels') setTimeout(renderChannels, 50);
   if (tab === 'ical')     setTimeout(renderIcalLinks, 50);
   if (tab === 'prices')   setTimeout(renderPricePeriods, 50);
-  if (tab === 'security') setTimeout(_updateDelProtectUI, 50);
+  if (tab === 'security') { setTimeout(_updateDelProtectUI, 50); setTimeout(_initPickerSettingUI, 50); }
   if (tab === 'guests')   setTimeout(() => {
     if (document.getElementById('guestbook-panel')?.style.display === 'block') filterGuestBook();
   }, 50);
@@ -9958,7 +10067,133 @@ try{setTimeout(()=>{_updateCalViewButtons(); if(isMobile()&&_mobCurrentTab==='ca
 try {
   
 // ── _kmkQuickUpdate: direktan upis jednog polja u Firestore ────────────────
-window._kmkQuickUpdate = function(id, fields, confirmBtn) {
+// ══════════════════════════════════════════════════════════
+// OPERATOR PICKER SETTINGS
+// ══════════════════════════════════════════════════════════
+
+function getPickerAdminSetting() {
+  return localStorage.getItem('kmk_picker_admin') !== 'false'; // default: true (prikaži admina)
+}
+
+window._togglePaidMeta = function() {
+  const paid = document.getElementById('f-paid')?.checked;
+  const metaEl = document.getElementById('f-paid-meta');
+  if (!metaEl) return;
+  if (curRole === 'admin' && paid) {
+    // Popuni sa today ako prazno
+    const paidAtEl = document.getElementById('f-paidAt');
+    if (paidAtEl && !paidAtEl.value) paidAtEl.value = new Date().toISOString().slice(0,10);
+    const paidTimeEl = document.getElementById('f-paidTime');
+    if (paidTimeEl && !paidTimeEl.value) paidTimeEl.value = new Date().toTimeString().slice(0,5);
+    // Popuni operatore
+    const paidByEl = document.getElementById('f-paidBy');
+    if (paidByEl && paidByEl.options.length <= 1) {
+      paidByEl.innerHTML = '<option value="">— odaberi —</option>' +
+        Object.entries(appUsers).map(([uname, u]) =>
+          `<option value="${escHtml(uname)}"${uname === curUser ? ' selected' : ''}>${escHtml(u.name||uname)} (@${escHtml(uname)})</option>`
+        ).join('');
+      paidByEl.value = curUser || '';
+    }
+    metaEl.style.display = 'block';
+  } else {
+    metaEl.style.display = 'none';
+  }
+};
+
+window.savePickerSetting = () => {
+  const chk = document.getElementById('setting-admin-in-picker');
+  if (!chk) return;
+  localStorage.setItem('kmk_picker_admin', chk.checked ? 'true' : 'false');
+  const msg = document.getElementById('picker-setting-saved');
+  if (msg) { msg.style.display='block'; setTimeout(()=>msg.style.display='none', 2000); }
+};
+
+function _initPickerSettingUI() {
+  const chk = document.getElementById('setting-admin-in-picker');
+  if (chk) chk.checked = getPickerAdminSetting();
+}
+
+// ══════════════════════════════════════════════════════════
+// RADIAL OPERATOR PICKER
+// ══════════════════════════════════════════════════════════
+
+// Poziva se klikom na "✔ Plaćeno" dugme umjesto direktnog _kmkQuickUpdate
+// Prikazuje radial menu sa operatorima — korisnik bira ko je primio uplatu
+window.kmkOpenOperatorPicker = function(resId, currentPaid) {
+  // Ako se poništava plaćanje, idi direktno na _kmkQuickUpdate (postoji locker tamo)
+  if (currentPaid) {
+    window._kmkQuickUpdate(resId, {paid: false});
+    return;
+  }
+
+  // Prikupi operatore iz appUsers
+  const showAdmin = getPickerAdminSetting();
+  const operators = Object.entries(appUsers)
+    .filter(([uname, u]) => {
+      if (u.role === 'admin' && !showAdmin) return false;
+      return true;
+    })
+    .map(([uname, u]) => ({ username: uname, name: u.name || uname, role: u.role }));
+
+  // Ako nema operatora ili samo jedan — odmah naplati bez pickera
+  if (operators.length <= 1) {
+    const op = operators[0]?.username || curUser;
+    window._kmkQuickUpdate(resId, {paid: true}, null, op);
+    return;
+  }
+
+  // Kreiraj overlay
+  const overlay = document.createElement('div');
+  overlay.id = 'kmk-radial-overlay';
+
+  // Izračunaj pozicije za radial raspored
+  const N = operators.length;
+  const R = 95; // radius od centra
+  const buttons = operators.map((op, i) => {
+    const angle = (2 * Math.PI * i / N) - (Math.PI / 2); // počni od vrha
+    const x = 130 + R * Math.cos(angle);
+    const y = 130 + R * Math.sin(angle);
+    const initials = (op.name||op.username).split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+    const isAdmin = op.role === 'admin';
+    return `<div class="kmk-radial-btn${isAdmin?' rb-admin':''}" 
+      style="left:${x}px;top:${y}px"
+      onclick="kmkPickOperator('${resId}','${op.username}',this)">
+      <div class="rbavatar">${isAdmin?'👑':'👷'}</div>
+      <div>${initials}</div>
+      <div style="font-size:.85em;opacity:.8">${escHtml(op.name||op.username).split(' ')[0]}</div>
+    </div>`;
+  }).join('');
+
+  overlay.innerHTML = `
+    <div id="kmk-radial-wrap">
+      ${buttons}
+      <div id="kmk-radial-center" onclick="document.getElementById('kmk-radial-overlay').remove()">
+        💳
+        <span>Otkaži</span>
+      </div>
+      <div id="kmk-radial-title">Ko je primio uplatu?</div>
+    </div>`;
+
+  // Klik van zatvara
+  overlay.addEventListener('click', function(e) {
+    if (e.target === overlay) overlay.remove();
+  });
+
+  document.body.appendChild(overlay);
+  // Animacija pojavljivanja
+  overlay.style.opacity = '0';
+  requestAnimationFrame(() => { overlay.style.transition='opacity .15s'; overlay.style.opacity='1'; });
+};
+
+window.kmkPickOperator = function(resId, operatorUsername, btn) {
+  // Zatvori overlay
+  const overlay = document.getElementById('kmk-radial-overlay');
+  if (overlay) overlay.remove();
+  // Naplati sa odabranim operatorom
+  window._kmkQuickUpdate(resId, {paid: true}, btn, operatorUsername);
+};
+
+window._kmkQuickUpdate = function(id, fields, confirmBtn, operatorOverride) {
   if (!id || !fields) return;
   // LOCKER: ako se poništava plaćanje (paid: false), traži potvrdu
   if ('paid' in fields && fields.paid === false) {
@@ -9966,24 +10201,23 @@ window._kmkQuickUpdate = function(id, fields, confirmBtn) {
     var name = r ? r.name : id;
     var ok = confirm('Da li ste sigurni da želite PONIŠTITI naplatu za:\n' + name + '?');
     if (!ok) {
-      // Vrati dugme u normalno stanje
       if (confirmBtn) { confirmBtn.disabled = false; confirmBtn.style.opacity = '1'; }
       return;
     }
   }
   var now = new Date().toISOString();
-  var user = (typeof curUser !== 'undefined') ? (curUser || '') : '';
+  // Operator: eksplicitno proslijeđen iz pickera, ili trenutni korisnik
+  var user = operatorOverride || ((typeof curUser !== 'undefined') ? (curUser || '') : '');
   var data = Object.assign({}, fields, {
     updatedAt: now,
-    updatedBy: user
+    updatedBy: (typeof curUser !== 'undefined') ? (curUser || '') : ''
   });
   // Bilježi datum i operatera naplate
   if ('paid' in fields) {
     if (fields.paid === true) {
       data.paidAt = now;
-      data.paidBy = user;
+      data.paidBy = user; // operator iz pickera ili curUser
     } else {
-      // Plaćanje poništeno — očisti zapis
       data.paidAt = null;
       data.paidBy = null;
     }
