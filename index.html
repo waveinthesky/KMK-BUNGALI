@@ -1395,12 +1395,9 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
           <button onclick="renderDailyView('today')" style="background:none;border:none;cursor:pointer;font-size:.78em;font-weight:700;color:#007bff;padding:0 4px" title="Vrati na danas">📅 Danas</button>
         </div>
         <button class="btn btn-primary no-print" onclick="printDaily()" style="padding:9px 18px">🖨️ Detaljan</button>
-        <label class="no-print" style="display:flex;align-items:center;gap:5px;font-size:.82em;color:#1565c0;font-weight:700;background:#e3f2fd;border:1px solid #90caf9;border-radius:8px;padding:5px 10px;cursor:pointer" title="Prikaži rezervacije naplaćene tog datuma">
-          💳 Uplate:
-          <input type="date" id="filter-paid-date"
-            onchange="renderDailyView()"
-            style="border:none;background:transparent;font-size:.88em;color:#1565c0;font-weight:700;cursor:pointer;outline:none;max-width:130px">
-        </label>
+        <div class="no-print" style="display:flex;align-items:center;gap:5px;font-size:.82em;color:#1565c0;font-weight:700;background:#e3f2fd;border:1px solid #90caf9;border-radius:8px;padding:5px 10px" title="Naplaćeno na odabrani dan prikazano automatski u pregledu">
+          💳 Uplate za odabrani dan prikazane ispod
+        </div>
         <button class="btn no-print" onclick="printSimple()" style="padding:9px 18px;background:#28a745;color:white">🧹 Za Higijeničara</button>
       </div>
     </div>
@@ -4127,97 +4124,71 @@ window.renderDaily = function(dateStr) {
   else cur.forEach(r=>html+=mkItem(r,'Zauzeto',{bg:'#6c757d',tx:'white'},false));
   html+='</div>';
 
-  // ══ FILTER: Pregled uplata po datumu ════════════════════════════════════
-  // Ako postoji filter datum, prikaži rezervacije naplaćene tog datuma
-  const filterPaidDate = document.getElementById('filter-paid-date')?.value || '';
-  const filteredPaidByDate = filterPaidDate
-    ? reservations.filter(r => !r.cancelled && r.paid && r.paidAt && r.paidAt.slice(0,10) === filterPaidDate)
-    : null;
-
-  if (filteredPaidByDate !== null) {
-    const fpSum = filteredPaidByDate.reduce((s,r) => s+(parseFloat(r.price)||0), 0);
-    html += `<div style="background:#e3f2fd;border:1px solid #90caf9;border-radius:8px;padding:12px 14px;margin-top:16px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px">
-        <div>
-          <div style="font-weight:800;color:#1565c0;font-size:.92em">💳 Uplate napravljene: ${filterPaidDate}</div>
-          <div style="font-size:.78em;color:#555">${filteredPaidByDate.length} rezervacija · ukupno &euro;${fpSum.toFixed(0)}</div>
-        </div>
-        <button onclick="document.getElementById('filter-paid-date').value='';renderDailyView()"
-          style="font-size:.75em;padding:4px 10px;background:#fff;border:1px solid #90caf9;border-radius:6px;cursor:pointer;color:#1565c0;font-weight:700">
-          ✕ Makni filter
-        </button>
-      </div>`;
-    if (!filteredPaidByDate.length) {
-      html += `<div style="font-size:.85em;color:#888;text-align:center;padding:8px">Nema uplata za ${filterPaidDate}</div>`;
-    } else {
-      filteredPaidByDate.forEach(r => {
-        const bungs = (r.bungalovi||[]).map(b=>'B'+b.bungalov).join(', ');
-        const price = parseFloat(r.price)||0;
-        const nights = Math.ceil((new Date(r.checkOut)-new Date(r.checkIn))/86400000);
-        const paidTime = r.paidAt ? r.paidAt.slice(11,16) : '';
-        html += `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #c5dcf5">
-          <div>
-            <div style="font-weight:700;font-size:.88em">${escHtml(r.name||'—')}</div>
-            <div style="font-size:.74em;color:#666">
-              <span style="background:#f0f4ff;border-radius:3px;padding:1px 4px;font-weight:600">${escHtml(bungs)}</span>
-              &nbsp;${nights} noći &middot; ${fmtD(r.checkIn)}→${fmtD(r.checkOut)}
-            </div>
-            <div style="font-size:.72em;color:#1565c0;font-weight:700">
-              💳 ${paidTime ? 'u '+paidTime : 'danas'}${r.paidBy ? ' · ' + escHtml(r.paidBy) : ''}
-            </div>
-          </div>
-          <div style="font-weight:900;color:#1565c0;font-size:.92em">&euro;${price.toFixed(0)}</div>
-        </div>`;
-      });
-    }
-    html += `</div>`;
-  }
 
   // ══ PREGLED NAPLATE ══════════════════════════════════════════════════════
+  // LOGIKA: Tri nezavisne dimenzije koje se ne smiju miješati:
+  //
+  //  A) "Stanje na taj dan" — ko je boravio/dolazio/odlazio (gornje sekcije)
+  //  B) "Naplaćeno TOG datuma" — sve rezervacije čiji paidAt = ts, BEZ obzira
+  //     na to kad su check-in/check-out. Ovo je BLAGAJNIČKI izvještaj za ts.
+  //  C) "Nenaplaćeno na taj dan" — aktivne rezervacije koje NISU plaćene
+  //
+  // Problem koji je bio: activeToday filtrom (checkIn<=ts && checkOut>ts) gubile
+  // su se rezervacije koje su checkout-ovale PRIJE ts — one su plaćene ali
+  // nestale iz prikaza. Popravak: plaćene koristimo iz SVIH rezervacija (ne samo
+  // aktivnih), a nenaplaćene i dalje samo aktivne.
 
-  // Rezervacije aktivne na izabrani dan
-  const activeToday = reservations.filter(r =>
-    !r.cancelled && !r.closedManual && r.checkIn <= ts && r.checkOut > ts
-  );
-
-  // Plaćene: aktivne i plaćene
-  const paidActive = activeToday.filter(r => r.paid);
-
-  // Plaćene DANAS — koristi paidAt (datum naplate), fallback na updatedAt
-  const paidJustToday = paidActive.filter(r => {
-    const d = (r.paidAt || r.updatedAt || '').slice(0, 10);
+  // ── B) NAPLAĆENO NA OVAJ DAN — sve rez. gdje je paidAt = ts ──────────
+  // Ovo je jedina ispravna definicija "naplaćeno danas" — bez obzira na boravak
+  const paidOnThisDay = reservations.filter(r => {
+    if (r.cancelled || !r.paid) return false;
+    const d = (r.paidAt || '').slice(0, 10);
     return d === ts;
   });
-  // Plaćene ranije — paidAt (ili updatedAt) nije danas
-  const paidEarlier = paidActive.filter(r => {
-    const d = (r.paidAt || r.updatedAt || '').slice(0, 10);
-    return d !== ts;
-  });
+  const paidOnThisDaySum = paidOnThisDay.reduce((s,r) => s+(parseFloat(r.price)||0), 0);
 
-  // Nije plaćeno: stigli DANAS
-  const unpaidToday = activeToday.filter(r => !r.paid && r.checkIn === ts);
-  // Nije plaćeno: stigli RANIJE, još borave
-  const unpaidPrev  = activeToday.filter(r => !r.paid && r.checkIn < ts);
-  // Zaostale: checkOut <= danas, nije plaćeno
+  // ── C) AKTIVNE NA TAJ DAN (borave) ────────────────────────────────────
+  const activeOnDay = reservations.filter(r =>
+    !r.cancelled && !r.closedManual && r.checkIn <= ts && r.checkOut > ts
+  );
+  // Neplaćene koje borave na taj dan — stigli tog dana
+  const unpaidToday = activeOnDay.filter(r => !r.paid && r.checkIn === ts);
+  // Neplaćene koje borave na taj dan — stigli ranije
+  const unpaidPrev  = activeOnDay.filter(r => !r.paid && r.checkIn < ts);
+
+  // ── ZAOSTALE nenaplaćene — checkout je već prošao, još nisu platili ──
   const overdueUnpaid = reservations.filter(r =>
     !r.cancelled && !r.closedManual && !r.paid &&
     r.checkOut <= ts && r.checkIn < ts
   );
 
-  const paidSum    = paidActive.reduce((s,r) => s + (parseFloat(r.price)||0), 0);
-  const unpaidSum  = [...unpaidToday, ...unpaidPrev].reduce((s,r) => s + (parseFloat(r.price)||0), 0);
-  const overdueSum = overdueUnpaid.reduce((s,r) => s + (parseFloat(r.price)||0), 0);
+  // ── PLAĆENE KOJE SU BILE AKTIVNE NA TAJ DAN (za kontekst) ────────────
+  // Uključuje i one koji su checkout-ovali PRIJE ts — istorija se ne gubi!
+  const paidRelated = reservations.filter(r => {
+    if (r.cancelled || !r.paid) return false;
+    // Pokriva: borave na taj dan, dolaze, odlaze, ili su plaćene tog dana
+    return (r.checkIn <= ts && r.checkOut >= ts) ||
+           (r.paidAt && r.paidAt.slice(0,10) === ts);
+  });
+  // Plaćene vezane za ovaj dan ali naplaćene DRUGOG datuma (ne ts)
+  const paidRelatedEarlier = paidRelated.filter(r => {
+    const d = (r.paidAt || '').slice(0, 10);
+    return d !== ts;
+  });
+
+  const unpaidSum  = [...unpaidToday, ...unpaidPrev].reduce((s,r) => s+(parseFloat(r.price)||0), 0);
+  const overdueSum = overdueUnpaid.reduce((s,r) => s+(parseFloat(r.price)||0), 0);
 
   html += `<div style="margin-top:18px">`;
 
   // ── 3 KPI kartice ──────────────────────────────────────────────────────
   html += `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px">
     <div style="background:#e8f5e9;border-top:3px solid #27ae60;border-radius:8px;padding:10px;text-align:center;cursor:pointer" onclick="document.getElementById('pay-paid-sec').scrollIntoView({behavior:'smooth'})">
-      <div style="font-size:1.4em;font-weight:900;color:#27ae60">${paidActive.length}</div>
-      <div style="font-size:.7em;color:#555;font-weight:700;text-transform:uppercase">Naplaćeno</div>
-      <div style="font-size:.82em;color:#27ae60;font-weight:800">&euro;${paidSum.toFixed(0)}</div>
+      <div style="font-size:1.4em;font-weight:900;color:#27ae60">${paidOnThisDay.length}</div>
+      <div style="font-size:.7em;color:#555;font-weight:700;text-transform:uppercase">💳 Napl. ${isToday?'danas':fmtD(ts)}</div>
+      <div style="font-size:.82em;color:#27ae60;font-weight:800">&euro;${paidOnThisDaySum.toFixed(0)}</div>
     </div>
-    <div style="background:#fff3e0;border-top:3px solid #e67e22;border-radius:8px;padding:10px;text-align:center;cursor:pointer" onclick="document.getElementById('pay-unpaid-sec').scrollIntoView({behavior:'smooth'})">
+    <div style="background:#fff3e0;border-top:3px solid #e67e22;border-radius:8px;padding:10px;text-align:center;cursor:pointer" onclick="document.getElementById('pay-unpaid-sec')?.scrollIntoView({behavior:'smooth'})">
       <div style="font-size:1.4em;font-weight:900;color:#e67e22">${unpaidToday.length + unpaidPrev.length}</div>
       <div style="font-size:.7em;color:#555;font-weight:700;text-transform:uppercase">Nije napl.</div>
       <div style="font-size:.82em;color:#e67e22;font-weight:800">&euro;${unpaidSum.toFixed(0)}</div>
@@ -4229,14 +4200,13 @@ window.renderDaily = function(dateStr) {
     </div>
   </div>`;
 
-  // ── Nije naplaćeno — stigli DANAS ──────────────────────────────────────
+  // ── NENAPLAĆENO ────────────────────────────────────────────────────────
   if (unpaidToday.length || unpaidPrev.length) {
     html += `<div id="pay-unpaid-sec">`;
-
     if (unpaidToday.length) {
       html += `<div style="background:#fff;border:1px solid #ffe0b2;border-radius:8px;overflow:hidden;margin-bottom:8px">
         <div style="background:#fff3e0;padding:8px 12px;display:flex;justify-content:space-between;align-items:center">
-          <span style="font-weight:700;font-size:.85em;color:#e67e22">⚠ Nije naplaćeno — stigli DANAS (${unpaidToday.length})</span>
+          <span style="font-weight:700;font-size:.85em;color:#e67e22">⚠ Nije naplaćeno — stigli ${isToday?'DANAS':fmtD(ts)} (${unpaidToday.length})</span>
           <span style="font-weight:800;color:#e67e22">&euro;${unpaidToday.reduce((s,r)=>s+(parseFloat(r.price)||0),0).toFixed(0)}</span>
         </div>`;
       unpaidToday.forEach(r => {
@@ -4250,7 +4220,7 @@ window.renderDaily = function(dateStr) {
               <span style="background:#f0f4ff;border-radius:3px;padding:1px 4px;font-weight:600">${escHtml(bungs)}</span>
               &nbsp;${nights} noći &middot; do ${fmtD(r.checkOut)} &middot; ${r.channel||'—'}
             </div>
-            <div style="font-size:.72em;color:#e67e22;font-weight:700;margin-top:1px">⏱ Stigao danas — plaćanje na čekanju</div>
+            <div style="font-size:.72em;color:#e67e22;font-weight:700;margin-top:1px">⏱ Stigao ${isToday?'danas':fmtD(ts)} — plaćanje na čekanju</div>
           </div>
           <div style="text-align:right;flex-shrink:0">
             ${price>0?`<div style="font-size:.9em;font-weight:900;color:#e67e22">&euro;${price.toFixed(0)}</div>`:''}
@@ -4263,11 +4233,10 @@ window.renderDaily = function(dateStr) {
       });
       html += `</div>`;
     }
-
     if (unpaidPrev.length) {
       html += `<div style="background:#fff;border:1.5px solid #e53935;border-radius:8px;overflow:hidden;margin-bottom:8px">
         <div style="background:#fff5f5;padding:8px 12px;display:flex;justify-content:space-between;align-items:center">
-          <span style="font-weight:700;font-size:.85em;color:#c62828">🔴 Nije naplaćeno — stigli RANIJE, još borave (${unpaidPrev.length})</span>
+          <span style="font-weight:700;font-size:.85em;color:#c62828">🔴 Nije naplaćeno — stigli ranije, još borave (${unpaidPrev.length})</span>
           <span style="font-weight:800;color:#c62828">&euro;${unpaidPrev.reduce((s,r)=>s+(parseFloat(r.price)||0),0).toFixed(0)}</span>
         </div>`;
       unpaidPrev.forEach(r => {
@@ -4300,54 +4269,86 @@ window.renderDaily = function(dateStr) {
     html += `</div>`;
   }
 
-  // ── Naplaćeno ───────────────────────────────────────────────────────────
-  if (paidActive.length) {
-    html += `<div id="pay-paid-sec">
-      <details style="background:#fff;border:1px solid #c8e6c9;border-radius:8px;overflow:hidden;margin-bottom:8px" ${paidJustToday.length?'open':''}>
-        <summary style="background:#e8f5e9;padding:9px 12px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;list-style:none">
-          <span style="font-weight:700;font-size:.85em;color:#2e7d32">✔ Naplaćeno (${paidActive.length}) &mdash; ukupno &euro;${paidSum.toFixed(0)}</span>
-          <span style="font-size:.75em;color:#555">▾ detalji</span>
-        </summary>`;
+  // ── NAPLAĆENO — BLAGAJNIČKI IZVJEŠTAJ ZA DATUM ts ─────────────────────
+  // Ovaj blok prikazuje SVE naplaćene rezervacije čiji paidAt = ts,
+  // plus (ispod) naplaćene vezane za taj dan ali plaćene drugim datumom.
+  // Rezervacije se NIKAD ne brišu — samo se filtriraju po paidAt datumu.
+  html += `<div id="pay-paid-sec" style="margin-top:4px">`;
 
-    // Plaćeno DANAS — istaknuto (uključuje i one koji su stigli ranije a naplaćeni danas)
-    if (paidJustToday.length) {
-      const paidTodaySum = paidJustToday.reduce((s,r)=>s+(parseFloat(r.price)||0),0);
-      html += `<div style="padding:6px 12px 2px;font-size:.75em;font-weight:700;color:#1565c0;background:#e3f2fd;border-bottom:1px solid #c8e6c9;display:flex;justify-content:space-between;align-items:center">
-        <span>💳 Naplaćeno danas (${paidJustToday.length})</span>
-        <span style="font-size:.95em;color:#0d47a1">&euro;${paidTodaySum.toFixed(0)}</span>
+  if (paidOnThisDay.length) {
+    // ── Naplaćeno ${fmtD(ts)} — GLAVNA SEKCIJA ──
+    const isOpenByDefault = true; // uvijek otvoreno — ovo je primarni izvještaj
+    html += `<div style="background:#fff;border:2px solid #27ae60;border-radius:8px;overflow:hidden;margin-bottom:8px">
+      <div style="background:#e8f5e9;padding:9px 14px;display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div style="font-weight:800;font-size:.9em;color:#1b5e20">💳 Naplaćeno ${isToday?'danas ('+fmtD(ts)+')':fmtD(ts)} — ${paidOnThisDay.length} rezervacija</div>
+          <div style="font-size:.74em;color:#388e3c;margin-top:1px">Sve rezervacije naplaćene ovog datuma, bez obzira na datum dolaska</div>
+        </div>
+        <div style="font-size:1.25em;font-weight:900;color:#1b5e20">&euro;${paidOnThisDaySum.toFixed(0)}</div>
       </div>`;
-      paidJustToday.forEach(r => {
-        const bungs = (r.bungalovi||[]).map(b=>'B'+b.bungalov).join(', ');
-        const price = parseFloat(r.price)||0;
-        const arrivedDaysAgo = Math.floor((new Date(ts)-new Date(r.checkIn))/86400000);
-        const paidTime = (r.paidAt||'').slice(11,16);
-        html += `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border-bottom:1px solid #e8f5e9;background:#f1f8ff">
-          <div>
-            <div style="font-weight:700;font-size:.88em">${escHtml(r.name||'—')} <span style="font-size:.75em;color:#1565c0;font-weight:700">💳 ${paidTime?'u '+paidTime:'danas'}${r.paidBy?' · '+escHtml(r.paidBy):''}</span></div>
-            <div style="font-size:.74em;color:#777">${escHtml(bungs)} &middot; ${arrivedDaysAgo===0?'stigao danas':'<strong>stigao '+arrivedDaysAgo+' dana ranije</strong>'} &middot; ${r.channel||'—'}</div>
+    // Sortiraj po paidAt vremenu (hronološki)
+    const sortedPaid = [...paidOnThisDay].sort((a,b) => (a.paidAt||'').localeCompare(b.paidAt||''));
+    sortedPaid.forEach(r => {
+      const bungs = (r.bungalovi||[]).map(b=>'B'+b.bungalov).join(', ');
+      const price = parseFloat(r.price)||0;
+      const nights = Math.ceil((new Date(r.checkOut)-new Date(r.checkIn))/86400000);
+      const paidTime = (r.paidAt||'').slice(11,16);
+      const checkInLabel = r.checkIn === ts ? '✈ stigao danas' :
+                           r.checkIn > ts  ? `dolazi ${fmtD(r.checkIn)}` :
+                                             `stigao ${fmtD(r.checkIn)}`;
+      // Stil reda — naglasi one koji su platili UNAPRIJED (checkIn > ts) ili kasno
+      const rowBg = r.checkIn > ts ? '#f3e5f5' : r.checkIn === ts ? '#f1f8ff' : '#fafafa';
+      const checkInColor = r.checkIn > ts ? '#7b1fa2' : r.checkIn === ts ? '#1565c0' : '#555';
+      html += `<div style="display:flex;align-items:center;padding:9px 14px;border-bottom:1px solid #e8f5e9;gap:10px;background:${rowBg}">
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+            <span style="font-weight:800;font-size:.9em">${escHtml(r.name||'—')}</span>
+            <span style="font-size:.72em;color:#fff;background:#27ae60;padding:1px 6px;border-radius:10px;font-weight:700">✔ plaćeno</span>
+            ${paidTime?`<span style="font-size:.72em;color:#1565c0;font-weight:700">u ${paidTime}${r.paidBy?' · '+escHtml(r.paidBy):''}</span>`:''}
           </div>
-          <div style="font-weight:800;color:#27ae60;font-size:.9em">&euro;${price.toFixed(0)} ✔</div>
-        </div>`;
-      });
-    }
-
-    // Plaćeno ranije — kompaktni prikaz
-    if (paidEarlier.length) {
-      html += `<div style="padding:6px 12px 2px;font-size:.75em;font-weight:700;color:#555;border-bottom:1px solid #e8f5e9">
-        Plaćeno ranije, aktivne rezervacije (${paidEarlier.length})
+          <div style="font-size:.74em;color:#555;margin-top:2px">
+            <span style="background:#f0f4ff;border-radius:3px;padding:1px 5px;font-weight:700">${escHtml(bungs)}</span>
+            &nbsp;${nights} noći &middot; ${fmtD(r.checkIn)}→${fmtD(r.checkOut)} &middot; ${r.channel||'—'}
+          </div>
+          <div style="font-size:.72em;font-weight:700;color:${checkInColor};margin-top:1px">${checkInLabel}</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div style="font-size:1em;font-weight:900;color:#27ae60">&euro;${price.toFixed(0)}</div>
+        </div>
       </div>`;
-      paidEarlier.forEach(r => {
-        const bungs = (r.bungalovi||[]).map(b=>'B'+b.bungalov).join(', ');
-        const price = parseFloat(r.price)||0;
-        html += `<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 12px;border-bottom:1px solid #f0f0f0;font-size:.84em">
-          <span><strong>${escHtml(r.name||'—')}</strong> <span style="color:#888;font-size:.88em">(${escHtml(bungs)} &middot; ${fmtD(r.checkIn)}→${fmtD(r.checkOut)})</span></span>
-          <span style="color:#27ae60;font-weight:700">&euro;${price.toFixed(0)} ✔</span>
-        </div>`;
-      });
-    }
-    html += `</details></div>`;
+    });
+    html += `</div>`;
+  } else {
+    html += `<div style="background:#f9f9f9;border:1px dashed #c8e6c9;border-radius:8px;padding:12px 14px;text-align:center;color:#888;font-size:.85em;margin-bottom:8px">
+      Nema naplaćenih rezervacija za ${isToday?'danas ('+fmtD(ts)+')':fmtD(ts)}
+    </div>`;
   }
 
+  // ── Plaćene vezane za ovaj dan, ali naplaćene DRUGIM datumom ────────
+  if (paidRelatedEarlier.length) {
+    html += `<details style="background:#fff;border:1px solid #c8e6c9;border-radius:8px;overflow:hidden;margin-bottom:8px">
+      <summary style="background:#f1f8e9;padding:8px 12px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;list-style:none">
+        <span style="font-weight:700;font-size:.82em;color:#33691e">📋 Aktivne naplaćene rezervacije (${paidRelatedEarlier.length}) — naplaćene drugim datumom</span>
+        <span style="font-size:.72em;color:#555">▾ prikaži</span>
+      </summary>`;
+    paidRelatedEarlier.forEach(r => {
+      const bungs = (r.bungalovi||[]).map(b=>'B'+b.bungalov).join(', ');
+      const price = parseFloat(r.price)||0;
+      const paidDate = (r.paidAt||'').slice(0,10);
+      const paidTime = (r.paidAt||'').slice(11,16);
+      html += `<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 12px;border-bottom:1px solid #f0f0f0;font-size:.84em">
+        <div>
+          <strong>${escHtml(r.name||'—')}</strong>
+          <span style="color:#888;font-size:.9em"> (${escHtml(bungs)} · ${fmtD(r.checkIn)}→${fmtD(r.checkOut)})</span>
+          ${paidDate?`<div style="font-size:.78em;color:#1565c0;margin-top:1px">💳 napl. ${fmtD(paidDate)}${paidTime?' u '+paidTime:''}${r.paidBy?' · '+escHtml(r.paidBy):''}</div>`:''}
+        </div>
+        <span style="color:#27ae60;font-weight:700;white-space:nowrap">&euro;${price.toFixed(0)} ✔</span>
+      </div>`;
+    });
+    html += `</details>`;
+  }
+
+  html += `</div>`;
   html += `</div>`;
   // ════════════════════════════════════════════════════════════════════════
 
