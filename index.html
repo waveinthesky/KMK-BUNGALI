@@ -9450,9 +9450,14 @@ window.deleteIcalLink = async id => {
 };
 
 // Parsiranje iCal formata (RFC 5545)
+// FIX: RFC 5545 line folding — Booking.com prelama dugacke UID-ove na vise linija
+// (svaka nastavna linija pocinje razmakom ili tabom). Bez unfold-a, UID bude skracen
+// i isti event dobije razlicit UID pri svakom sync-u → duplikati u bazi.
 function parseIcal(text) {
+  // Unfold: ukloni CRLF/LF + whitespace koji oznacava nastavak linije (RFC 5545 sec 3.1)
+  const unfolded = text.replace(/\r?\n[ \t]/g, '');
   const events = [];
-  const blocks = text.split('BEGIN:VEVENT');
+  const blocks = unfolded.split('BEGIN:VEVENT');
   for (let i = 1; i < blocks.length; i++) {
     const block = blocks[i];
     const dtstart = block.match(/DTSTART[^:]*:([\d]+)/);
@@ -9476,6 +9481,10 @@ function parseIcal(text) {
 // silent=false → prikazuje alert sa rezultatom (rucni sync)
 // silent=true  → tiho, samo loguje u konzolu (auto sync)
 let _icalSyncing = false; // lock za sprečavanje istovremenog sync-a
+// Set UID-ova dodanih tokom TEKUCEG sync ciklusa (reset na pocetku syncAllIcal/doSync)
+// Sprecava duplikate kada Firestore onSnapshot nije stigao da osvjezi reservations array
+// prije nego sto sljedeci link u istom ciklusu pocne sync
+let _icalSessionUids = new Set();
 
 async function syncIcalLink(id, silent) {
   const lnk = (window.icalLinks||[]).find(x=>x.id===id);
@@ -9526,7 +9535,8 @@ async function syncIcalLink(id, silent) {
   const existing = reservations.filter(r => r.icalLinkId === id);
   const existingByUid = {};
   existing.forEach(r => { if (r.icalUid) existingByUid[r.icalUid] = r; });
-  const existingUids = new Set(Object.keys(existingByUid));
+  // Ukljuci i UID-ove dodane od DRUGIH linkova u ovom sync ciklusu (Firestore jos nije osvjezio array)
+  const existingUids = new Set([...Object.keys(existingByUid), ..._icalSessionUids]);
 
   // Dolazeci eventi (samo buduce)
   const incoming = events.filter(ev => ev.checkOut >= today);
@@ -9612,6 +9622,8 @@ async function syncIcalLink(id, silent) {
         icalLinkId: id, icalUid: ev.uid,
         createdAt: new Date().toISOString(), createdBy: curUser
       });
+      // Registruj UID u session set odmah — prije nego onSnapshot osvjezi reservations
+      if (ev.uid) _icalSessionUids.add(ev.uid);
       added++;
     } catch(e) { console.warn('iCal add error:', e); }
   }
@@ -9685,6 +9697,7 @@ window.syncAllIcal = async () => {
   if (!links.length) { alert('Nema sacuvanih iCal linkova.'); return; }
   const statusEl = document.getElementById('ical-status');
   if (statusEl) statusEl.textContent = 'Sinhronizujem sve linkove...';
+  _icalSessionUids = new Set(); // Reset session tracka za novi ciklus
   // Serijalni sync — sprečava race condition između linkova koji dijele bungalov
   for (const lnk of links) {
     try { await syncIcalLink(lnk.id, true); }
@@ -9731,6 +9744,7 @@ function startAutoIcalSync() {
     _icalNextSync = Date.now() + ICAL_INTERVAL_MS;
     const links = window.icalLinks || [];
     if (!links.length) return;
+    _icalSessionUids = new Set(); // Reset session tracka za novi auto-sync ciklus
     // Serijalni sync — isti kao syncAllIcal, sprečava _icalSyncing lock konflikt
     for (const lnk of links) {
       try { await syncIcalLink(lnk.id, true); }
