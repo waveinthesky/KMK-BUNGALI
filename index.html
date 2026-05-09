@@ -113,13 +113,12 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 .bs-restore{background:#28a745;color:white}
 
 /* CALENDAR */
-.cal-wrap{overflow:auto;margin-top:14px;max-height:70vh}
+.cal-wrap{overflow:auto;margin-top:14px;max-height:72vh;position:relative}
 .cal-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px}
 .cal-nav{display:flex;gap:8px;align-items:center}
 .cal-nav button{padding:7px 16px;background:#667eea;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600}
 .cal-grid{display:grid;gap:1px;background:#dee2e6;border:1px solid #dee2e6;min-width:1100px}
 .cal-row{display:grid;grid-template-columns:60px repeat(31,1fr);gap:1px}
-.cal-wrap{overflow:auto;max-height:72vh;position:relative}
 .cal-row-hdr{position:sticky;top:0;z-index:20;background:#dee2e6}
 .cal-row-hdr .cc.hdr{position:sticky;top:0;z-index:20}
 .cal-col-bung{position:sticky;left:0;z-index:15;background:white}
@@ -379,25 +378,14 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 .mob-bung-btn{padding:12px 6px;border:1.5px solid #dfe7dd;border-radius:12px;text-align:center;cursor:pointer;font-weight:800;font-size:.9em;background:#fff;color:#587055;transition:all .15s;-webkit-tap-highlight-color:transparent}
 .mob-bung-busy{background:#ffebee!important;border:2px solid #c62828!important;color:#c62828!important;cursor:not-allowed!important;opacity:.85}
 .mob-bung-busy small{color:#c62828!important;font-weight:700}
-.mob-bung-btn.sel{background:#3f6f43!important;border-color:#3f6f43!important;color:#fff!important}
 .mob-bung-btn small{display:block;font-size:.68em;font-weight:700;color:#7b8777;margin-top:2px}
-.mob-bung-btn.sel{background:#5f7f56;border-color:#5f7f56;color:white;box-shadow:0 8px 18px rgba(95,127,86,.18)}
 .mob-bung-btn.sel small{color:#e9efe8}
 .mob-bung-btn:active{transform:scale(.97)}
-.mob-bung-card{background:white;border:1px solid #e7ece5;border-radius:16px;padding:12px;margin-top:10px;box-shadow:0 2px 10px rgba(0,0,0,.05)}
-.mob-bung-card.err{border-color:#efb4b4;background:#fff9f9}
-.mob-bung-card.warn{border-color:#e6d4a7;background:#fffdf7}
-.mob-bung-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:10px}
-.mob-bung-title{font-size:1em;font-weight:900;color:#20301e}
-.mob-bung-sub{font-size:.76em;color:#727d70;margin-top:2px}
-.mob-bung-remove{border:none;background:#fff2f1;color:#c74f46;font-weight:800;border-radius:10px;padding:8px 10px;cursor:pointer;font-size:.76em}
-.mob-guest-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .mob-counter{border:1px solid #edf1ec;border-radius:14px;padding:10px 8px;background:#fafcf9;text-align:center}
 .mob-counter label{display:block;font-size:.72em;color:#667061;font-weight:800;margin-bottom:7px}
 .mob-counter-controls{display:flex;align-items:center;justify-content:center;gap:8px}
 .mob-counter-controls button{width:28px;height:28px;border:none;border-radius:50%;background:#edf2eb;color:#50684d;font-size:1.05em;font-weight:800;cursor:pointer}
 .mob-counter-controls strong{min-width:20px;display:inline-block;font-size:1em;color:#21311f}
-.mob-bung-price{margin-top:10px;padding-top:10px;border-top:1px dashed #e4e9e2;font-size:.82em;color:#51614f;line-height:1.4}
 .mob-bung-price .price-main{font-size:1.05em;font-weight:900;color:#2f6d3d}
 .mob-section-title{font-size:.86em;font-weight:900;color:#384736;margin:12px 0 8px}
 .mob-review-block{background:#fff;border:1px solid #e9eee8;border-radius:16px;padding:14px;margin-bottom:10px;box-shadow:0 1px 6px rgba(0,0,0,.04)}
@@ -977,13 +965,11 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 .b-sel option:disabled{color:#999;background:#f5f5f5}
 
 /* ─── Mob bungalov dugmad pojačan kontrast ─────────────── */
-.mob-bung-btn.bung-free{border:2px solid #2e7d32!important;background:linear-gradient(135deg,#e8f5e9,#c8e6c9)!important;color:#1b5e20!important;font-weight:800}
-.mob-bung-btn.bung-busy{border:2px solid #c62828!important;background:linear-gradient(135deg,#ffebee,#ffcdd2)!important;color:#b71c1c!important;cursor:not-allowed!important;opacity:.85}
-.mob-bung-btn.bung-warn{border:2px solid #e65100!important;background:linear-gradient(135deg,#fff3e0,#ffe0b2)!important;color:#bf360c!important}
+/* Klase usklađene sa JS className assignmentom (mob-bung-busy, ne bung-busy) */
+.mob-bung-btn.mob-bung-busy{border:2px solid #c62828!important;background:linear-gradient(135deg,#ffebee,#ffcdd2)!important;color:#b71c1c!important;cursor:not-allowed!important;opacity:.85}
 .mob-bung-btn.sel{border:2.5px solid #3f6f43!important;background:#3f6f43!important;color:#fff!important;box-shadow:0 2px 8px rgba(63,111,67,.35)}
 .mob-bung-btn{position:relative}
-.mob-bung-btn.bung-busy::after{content:'🔴';position:absolute;top:4px;right:4px;font-size:.7em}
-.mob-bung-btn.bung-free::after{content:'✓';position:absolute;top:4px;right:4px;font-size:.7em;color:#2e7d32}
+.mob-bung-btn.mob-bung-busy::after{content:'🔴';position:absolute;top:4px;right:4px;font-size:.7em}
 #kmk-busy-toast{animation:kmkSlideUp .25s ease}
 @keyframes kmkSlideUp{from{transform:translateX(-50%) translateY(20px);opacity:0}to{transform:translateX(-50%) translateY(0);opacity:1}}
 
@@ -1083,21 +1069,14 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
       window.addEventListener('load', () => {
         navigator.serviceWorker.register(new URL('sw.js', location.href).pathname)
           .then(reg => console.log('SW registered:', reg.scope))
-          .catch(err => {
-            console.log('SW registration failed for sw.js, trying versioned SW:', err);
-            return navigator.serviceWorker.register(new URL('sw_desktop_vision_v2_4_2.js', location.href).pathname)
-              .then(reg => console.log('SW registered:', reg.scope))
-              .catch(err2 => console.log('SW registration failed:', err2));
-          });
+          .catch(() => {}); // sw.js nije obavezan — tiho ignorisati ako ne postoji
       });
-    } else {
-      console.log('SW skipped: requires http/https origin. For local testing use: py -m http.server 8080');
     }
   </script>
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <!-- Google Sign-In uklonjen — nije korišten u aplikaciji -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 
-  <link rel="stylesheet" href="kmk_desktop_vision_assets_v242/desktop-vision-v2.4.2.css">
+  <!-- desktop-vision-v2.4.2.css uklonjen — fajl ne postoji (bio 404) -->
 </head>
 <body>
 <!-- Undo delete toast -->
@@ -2693,7 +2672,7 @@ try {
 // Pokrećemo listener ovdje, na top-levelu, odmah pri startu stranice.
 window.pricePeriods = [];
 let appUsers = {};
-onSnapshot(collection(db,'appUsers'), snap => {
+_appUsersSub = onSnapshot(collection(db,'appUsers'), snap => {
   appUsers = {};
   snap.docs.forEach(d => {
     const u = d.data();
@@ -2701,7 +2680,7 @@ onSnapshot(collection(db,'appUsers'), snap => {
   });
   renderUsersIfVisible?.();
 });
-onSnapshot(collection(db,'pricePeriods'), snap => {
+_pricePeriodsSub = onSnapshot(collection(db,'pricePeriods'), snap => {
   window.pricePeriods = snap.docs.map(d=>({id:d.id,...d.data()}));
   renderPricePeriodsIfVisible?.();
 });
@@ -2714,7 +2693,8 @@ let period='today', pFrom=null, pTo=null;
 let bungCount=1, autoBackupTimer=null, lastLogin=null, notifs=[];
 let priceManual=false;
 let _initDone=false;                  // #01 guard
-let _resSub=null, _histSub=null, _notifSub=null; // #01 Firestore unsubscribe handles
+let _resSub=null, _histSub=null, _notifSub=null; // #01 Firestore unsubscribe handles (setupFirebase)
+let _appUsersSub=null, _pricePeriodsSub=null, _channelsSub=null, _icalLinksSub=null; // top-level handles
 let _undoDeleteData=null, _undoDeleteTimer=null; // soft delete undo
 let _formSubmitting=false;            // #02 double-submit guard
 
@@ -2732,8 +2712,8 @@ async function hashPassword(pw) {
 async function verifyPassword(pw, storedHash) {
   if (!pw && !storedHash) return true;  // nopass mode
   if (!storedHash) return false;
-  // Backwards compat: if stored hash looks like plain text (len!=64), compare direct
-  if (storedHash.length !== 64) return pw === storedHash;
+  // Uvijek hasiramo i poredimo — plaintext backwards compat je uklonjen (sigurnosni razlog)
+  // Ako je stara lozinka bila plaintext u Firestoru, admin mora resetovati lozinku
   const h = await hashPassword(pw);
   return h === storedHash;
 }
@@ -2775,6 +2755,17 @@ const COUNTRIES=['Albanija','Alžir','Argentina','Australija','Austrija','Azerbe
     const fu = appUsers[savedUser];
     if (!fu) return;
 
+    // Provjeri da auto-login nije stariji od 30 dana
+    const rememberTs = parseInt(localStorage.getItem('kmk_remember_ts') || '0');
+    const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
+    if (rememberTs && (Date.now() - rememberTs) > THIRTY_DAYS_MS) {
+      localStorage.removeItem('kmk_remember');
+      localStorage.removeItem('kmk_saved_user');
+      localStorage.removeItem('kmk_saved_hash');
+      localStorage.removeItem('kmk_remember_ts');
+      return; // Istekao auto-login — korisnik mora ponovo unijeti lozinku
+    }
+
     // Provjeri hash — hash se cuva kao fu.pw u appUsers
     let valid = false;
     if (fu.nopass) {
@@ -2786,6 +2777,7 @@ const COUNTRIES=['Albanija','Alžir','Argentina','Australija','Austrija','Azerbe
       localStorage.removeItem('kmk_remember');
       localStorage.removeItem('kmk_saved_user');
       localStorage.removeItem('kmk_saved_hash');
+      localStorage.removeItem('kmk_remember_ts');
       return;
     }
 
@@ -2882,6 +2874,8 @@ document.getElementById('login-form').addEventListener('submit', async e => {
         localStorage.setItem('kmk_saved_user', u);
         localStorage.setItem('kmk_saved_hash', fu.pw || '');
         localStorage.setItem('kmk_remember', '1');
+        // Timestamp za auto-login expiry (30 dana)
+        localStorage.setItem('kmk_remember_ts', Date.now().toString());
       } catch(e) {}
     } else {
       try { localStorage.removeItem('kmk_saved_user'); localStorage.removeItem('kmk_saved_hash'); localStorage.removeItem('kmk_remember'); } catch(e) {}
@@ -3024,10 +3018,14 @@ window.logout = () => {
     localStorage.removeItem('kmk_saved_hash');
   } catch(e) {}
   
-  // Otkaži Firestore listenere (#01)
-  if (_resSub)   { _resSub();   _resSub=null; }
-  if (_histSub)  { _histSub();  _histSub=null; }
-  if (_notifSub) { _notifSub(); _notifSub=null; }
+  // Otkaži Firestore listenere (#01 i top-level)
+  if (_resSub)          { _resSub();          _resSub=null; }
+  if (_histSub)         { _histSub();         _histSub=null; }
+  if (_notifSub)        { _notifSub();        _notifSub=null; }
+  if (_appUsersSub)     { _appUsersSub();     _appUsersSub=null; }
+  if (_pricePeriodsSub) { _pricePeriodsSub(); _pricePeriodsSub=null; }
+  if (_channelsSub)     { _channelsSub();     _channelsSub=null; }
+  if (_icalLinksSub)    { _icalLinksSub();    _icalLinksSub=null; }
   _initDone = false;
   _formSubmitting = false;
 
@@ -3135,16 +3133,27 @@ function setupFirebase() {
   _resSub = onSnapshot(query(collection(db,'reservations'),orderBy('createdAt','desc')), snap => {
     reservations = snap.docs.map(d=>({id:d.id,...d.data()}));
     syncUI('ok','Sinhronizovano ✓');
-    renderCal(); renderResList(); renderDaily(); renderStats();
-    if (typeof detectConflicts === 'function') detectConflicts();
     if (typeof isMobile === 'function' && isMobile()) {
-      if (typeof renderMobDaily === 'function') renderMobDaily();
-      if (typeof renderMobListFiltered === 'function' && document.getElementById('mob-list-content')) renderMobListFiltered();
-      // Refresh V2 kalendara ako je aktivan i kalendar tab je otvoren
+      // Mobilni uređaj — renderuj samo aktivan tab
+      if (typeof renderMobDaily === 'function' && _mobCurrentTab === 'daily') renderMobDaily();
+      if (typeof renderMobListFiltered === 'function' && _mobCurrentTab === 'list' && document.getElementById('mob-list-content')) renderMobListFiltered();
       if (_mobCurrentTab === 'calendar' && typeof _mobCalView !== 'undefined') {
         if (_mobCalView === 'v2' && typeof renderMobCalV2 === 'function') _oldRenderMobCalV2();
         else if (_mobCalView === 'v3' && typeof renderMobCalV3 === 'function') _oldRenderMobCalV3();
       }
+    } else {
+      // Desktop — renderuj vidljive tabove
+      const activePane = document.querySelector('.tab-pane.active');
+      const activeId = activePane ? activePane.id : '';
+      renderCal(); // kalendar uvijek (brz, korisnici ga očekuju ažurnim)
+      renderResList(); // lista uvijek (filter state se čuva)
+      if (activeId === 'pane-daily' || activeId === '') renderDaily();
+      if (activeId === 'pane-stats') renderStats(); // stats samo ako je otvoren
+    }
+    // detectConflicts je O(n²) — debounce da ne puca na svakom snapshot
+    if (typeof detectConflicts === 'function') {
+      clearTimeout(window._detectConflictsTimer);
+      window._detectConflictsTimer = setTimeout(detectConflicts, 400);
     }
   }, e => syncUI('er','Greška: '+e.message));
   _histSub = onSnapshot(query(collection(db,'history'),orderBy('timestamp','desc')), snap => {
@@ -5677,6 +5686,26 @@ window.setNotifTab = (tab, btn) => {
   updNotif();
 };
 
+// ── addNotif — direktno dodaje notifikaciju u panel (bez hist) ──
+// Koristi se za worker_edit (iz notifications kolekcije) i iCal health.
+// Stavke se čuvaju samo u memoriji (notifs array) — nestaju pri reload-u.
+// Provjeri duplikat po tekstu da isti iCal health warning ne bude 10x.
+function addNotif(msg) {
+  if (curRole !== 'admin') return;
+  // Spriječi duplikate — isti tekst ne dodavaj više od jednom
+  if (notifs.some(n => n._directMsg === msg)) return;
+  notifs.unshift({
+    _directMsg: msg,
+    action: msg.includes('iCal') || msg.includes('sync') ? 'ical_overlap_problem' : 'worker_edit',
+    userName: msg.includes('iCal') ? 'iCal Sync' : '',
+    user: msg.includes('iCal') ? 'auto' : curUser,
+    reservation: null,
+    reason: null,
+    timestamp: new Date().toISOString()
+  });
+  updNotif();
+}
+
 // iCal akcije — sve što dolazi iz sync-a
 const ICAL_ACTIONS = new Set(['ical_overlap_problem','ical_overlap_ok','ical_added','ical_updated','ical_deleted']);
 const isIcalNotif = n => ICAL_ACTIONS.has(n.action) || n.user === 'auto' || n.userName === 'iCal Sync';
@@ -6218,7 +6247,7 @@ window.mobCloseQuickForm = (e) => {
 
 function mobToggleBung(b, btn) {
   // Blokuj zauzete bungalove
-  if (btn && btn.classList && btn.classList.contains('bung-busy')) {
+  if (btn && btn.classList && btn.classList.contains('mob-bung-busy')) {
     const existing = document.getElementById('kmk-busy-toast');
     if (existing) existing.remove();
     const toast = document.createElement('div');
@@ -7065,11 +7094,7 @@ window.mobDelRes = async (id, name) => {
 };
 
 // ── INIT MOBILNIH ELEMENATA PRI LOGIN ─────────────────
-function initMobileOnLogin() {
-  if (!isMobile()) return;
-  updateMobHeader();
-  mobGoTab('daily');
-}
+// initMobileOnLogin uklonjena — nije se pozivala (logika je inline pri loginu)
 
 // ══════════════════════════════════════════════════════
 // CONFLICT DETECTION — automatska provjera pri svakoj
@@ -7218,14 +7243,7 @@ function renderConflictsPane() {
 }
 
 // Mobilni prikaz konflikata u "Više" sheet
-function renderMobConflicts() {
-  const item = document.getElementById('mob-conflicts-item');
-  if (!item) return;
-  const count = _activeConflicts.length;
-  item.style.display = count > 0 ? 'flex' : 'none';
-  const badge = item.querySelector('.mob-cf-cnt');
-  if (badge) badge.textContent = count + ' konflikt' + (count > 1 ? 'a' : '');
-}
+// renderMobConflicts uklonjena — updateConflictUI već radi isti posao (linija ~7168)
 
 // ── BRISANJE RUČNIH REZERVACIJA (admin only) ──────────────
 window.deleteManualReservations = async () => {
@@ -8545,21 +8563,7 @@ function renderOccupancyBar() {
 // ══════════════════════════════════════════════════════════
 // iCAL SYNC HEALTH CHECK — upozorenje ako sync ne radi 24h
 // ══════════════════════════════════════════════════════════
-function checkIcalSyncHealth() {
-  if (!window.icalLinks || !window.icalLinks.length) return;
-  if (curRole !== 'admin') return;
-  const now = new Date();
-  const stale = window.icalLinks.filter(lnk => {
-    if (!lnk.lastSync) return true; // nikad nije syncovano
-    const last = new Date(lnk.lastSync);
-    const hoursAgo = (now - last) / 3600000;
-    return hoursAgo > 24;
-  });
-  if (stale.length > 0) {
-    const names = stale.map(l => (l.name||'B'+l.bungalov)).join(', ');
-    addNotif('⚠️ iCal sync nije radio >24h za: ' + names + ' — provjeri vezu i linkove!');
-  }
-}
+// checkIcalSyncHealth uklonjena — duplikat od checkIcalHealth (koja se poziva)
 
 // ── EXCEL IMPORT ───────────────────────────────────────────────
 // Cuva parsed redove za preview -> potvrdu
@@ -8612,22 +8616,7 @@ function parseImportDate(s) {
 }
 
 // Parsiranje bungalova iz stringa — vraca niz stringova npr ['1','2','3']
-function parseImportBungalovi(s) {
-  if (!s) return [];
-  s = s.trim();
-  // SVI BUNGALI — svih 13
-  if (/svi\s*bungal/i.test(s)) {
-    return ['1','2','3','4','5','6','7','8','9','10','11','12','13'];
-  }
-  // Pronadi sve B+broj ili samo broj kombinacije
-  const matches = s.match(/[Bb]\s*(\d{1,2})/g) || [];
-  if (matches.length > 0) {
-    return matches.map(m => m.replace(/[Bb]\s*/,'').trim());
-  }
-  // Fallback — samo brojevi
-  const nums = s.match(/\d{1,2}/g) || [];
-  return nums.filter(n => parseInt(n) >= 1 && parseInt(n) <= 13);
-}
+// parseImportBungalovi uklonjena — nije se pozivala
 
 // Parsiranje CSV linije — pazi na zareze unutar navodnika
 function parseCSVLine(line) {
@@ -9131,8 +9120,7 @@ let editingUserId = null, editingPriceId = null;
 
 // Init settings listeners
 async function initSettings() {
-  // pricePeriods, appUsers i channels listeneri su na top-levelu
-  initChannels();
+  // pricePeriods, appUsers, channels i icalLinks listeneri su na top-levelu — nema potrebe za init
 }
 
 function renderPricePeriodsIfVisible() { if(document.getElementById('set-prices').style.display!=='none') renderPricePeriods(); }
@@ -9372,9 +9360,12 @@ const DEFAULT_CHANNELS=[{name:'Facebook',icon:'📘'},{name:'Instagram',icon:'�
 let editingChannelId=null;
 // ── UČITAJ KANALE ODMAH (top-level, kao appUsers) ────────────
 window.appChannels = [];
-onSnapshot(collection(db,'channels'), async snap => {
+let _channelsSeedDone = false; // guard — seed se pokreće samo jednom
+_channelsSub = onSnapshot(collection(db,'channels'), async snap => {
   if (snap.empty) {
-    // Inicijalni seed — koristi setDoc sa fiksnim ID-jem da se izbjegnu duplikati
+    // Inicijalni seed — pokreni samo jednom da izbjegnemo trigger→snapshot→trigger loop
+    if (_channelsSeedDone) return;
+    _channelsSeedDone = true;
     for (const ch of DEFAULT_CHANNELS) {
       const id = ch.name.toLowerCase().replace(/[^a-z0-9]/g,'_');
       await setDoc(doc(db,'channels',id), {...ch, createdAt:new Date().toISOString()});
@@ -9383,19 +9374,20 @@ onSnapshot(collection(db,'channels'), async snap => {
   }
 
   // Deduplikacija: ako postoje dva kanala s istim imenom, zadrži jedan i obriši ostale
+  // Guard: pokreni brisanje samo ako ima stvarnih duplikata (ne pri svakom snapshot-u)
   const allDocs = snap.docs.map(d=>({id:d.id,...d.data()}));
   const seen = {};
   const toDelete = [];
   allDocs.forEach(ch => {
     const key = (ch.name||'').toLowerCase().trim();
     if (seen[key]) {
-      toDelete.push(ch.id); // duplikat — označi za brisanje
+      toDelete.push(ch.id);
     } else {
       seen[key] = ch;
     }
   });
-  if (toDelete.length) {
-    // Tiho obriši duplikate u pozadini
+  if (toDelete.length > 0) {
+    // Tiho obriši duplikate — ovo triguje novi snapshot ali seen guard sprječava loop
     toDelete.forEach(id => deleteDoc(doc(db,'channels',id)).catch(()=>{}));
   }
 
@@ -9404,11 +9396,11 @@ onSnapshot(collection(db,'channels'), async snap => {
   if(document.getElementById('set-channels')?.style.display!=='none') renderChannels();
 });
 
-function initChannels() { /* listener je na top-levelu — ova funkcija je prazna radi kompatibilnosti */ }
+// initChannels uklonjena — listener je na top-levelu, stub nije potreban
 function rebuildChannelSelect() {
   const sel=document.getElementById('f-channel'); if(!sel) return;
   const cur=sel.value;
-  sel.innerHTML=(window.appChannels||[]).map(ch=>`<option value="${ch.name}">${ch.icon||''} ${ch.name}</option>`).join('');
+  sel.innerHTML=(window.appChannels||[]).map(ch=>`<option value="${escHtml(ch.name||'')}">${escHtml(ch.icon||'')} ${escHtml(ch.name||'')}</option>`).join('');
   if(cur) sel.value=cur;
 }
 window.renderChannels = function() {
@@ -9526,7 +9518,7 @@ window.deleteChannel=async id=>{
 window.icalLinks = [];
 let editingIcalId = null;
 
-onSnapshot(collection(db,'icalLinks'), snap => {
+_icalLinksSub = onSnapshot(collection(db,'icalLinks'), snap => {
   window.icalLinks = snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>parseInt(a.bungalov)-parseInt(b.bungalov));
   if (document.getElementById('set-ical')?.style.display !== 'none') renderIcalLinks();
   // Restartuj auto sync timer ako su se linkovi promijenili (dodato/obrisano)
@@ -10194,7 +10186,7 @@ window.v2TapDay=(ds)=>{
 
 let _kmkV3Sel={bn:null,start:null,end:null};
 function kmkDiffDays(a,b){ return Math.round((new Date(b+'T00:00:00')-new Date(a+'T00:00:00'))/86400000); }
-function kmkAddDays(ds,n){ const d=new Date(ds+'T00:00:00'); d.setDate(d.getDate()+n); return lDate(d); }
+// kmkAddDays uklonjena — nije se pozivala
 function kmkV3VisibleRange(dates){ return { start: dates[0], endExcl: kmkNextDay(dates[dates.length-1]) }; }
 function kmkV3BarColor(st){ return ({manual:'#7fa8ed',booking:'#24539b',paid:'#416f46',closed:'#9a9a9a',conflict:'#ef807d'}[st]||'#7fa8ed'); }
 function kmkV3ReservationsFor(bn, visStart, visEndExcl){
@@ -10479,6 +10471,6 @@ window.KMK_APP_BRIDGE = {
 })();
 </script>
 
-<script src="kmk_desktop_vision_assets_v242/desktop-vision-v2.4.2.js"></script>
+<!-- desktop-vision-v2.4.2.js uklonjen — fajl ne postoji (bio 404) -->
 </body>
 </html>
