@@ -3008,12 +3008,18 @@ function init() {
     })();
     _ciInput.addEventListener('change', () => {
       // Postavi min za checkout = checkin + 1 dan
+      // Za admina pri editu prošle rezervacije — ne primjenjuj min, samo logički minimum
       if (_ciInput.value) {
         const minCo = new Date(_ciInput.value + 'T00:00:00');
         minCo.setDate(minCo.getDate() + 1);
         const minCoStr = minCo.toISOString().slice(0,10);
-        _coInput.min = minCoStr;
-        // Ako je checkout prazan ili manji od novog min — postavi na min
+        // Admin pri editu (editId postoji) — samo logički min (checkout > checkin)
+        if (typeof editId !== 'undefined' && editId && typeof curRole !== 'undefined' && curRole === 'admin') {
+          _coInput.min = '';
+        } else {
+          _coInput.min = minCoStr;
+        }
+        // Ako je checkout prazan ili manji/jednak checkin — postavi na checkin+1
         if (!_coInput.value || _coInput.value <= _ciInput.value) {
           _coInput.value = minCoStr;
         }
@@ -3361,6 +3367,14 @@ document.getElementById('res-form').addEventListener('submit', async e => {
   const ci=document.getElementById('f-checkin').value;
   const co=document.getElementById('f-checkout').value;
   if (new Date(co)<=new Date(ci)) { alert('Datum odlaska mora biti nakon dolaska!'); return; }
+  // Provjera prošlih datuma: admin može editovati prošle, worker ne
+  const _today = new Date(); _today.setHours(0,0,0,0);
+  if (!editId && new Date(ci+'T00:00:00') < _today) {
+    if (curRole !== 'admin') { alert('❌ Ne možete unositi rezervacije sa prošlim datumom dolaska.'); return; }
+  }
+  if (editId && new Date(ci+'T00:00:00') < _today && curRole === 'admin') {
+    // Admin edituje prošlu rezervaciju — samo tiho, bez blokade
+  }
   for (const b of bungalovi) {
     const ov=reservations.find(r=>r.id!==editId&&!r.cancelled&&r.bungalovi?.some(rb=>rb.bungalov==b.bungalov)&&ci<r.checkOut&&co>r.checkIn);
     if (ov) {
