@@ -2682,6 +2682,9 @@ try {
 // ── UČITAJ KORISNIKE ODMAH (potrebno za login) ───────────────
 // appUsers mora biti popunjen PRIJE prvog login pokušaja.
 // Pokrećemo listener ovdje, na top-levelu, odmah pri startu stranice.
+// VAŽNO: _appUsersSub i ostali top-level handles moraju biti deklarirani OVDJE
+// (let ima TDZ — ne može se koristiti prije deklaracije, za razliku od var)
+let _appUsersSub=null, _pricePeriodsSub=null, _channelsSub=null, _icalLinksSub=null;
 window.pricePeriods = [];
 let appUsers = {};
 _appUsersSub = onSnapshot(collection(db,'appUsers'), snap => {
@@ -2706,7 +2709,8 @@ let bungCount=1, autoBackupTimer=null, lastLogin=null, notifs=[];
 let priceManual=false;
 let _initDone=false;                  // #01 guard
 let _resSub=null, _histSub=null, _notifSub=null; // #01 Firestore unsubscribe handles (setupFirebase)
-let _appUsersSub=null, _pricePeriodsSub=null, _channelsSub=null, _icalLinksSub=null; // top-level handles
+// Napomena: _appUsersSub, _pricePeriodsSub, _channelsSub, _icalLinksSub su deklarisani
+// neposredno prije prve upotrebe (top-level listeneri) da izbjegnemo TDZ grešku
 let _undoDeleteData=null, _undoDeleteTimer=null; // soft delete undo
 let _formSubmitting=false;            // #02 double-submit guard
 
