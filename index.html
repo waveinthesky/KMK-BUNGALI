@@ -1390,7 +1390,15 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
         <div id="notif-wrap" style="display:none;position:relative">
           <div class="notif-bell" onclick="toggleNotif()">🔔<span class="notif-cnt" id="notif-cnt" style="display:none">0</span></div>
           <div class="notif-panel" id="notif-panel">
-            <div class="notif-hdr"><h3>Notifikacije</h3><button class="clear-notif" onclick="clearNotif()">Očisti</button></div>
+            <div class="notif-hdr">
+              <h3>🔔 Notifikacije</h3>
+              <button class="clear-notif" onclick="clearNotif()" style="font-size:.78em;padding:3px 8px">Očisti</button>
+            </div>
+            <div style="display:flex;border-bottom:1px solid #e9ecef;background:#f8f9fa">
+              <button id="ntab-all" onclick="setNotifTab('all',this)" style="flex:1;padding:7px 4px;font-size:.75em;font-weight:700;border:none;background:#1565c0;color:#fff;cursor:pointer;border-radius:0">Sve</button>
+              <button id="ntab-ops" onclick="setNotifTab('ops',this)" style="flex:1;padding:7px 4px;font-size:.75em;font-weight:700;border:none;background:transparent;color:#555;cursor:pointer;border-right:1px solid #e9ecef">👷 Operateri</button>
+              <button id="ntab-ical" onclick="setNotifTab('ical',this)" style="flex:1;padding:7px 4px;font-size:.75em;font-weight:700;border:none;background:transparent;color:#555;cursor:pointer">🔄 iCal</button>
+            </div>
             <div id="notif-body"></div>
           </div>
         </div>
@@ -3070,14 +3078,21 @@ function init() {
     _formListenersDone = true;
     const _ciInput = document.getElementById('f-checkin');
     const _coInput = document.getElementById('f-checkout');
-    // Postavi min=danas na checkin pri prvom setupu
+    // Postavi min=danas na checkin samo za workera
+    // Admin nema min ograničenje — može unijeti i prošle rezervacije
     (function() {
       var today = new Date(); today.setHours(0,0,0,0);
       var todayStr = today.toISOString().slice(0,10);
-      if (_ciInput && !_ciInput.min) _ciInput.min = todayStr;
-      if (_coInput && !_coInput.min) {
-        var tmr = new Date(today); tmr.setDate(tmr.getDate()+1);
-        _coInput.min = tmr.toISOString().slice(0,10);
+      if (curRole !== 'admin') {
+        if (_ciInput && !_ciInput.min) _ciInput.min = todayStr;
+        if (_coInput && !_coInput.min) {
+          var tmr = new Date(today); tmr.setDate(tmr.getDate()+1);
+          _coInput.min = tmr.toISOString().slice(0,10);
+        }
+      } else {
+        // Admin — bez min ograničenja
+        if (_ciInput) _ciInput.min = '';
+        if (_coInput) _coInput.min = '';
       }
     })();
     _ciInput.addEventListener('change', () => {
@@ -3088,7 +3103,8 @@ function init() {
         minCo.setDate(minCo.getDate() + 1);
         const minCoStr = minCo.toISOString().slice(0,10);
         // Admin pri editu (editId postoji) — samo logički min (checkout > checkin)
-        if (typeof editId !== 'undefined' && editId && typeof curRole !== 'undefined' && curRole === 'admin') {
+        // Admin nikad nema min ograničenje na datumima
+        if (typeof curRole !== 'undefined' && curRole === 'admin') {
           _coInput.min = '';
         } else {
           _coInput.min = minCoStr;
@@ -3587,17 +3603,20 @@ window.resetForm = () => {
   const ghPanel = document.getElementById('guest-history-panel');
   if (ghPanel) ghPanel.innerHTML = '';
 
-  // Postavi min datum na danas pri resetovanju forme
+  // Admin nema min ogranicenje — moze unijeti i prosle rezervacije
   (function() {
     var today = new Date(); today.setHours(0,0,0,0);
     var todayStr = today.toISOString().slice(0,10);
     var ciEl = document.getElementById('f-checkin');
     var coEl = document.getElementById('f-checkout');
-    if (ciEl) { ciEl.min = todayStr; if (!ciEl.value) ciEl.value = todayStr; }
-    if (coEl) {
-      var tmr = new Date(today); tmr.setDate(tmr.getDate()+1);
-      var tStr = tmr.toISOString().slice(0,10);
-      coEl.min = tStr; if (!coEl.value) coEl.value = tStr;
+    var tmr = new Date(today); tmr.setDate(tmr.getDate()+1);
+    var tStr = tmr.toISOString().slice(0,10);
+    if (curRole !== 'admin') {
+      if (ciEl) { ciEl.min = todayStr; if (!ciEl.value) ciEl.value = todayStr; }
+      if (coEl) { coEl.min = tStr; if (!coEl.value) coEl.value = tStr; }
+    } else {
+      if (ciEl) { ciEl.min = ''; if (!ciEl.value) ciEl.value = todayStr; }
+      if (coEl) { coEl.min = ''; if (!coEl.value) coEl.value = tStr; }
     }
   })();
 };
@@ -5643,67 +5662,121 @@ window.filterHist = () => {
 // ── NOTIFICATIONS ────────────────────────────────────────────
 window.toggleNotif=()=>document.getElementById('notif-panel').classList.toggle('open');
 window.clearNotif=()=>{ notifs=[]; updNotif(); document.getElementById('notif-panel').classList.remove('open'); };
+
+// Aktivan tab u notifikacionom panelu: 'all' | 'ops' | 'ical'
+let _notifTab = 'all';
+window.setNotifTab = (tab, btn) => {
+  _notifTab = tab;
+  // Stil dugmadi
+  ['all','ops','ical'].forEach(t => {
+    const b = document.getElementById('ntab-'+t);
+    if (!b) return;
+    b.style.background = t === tab ? '#1565c0' : 'transparent';
+    b.style.color = t === tab ? '#fff' : '#555';
+  });
+  updNotif();
+};
+
+// iCal akcije — sve što dolazi iz sync-a
+const ICAL_ACTIONS = new Set(['ical_overlap_problem','ical_overlap_ok','ical_added','ical_updated','ical_deleted']);
+const isIcalNotif = n => ICAL_ACTIONS.has(n.action) || n.user === 'auto' || n.userName === 'iCal Sync';
+
 function checkNotifs() {
   if (curRole!=='admin'||!lastLogin) return;
   const lastLoginDate = new Date(lastLogin);
-  notifs=hist.filter(h=>new Date(h.timestamp)>lastLoginDate&&(h.user!==curUser||h.action==='ical_overlap_problem'||h.action==='ical_overlap_ok')).map(h=>({ ...h }));
+  notifs=hist.filter(h=>new Date(h.timestamp)>lastLoginDate&&(h.user!==curUser||isIcalNotif(h))).map(h=>({ ...h }));
   updNotif();
 }
-function updNotif() {
-  const c = notifs.length;
-  const cnt = document.getElementById('notif-cnt');
-  cnt.textContent = c;
-  cnt.style.display = c ? 'flex' : 'none';
 
-  // Animacija zvona kada stignu nove notifikacije
+function updNotif() {
+  const ic = {
+    added: '✅', modified: '✏️', deleted: '🗑️',
+    ical_overlap_problem: '⚠️', ical_overlap_ok: 'ℹ️',
+    worker_edit: '⚙️', restored: '↩️'
+  };
+  const lb = {
+    added: 'dodao rezervaciju', modified: 'izmijenio rezervaciju',
+    deleted: 'otkazao rezervaciju', restored: 'vratio rezervaciju',
+    ical_overlap_problem: 'iCal PREKLAPANJE', ical_overlap_ok: 'iCal poklapanje OK',
+    worker_edit: 'izmjena od radnika'
+  };
+
+  // Filtriraj po aktivnom tabu
+  let visible = [...notifs];
+  if (_notifTab === 'ops')  visible = visible.filter(n => !isIcalNotif(n));
+  if (_notifTab === 'ical') visible = visible.filter(n => isIcalNotif(n));
+
+  // Broj po tabu za badge
+  const totalOps  = notifs.filter(n => !isIcalNotif(n)).length;
+  const totalIcal = notifs.filter(n => isIcalNotif(n)).length;
+  const totalAll  = notifs.length;
+
+  // Ažuriraj badge — crveni samo ako postoje ops notifikacije (bitno za radnike)
+  const c = totalAll;
+  const cnt = document.getElementById('notif-cnt');
+  if (cnt) {
+    cnt.textContent = c;
+    cnt.style.display = c ? 'flex' : 'none';
+    cnt.style.background = totalOps > 0 ? '#dc3545' : '#f59e0b'; // crveno=ops, žuto=samo iCal
+  }
   if (c > 0) {
     const bell = document.querySelector('.notif-bell');
     if (bell) { bell.classList.remove('shake'); void bell.offsetWidth; bell.classList.add('shake'); }
   }
 
-  const ic = {
-    added: '✅', modified: '✏️', deleted: '🗑️',
-    ical_overlap_problem: '⚠️', ical_overlap_ok: 'ℹ️',
-    worker_edit: '⚙️'
-  };
-  const lb = {
-    added: 'dodao rezervaciju',
-    modified: 'izmijenio rezervaciju',
-    deleted: 'otkazao rezervaciju',
-    ical_overlap_problem: 'iCal PREKLAPANJE',
-    ical_overlap_ok: 'iCal poklapanje OK',
-    worker_edit: 'izmjena od radnika'
-  };
+  // Ažuriraj labele dugmadi sa brojevima
+  const btnAll  = document.getElementById('ntab-all');
+  const btnOps  = document.getElementById('ntab-ops');
+  const btnIcal = document.getElementById('ntab-ical');
+  if (btnAll)  btnAll.textContent  = totalAll  ? 'Sve ('+totalAll+')'   : 'Sve';
+  if (btnOps)  btnOps.textContent  = totalOps  ? '👷 Oper. ('+totalOps+')' : '👷 Operateri';
+  if (btnIcal) btnIcal.textContent = totalIcal ? '🔄 iCal ('+totalIcal+')' : '🔄 iCal';
 
-  // Grupiši po tipu — problemi/upozorenja gore
-  const sorted = [...notifs].sort((a, b) => {
-    const priority = { ical_overlap_problem: 0, worker_edit: 1, deleted: 2, modified: 3, added: 4, ical_overlap_ok: 5 };
-    return (priority[a.action] ?? 9) - (priority[b.action] ?? 9);
+  // Sortiraj — problemi/upozorenja gore, ical na dno
+  const sorted = [...visible].sort((a, b) => {
+    const priority = { ical_overlap_problem: 0, worker_edit: 1, deleted: 2, modified: 3, added: 4, restored: 5, ical_overlap_ok: 6 };
+    const pa = isIcalNotif(a) && a.action !== 'ical_overlap_problem' ? 10 : (priority[a.action] ?? 9);
+    const pb = isIcalNotif(b) && b.action !== 'ical_overlap_problem' ? 10 : (priority[b.action] ?? 9);
+    if (pa !== pb) return pa - pb;
+    return (b.timestamp||'').localeCompare(a.timestamp||''); // novije gore
   });
 
-  document.getElementById('notif-body').innerHTML = !c
-    ? '<div class="no-data" style="padding:14px;text-align:center">✓ Nema novih notifikacija</div>'
-    : sorted.map(n => {
-        const isWorkerEdit = n.action === 'worker_edit';
-        const bgColor = n.action === 'ical_overlap_problem' ? '#fff5f5'
-                      : n.action === 'worker_edit' ? '#f0edff'
-                      : 'white';
-        const resName = isWorkerEdit ? escHtml(n.resName || '') : escHtml(n.reservation?.name || '');
-        const dates   = isWorkerEdit ? '' 
-                      : n.reservation?.checkIn ? `<div class="notif-time">📅 ${fmtD(n.reservation.checkIn)} → ${fmtD(n.reservation.checkOut)}</div>` : '';
-        const user    = isWorkerEdit ? escHtml(n.editedBy || '') : escHtml(n.userName || '');
-        const action  = lb[n.action] || n.action;
-        const time    = fmtDT(n.timestamp || new Date().toISOString());
+  const body = document.getElementById('notif-body');
+  if (!body) return;
 
-        return `<div class="notif-item" style="background:${bgColor};border-radius:8px;margin-bottom:6px;padding:10px 12px;border-left:3px solid ${n.action==='ical_overlap_problem'?'#dc3545':n.action==='worker_edit'?'#667eea':'#28a745'}">
-          <div class="notif-text" style="font-size:.88em">
-            ${ic[n.action] || '📌'} <strong>${user}</strong> — ${action}${resName ? ': <strong>' + resName + '</strong>' : ''}
-          </div>
-          ${dates}
-          ${n.reason ? `<div style="font-size:.78em;color:#888;margin-top:2px">Razlog: ${escHtml(n.reason)}</div>` : ''}
-          <div class="notif-time" style="font-size:.72em;color:#aaa;margin-top:3px">${time}</div>
-        </div>`;
-      }).join('');
+  if (!visible.length) {
+    body.innerHTML = '<div class="no-data" style="padding:16px;text-align:center;color:#888">✓ Nema notifikacija za ovaj filter</div>';
+    return;
+  }
+
+  body.innerHTML = sorted.map(n => {
+    const isIcal = isIcalNotif(n);
+    const isWorkerEdit = n.action === 'worker_edit';
+    const borderClr = n.action === 'ical_overlap_problem' ? '#dc3545'
+                    : n.action === 'worker_edit' ? '#667eea'
+                    : isIcal ? '#f59e0b'
+                    : '#28a745';
+    const bgColor = n.action === 'ical_overlap_problem' ? '#fff5f5'
+                  : n.action === 'worker_edit' ? '#f0edff'
+                  : isIcal ? '#fffbeb'
+                  : '#fff';
+    const resName = isWorkerEdit ? escHtml(n.resName||'') : escHtml(n.reservation?.name||'');
+    const dates   = isWorkerEdit ? ''
+                  : n.reservation?.checkIn ? `<div class="notif-time">📅 ${fmtD(n.reservation.checkIn)} → ${fmtD(n.reservation.checkOut)}</div>` : '';
+    const user    = isWorkerEdit ? escHtml(n.editedBy||'') : escHtml(n.userName||n.user||'');
+    const action  = lb[n.action] || n.action;
+    const time    = fmtDT(n.timestamp||new Date().toISOString());
+    const tag     = isIcal ? '<span style="font-size:.7em;background:#f59e0b;color:#fff;padding:1px 5px;border-radius:4px;margin-left:4px">iCal</span>' : '';
+
+    return `<div class="notif-item" style="background:${bgColor};border-radius:8px;margin:6px 8px;padding:9px 11px;border-left:3px solid ${borderClr}">
+      <div style="font-size:.85em;line-height:1.4">
+        ${ic[n.action]||'📌'} <strong>${user}</strong>${tag} — ${action}${resName?': <strong>'+resName+'</strong>':''}
+      </div>
+      ${dates}
+      ${n.reason?`<div style="font-size:.76em;color:#888;margin-top:2px">${escHtml(n.reason)}</div>`:''}
+      <div style="font-size:.7em;color:#aaa;margin-top:3px">${time}</div>
+    </div>`;
+  }).join('');
 }
 
 // ── BACKUP ────────────────────────────────────────────────────
@@ -9806,7 +9879,29 @@ async function syncIcalLink(id, silent) {
       continue;
     }
 
-    // Novi UID — provjeri preklapanje sa svim postojecim rezervacijama (osim od ovog linka)
+    // Prošle rezervacije (checkOut < today) — uvozi bez conflict checka
+    // Ne mogu imati stvarni konflikt jer su u prošlosti
+    if (ev.checkOut < today) {
+      // Direktno uvezi bez provjere preklapanja
+      try {
+        await addDoc(collection(db,'reservations'), {
+          name: 'Booking.com', phone: '', country: '',
+          checkIn: ev.checkIn, checkOut: ev.checkOut,
+          price: 0, channel: 'Booking.com',
+          bungalovi: [{ bungalov: String(lnk.bungalov), beds: 1, adults: 1, children: 0, babies: 0, sharedBed: false, notes: '' }],
+          services: { polupansion: false, fullPansion: false, lunchPaket: false },
+          notes: 'Automatski uvezeno sa Booking.com (iCal)',
+          confirmed: true, paid: false, cancelled: false, closedManual: false,
+          icalLinkId: id, icalUid: ev.uid,
+          createdAt: new Date().toISOString(), createdBy: curUser
+        });
+        if (ev.uid) _icalSessionUids.add(ev.uid);
+        added++;
+      } catch(e) { console.warn('iCal add past error:', e); }
+      continue;
+    }
+
+    // Buduće rezervacije — provjeri preklapanje
     const conflicts = reservations.filter(r =>
       !r.cancelled &&
       r.icalLinkId !== id &&
