@@ -2215,7 +2215,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
         <div style="background:#f8f9fa;border-radius:10px;padding:14px;border-left:4px solid #003580">
           <div style="font-weight:700;margin-bottom:8px;color:#333">🌐 Booking.com iCal Sync</div>
           <ul style="margin:0;padding-left:16px;font-size:.85em;line-height:2;color:#555">
-            <li>Automatska sinhronizacija svakih 3 minute</li>
+            <li>Automatska sinhronizacija svakih 5 minuta</li>
             <li>Poseban iCal link po bungalovu</li>
             <li>Dodavanje, izmjena i brisanje iCal linkova</li>
             <li>Cloudflare Worker proxy (vlastiti, najpouzdaniji)</li>
@@ -10202,7 +10202,7 @@ window.syncAllIcal = async () => {
 let _icalSyncTimer = null;
 let _icalCountdownTimer = null;
 let _icalNextSync = null;
-const ICAL_INTERVAL_MS = 3 * 60 * 1000; // 3 minute
+const ICAL_INTERVAL_MS = 5 * 60 * 1000; // 5 minuta
 
 // ── iCAL HEALTH CHECK — upozori admina ako sync nije radio 24h ──
 function checkIcalHealth() {
