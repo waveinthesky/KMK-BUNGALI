@@ -1867,7 +1867,9 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
           <option value="modified">Izmijenjeno</option>
           <option value="deleted">Obrisano</option>
         </select>
+        <button type="button" onclick="window.cleanupOldOverlaps&&window.cleanupOldOverlaps()" style="margin-left:auto;background:#dc3545;color:#fff;border:none;padding:8px 14px;border-radius:6px;cursor:pointer;font-weight:600;font-size:.85em" title="Briše sve iCal preklapanja starija od 24h">🧹 Očisti stare iCal zapise</button>
       </div>
+      <small style="display:block;color:#888;margin-top:6px;font-size:.78em">ℹ️ Prikazano je zadnjih 200 zapisa (radi performansi). Za pristup starijim zapisima koristite Firebase konzolu.</small>
     </div>
     <div id="hist-list"></div>
   </div>
@@ -2753,7 +2755,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
 import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, setDoc,
-         onSnapshot, query, orderBy, getDocs
+         onSnapshot, query, orderBy, getDocs, limit, where, writeBatch
 , initializeFirestore, persistentLocalCache, persistentMultipleTabManager } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
 
 const FB = { apiKey:"AIzaSyCvaBrbaeijdQeVg4vQ-8Lm_SSM0inN8MI", authDomain:"rezervacije-bungalova.firebaseapp.com", projectId:"rezervacije-bungalova", storageBucket:"rezervacije-bungalova.firebasestorage.app", messagingSenderId:"349345983685", appId:"1:349345983685:web:6c1588acd201f7aa0214ac" };
@@ -3266,7 +3268,10 @@ function setupFirebase() {
       window._detectConflictsTimer = setTimeout(detectConflicts, 400);
     }
   }, e => syncUI('er','Greška: '+e.message));
-  _histSub = onSnapshot(query(collection(db,'history'),orderBy('timestamp','desc')), snap => {
+  // History listener — LIMIT 200 najnovijih da ne čitamo 29.000 zapisa stalno
+  // (svaki snapshot trigger čita sve dokumente → masovno trošenje Firebase quote)
+  // 200 je dovoljno za sve UI prikaze (notifikacije + history tab pokazuje samo zadnje)
+  _histSub = onSnapshot(query(collection(db,'history'),orderBy('timestamp','desc'), limit(200)), snap => {
     hist = snap.docs.map(d=>({id:d.id,...d.data()}));
     renderHist(); checkNotifs();
     if (curRole === 'admin') checkIcalHealth();
@@ -6243,7 +6248,99 @@ window.filterHist = () => {
 
 // ── NOTIFICATIONS ────────────────────────────────────────────
 window.toggleNotif=()=>document.getElementById('notif-panel').classList.toggle('open');
-window.clearNotif=()=>{ notifs=[]; updNotif(); document.getElementById('notif-panel').classList.remove('open'); };
+
+// clearNotif() — STVARNO briše iCal preklapanja iz Firebase history (ne samo lokalno)
+// Bez ovog, sljedeći _histSub trigger opet učita iste notifikacije iz baze.
+window.clearNotif = async () => {
+  // Sakri panel odmah da korisnik vidi reakciju
+  document.getElementById('notif-panel').classList.remove('open');
+
+  if (curRole !== 'admin') {
+    // Worker — samo lokalno brisanje (ne smije dirati Firebase)
+    notifs = [];
+    updNotif();
+    return;
+  }
+
+  // Admin — pitamo prije nego brišemo iz baze
+  if (!confirm('Obrisati sve iCal notifikacije iz baze?\n\nOvo trajno briše stare zapise o preklapanjima.\nObicne notifikacije (radnik dodao/izmijenio) se ČUVAJU.')) {
+    notifs = [];
+    updNotif();
+    return;
+  }
+
+  try {
+    // Pronađi sve iCal notifikacije u trenutnom hist array (već učitan, bez novih reads)
+    const toDelete = (hist || []).filter(h =>
+      h.action === 'ical_overlap_problem' || h.action === 'ical_overlap_ok'
+    );
+
+    if (!toDelete.length) {
+      notifs = [];
+      updNotif();
+      alert('Nema iCal notifikacija za brisanje.');
+      return;
+    }
+
+    // Batch delete (max 500 po batch-u u Firestore)
+    let deleted = 0;
+    const BATCH_SIZE = 400;
+    for (let i = 0; i < toDelete.length; i += BATCH_SIZE) {
+      const batch = writeBatch(db);
+      const chunk = toDelete.slice(i, i + BATCH_SIZE);
+      chunk.forEach(h => { batch.delete(doc(db, 'history', h.id)); });
+      await batch.commit();
+      deleted += chunk.length;
+    }
+
+    // Lokalno isprazni notifs (Firebase listener će uskoro da osvježi hist)
+    notifs = [];
+    updNotif();
+
+    alert('Obrisano ' + deleted + ' iCal notifikacija iz baze.');
+  } catch(e) {
+    console.error('clearNotif error:', e);
+    alert('Greska pri brisanju: ' + e.message);
+  }
+};
+
+// Admin alat: očisti SVE stare ical_overlap zapise (24h+ stari) — pozvati iz konzole
+// Pokreni: window.cleanupOldOverlaps()
+window.cleanupOldOverlaps = async () => {
+  if (curRole !== 'admin') { alert('Samo admin.'); return; }
+  if (!confirm('Obrisati SVE iCal notifikacije starije od 24h iz baze?\nOvo pomaže ako je akumulirano puno starih zapisa.')) return;
+
+  try {
+    const last24h = Date.now() - 24*60*60*1000;
+    // Učitamo SVE ical_overlap zapise (jednokratno, ne stalno)
+    const snap = await getDocs(query(
+      collection(db, 'history'),
+      where('action', 'in', ['ical_overlap_problem', 'ical_overlap_ok'])
+    ));
+    const toDelete = [];
+    snap.forEach(d => {
+      const data = d.data();
+      const t = data.timestamp ? new Date(data.timestamp).getTime() : 0;
+      if (t < last24h) toDelete.push(d.id);
+    });
+
+    if (!toDelete.length) { alert('Nema starih zapisa za brisanje.'); return; }
+
+    let deleted = 0;
+    const BATCH_SIZE = 400;
+    for (let i = 0; i < toDelete.length; i += BATCH_SIZE) {
+      const batch = writeBatch(db);
+      const chunk = toDelete.slice(i, i + BATCH_SIZE);
+      chunk.forEach(id => { batch.delete(doc(db, 'history', id)); });
+      await batch.commit();
+      deleted += chunk.length;
+    }
+    alert('Obrisano ' + deleted + ' starih iCal zapisa.');
+  } catch(e) {
+    console.error('cleanupOldOverlaps error:', e);
+    alert('Greska: ' + e.message);
+  }
+};
 
 // Aktivan tab u notifikacionom panelu: 'all' | 'ops' | 'ical'
 let _notifTab = 'all';
@@ -10586,7 +10683,28 @@ async function syncIcalLink(id, silent) {
   }
 
   // Notifikacije za preklapanja (i rucni i auto)
+  // DEDUPLIKACIJA: Prije kreiranja zapisa, provjeri da li IDENTIČAN zapis već postoji
+  // u history (zadnja 24h) — to spječava akumulaciju 29.000+ notifikacija od auto-sync-a.
+  // Sigurno: koristimo lokalni `hist` array (već učitan), bez dodatnih reads.
+  const last24h = Date.now() - 24*60*60*1000;
+  const existingOverlapKeys = new Set();
+  (hist || []).forEach(h => {
+    if (h.action !== 'ical_overlap_problem' && h.action !== 'ical_overlap_ok') return;
+    if (!h.timestamp || new Date(h.timestamp).getTime() < last24h) return;
+    const r = h.reservation || {};
+    const key = (r.bungalovi?.[0]?.bungalov || '') + '|' + (r.checkIn||'') + '|' + (r.checkOut||'') + '|' + h.action;
+    existingOverlapKeys.add(key);
+  });
+
   for (const w of warnings) {
+    // Ključ za dedup: bungalov + datumi + tip warninga
+    const dupKey = String(lnk.bungalov) + '|' + w.ev.checkIn + '|' + w.ev.checkOut + '|' + (w.type === 'ok' ? 'ical_overlap_ok' : 'ical_overlap_problem');
+    if (existingOverlapKeys.has(dupKey)) {
+      // Identična notifikacija već postoji — preskoči (sprečava akumulaciju)
+      continue;
+    }
+    existingOverlapKeys.add(dupKey); // dodaj u set za slučaj duplikata u istom ciklusu
+
     const msg = w.type === 'ok'
       ? 'POKLAPANJE OK — B' + lnk.bungalov + ': iCal ' + fmtD(w.ev.checkIn) + '-' + fmtD(w.ev.checkOut) + ' poklapa se sa "' + (w.conf.name||'') + '" (' + fmtD(w.conf.checkIn) + '-' + fmtD(w.conf.checkOut) + '). Oba zatvaranja.'
       : 'PROBLEM — B' + lnk.bungalov + ': iCal ' + fmtD(w.ev.checkIn) + '-' + fmtD(w.ev.checkOut) + ' preklapa se sa "' + (w.conf.name||'') + '" (' + fmtD(w.conf.checkIn) + '-' + fmtD(w.conf.checkOut) + '). Provjeri odmah!';
