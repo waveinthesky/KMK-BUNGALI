@@ -132,14 +132,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 .bvg-cell.bvg-past{opacity:.5;cursor:default}
 
 /* ─── STICKY FORM FOOTER (cijena, statusi, dugmad) ─────────── */
-.form-sticky-footer{position:sticky;bottom:0;background:#fff;border-top:2px solid #667eea;
-                    padding:14px 18px;margin:14px -18px -18px -18px;border-radius:0 0 14px 14px;
-                    box-shadow:0 -4px 14px rgba(0,0,0,.08);z-index:10}
-.form-sticky-footer .price-details{margin-bottom:10px}
-.form-sticky-footer .price-details summary{outline:none;list-style:none}
-.form-sticky-footer .price-details summary::-webkit-details-marker{display:none}
-.form-sticky-footer .price-details summary::before{content:'▸ ';transition:transform .15s}
-.form-sticky-footer .price-details[open] summary::before{content:'▾ '}
+/* Footer je sada obična sekcija (.form-section) — ne treba poseban CSS */
 .footer-main-row{display:flex;align-items:center;gap:18px;flex-wrap:wrap;justify-content:space-between}
 .footer-price-block{flex:0 0 auto}
 .footer-status-block{display:flex;gap:14px;flex:1;justify-content:center;flex-wrap:wrap}
@@ -1636,7 +1629,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
         <!-- Tradicionalni bung-item kontejner (ostaje za strukturu gostiju, sakriven početno) -->
         <div id="bungs-con" style="margin-top:14px"></div>
-        <!-- Dugme za kompatibilnost — sad sakriveno jer se dodavanje vrši klikom na kockice -->
+        <!-- Dodavanje bungalova se vrši klikom na kockice iznad -->
         <button type="button" class="add-bung-btn" onclick="addBung()" style="display:none">+ Dodaj Još Jedan Bungalov</button>
       </div>
 
@@ -1705,38 +1698,40 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
         </div>
       </div>
 
-      <!-- ── STICKY DNO: Cijena + statusi + akcije ───────────────────── -->
-      <div class="form-sticky-footer">
-        <!-- Summary chip: prikazuje koliko bungalova, osoba i noći ima u rezervaciji -->
-        <div id="form-summary-chip" style="display:none;background:linear-gradient(135deg,#e3f2fd,#f0f4ff);
-             border:1px solid #c8d4f0;border-radius:8px;padding:6px 12px;margin-bottom:8px;
-             font-size:.85em;color:#1565c0;font-weight:700;text-align:center"></div>
+      <!-- ── CIJENA + STATUSI + DUGMAD ───────────────────────────── -->
+      <div class="form-section" style="border-color:#667eea;background:linear-gradient(180deg,#f8f9ff 0%,#fff 100%)">
+        <h3 style="margin-bottom:14px">💰 Obračun i Plaćanje</h3>
 
-        <!-- Detalji obračuna cijene (collapsible) -->
-        <details class="price-details" ontoggle="this.dataset.userToggled='1'">
-          <summary style="cursor:pointer;font-weight:700;color:#667eea;padding:6px 0">💰 Detalji obračuna cijene</summary>
-          <div class="price-breakdown" id="pb" style="margin-top:8px"><em>Popunite bungalove i datume...</em></div>
+        <!-- Summary chip -->
+        <div id="form-summary-chip" style="display:none;background:linear-gradient(135deg,#e3f2fd,#f0f4ff);
+             border:1px solid #c8d4f0;border-radius:8px;padding:8px 14px;margin-bottom:12px;
+             font-size:.88em;color:#1565c0;font-weight:700;text-align:center"></div>
+
+        <!-- Detalji obračuna — collapsible, jasno formatiran -->
+        <details class="price-details" ontoggle="this.dataset.userToggled='1'" style="margin-bottom:14px;background:#fffbf0;border:1px solid #f0d8a0;border-radius:8px;overflow:hidden">
+          <summary style="cursor:pointer;font-weight:700;color:#856404;padding:10px 14px;background:#fff8e1;user-select:none">
+            📊 Detalji obračuna cijene <small style="font-weight:400;color:#888">(klikni za prikaz)</small>
+          </summary>
+          <div class="price-breakdown" id="pb" style="padding:12px 14px;font-size:.88em;line-height:1.7"><em>Popunite bungalove i datume...</em></div>
         </details>
 
-        <div class="footer-main-row">
-          <!-- Cijena -->
-          <div class="footer-price-block">
-            <label for="f-price" style="display:block;font-size:.78em;color:#666;margin-bottom:3px">Ukupna Cijena (€) <span class="auto-lbl" id="auto-lbl"></span></label>
+        <!-- Cijena + statusi u jednom redu -->
+        <div style="display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-bottom:14px">
+          <div>
+            <label for="f-price" style="display:block;font-size:.78em;color:#666;margin-bottom:3px;font-weight:600">Ukupna Cijena (€) <span class="auto-lbl" id="auto-lbl" style="color:#27ae60"></span></label>
             <input type="number" id="f-price" step="0.01" placeholder="0.00" min="0"
-              style="width:140px;font-size:1.2em;font-weight:800;padding:8px 12px;border:2px solid #667eea;border-radius:8px;background:#fff;color:#1a1a1a">
+              style="width:160px;font-size:1.3em;font-weight:900;padding:10px 14px;border:2px solid #667eea;border-radius:10px;background:#fff;color:#1a1a1a">
           </div>
+          <div style="display:flex;gap:16px;flex:1;align-items:center;flex-wrap:wrap">
+            <div class="chk" style="display:flex;align-items:center;gap:5px"><input type="checkbox" id="f-confirmed" style="width:18px;height:18px"><label for="f-confirmed" style="font-weight:700;font-size:.92em">✓ Potvrđeno</label></div>
+            <div class="chk" style="display:flex;align-items:center;gap:5px"><input type="checkbox" id="f-paid" onchange="_togglePaidMeta()" style="width:18px;height:18px"><label for="f-paid" style="font-weight:700;font-size:.92em">💳 Plaćeno</label></div>
+          </div>
+        </div>
 
-          <!-- Statusi -->
-          <div class="footer-status-block">
-            <div class="chk"><input type="checkbox" id="f-confirmed"><label for="f-confirmed">✓ Potvrđeno</label></div>
-            <div class="chk"><input type="checkbox" id="f-paid" onchange="_togglePaidMeta()"><label for="f-paid">💳 Plaćeno</label></div>
-          </div>
-
-          <!-- Dugmad -->
-          <div class="footer-actions-block">
-            <button type="button" class="btn btn-secondary" onclick="resetForm()">🔄 Reset</button>
-            <button type="submit" class="btn btn-primary">💾 Sačuvaj</button>
-          </div>
+        <!-- Dugmad -->
+        <div style="display:flex;gap:10px;justify-content:flex-end">
+          <button type="button" class="btn btn-secondary" onclick="resetForm()">🔄 Reset</button>
+          <button type="submit" class="btn btn-primary" style="padding:12px 28px;font-size:1em">💾 Sačuvaj Rezervaciju</button>
         </div>
       </div>
 
@@ -2908,7 +2903,7 @@ const COUNTRIES=['Albanija','Alžir','Argentina','Australija','Austrija','Azerbe
       startAutoBackup();
       _gdAutoBackupOnLogin(); // Google Drive auto backup
     }
-    startAutoIcalSync();
+    startAutoIcalSync(); // Jedini direktni poziv — _icalLinksSub isto poziva ali guard sprječava duplikat
     if (typeof isMobile === 'function' && isMobile()) {
       updateMobHeader();
       setTimeout(() => mobGoTab('daily'), 200);
@@ -3004,7 +2999,7 @@ document.getElementById('login-form').addEventListener('submit', async e => {
       startAutoBackup();
       _gdAutoBackupOnLogin(); // Google Drive auto backup
     }
-    startAutoIcalSync(); // Sync za sve korisnike
+    // startAutoIcalSync() — pokreće se iz _icalLinksSub (jednom)
     // Mobilni init
     if (typeof isMobile === 'function' && isMobile()) {
       updateMobHeader();
@@ -3306,20 +3301,17 @@ window.addBung = function() {
   con.insertAdjacentHTML('beforeend',`
     <div class="bung-item" id="bi-${id}">
       <div class="bung-hdr">
-        <strong class="bung-title" id="bung-title-${id}">🏠 Bungalov #${id} <small style="color:#888;font-weight:500">(izaberi iz mreže iznad)</small></strong>
-        ${id>1?`<button type="button" class="rm-bung" onclick="rmBung(${id})">✕ Ukloni</button>`:''}
+        <strong class="bung-title" id="bung-title-${id}">🏠 Bungalov #${id} <small style="color:#888;font-weight:500">(klikni kockicu iznad da izabreš)</small></strong>
+        <button type="button" class="rm-bung" onclick="rmBung(${id})" title="Ukloni ovaj bungalov">✕ Ukloni</button>
       </div>
       <div class="grid2" style="margin-bottom:10px">
-        <div class="fg" id="bsel-wrap-${id}">
-          <label>Bungalov *</label>
+        <div class="fg" id="bsel-wrap-${id}" style="display:none">
           <select class="b-sel" required onchange="onBSel(this)">
             <option value="">Izaberite...</option>${opts}
           </select>
-          <small style="color:#888;display:block;margin-top:3px;font-size:.75em">💡 Lakše: klikni kockicu iznad</small>
         </div>
-        <div class="fg">
-          <label>Broj Kreveta *</label>
-          <input type="number" class="b-beds" min="1" max="6" required
+        <div class="fg" style="display:none">
+          <input type="number" class="b-beds" min="1" max="6" value="1"
                  onchange="validateG(this.closest('.bung-item'))">
         </div>
       </div>
@@ -3700,7 +3692,6 @@ window._updateNightsInfo = function() {
 
 
 window.validateG = function(item) {
-  const beds      = parseInt(item.querySelector('.b-beds')?.value)||0;
   const ad        = parseInt(item.querySelector('.g-adults')?.value)||0;
   const ch        = parseInt(item.querySelector('.g-children')?.value)||0;
   const bb        = parseInt(item.querySelector('.g-babies')?.value)||0;
@@ -3708,29 +3699,55 @@ window.validateG = function(item) {
   const tot       = ad + ch + bb;
   const tIn       = item.querySelector('.g-total');
   if (tIn) tIn.value = tot;
+
+  // AUTO-IZRAČUNAJ beds: odrasli + djeca zauzimaju krevet, bebe NE (osim ako nema sharedBed)
+  // Ako sharedBed = true: beds = odrasli (djeca+bebe u zajedničkom)
+  // Ako sharedBed = false: beds = odrasli + djeca (bebe u krevetu roditelja ili zasebno)
+  // Minimum 1 da forma ne bude invalid
+  const bedsCalc = sharedBed
+    ? Math.max(1, ad)
+    : Math.max(1, ad + ch);
+  const bedsEl = item.querySelector('.b-beds');
+  if (bedsEl) {
+    const max = parseInt(bedsEl.max) || 6;
+    bedsEl.value = Math.min(bedsCalc, max);
+  }
+
+  const beds = parseInt(bedsEl?.value) || 0;
   const fid = item.id.replace('bi-','');
   const msg = document.getElementById('gv-'+fid);
-  if (!msg || !beds) return;
+  if (!msg) return;
+
+  // Provjeri kapacitet bungalova
+  const sel = item.querySelector('.b-sel');
+  const bn = sel?.value;
+  const cfg = bn ? B_CFG[parseInt(bn)] : null;
+  const maxCap = cfg?.m || 6;
+
+  if (tot === 0) {
+    msg.className = 'gv-msg';
+    msg.textContent = '';
+    return;
+  }
 
   if (sharedBed) {
-    // Zajednički krevet: ukloni ograničenje broja osoba
-    if (tot === 0) { msg.className='gv-msg'; return; }
-    const extra = tot - beds;
-    msg.className = 'gv-msg gv-ok';
-    msg.textContent = extra > 0
-      ? '✓ '+tot+' gostiju, '+beds+' kreveta ('+extra+' u zajedničkom krevetu)'
-      : '✓ Tačno — '+tot+' gostiju za '+beds+' kreveta';
-  } else {
-    // Normalan mode: ukupno mora = broj kreveta
-    if (tot === beds) {
-      msg.className='gv-msg gv-ok';
-      msg.textContent='✓ Tačno — '+tot+' gostiju za '+beds+' kreveta';
-    } else if (tot < beds) {
-      msg.className='gv-msg gv-err';
-      msg.textContent='⚠️ Nedostaje '+(beds-tot)+' gost(a) — trenutno '+tot+'/'+beds;
+    if (beds > maxCap) {
+      msg.className = 'gv-msg gv-err';
+      msg.textContent = `⚠️ Previše osoba — B${bn} ima max ${maxCap} kreveta`;
     } else {
-      msg.className='gv-msg gv-err';
-      msg.textContent='⚠️ Previše gostiju za '+beds+' kreveta — trenutno '+tot+'/'+beds;
+      msg.className = 'gv-msg gv-ok';
+      msg.textContent = `✓ ${tot} gostiju, ${beds} kreveta` + (bb > 0 ? ` (${bb} beba u zajedničkom)` : '');
+    }
+  } else {
+    if (beds > maxCap) {
+      msg.className = 'gv-msg gv-err';
+      msg.textContent = `⚠️ Previše kreveta (${beds}) — B${bn} max ${maxCap}`;
+    } else if (tot > maxCap) {
+      msg.className = 'gv-msg gv-err';
+      msg.textContent = `⚠️ Previše gostiju (${tot}) za B${bn} — max ${maxCap} kreveta`;
+    } else {
+      msg.className = 'gv-msg gv-ok';
+      msg.textContent = `✓ ${tot} gostiju → ${beds} kreveta` + (bb > 0 ? ` (+${bb} beba besplatno)` : '');
     }
   }
 };
@@ -3918,20 +3935,26 @@ document.getElementById('res-form').addEventListener('submit', async e => {
   const bungalovi=[];
   for (const item of bItems) {
     const sel=item.querySelector('.b-sel');
-    const beds=item.querySelector('.b-beds');
-    if (!sel?.value||!beds?.value) continue;
-    const n=parseInt(sel.value), bedsN=parseInt(beds.value);
+    if (!sel?.value) continue;
+    const n=parseInt(sel.value);
+
     const ad=parseInt(item.querySelector('.g-adults')?.value)||0;
     const ch=parseInt(item.querySelector('.g-children')?.value)||0;
     const bb=parseInt(item.querySelector('.g-babies')?.value)||0;
     const sharedBed=item.querySelector('.shared-bed-chk')?.checked||false;
     const tot=ad+ch+bb;
-    if (bedsN>B_CFG[n].m) { alert(`❌ B${n}: maksimalno ${B_CFG[n].m} kreveta!`); return; }
-    if (sharedBed) {
-      if (tot===0) { alert('B'+n+': Unesite bar jednog gosta!'); return; }
-    } else {
-      if (tot!==bedsN) { alert('B'+n+': broj gostiju ('+tot+') mora biti jednak broju kreveta ('+bedsN+')!'); return; }
-    }
+
+    if (tot === 0) { alert(`B${n}: Unesite bar jednog gosta!`); return; }
+
+    // Auto-izračunaj beds (ista logika kao validateG)
+    const bedsN = sharedBed ? Math.max(1, ad) : Math.max(1, ad + ch);
+    const maxCap = B_CFG[n]?.m || 6;
+    if (bedsN > maxCap) { alert(`❌ B${n}: previše osoba — maksimalno ${maxCap} kreveta!`); return; }
+
+    // Postavi beds u skriveno polje (za čuvanje u Firebase)
+    const bedsEl = item.querySelector('.b-beds');
+    if (bedsEl) bedsEl.value = bedsN;
+
     bungalovi.push({ bungalov:String(n), beds:bedsN, adults:ad, children:ch, babies:bb, sharedBed, notes:item.querySelector('.b-notes')?.value?.trim()||'' });
   }
   if (!bungalovi.length) { alert('Dodajte barem jedan bungalov!'); return; }
@@ -4678,9 +4701,19 @@ function renderOccupancyDash() {
 
 window.renderDaily = function(dateStr) {
   renderOccupancyDash();
-  // Podrazumijevano: danas. Ako je proslijeđen datum, koristi njega.
-  var _d = (dateStr && dateStr !== 'today') ? new Date(dateStr + 'T00:00:00') : new Date();
-  var ts = lDate(_d);
+  // Ako je proslijeđen datum — koristi ga i ZAPAMTI.
+  // Ako nije proslijeđen — koristi ZADNJI zapamćeni ili danas.
+  // Ovo sprečava da snapshot listener resetuje prikaz na danas kad se
+  // promijeni bilo koja rezervacija (iCal sync, drugi operater, itd.)
+  if (dateStr && dateStr !== 'today') {
+    window._dailyCurrentDate = dateStr;
+  } else if (dateStr === 'today') {
+    window._dailyCurrentDate = lDate(new Date());
+  }
+  // Ako nema zapamćenog — podrazumijevano danas
+  if (!window._dailyCurrentDate) window._dailyCurrentDate = lDate(new Date());
+
+  var ts = window._dailyCurrentDate;
   var isToday = (ts === lDate(new Date()));
 
   // Postavi date picker i naslov
@@ -4911,7 +4944,7 @@ window.renderDaily = function(dateStr) {
           </div>
           <div style="text-align:right;flex-shrink:0">
             ${price>0?`<div style="font-size:1em;font-weight:900;color:#b71c1c">&euro;${price.toFixed(0)}</div>`:''}
-            <button onclick="window._kmkQuickUpdate('${r.id}',{paid:true});this.style.opacity='.5';this.disabled=true;setTimeout(renderDailyView,400)"
+            <button onclick="window.kmkOpenOperatorPicker('${r.id}',false);this.style.opacity='.5';this.disabled=true;"
               style="margin-top:3px;font-size:.72em;padding:5px 12px;background:#27ae60;color:#fff;border:none;border-radius:5px;cursor:pointer;font-weight:700">
               ✔ Naplati
             </button>
@@ -4942,7 +4975,7 @@ window.renderDaily = function(dateStr) {
           </div>
           <div style="text-align:right;flex-shrink:0">
             ${price>0?`<div style="font-size:.9em;font-weight:900;color:#c62828">&euro;${price.toFixed(0)}</div>`:''}
-            <button onclick="window._kmkQuickUpdate('${r.id}',{paid:true});this.style.opacity='.5';this.disabled=true;setTimeout(renderDailyView,400)"
+            <button onclick="window.kmkOpenOperatorPicker('${r.id}',false);this.style.opacity='.5';this.disabled=true;"
               style="margin-top:3px;font-size:.72em;padding:5px 12px;background:#27ae60;color:#fff;border:none;border-radius:5px;cursor:pointer;font-weight:700">
               ✔ Naplati
             </button>
@@ -4969,7 +5002,7 @@ window.renderDaily = function(dateStr) {
           </div>
           <div style="text-align:right;flex-shrink:0">
             ${price>0?`<div style="font-size:.9em;font-weight:900;color:#e67e22">&euro;${price.toFixed(0)}</div>`:''}
-            <button onclick="window._kmkQuickUpdate('${r.id}',{paid:true});this.style.opacity='.5';this.disabled=true;setTimeout(renderDailyView,400)"
+            <button onclick="window.kmkOpenOperatorPicker('${r.id}',false);this.style.opacity='.5';this.disabled=true;"
               style="margin-top:3px;font-size:.72em;padding:5px 12px;background:#27ae60;color:#fff;border:none;border-radius:5px;cursor:pointer;font-weight:700">
               ✔ Naplati
             </button>
@@ -10720,9 +10753,13 @@ async function syncIcalLink(id, silent) {
   }
 
 
-  try {
-    await updateDoc(doc(db,'icalLinks',id), { lastSync: new Date().toISOString(), lastSyncCount: incoming.length });
-  } catch(e) {}
+  // Piši lastSync SAMO ako se nešto stvarno promijenilo (added/updated/deleted > 0)
+  // Bez ovog: 13 linkova × 144 ciklusa/dan = 1.872 nepotrebnih writes/dan
+  if (added || updated || deleted || deduped) {
+    try {
+      await updateDoc(doc(db,'icalLinks',id), { lastSync: new Date().toISOString(), lastSyncCount: incoming.length });
+    } catch(e) {}
+  }
 
   if (!silent && statusEl) statusEl.textContent = '';
 
@@ -10805,21 +10842,28 @@ function checkIcalHealth() {
   }
 }
 
+let _icalSyncStarted = false;
 function startAutoIcalSync() {
-  stopAutoIcalSync(); // ocisti stari timer ako postoji
+  // GUARD: Spriječi višestruko pokretanje.
+  // _icalLinksSub se okida svaki put kad se linkovi promijene → bez guarda,
+  // svaka promjena kreira novi timer + setTimeout → 15+ paralelnih sync-ova
+  // → 200.000+ Cloudflare requests → quota exceeded.
+  if (_icalSyncStarted && _icalSyncTimer) return;
+  stopAutoIcalSync();
   if (!(window.icalLinks && window.icalLinks.length)) {
-    // Nema linkova — ne pokrecemo timer, ali pokazujemo poruku
+    _icalSyncStarted = false;
     const el = document.getElementById('ical-countdown');
     if (el) el.style.display = 'none';
     return;
   }
+  _icalSyncStarted = true;
   const el = document.getElementById('ical-countdown');
   if (el) el.style.display = 'inline-block';
 
-  let _doSyncRunning = false; // guard: setInterval ne čeka async, ovim spječavamo overlap
+  let _doSyncRunning = false;
   async function doSync() {
     if (_doSyncRunning) {
-      console.log('iCal auto: prethodni sync još traje, preskačem ovaj interval');
+      console.log('iCal auto: prethodni sync još traje, preskačem');
       return;
     }
     _doSyncRunning = true;
@@ -10827,7 +10871,6 @@ function startAutoIcalSync() {
     try {
       const links = window.icalLinks || [];
       if (!links.length) return;
-      // Per-link session UIDs se kreiraju unutar syncIcalLink — nema globalnog reseta
       for (const lnk of links) {
         try { await syncIcalLink(lnk.id, true); }
         catch(e) { console.warn('iCal auto error B'+lnk.bungalov+':', e); }
@@ -10837,19 +10880,16 @@ function startAutoIcalSync() {
     }
   }
 
-  // Postavi countdown za sljedeci scheduled sync
   _icalNextSync = Date.now() + ICAL_INTERVAL_MS;
   _icalSyncTimer = setInterval(doSync, ICAL_INTERVAL_MS);
 
-  // FIX A: pokreni PRVI sync odmah (sa malim delay-om da UI stigne da se inicijalizuje).
-  // Bez ovog, korisnik mora čekati 3 minute za prvi sync nakon logina.
-  // Delay 5s — dovoljno da se snapshot listeneri popune i reservations array bude spreman.
+  // Prvi sync: 8 sekundi nakon starta (jednom)
   setTimeout(() => {
-    if (window.icalLinks && window.icalLinks.length) {
+    if (window.icalLinks && window.icalLinks.length && !_doSyncRunning) {
       console.log('iCal: pokretanje prvog sync-a nakon logina...');
       doSync();
     }
-  }, 5000);
+  }, 8000);
 
   // Countdown ticker — azurira svake sekunde
   _icalCountdownTimer = setInterval(() => {
@@ -10872,6 +10912,7 @@ function stopAutoIcalSync() {
   if (_icalSyncTimer)     { clearInterval(_icalSyncTimer);     _icalSyncTimer = null; }
   if (_icalCountdownTimer){ clearInterval(_icalCountdownTimer); _icalCountdownTimer = null; }
   _icalNextSync = null;
+  _icalSyncStarted = false;
   const el = document.getElementById('ical-countdown');
   if (el) el.style.display = 'none';
 }
@@ -11104,9 +11145,11 @@ window.kmkOpenOperatorPicker = function(resId, currentPaid) {
     return;
   }
 
-  const showAdmin = getPickerAdminSetting();
+  // Admin vidi SVE korisnike. Radnici vide samo radnike (ne admina).
+  // Admin je vlasnik — radnici njemu ne uplaćuju direktno.
+  const isAdmin = (typeof curRole !== 'undefined') && curRole === 'admin';
   const operators = Object.entries(appUsers)
-    .filter(([uname, u]) => !(u.role === 'admin' && !showAdmin))
+    .filter(([uname, u]) => isAdmin || u.role !== 'admin')
     .map(([uname, u]) => ({ username: uname, name: u.name || uname, role: u.role }));
 
   // Jedan ili nula operatora — odmah naplati bez pickera
@@ -11206,6 +11249,37 @@ window._kmkQuickUpdate = function(id, fields, confirmBtn, operatorOverride) {
   try {
     updateDoc(doc(db, 'reservations', id), data)
       .then(function() {
+        // Logiraj u history ko je šta uradio
+        var r = (typeof reservations !== 'undefined') ? reservations.find(function(x){ return x.id===id; }) : null;
+        var rName = r ? (r.name || 'N/A') : id;
+        var bungs = r && r.bungalovi ? r.bungalovi.map(function(b){return 'B'+b.bungalov}).join(', ') : '';
+        var changes = [];
+        if ('paid' in fields) {
+          if (fields.paid === true) {
+            changes.push('💳 Naplaćeno — operater: ' + (user || 'nepoznat'));
+          } else {
+            changes.push('❌ Poništena naplata');
+          }
+        }
+        if ('arrived' in fields) {
+          changes.push(fields.arrived ? '✅ Označen dolazak' : '↩️ Poništen dolazak');
+        }
+        if ('confirmed' in fields) {
+          changes.push(fields.confirmed ? '✓ Potvrđeno' : '↩️ Poništena potvrda');
+        }
+        if (changes.length) {
+          try {
+            addDoc(collection(db, 'history'), {
+              action: 'modified',
+              user: (typeof curUser !== 'undefined') ? (curUser || '') : '',
+              userName: user || (typeof curUser !== 'undefined' ? curUser : ''),
+              reservation: { name: rName, bungalovi: r ? r.bungalovi : [], checkIn: r ? r.checkIn : '', checkOut: r ? r.checkOut : '' },
+              changes: changes,
+              reason: changes.join(' | ') + ' — ' + rName + (bungs ? ' (' + bungs + ')' : ''),
+              timestamp: new Date().toISOString()
+            });
+          } catch(he) { console.warn('history log error:', he); }
+        }
         if (typeof renderDailyView === 'function') setTimeout(renderDailyView, 400);
       })
       .catch(function(e) { alert('Greška: ' + e.message); });
