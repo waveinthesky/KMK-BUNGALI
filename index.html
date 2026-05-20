@@ -4028,6 +4028,9 @@ document.getElementById('res-form').addEventListener('submit', async e => {
         }
       }
       await updateDoc(doc(db,'reservations',editId), updateData);
+      // LOKALNO ažuriraj reservations array ODMAH
+      const idx = reservations.findIndex(r => r.id === editId);
+      if (idx >= 0) reservations[idx] = { ...reservations[idx], ...updateData };
       await logH('modified', { ...updateData, id: editId }, old);
       // Notificiraj admina ako je worker editovao
       if (curRole !== 'admin') {
@@ -4046,9 +4049,15 @@ document.getElementById('res-form').addEventListener('submit', async e => {
       editId=null; // null tek nakon što oba awaita uspiju
     } else {
       const newData = { ...data, createdAt: new Date().toISOString(), createdBy: curUser };
-      await addDoc(collection(db,'reservations'), newData);
+      const docRef = await addDoc(collection(db,'reservations'), newData);
+      // LOKALNO dodaj u reservations array ODMAH — da kalendar prikaže bez čekanja snapshot-a
+      // (Firestore SDK u backoff/offline stanju može kasniti sa onSnapshot triggerom)
+      reservations.unshift({ id: docRef.id, ...newData });
       await logH('added', newData);
     }
+    // Renderuj kalendar ODMAH (ne čekaj snapshot koji može kasniti)
+    if (typeof renderCal === 'function') renderCal();
+    if (typeof renderResList === 'function') renderResList();
     resetForm(); alert('✅ Rezervacija sačuvana!'); goTabDirect('list');
   } catch(err) {
     console.error(err); alert('Greška: '+err.message); syncUI('er','Greška');
@@ -10570,7 +10579,14 @@ async function syncIcalLink(id, silent) {
   }
   if (!text) {
     if (!silent) alert('Greska: nije moguce doci do iCal fajla. Provjerite URL i internet vezu.');
-    else console.warn('iCal sync B'+lnk.bungalov+': fetch failed');
+    else {
+      console.warn('iCal sync B'+lnk.bungalov+': fetch failed — svi proxy-ji nedostupni');
+      // Vizualni alarm — samo jednom po sesiji, ne na svakom ciklusu
+      if (!window._icalFetchWarnShown) {
+        window._icalFetchWarnShown = true;
+        addNotif('⚠️ iCal sync ne može dohvatiti podatke — Cloudflare proxy možda prekoračio dnevni limit. Pokušajte ručni sync sutra ili provjerite internet vezu.');
+      }
+    }
     if (!silent && statusEl) statusEl.textContent = '';
     return;
   }
@@ -11369,6 +11385,10 @@ window._kmkQuickUpdate = function(id, fields, confirmBtn, operatorOverride) {
   try {
     updateDoc(doc(db, 'reservations', id), data)
       .then(function() {
+        // LOKALNO ažuriraj reservations array ODMAH (ne čekaj snapshot)
+        var idx = reservations.findIndex(function(x){ return x.id===id; });
+        if (idx >= 0) Object.assign(reservations[idx], data);
+
         // Logiraj u history ko je šta uradio
         var r = (typeof reservations !== 'undefined') ? reservations.find(function(x){ return x.id===id; }) : null;
         var rName = r ? (r.name || 'N/A') : id;
