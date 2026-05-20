@@ -398,16 +398,16 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
   z-index:2000;align-items:flex-end}
 .mob-quick-overlay.open{display:flex}
 .mob-quick-sheet{background:white;border-radius:20px 20px 0 0;width:100%;
-  max-height:92vh;overflow-y:auto;padding:0 0 20px;
-  animation:slideUp .25s ease-out}
+  max-height:92vh;overflow-y:auto;overflow-x:hidden;padding:0 0 20px;
+  animation:slideUp .25s ease-out;box-sizing:border-box}
 @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
 .mob-sheet-handle{width:40px;height:4px;background:#ddd;border-radius:2px;
   margin:12px auto 0}
-.mob-sheet-hdr{padding:14px 18px 10px;border-bottom:1px solid #f0f0f0;
+.mob-sheet-hdr{padding:14px 16px 10px;border-bottom:1px solid #f0f0f0;
   display:flex;align-items:center;justify-content:space-between}
 .mob-sheet-hdr h3{font-size:1.05em;color:#333;font-weight:700}
 .mob-sheet-close{background:none;border:none;font-size:1.4em;cursor:pointer;color:#999;padding:4px}
-.mob-sheet-body{padding:14px 18px}
+.mob-sheet-body{padding:14px 16px;box-sizing:border-box;overflow-x:hidden}
 
 
 /* Mobilna forma — premium redesign */
@@ -421,53 +421,55 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 .mob-form-page.active{display:block}
 .mob-sheet-kicker{font-size:.74em;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#7a8c76;margin-bottom:2px}
 .mob-sheet-sub{font-size:.84em;color:#6f6f6f;margin:0 0 14px}
-.mob-layout-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.mob-card{background:#fff;border:1px solid #edf1ec;border-radius:16px;padding:14px;box-shadow:0 1px 6px rgba(0,0,0,.04)}
+/* ─── MOBILE FORM: responsive fix — nema horizontalnog scrolla ─── */
+.mob-layout-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.mob-card{background:#fff;border:1px solid #edf1ec;border-radius:16px;padding:12px;box-shadow:0 1px 6px rgba(0,0,0,.04);box-sizing:border-box;overflow:hidden;max-width:100%}
 .mob-card.soft{background:linear-gradient(180deg,#fbfcfb 0%,#f4f7f3 100%)}
-.mob-card-title{font-size:.88em;font-weight:800;color:#2d3a2b;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:8px}
-.mob-chip-row{display:flex;gap:8px;flex-wrap:wrap;margin:4px 0 10px}
-.mob-chip{padding:7px 12px;border-radius:999px;background:#f3f6f2;border:1px solid #e0e8de;font-size:.78em;font-weight:700;color:#5f7159}
-.mob-field{margin-bottom:14px}
-.mob-field label{display:block;font-size:.82em;font-weight:700;color:#5a6456;margin-bottom:6px}
-.mob-field input,.mob-field select,.mob-field textarea{width:100%;padding:13px 14px;border:1.5px solid #dde5db;border-radius:12px;font-size:1em;outline:none;transition:border .15s,box-shadow .15s;background:white;color:#1f1f1f}
-.mob-field input:focus,.mob-field select:focus,.mob-field textarea:focus{border-color:#5f7f56;box-shadow:0 0 0 4px rgba(95,127,86,.10)}
-.mob-field textarea{height:88px;resize:none}
-.mob-note{background:#f6f8f5;border:1px dashed #d6ded3;border-radius:12px;padding:10px 12px;font-size:.78em;color:#667061;line-height:1.45}
-.mob-bung-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:6px}
-.mob-bung-btn{padding:12px 6px;border:1.5px solid #dfe7dd;border-radius:12px;text-align:center;cursor:pointer;font-weight:800;font-size:.9em;background:#fff;color:#587055;transition:all .15s;-webkit-tap-highlight-color:transparent}
+.mob-card-title{font-size:.86em;font-weight:800;color:#2d3a2b;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:6px;flex-wrap:wrap}
+.mob-chip-row{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 10px}
+.mob-chip{padding:5px 10px;border-radius:999px;background:#f3f6f2;border:1px solid #e0e8de;font-size:.72em;font-weight:700;color:#5f7159;white-space:nowrap}
+.mob-field{margin-bottom:12px}
+.mob-field label{display:block;font-size:.82em;font-weight:700;color:#5a6456;margin-bottom:5px}
+.mob-field input,.mob-field select,.mob-field textarea{width:100%;padding:11px 12px;border:1.5px solid #dde5db;border-radius:12px;font-size:1em;outline:none;transition:border .15s,box-shadow .15s;background:white;color:#1f1f1f;box-sizing:border-box;max-width:100%}
+.mob-field input:focus,.mob-field select:focus,.mob-field textarea:focus{border-color:#5f7f56;box-shadow:0 0 0 3px rgba(95,127,86,.10)}
+.mob-field textarea{height:80px;resize:none}
+.mob-note{background:#f6f8f5;border:1px dashed #d6ded3;border-radius:12px;padding:8px 10px;font-size:.76em;color:#667061;line-height:1.45;word-wrap:break-word;overflow-wrap:break-word}
+.mob-bung-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:6px}
+@media(max-width:360px){.mob-bung-grid{grid-template-columns:repeat(3,1fr);gap:5px}}
+.mob-bung-btn{padding:10px 4px;border:1.5px solid #dfe7dd;border-radius:10px;text-align:center;cursor:pointer;font-weight:800;font-size:.82em;background:#fff;color:#587055;transition:all .15s;-webkit-tap-highlight-color:transparent;box-sizing:border-box;min-width:0;overflow:hidden;word-break:break-word}
 .mob-bung-busy{background:#ffebee!important;border:2px solid #c62828!important;color:#c62828!important;cursor:not-allowed!important;opacity:.85}
 .mob-bung-busy small{color:#c62828!important;font-weight:700}
-.mob-bung-btn small{display:block;font-size:.68em;font-weight:700;color:#7b8777;margin-top:2px}
+.mob-bung-btn small{display:block;font-size:.65em;font-weight:700;color:#7b8777;margin-top:1px}
 .mob-bung-btn.sel small{color:#e9efe8}
 .mob-bung-btn:active{transform:scale(.97)}
-.mob-counter{border:1px solid #edf1ec;border-radius:14px;padding:10px 8px;background:#fafcf9;text-align:center}
-.mob-counter label{display:block;font-size:.72em;color:#667061;font-weight:800;margin-bottom:7px}
-.mob-counter-controls{display:flex;align-items:center;justify-content:center;gap:8px}
-.mob-counter-controls button{width:28px;height:28px;border:none;border-radius:50%;background:#edf2eb;color:#50684d;font-size:1.05em;font-weight:800;cursor:pointer}
-.mob-counter-controls strong{min-width:20px;display:inline-block;font-size:1em;color:#21311f}
-.mob-bung-price .price-main{font-size:1.05em;font-weight:900;color:#2f6d3d}
-.mob-section-title{font-size:.86em;font-weight:900;color:#384736;margin:12px 0 8px}
-.mob-review-block{background:#fff;border:1px solid #e9eee8;border-radius:16px;padding:14px;margin-bottom:10px;box-shadow:0 1px 6px rgba(0,0,0,.04)}
-.mob-review-line{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid #f2f4f1;font-size:.84em;color:#556052}
+.mob-counter{border:1px solid #edf1ec;border-radius:12px;padding:8px 6px;background:#fafcf9;text-align:center;box-sizing:border-box;min-width:0}
+.mob-counter label{display:block;font-size:.68em;color:#667061;font-weight:800;margin-bottom:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mob-counter-controls{display:flex;align-items:center;justify-content:center;gap:5px}
+.mob-counter-controls button{width:26px;height:26px;border:none;border-radius:50%;background:#edf2eb;color:#50684d;font-size:1em;font-weight:800;cursor:pointer;flex-shrink:0}
+.mob-counter-controls strong{min-width:16px;display:inline-block;font-size:.95em;color:#21311f;text-align:center}
+.mob-bung-price .price-main{font-size:1em;font-weight:900;color:#2f6d3d}
+.mob-section-title{font-size:.84em;font-weight:900;color:#384736;margin:10px 0 6px}
+.mob-review-block{background:#fff;border:1px solid #e9eee8;border-radius:14px;padding:12px;margin-bottom:8px;box-shadow:0 1px 6px rgba(0,0,0,.04);box-sizing:border-box;overflow:hidden}
+.mob-review-line{display:flex;justify-content:space-between;gap:8px;padding:7px 0;border-bottom:1px solid #f2f4f1;font-size:.82em;color:#556052}
 .mob-review-line:last-child{border-bottom:none}
-.mob-review-key{font-weight:700;color:#596455}
-.mob-review-val{text-align:right;color:#1e1e1e;font-weight:700}
-.mob-review-price{font-size:.82em;color:#697466;margin-top:4px}
-.mob-review-total{display:flex;justify-content:space-between;align-items:flex-end;gap:8px;padding:14px;border-radius:16px;background:linear-gradient(180deg,#f6faf5 0%,#edf4eb 100%);border:1px solid #dfebdc;margin-top:8px}
-.mob-review-total .label{font-size:.8em;font-weight:800;color:#60715b;letter-spacing:.06em;text-transform:uppercase}
-.mob-review-total .amount{font-size:2em;font-weight:900;color:#356a42;line-height:1}
-.mob-steps-nav{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.mob-review-key{font-weight:700;color:#596455;min-width:0;word-break:break-word}
+.mob-review-val{text-align:right;color:#1e1e1e;font-weight:700;flex-shrink:0}
+.mob-review-price{font-size:.8em;color:#697466;margin-top:4px}
+.mob-review-total{display:flex;justify-content:space-between;align-items:flex-end;gap:8px;padding:12px;border-radius:14px;background:linear-gradient(180deg,#f6faf5 0%,#edf4eb 100%);border:1px solid #dfebdc;margin-top:8px;box-sizing:border-box}
+.mob-review-total .label{font-size:.75em;font-weight:800;color:#60715b;letter-spacing:.06em;text-transform:uppercase}
+.mob-review-total .amount{font-size:1.8em;font-weight:900;color:#356a42;line-height:1}
+.mob-steps-nav{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
 .mob-btn-ghost{background:#f3f5f2!important;color:#556351!important;border:1px solid #e1e8df!important}
-.mob-bottom-summary{position:sticky;bottom:0;margin:14px -18px -20px;padding:10px 14px calc(10px + env(safe-area-inset-bottom));background:rgba(255,255,255,.96);backdrop-filter:blur(8px);border-top:1px solid #edf1ec;display:flex;align-items:center;justify-content:space-between;gap:12px}
-.mob-summary-left{min-width:0}
-.mob-summary-main{font-size:1.05em;font-weight:900;color:#20301e}
-.mob-summary-sub{font-size:.75em;color:#6a7466;line-height:1.3}
-.mob-summary-cta{flex:0 0 auto;border:none;border-radius:14px;background:#5f7f56;color:#fff;padding:12px 14px;font-weight:800;cursor:pointer;box-shadow:0 10px 20px rgba(95,127,86,.18)}
+.mob-bottom-summary{position:sticky;bottom:0;margin:10px -16px -20px;padding:10px 12px calc(10px + env(safe-area-inset-bottom));background:rgba(255,255,255,.96);backdrop-filter:blur(8px);border-top:1px solid #edf1ec;display:flex;align-items:center;justify-content:space-between;gap:10px;box-sizing:border-box;max-width:100%}
+.mob-summary-left{min-width:0;overflow:hidden}
+.mob-summary-main{font-size:1em;font-weight:900;color:#20301e}
+.mob-summary-sub{font-size:.72em;color:#6a7466;line-height:1.3;overflow:hidden;text-overflow:ellipsis}
+.mob-summary-cta{flex:0 0 auto;border:none;border-radius:12px;background:#5f7f56;color:#fff;padding:10px 12px;font-weight:800;cursor:pointer;box-shadow:0 8px 16px rgba(95,127,86,.18);font-size:.9em}
 .mob-summary-cta.secondary{background:#f3f5f2;color:#556351;box-shadow:none;border:1px solid #e0e6de}
-.mob-kpis-inline{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0 0}
-.mob-kpi-pill{background:#f6f8f5;border:1px solid #e5ebe3;border-radius:14px;padding:10px 8px;text-align:center}
-.mob-kpi-pill strong{display:block;font-size:1.05em;color:#243523}
-.mob-kpi-pill span{font-size:.72em;color:#6d7869;font-weight:700}
+.mob-kpis-inline{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:8px 0 0}
+.mob-kpi-pill{background:#f6f8f5;border:1px solid #e5ebe3;border-radius:12px;padding:8px 6px;text-align:center;box-sizing:border-box;min-width:0;overflow:hidden}
+.mob-kpi-pill strong{display:block;font-size:.95em;color:#243523}
+.mob-kpi-pill span{font-size:.68em;color:#6d7869;font-weight:700;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
 /* Mobilna lista */
 
@@ -791,14 +793,14 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
 
 /* MOBILNA REZERVACIJA PRO v2.4.2 */
-.mob-bung-card{background:#fff;border:1.5px solid #e7e7f2;border-radius:14px;padding:12px;margin:10px 0;box-shadow:0 1px 8px rgba(0,0,0,.06)}
+.mob-bung-card{background:#fff;border:1.5px solid #e7e7f2;border-radius:14px;padding:10px;margin:8px 0;box-shadow:0 1px 8px rgba(0,0,0,.06);box-sizing:border-box;overflow:hidden;max-width:100%}
 .mob-bung-card.warn{border-color:#ffc107;background:#fffdf4}
 .mob-bung-card.err{border-color:#dc3545;background:#fff7f7}
 .mob-bung-card-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
 .mob-bung-title{font-size:1.04em;font-weight:900;color:#222}
 .mob-bung-sub{font-size:.76em;color:#888;margin-top:2px}
 .mob-bung-remove{border:none;background:#fce8e6;color:#c62828;border-radius:9px;padding:7px 10px;font-weight:800;cursor:pointer}
-.mob-guest-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.mob-guest-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;max-width:100%;overflow:hidden}
 .mob-guest-box label{display:block;font-size:.7em;color:#777;font-weight:800;margin-bottom:4px}
 .mob-guest-box input{width:100%;padding:10px 6px;border:1.5px solid #ddd;border-radius:10px;text-align:center;font-weight:800;font-size:.95em;background:white}
 .mob-bung-price{margin-top:10px;background:#f0fff4;color:#1a7a3a;border-radius:10px;padding:9px;font-size:.82em;font-weight:700;line-height:1.45}
@@ -1255,17 +1257,81 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
     </div>
     <div style="padding:10px 18px 0">
       <div class="mob-steps">
-        <div class="mob-step-wrap"><div class="mob-step active" id="mob-s1">1</div><div class="mob-step-label">Detalji</div></div>
-        <div class="mob-step-wrap"><div class="mob-step" id="mob-s2">2</div><div class="mob-step-label">Datumi</div></div>
-        <div class="mob-step-wrap"><div class="mob-step" id="mob-s3">3</div><div class="mob-step-label">Bungalovi</div></div>
+        <div class="mob-step-wrap"><div class="mob-step active" id="mob-s1">1</div><div class="mob-step-label">Datumi</div></div>
+        <div class="mob-step-wrap"><div class="mob-step" id="mob-s2">2</div><div class="mob-step-label">Bungalovi</div></div>
+        <div class="mob-step-wrap"><div class="mob-step" id="mob-s3">3</div><div class="mob-step-label">Gost</div></div>
         <div class="mob-step-wrap"><div class="mob-step" id="mob-s4">4</div><div class="mob-step-label">Pregled</div></div>
       </div>
     </div>
     <div class="mob-sheet-body">
       <div class="mob-form-page active" id="mob-page-1">
+        <div class="mob-sheet-sub">Odaberite period boravka gosta.</div>
+        <div class="mob-card soft">
+          <div class="mob-card-title">📅 Datum dolaska i odlaska <span class="mob-chip">Korak 1/4</span></div>
+          <div class="mob-layout-grid">
+            <div class="mob-field">
+              <label>📅 Check-in *</label>
+              <input type="date" id="mob-ci" onchange="(function(){ if(window._mobRefreshBungGrid) window._mobRefreshBungGrid(); if(window.mobCheckOverlap) window.mobCheckOverlap(); if(window.mobCalcPrice) window.mobCalcPrice(); if(window.mobRenderBungCards) window.mobRenderBungCards(); })()">
+            </div>
+            <div class="mob-field">
+              <label>📅 Check-out *</label>
+              <input type="date" id="mob-co" onchange="(function(){ if(window._mobRefreshBungGrid) window._mobRefreshBungGrid(); if(window.mobCheckOverlap) window.mobCheckOverlap(); if(window.mobCalcPrice) window.mobCalcPrice(); if(window.mobRenderBungCards) window.mobRenderBungCards(); })()">
+            </div>
+          </div>
+          <div id="mob-nights-show" class="mob-chip-row"></div>
+        </div>
+        <div class="mob-steps-nav">
+          <button onclick="mobCloseQuickForm()" class="btn mob-btn-ghost" style="padding:13px;border-radius:12px">Odustani</button>
+          <button onclick="mobNextStep(2)" class="btn btn-primary" style="padding:13px;border-radius:12px;background:#5f7f56">Dalje → Bungalovi</button>
+        </div>
+      </div>
+
+      <div class="mob-form-page" id="mob-page-2">
+        <div class="mob-sheet-sub">Dodajte jedan ili više bungalova i podesite broj gostiju.</div>
+        <div class="mob-card soft">
+          <div class="mob-card-title">🏠 Odabir bungalova <span class="mob-chip">Korak 2/4</span></div>
+          <div class="mob-bung-grid" id="mob-bung-grid"></div>
+          <div class="mob-note" style="margin-top:8px">Tapnite bungalov da ga dodate. Zeleni su slobodni, crveni zauzeti.</div>
+          <div style="margin-top:12px;padding-top:10px;border-top:1px solid #eee">
+            <div style="font-size:.85em;font-weight:700;color:#555;margin-bottom:6px">👥 Podrazumijevani gosti za novi bungalov</div>
+            <div class="mob-guest-grid">
+              <div class="mob-counter">
+                <label>Odrasli</label>
+                <div class="mob-counter-controls"><button type="button" onclick="mobDeltaHeader('adults',-1)">−</button><strong id="mob-head-adults">2</strong><button type="button" onclick="mobDeltaHeader('adults',1)">+</button></div>
+                <input type="hidden" id="mob-adults" value="2">
+              </div>
+              <div class="mob-counter">
+                <label>Djeca 4–12</label>
+                <div class="mob-counter-controls"><button type="button" onclick="mobDeltaHeader('children',-1)">−</button><strong id="mob-head-children">0</strong><button type="button" onclick="mobDeltaHeader('children',1)">+</button></div>
+                <input type="hidden" id="mob-children" value="0">
+              </div>
+              <div class="mob-counter">
+                <label>Bebe &lt; 4</label>
+                <div class="mob-counter-controls"><button type="button" onclick="mobDeltaHeader('babies',-1)">−</button><strong id="mob-head-babies">0</strong><button type="button" onclick="mobDeltaHeader('babies',1)">+</button></div>
+                <input type="hidden" id="mob-babies" value="0">
+              </div>
+            </div>
+          </div>
+          <div id="mob-persons-summary" class="mob-note" style="margin-top:8px"></div>
+          <div class="mob-kpis-inline" style="margin-top:8px">
+            <div class="mob-kpi-pill"><strong id="mob-kpi-bungs">0</strong><span>Bungalova</span></div>
+            <div class="mob-kpi-pill"><strong id="mob-kpi-guests">0</strong><span>Gostiju</span></div>
+            <div class="mob-kpi-pill"><strong id="mob-kpi-total">0€</strong><span>Procjena</span></div>
+          </div>
+        </div>
+        <div id="mob-bung-cards"></div>
+        <div id="mob-overlap-warn" style="display:none;background:#fff6df;border-left:3px solid #f2bf45;padding:12px;border-radius:10px;font-size:.82em;margin:10px 0;color:#8a6a1e"></div>
+        <div class="mob-steps-nav">
+          <button onclick="mobNextStep(1)" class="btn mob-btn-ghost" style="padding:13px;border-radius:12px">← Nazad</button>
+          <button onclick="mobNextStep(3)" class="btn btn-primary" style="padding:13px;border-radius:12px;background:#5f7f56">Dalje → Ime gosta</button>
+        </div>
+      </div>
+
+      <!-- KORAK 3: PODACI GOSTA -->
+      <div class="mob-form-page" id="mob-page-3">
         <div class="mob-sheet-sub">Unesite osnovne informacije o gostu i kanalu rezervacije.</div>
         <div class="mob-card soft">
-          <div class="mob-card-title">Osnovni podaci <span class="mob-chip">Korak 1/4</span></div>
+          <div class="mob-card-title">👤 Podaci gosta <span class="mob-chip">Korak 3/4</span></div>
           <div class="mob-field">
             <label>👤 Ime i prezime *</label>
             <input type="text" id="mob-name" placeholder="Npr. Marko Petrović" autocomplete="name">
@@ -1280,71 +1346,8 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
               <select id="mob-channel"></select>
             </div>
           </div>
-          <div class="mob-note">Savjet: odaberite pravi kanal odmah kako bi kasnije pregled i statistika ostali tačni.</div>
+          <div class="mob-note">Savjet: odaberite pravi kanal za tačnu statistiku.</div>
         </div>
-        <div class="mob-steps-nav">
-          <button onclick="mobCloseQuickForm()" class="btn mob-btn-ghost" style="padding:13px;border-radius:12px">Odustani</button>
-          <button onclick="mobNextStep(2)" class="btn btn-primary" style="padding:13px;border-radius:12px;background:#5f7f56">Dalje → Datumi</button>
-        </div>
-      </div>
-
-      <div class="mob-form-page" id="mob-page-2">
-        <div class="mob-sheet-sub">Odaberite period i postavite podrazumijevane goste za prvi ili novi bungalov.</div>
-        <div class="mob-card soft">
-          <div class="mob-card-title">Boravak <span class="mob-chip">Korak 2/4</span></div>
-          <div class="mob-layout-grid">
-            <div class="mob-field">
-              <label>📅 Check-in *</label>
-              <input type="date" id="mob-ci" onchange="(function(){ if(window._mobRefreshBungGrid) window._mobRefreshBungGrid(); if(window.mobCheckOverlap) window.mobCheckOverlap(); if(window.mobCalcPrice) window.mobCalcPrice(); if(window.mobRenderBungCards) window.mobRenderBungCards(); })()">
-            </div>
-            <div class="mob-field">
-              <label>📅 Check-out *</label>
-              <input type="date" id="mob-co" onchange="(function(){ if(window._mobRefreshBungGrid) window._mobRefreshBungGrid(); if(window.mobCheckOverlap) window.mobCheckOverlap(); if(window.mobCalcPrice) window.mobCalcPrice(); if(window.mobRenderBungCards) window.mobRenderBungCards(); })()">
-            </div>
-          </div>
-          <div id="mob-nights-show" class="mob-chip-row"></div>
-          <div class="mob-field" style="margin-bottom:8px">
-            <label>Podrazumijevani gosti za prvi / novi bungalov</label>
-          </div>
-          <div class="mob-guest-grid">
-            <div class="mob-counter">
-              <label>Odrasli</label>
-              <div class="mob-counter-controls"><button type="button" onclick="mobDeltaHeader('adults',-1)">−</button><strong id="mob-head-adults">2</strong><button type="button" onclick="mobDeltaHeader('adults',1)">+</button></div>
-              <input type="hidden" id="mob-adults" value="2">
-            </div>
-            <div class="mob-counter">
-              <label>Djeca 4–12</label>
-              <div class="mob-counter-controls"><button type="button" onclick="mobDeltaHeader('children',-1)">−</button><strong id="mob-head-children">0</strong><button type="button" onclick="mobDeltaHeader('children',1)">+</button></div>
-              <input type="hidden" id="mob-children" value="0">
-            </div>
-            <div class="mob-counter">
-              <label>Bebe &lt; 4</label>
-              <div class="mob-counter-controls"><button type="button" onclick="mobDeltaHeader('babies',-1)">−</button><strong id="mob-head-babies">0</strong><button type="button" onclick="mobDeltaHeader('babies',1)">+</button></div>
-              <input type="hidden" id="mob-babies" value="0">
-            </div>
-          </div>
-          <div id="mob-persons-summary" class="mob-note" style="margin-top:10px"></div>
-          <div class="mob-kpis-inline">
-            <div class="mob-kpi-pill"><strong id="mob-kpi-bungs">0</strong><span>Odabrano bungalova</span></div>
-            <div class="mob-kpi-pill"><strong id="mob-kpi-guests">0</strong><span>Ukupno gostiju</span></div>
-            <div class="mob-kpi-pill"><strong id="mob-kpi-total">0€</strong><span>Trenutna procjena</span></div>
-          </div>
-        </div>
-        <div class="mob-steps-nav">
-          <button onclick="mobNextStep(1)" class="btn mob-btn-ghost" style="padding:13px;border-radius:12px">← Nazad</button>
-          <button onclick="mobNextStep(3)" class="btn btn-primary" style="padding:13px;border-radius:12px;background:#5f7f56">Dalje → Bungalovi</button>
-        </div>
-      </div>
-
-      <div class="mob-form-page" id="mob-page-3">
-        <div class="mob-sheet-sub">Dodajte jedan ili više bungalova. Za svaki posebno podesite goste. Cijena se računa automatski.</div>
-        <div class="mob-card soft">
-          <div class="mob-card-title">Odabir bungalova <span class="mob-chip">Korak 3/4</span></div>
-          <div class="mob-bung-grid" id="mob-bung-grid"></div>
-          <div class="mob-note" style="margin-top:10px">Tapnite bungalov da ga dodate. Na dnu vidite privremeni ukupni iznos i raspodjelu po bungalovima.</div>
-        </div>
-        <div id="mob-bung-cards"></div>
-        <div id="mob-overlap-warn" style="display:none;background:#fff6df;border-left:3px solid #f2bf45;padding:12px;border-radius:10px;font-size:.82em;margin:10px 0;color:#8a6a1e"></div>
         <div class="mob-steps-nav">
           <button onclick="mobNextStep(2)" class="btn mob-btn-ghost" style="padding:13px;border-radius:12px">← Nazad</button>
           <button onclick="mobNextStep(4)" class="btn btn-primary" style="padding:13px;border-radius:12px;background:#5f7f56">Dalje → Pregled</button>
@@ -4724,12 +4727,58 @@ window.renderDaily = function(dateStr) {
   const dep=reservations.filter(r=>r.checkOut===ts&&!r.cancelled);
   const cur=reservations.filter(r=>r.checkIn<=ts&&r.checkOut>ts&&!r.cancelled);
 
-  // Duplikat mapa — samo dolasci međusobno. Gost koji odlazi danas (checkout=danas)
-  // i novi gost koji dolazi danas (checkin=danas) za isti bungalov NIJE duplikat — to je
-  // normalna izmjena. Duplikat je samo ako dva različita gosta imaju checkin=danas za isti bungalov.
+  // Duplikat mapa
   const bMap={};
   arr.forEach(r=>r.bungalovi?.forEach(b=>{ if(!bMap[b.bungalov]) bMap[b.bungalov]=[]; bMap[b.bungalov].push(r.id); }));
 
+  // Pre-calculate naplata stats za sažetak
+  const _activeOnDay = reservations.filter(r => !r.cancelled && !r.closedManual && r.checkIn <= ts && r.checkOut > ts);
+  const _unpaidActive = _activeOnDay.filter(r => !r.paid);
+  const _overdueAll = reservations.filter(r => !r.cancelled && !r.closedManual && !r.paid && r.checkOut <= ts && r.checkIn < ts);
+  const _paidToday = reservations.filter(r => !r.cancelled && r.paid && (r.paidAt||'').slice(0,10) === ts);
+  const _paidTodaySum = _paidToday.reduce((s,r)=>s+(parseFloat(r.price)||0),0);
+  const _unpaidSum = [..._unpaidActive, ..._overdueAll].reduce((s,r)=>s+(parseFloat(r.price)||0),0);
+  const _overdueSum = _overdueAll.reduce((s,r)=>s+(parseFloat(r.price)||0),0);
+  const totalBungs = Object.keys(B_CFG||{}).length || 13;
+  const occupiedBungs = new Set();
+  cur.forEach(r => (r.bungalovi||[]).forEach(b => occupiedBungs.add(b.bungalov)));
+  const occPct = Math.round((occupiedBungs.size / totalBungs) * 100);
+  const arrPersons = arr.reduce((s,r)=>(r.bungalovi||[]).reduce((ss,b)=>ss+(b.adults||0)+(b.children||0)+(b.babies||0),s),0);
+  const depBungs = new Set();
+  dep.forEach(r => (r.bungalovi||[]).forEach(b => depBungs.add(b.bungalov)));
+
+  // ══ STAVKA 1: DNEVNI SAŽETAK ═════════════════════════════════════════
+  let html = `<div style="background:linear-gradient(135deg,#f8f9ff,#fff);border:1.5px solid #c8d4f0;border-radius:12px;padding:14px 16px;margin-bottom:14px">
+    <div style="font-weight:800;font-size:.95em;color:#333;margin-bottom:10px">📊 Dnevni Sažetak — ${fmtD(ts)}${isToday?' (danas)':''}</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;font-size:.84em">
+      <div style="display:flex;align-items:center;gap:6px">
+        <span style="width:8px;height:8px;border-radius:50%;background:#27ae60;flex-shrink:0"></span>
+        <span><strong>Dolazi:</strong> ${arr.length} ${arr.length===1?'gost':'gostiju'} (${arrPersons} osoba)</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <span style="width:8px;height:8px;border-radius:50%;background:#1565c0;flex-shrink:0"></span>
+        <span><strong>Odlazi:</strong> ${dep.length} ${dep.length===1?'gost':'gostiju'} (${depBungs.size} bung. za čišćenje)</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <span style="width:8px;height:8px;border-radius:50%;background:#6c757d;flex-shrink:0"></span>
+        <span><strong>Zauzeto:</strong> ${occupiedBungs.size}/${totalBungs} bungalova (${occPct}%)</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <span style="width:8px;height:8px;border-radius:50%;background:#27ae60;flex-shrink:0"></span>
+        <span><strong>Naplaćeno ${isToday?'danas':''}:</strong> &euro;${_paidTodaySum.toFixed(0)} (${_paidToday.length})</span>
+      </div>
+      ${_unpaidActive.length + _overdueAll.length > 0 ? `<div style="display:flex;align-items:center;gap:6px">
+        <span style="width:8px;height:8px;border-radius:50%;background:#e67e22;flex-shrink:0"></span>
+        <span><strong>Nije naplaćeno:</strong> &euro;${_unpaidSum.toFixed(0)} (${_unpaidActive.length + _overdueAll.length})</span>
+      </div>` : ''}
+      ${_overdueAll.length > 0 ? `<div style="display:flex;align-items:center;gap:6px">
+        <span style="width:8px;height:8px;border-radius:50%;background:#c62828;flex-shrink:0"></span>
+        <span style="color:#c62828;font-weight:700"><strong>Zaostali dugovi:</strong> &euro;${_overdueSum.toFixed(0)} (${_overdueAll.length})</span>
+      </div>` : ''}
+    </div>
+  </div>`;
+
+  // ══ POBOLJŠAN mkItem — sa timeline plaćanja i jačim bojama ══════════
   const mkItem=(r,badge,color,isDup)=>{
     const nights = Math.ceil((new Date(r.checkOut)-new Date(r.checkIn))/86400000);
     const bungs  = (r.bungalovi||[]).map(b=>'B'+b.bungalov).join(', ');
@@ -4742,7 +4791,52 @@ window.renderDaily = function(dateStr) {
     const aBg  = r.arrived ? '#1565c0' : '#9e9e9e';
     const aTxt = r.arrived ? '✈ Stigao'  : '? Nije stigao';
 
-    return `<div style="border-left:4px solid ${lclr};background:#fff;border-radius:0 6px 6px 0;padding:8px 10px;margin-bottom:6px;box-shadow:0 1px 2px rgba(0,0,0,.06)">
+    // STAVKA 7: Jača pozadinska boja prema statusu plaćanja
+    let cardBg = '#fff';
+    if (r.paid) {
+      cardBg = '#f6fff6'; // blago zelena
+    } else if (!r.closedManual) {
+      const daysSinceCheckIn = Math.floor((new Date(ts) - new Date(r.checkIn)) / 86400000);
+      if (r.checkOut <= ts) {
+        cardBg = '#fff0f0'; // crvena — otišao bez plaćanja
+      } else if (daysSinceCheckIn >= 3) {
+        cardBg = '#fff5f5'; // blago crvena — 3+ dana neplaćeno
+      } else if (daysSinceCheckIn >= 1) {
+        cardBg = '#fffbf0'; // blago žuta — 1-2 dana neplaćeno
+      }
+    }
+
+    // STAVKA 2: Timeline plaćanja
+    let payTimeline = '';
+    if (r.paid && r.paidAt) {
+      const paidDate = r.paidAt.slice(0,10);
+      const daysDiff = Math.floor((new Date(paidDate) - new Date(r.checkIn)) / 86400000);
+      if (daysDiff < 0) {
+        payTimeline = `<span style="color:#7b1fa2;font-weight:700">📌 Platio unaprijed (${Math.abs(daysDiff)} dana prije dolaska)</span>`;
+      } else if (daysDiff === 0) {
+        payTimeline = `<span style="color:#27ae60;font-weight:700">✅ Platio na dan dolaska</span>`;
+      } else if (daysDiff <= 2) {
+        payTimeline = `<span style="color:#e67e22;font-weight:700">⏱ Platio ${daysDiff} ${daysDiff===1?'dan':'dana'} nakon dolaska</span>`;
+      } else {
+        payTimeline = `<span style="color:#c62828;font-weight:700">⚠️ Platio tek ${daysDiff} dana nakon dolaska</span>`;
+      }
+    }
+
+    // STAVKA 3: Koliko dana do odlaska za nenaplaćene
+    let urgencyInfo = '';
+    if (!r.paid && !r.closedManual && r.checkOut > ts) {
+      const daysUntilCheckout = Math.floor((new Date(r.checkOut) - new Date(ts)) / 86400000);
+      const daysSinceCheckin = Math.floor((new Date(ts) - new Date(r.checkIn)) / 86400000);
+      if (daysUntilCheckout <= 1) {
+        urgencyInfo = `<span style="color:#c62828;font-weight:800">🚨 Odlazi ${daysUntilCheckout===0?'DANAS':'SUTRA'} — NAPLATI ODMAH!</span>`;
+      } else if (daysUntilCheckout <= 2) {
+        urgencyInfo = `<span style="color:#e67e22;font-weight:700">⏳ Odlazi za ${daysUntilCheckout} dana — naplati uskoro</span>`;
+      } else if (daysSinceCheckin >= 2) {
+        urgencyInfo = `<span style="color:#856404">ℹ️ Tu je ${daysSinceCheckin} dana, odlazi za ${daysUntilCheckout} dana</span>`;
+      }
+    }
+
+    return `<div style="border-left:4px solid ${lclr};background:${cardBg};border-radius:0 6px 6px 0;padding:8px 10px;margin-bottom:6px;box-shadow:0 1px 2px rgba(0,0,0,.06)">
 
       <div style="display:flex;gap:8px;align-items:flex-start">
 
@@ -4765,8 +4859,10 @@ window.renderDaily = function(dateStr) {
             ${r.phone?'<br>📞 '+r.phone:''}
           </div>
 
-          ${r.paidAt?`<div style="margin-top:3px;font-size:.71em;color:#1565c0;background:#e3f2fd;padding:2px 5px;border-radius:3px">💳 Naplaćeno: ${r.paidAt.slice(0,10)} ${r.paidAt.slice(11,16)}${r.paidBy?' · '+escHtml(r.paidBy):''}</div>`:''}
-        ${r.notes?`<div style="margin-top:2px;font-size:.71em;color:#856404;background:#fffbeb;padding:2px 5px;border-radius:3px">📝 ${escHtml(r.notes)}</div>`:''}}
+          ${r.paidAt?`<div style="margin-top:3px;font-size:.71em;color:#1565c0;background:#e3f2fd;padding:2px 5px;border-radius:3px;display:inline-block">💳 Naplaćeno: ${r.paidAt.slice(0,10)} ${r.paidAt.slice(11,16)}${r.paidBy?' · '+escHtml(r.paidBy):(!r.paid?'':' · <em style="color:#999">nepoznat operater</em>')}</div>`:''}
+          ${payTimeline?`<div style="margin-top:2px;font-size:.71em">${payTimeline}</div>`:''}
+          ${urgencyInfo?`<div style="margin-top:2px;font-size:.73em">${urgencyInfo}</div>`:''}
+          ${r.notes?`<div style="margin-top:2px;font-size:.71em;color:#856404;background:#fffbeb;padding:2px 5px;border-radius:3px">📝 ${escHtml(r.notes)}</div>`:''}
         </div>
 
         <!-- DESNO: dva dugmeta -->
@@ -4789,9 +4885,8 @@ window.renderDaily = function(dateStr) {
     </div>`;
   };
 
-  let html='';
-  // Zbir osoba i iznos za naplatu — dolasci
-  const arrPersons = arr.reduce((s,r)=>(r.bungalovi||[]).reduce((ss,b)=>ss+(b.adults||0)+(b.children||0)+(b.babies||0),s),0);
+  // html je već inicijalizovan gore sa dnevnim sažetkom
+  // Zbir osoba i iznos za naplatu — dolasci (arrPersons je deklarisan iznad za sažetak)
   // Suma cijena rezervacija koje JOŠ NISU plaćene od dolazaka danas
   const arrUnpaidSum = arr.filter(r => !r.paid).reduce((s,r)=>s+(parseFloat(r.price)||0), 0);
   const arrUnpaidCount = arr.filter(r => !r.paid).length;
@@ -4814,7 +4909,24 @@ window.renderDaily = function(dateStr) {
 
   html+=`<div class="ov-sec departures"><h3>🧹 Bungalovi za Čišćenje / Ko Odlazi Danas</h3>`;
   if (!dep.length) html+='<div class="no-data" style="padding:14px">Nema odlazaka danas</div>';
-  else dep.forEach(r=>html+=mkItem(r,'Odlazak',{bg:'#17a2b8',tx:'white'},false));
+  else {
+    // STAVKA 4: Sortiraj po broju bungalova (B1 → B13)
+    const depSorted = [...dep].sort((a,b) => {
+      const aB = parseInt(a.bungalovi?.[0]?.bungalov)||0;
+      const bB = parseInt(b.bungalovi?.[0]?.bungalov)||0;
+      return aB - bB;
+    });
+    depSorted.forEach(r => {
+      const bungs = (r.bungalovi||[]).map(b=>'B'+b.bungalov).join(', ');
+      // STAVKA 5: Vizualni checkbox "Očišćeno" (samo lokalno, ne čuva se u bazi)
+      html += `<div style="position:relative">${mkItem(r,'Odlazak',{bg:'#17a2b8',tx:'white'},false)}
+        <label style="position:absolute;top:8px;right:130px;font-size:.7em;color:#388e3c;cursor:pointer;display:flex;align-items:center;gap:3px;background:#e8f5e9;padding:2px 6px;border-radius:4px">
+          <input type="checkbox" style="width:14px;height:14px;cursor:pointer" onchange="this.parentElement.style.background=this.checked?'#c8e6c9':'#e8f5e9'; var card=this.closest('[style*=position]'); if(card) card.style.opacity=this.checked?'.5':'1';">
+          <span>🧹 Očišćeno</span>
+        </label>
+      </div>`;
+    });
+  }
   html+='</div>';
 
   // Zbir osoba — trenutno zauzeto
@@ -6807,8 +6919,11 @@ window._mobBuildBungGrid = function() {
   var co = (document.getElementById('mob-co') ? document.getElementById('mob-co').value : '').trim();
   var busyMap = new Map();
   if (ci && co && ci < co) {
+    // Ako editiramo postojeću rezervaciju, ne broji je kao "zauzeto"
+    var editExcludeId = (typeof _mobEditId !== 'undefined') ? _mobEditId : null;
     (reservations || []).forEach(function(r) {
       if (r.cancelled) return;
+      if (r.id === editExcludeId) return; // NE broji sebe pri editu
       if (!r.checkIn || !r.checkOut) return;
       if (r.checkIn < co && r.checkOut > ci) {
         (r.bungalovi || []).forEach(function(b) {
@@ -6868,6 +6983,10 @@ window._mobBuildBungGrid = function() {
     }
   }
 };
+
+// ALIAS: _mobRefreshBungGrid — poziva se iz onchange datuma i ostalih mjesta
+// ali nikad nije bio definiran → bungalovi se nisu osvježavali pri promjeni datuma!
+window._mobRefreshBungGrid = window._mobBuildBungGrid;
 
 window.mobOpenQuickForm = (editResId) => {
   _mobEditId = editResId || null;
@@ -7241,11 +7360,12 @@ window.mobNextStep = (step) => {
   const name = document.getElementById('mob-name').value.trim();
   const ci = document.getElementById('mob-ci').value;
   const co = document.getElementById('mob-co').value;
-  if (step >= 2 && !name) { alert('Unesite ime gosta!'); mobShowStep(1); return; }
-  if (step >= 3) {
-    if (!ci || !co || new Date(co) <= new Date(ci)) { alert('Unesite ispravan check-in i check-out!'); mobShowStep(2); return; }
+  // Novi redoslijed: 1=Datumi, 2=Bungalovi, 3=Ime, 4=Pregled
+  if (step >= 2) {
+    if (!ci || !co || new Date(co) <= new Date(ci)) { alert('Unesite ispravan check-in i check-out!'); mobShowStep(1); return; }
   }
-  if (step >= 4 && !_mobSelBungs.length) { alert('Odaberite barem jedan bungalov!'); mobShowStep(3); return; }
+  if (step >= 3 && !_mobSelBungs.length) { alert('Odaberite barem jedan bungalov!'); mobShowStep(2); return; }
+  if (step >= 4 && !name) { alert('Unesite ime gosta!'); mobShowStep(3); return; }
   mobShowStep(step);
   mobCalcPrice();
 };
@@ -7257,9 +7377,9 @@ window.mobSaveReservation = async () => {
   const ci = document.getElementById('mob-ci').value;
   const co = document.getElementById('mob-co').value;
   const notes = document.getElementById('mob-notes').value.trim();
-  if (!name) { alert('Unesite ime gosta!'); mobShowStep(1); return; }
-  if (!ci || !co || new Date(co) <= new Date(ci)) { alert('Unesite ispravan period rezervacije!'); mobShowStep(2); return; }
-  if (!_mobSelBungs.length) { alert('Odaberite barem jedan bungalov!'); mobShowStep(3); return; }
+  if (!name) { alert('Unesite ime gosta!'); mobShowStep(3); return; }
+  if (!ci || !co || new Date(co) <= new Date(ci)) { alert('Unesite ispravan period rezervacije!'); mobShowStep(1); return; }
+  if (!_mobSelBungs.length) { alert('Odaberite barem jedan bungalov!'); mobShowStep(2); return; }
   if (typeof isOffline === 'function' && isOffline()) { alert('❌ Nema internetske veze. Rezervacija ne može biti sačuvana dok se internet ne vrati.'); return; }
 
   let hasOverlap = false;
