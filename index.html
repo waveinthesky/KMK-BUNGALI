@@ -439,6 +439,8 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 .mob-bung-btn{padding:10px 4px;border:1.5px solid #dfe7dd;border-radius:10px;text-align:center;cursor:pointer;font-weight:800;font-size:.82em;background:#fff;color:#587055;transition:all .15s;-webkit-tap-highlight-color:transparent;box-sizing:border-box;min-width:0;overflow:hidden;word-break:break-word}
 .mob-bung-busy{background:#ffebee!important;border:2px solid #c62828!important;color:#c62828!important;cursor:not-allowed!important;opacity:.85}
 .mob-bung-busy small{color:#c62828!important;font-weight:700}
+.mob-bung-free{background:linear-gradient(135deg,#e8f5e9,#f1f8f1)!important;border:1.5px solid #2e7d32!important;color:#1b5e20!important}
+.mob-bung-free small{color:#2e7d32!important}
 .mob-bung-btn small{display:block;font-size:.65em;font-weight:700;color:#7b8777;margin-top:1px}
 .mob-bung-btn.sel small{color:#e9efe8}
 .mob-bung-btn:active{transform:scale(.97)}
@@ -1287,13 +1289,25 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
       </div>
 
       <div class="mob-form-page" id="mob-page-2">
-        <div class="mob-sheet-sub">Dodajte jedan ili više bungalova i podesite broj gostiju.</div>
+        <div class="mob-sheet-sub">Tapnite bungalov da ga dodate ili uklonite.</div>
         <div class="mob-card soft">
           <div class="mob-card-title">🏠 Odabir bungalova <span class="mob-chip">Korak 2/4</span></div>
+
+          <!-- Grid kockica — uvijek vidljiv -->
           <div class="mob-bung-grid" id="mob-bung-grid"></div>
-          <div class="mob-note" style="margin-top:8px">Tapnite bungalov da ga dodate. Zeleni su slobodni, crveni zauzeti.</div>
+          <div style="font-size:.74em;color:#666;margin-top:6px;text-align:center">
+            🟢 Slobodan &nbsp;|&nbsp; 🔴 Zauzet &nbsp;|&nbsp; 🔵 Izabran (tapni da makneš)
+          </div>
+
+          <!-- Izabrani bungalovi odmah ispod -->
+          <div id="mob-bung-cards" style="margin-top:10px"></div>
+
+          <!-- Overlap upozorenje -->
+          <div id="mob-overlap-warn" style="display:none;background:#fff6df;border-left:3px solid #f2bf45;padding:10px;border-radius:8px;font-size:.8em;margin-top:8px;color:#8a6a1e"></div>
+
+          <!-- Podrazumijevani gosti separator -->
           <div style="margin-top:12px;padding-top:10px;border-top:1px solid #eee">
-            <div style="font-size:.85em;font-weight:700;color:#555;margin-bottom:6px">👥 Podrazumijevani gosti za novi bungalov</div>
+            <div style="font-size:.8em;font-weight:700;color:#555;margin-bottom:6px">👥 Podrazumijevani br. gostiju za novi bungalov</div>
             <div class="mob-guest-grid">
               <div class="mob-counter">
                 <label>Odrasli</label>
@@ -1312,15 +1326,13 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
               </div>
             </div>
           </div>
-          <div id="mob-persons-summary" class="mob-note" style="margin-top:8px"></div>
+          <div id="mob-persons-summary" class="mob-note" style="margin-top:6px"></div>
           <div class="mob-kpis-inline" style="margin-top:8px">
             <div class="mob-kpi-pill"><strong id="mob-kpi-bungs">0</strong><span>Bungalova</span></div>
             <div class="mob-kpi-pill"><strong id="mob-kpi-guests">0</strong><span>Gostiju</span></div>
             <div class="mob-kpi-pill"><strong id="mob-kpi-total">0€</strong><span>Procjena</span></div>
           </div>
         </div>
-        <div id="mob-bung-cards"></div>
-        <div id="mob-overlap-warn" style="display:none;background:#fff6df;border-left:3px solid #f2bf45;padding:12px;border-radius:10px;font-size:.82em;margin:10px 0;color:#8a6a1e"></div>
         <div class="mob-steps-nav">
           <button onclick="mobNextStep(1)" class="btn mob-btn-ghost" style="padding:13px;border-radius:12px">← Nazad</button>
           <button onclick="mobNextStep(3)" class="btn btn-primary" style="padding:13px;border-radius:12px;background:#5f7f56">Dalje → Ime gosta</button>
@@ -3002,7 +3014,8 @@ document.getElementById('login-form').addEventListener('submit', async e => {
       startAutoBackup();
       _gdAutoBackupOnLogin(); // Google Drive auto backup
     }
-    // startAutoIcalSync() — pokreće se iz _icalLinksSub (jednom)
+    // startAutoIcalSync — pokreni iCal sync za SVE korisnike (admin i radnici)
+    startAutoIcalSync();
     // Mobilni init
     if (typeof isMobile === 'function' && isMobile()) {
       updateMobHeader();
@@ -6918,6 +6931,7 @@ window.mobDeltaHeader = (field, delta) => {
 
 // _mobBuildBungGrid: grid dugmadi sa provjerom zauzetosti
 // Poziva se NAKON sto su datumi postavljeni
+// TRI STANJA: zeleno (slobodan), crveno (zauzet), plavo (izabran)
 window._mobBuildBungGrid = function() {
   var grid = document.getElementById('mob-bung-grid');
   if (!grid) return;
@@ -6926,13 +6940,14 @@ window._mobBuildBungGrid = function() {
   var bungList = bungs.length ? bungs : Array.from({length:13},function(_,i){return String(i+1);});
   var ci = (document.getElementById('mob-ci') ? document.getElementById('mob-ci').value : '').trim();
   var co = (document.getElementById('mob-co') ? document.getElementById('mob-co').value : '').trim();
+
+  // Busy mapa — koje rezervacije zauzimaju koji bungalov
   var busyMap = new Map();
   if (ci && co && ci < co) {
-    // Ako editiramo postojeću rezervaciju, ne broji je kao "zauzeto"
     var editExcludeId = (typeof _mobEditId !== 'undefined') ? _mobEditId : null;
     (reservations || []).forEach(function(r) {
       if (r.cancelled) return;
-      if (r.id === editExcludeId) return; // NE broji sebe pri editu
+      if (r.id === editExcludeId) return;
       if (!r.checkIn || !r.checkOut) return;
       if (r.checkIn < co && r.checkOut > ci) {
         (r.bungalovi || []).forEach(function(b) {
@@ -6942,20 +6957,32 @@ window._mobBuildBungGrid = function() {
       }
     });
   }
+
+  // Izabrani bungalovi
+  var selected = new Set((typeof _mobSelBungs !== 'undefined') ? _mobSelBungs : []);
+  var hasDates = (ci && co && ci < co);
+
   bungList.forEach(function(b) {
     var btn = document.createElement('button');
     btn.type = 'button';
     btn.dataset.bung = b;
-    var cap = (typeof mobBungCapacity === 'function') ? mobBungCapacity(b) : ((B_CFG && B_CFG[b]) ? B_CFG[b].m : '?');
+    var cap = (B_CFG && B_CFG[b]) ? B_CFG[b].m : '?';
     var busyRes = busyMap.get(String(b));
-    if (busyRes) {
+    var isSelected = selected.has(String(b));
+
+    if (isSelected) {
+      // PLAVO — izabran
+      btn.className = 'mob-bung-btn sel';
+      btn.innerHTML = '<div style="font-weight:900">B' + escHtml(String(b)) + '</div>' +
+        '<small style="color:#fff;font-weight:700">✓ Izabran</small>';
+      btn.onclick = (function(bv) { return function() { mobToggleBung(bv, btn); }; })(b);
+    } else if (busyRes) {
+      // CRVENO — zauzet
       var isClosed = !!busyRes.closedManual;
       btn.className = 'mob-bung-btn mob-bung-busy';
-      btn.disabled = true;
-      btn.title = isClosed ? 'Zatvoren termin' : ('Zauzeto: ' + (busyRes.name || ''));
       btn.innerHTML = '<div style="font-weight:800">B' + escHtml(String(b)) + '</div>' +
-        '<small style="color:#c62828;font-weight:700;font-size:.72em">' +
-        (isClosed ? 'Zatvoreno' : 'Zauzeto') + '</small>';
+        '<small style="color:#c62828;font-weight:700;font-size:.68em">' +
+        (isClosed ? '🔒 Zatvoren' : '🔴 Zauzet') + '</small>';
       btn.onclick = (function(bv, closedV) {
         return function(e) {
           e.preventDefault(); e.stopPropagation();
@@ -6969,28 +6996,20 @@ window._mobBuildBungGrid = function() {
           setTimeout(function(){ var el=document.getElementById('_mob_busy_toast'); if(el)el.remove(); }, 2500);
         };
       })(b, isClosed);
+    } else if (hasDates) {
+      // ZELENO — slobodan (datumi su uneseni)
+      btn.className = 'mob-bung-btn mob-bung-free';
+      btn.innerHTML = '<div style="font-weight:800">B' + escHtml(String(b)) + '</div>' +
+        '<small style="font-weight:700;font-size:.68em">✓ Max ' + cap + '</small>';
+      btn.onclick = (function(bv) { return function() { mobToggleBung(bv, btn); }; })(b);
     } else {
+      // SIVO — datumi nisu uneseni, neutralan
       btn.className = 'mob-bung-btn';
       btn.innerHTML = '<div>B' + escHtml(String(b)) + '</div><small>Max ' + (cap || '?') + '</small>';
       btn.onclick = (function(bv) { return function() { mobToggleBung(bv, btn); }; })(b);
     }
     grid.appendChild(btn);
   });
-  if (typeof _mobSelBungs !== 'undefined') {
-    var toRemove = [];
-    _mobSelBungs.forEach(function(bs) {
-      var sel = grid.querySelector('[data-bung="' + bs + '"]');
-      if (sel && !sel.classList.contains('mob-bung-busy')) {
-        sel.classList.add('sel');
-      } else if (sel && sel.classList.contains('mob-bung-busy')) {
-        toRemove.push(bs);
-      }
-    });
-    if (toRemove.length) {
-      _mobSelBungs = _mobSelBungs.filter(function(x){ return toRemove.indexOf(x) < 0; });
-      toRemove.forEach(function(bs){ if(typeof _mobBungGuests==='object') delete _mobBungGuests[bs]; });
-    }
-  }
 };
 
 // ALIAS: _mobRefreshBungGrid — poziva se iz onchange datuma i ostalih mjesta
@@ -7048,10 +7067,8 @@ window.mobOpenQuickForm = (editResId) => {
           notes: b.notes || ''
         };
       });
-      _mobSelBungs.forEach(b => {
-        const btn = grid.querySelector(`[data-bung="${b}"]`);
-        if (btn) btn.classList.add('sel');
-      });
+      // Bung grid kockice se grade u _mobBuildBungGrid() (poziva se niže)
+      // koji čita _mobSelBungs i označava izabrane sa klasom 'sel'
       document.getElementById('mob-form-title').textContent = '✏️ Izmijeni rezervaciju';
     }
   } else {
@@ -7063,10 +7080,11 @@ window.mobOpenQuickForm = (editResId) => {
   }
 
   setTimeout(() => { mobRenderBungCards(); mobUpdateNights(); mobRenderReview(); }, 30);
-    window._mobBuildBungGrid();
+  window._mobBuildBungGrid();
   mobShowStep(1);
   document.getElementById('mob-quick-overlay').classList.add('open');
-  setTimeout(()=>document.getElementById('mob-name')?.focus(), 40);
+  // Focus na check-in (korak 1 je datumi)
+  setTimeout(()=>document.getElementById('mob-ci')?.focus(), 40);
 };
 
 window.mobCloseQuickForm = (e) => {
@@ -7089,23 +7107,19 @@ function mobToggleBung(b, btn) {
     setTimeout(()=>{ const t=document.getElementById('kmk-busy-toast'); if(t)t.remove(); }, 2500);
     return;
   }
-  // Upozorenje za premali kapacitet
-  if (btn && btn.classList && btn.classList.contains('bung-warn') && !btn.classList.contains('sel')) {
-    const cap = (typeof B_CFG !== 'undefined' && B_CFG[parseInt(b)]) ? B_CFG[parseInt(b)].m : '?';
-    const ok = confirm(`⚠️ Bungalov B${b} ima manji kapacitet (${cap} osoba).\nŽelite li ipak izabrati ovaj bungalov?`);
-    if (!ok) return;
-  }
   const bs = String(b);
   if (_mobSelBungs.includes(bs)) {
+    // MAKNI bungalov
     _mobSelBungs = _mobSelBungs.filter(x => x !== bs);
     delete _mobBungGuests[bs];
-    btn?.classList.remove('sel');
   } else {
+    // DODAJ bungalov
     _mobSelBungs.push(bs);
     _mobBungGuests[bs] = mobDefaultGuests();
-    btn?.classList.add('sel');
   }
   _mobSelBungs.sort((a,b)=>parseInt(a)-parseInt(b));
+  // POTPUNO rebuild grid — da se boje i onclick ispravno postave
+  if (typeof window._mobBuildBungGrid === 'function') window._mobBuildBungGrid();
   mobRenderBungCards();
   mobCheckOverlap();
   mobCalcPrice();
@@ -7115,7 +7129,8 @@ window.mobRemoveBung = (b) => {
   const bs = String(b);
   _mobSelBungs = _mobSelBungs.filter(x => x !== bs);
   delete _mobBungGuests[bs];
-  document.querySelector(`#mob-bung-grid [data-bung="${bs}"]`)?.classList.remove('sel');
+  // Rebuild grid da se boje osvjeze (maknut bungalov postaje zelen)
+  if (typeof window._mobBuildBungGrid === 'function') window._mobBuildBungGrid();
   mobRenderBungCards();
   mobCheckOverlap();
   mobCalcPrice();
@@ -7147,7 +7162,7 @@ function mobRenderBungCards(rebuild=true) {
   const wrap = document.getElementById('mob-bung-cards');
   if (!wrap) return;
   if (!_mobSelBungs.length) {
-    wrap.innerHTML = '<div class="mob-note" style="margin-top:10px">Još nije odabran nijedan bungalov. Dodajte barem jedan da biste nastavili.</div>';
+    wrap.innerHTML = '<div style="text-align:center;padding:8px 0;font-size:.82em;color:#888">👆 Tapnite zelenu kockicu iznad da izaberete bungalov</div>';
     return;
   }
   const ci = document.getElementById('mob-ci')?.value;
@@ -7361,6 +7376,11 @@ function mobShowStep(step) {
       stepEl.classList.toggle('done', s < step);
     }
   });
+  // Kad se prikaže korak 2 (bungalovi) — rebuild grid sa svježim podacima
+  if (step === 2) {
+    if (typeof window._mobBuildBungGrid === 'function') window._mobBuildBungGrid();
+    mobRenderBungCards();
+  }
   if (step === 4) mobRenderReview();
   mobRenderSummaryBar(step);
 }
