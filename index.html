@@ -5381,20 +5381,38 @@ window.printDaily = function() {
 };
 // ── SIMPLE PRINT ─────────────────────────────────────────────
 window.printSimple = function() {
-  var picker = document.getElementById('daily-date-picker');
-  const ts = (picker && picker.value) ? picker.value : lDate(new Date());
-  const dep = reservations.filter(r=>r.checkOut===ts&&!r.cancelled);
-  const arr = reservations.filter(r=>r.checkIn===ts&&!r.cancelled);
+  // Koristi ISTI datum kao renderDailyView (ne samo picker.value)
+  const ts = window._dailyCurrentDate || lDate(new Date());
+  // Postavi picker na isti datum ako nije postavljen
+  const picker = document.getElementById('daily-date-picker');
+  if (picker && !picker.value) picker.value = ts;
+
+  const dep = reservations.filter(r => r.checkOut === ts && !r.cancelled);
+  const arr = reservations.filter(r => r.checkIn === ts && !r.cancelled);
+
+  // Debug: logiraj šta se nađe
+  console.log('[printSimple] Datum:', ts, '| Odlasci:', dep.length, '| Dolasci:', arr.length);
+  dep.forEach(r => console.log('  Odlazak:', r.name, r.checkOut, 'bungs:', r.bungalovi?.map(b=>b.bungalov)));
+
   const cb={}, ab={};
-  dep.forEach(r=>r.bungalovi?.forEach(b=>{ cb[+b.bungalov]={beds:b.beds}; }));
-  arr.forEach(r=>r.bungalovi?.forEach(b=>{
-    const tot=(b.adults||0)+(b.children||0)+(b.babies||0);
-    if(!ab[+b.bungalov]) ab[+b.bungalov]={beds:b.beds,persons:tot};
-    else { ab[+b.bungalov].beds+=b.beds; ab[+b.bungalov].persons+=tot; }
+  dep.forEach(r => (r.bungalovi||[]).forEach(b => {
+    const bn = +b.bungalov;
+    if (!bn) return;
+    // Fallback za beds: adults + children ako beds nije sačuvan
+    const beds = (b.beds > 0) ? b.beds : ((b.adults||0) + (b.children||0)) || 1;
+    cb[bn] = { beds, name: r.name };
   }));
-  const cs=Object.keys(cb).map(Number).sort((a,b)=>a-b);
-  const as=Object.keys(ab).map(Number).sort((a,b)=>a-b);
-  const w=window.open('','_blank','width=600,height=700');
+  arr.forEach(r => (r.bungalovi||[]).forEach(b => {
+    const bn = +b.bungalov;
+    if (!bn) return;
+    const tot = (b.adults||0) + (b.children||0) + (b.babies||0);
+    const beds = (b.beds > 0) ? b.beds : ((b.adults||0) + (b.children||0)) || 1;
+    if (!ab[bn]) ab[bn] = { beds, persons: tot, name: r.name };
+    else { ab[bn].beds += beds; ab[bn].persons += tot; }
+  }));
+  const cs = Object.keys(cb).map(Number).sort((a,b)=>a-b);
+  const as = Object.keys(ab).map(Number).sort((a,b)=>a-b);
+  const w = window.open('','_blank','width=600,height=700');
   if (!w || w.closed) { alert('❌ Popup blokiran! Dozvolite popups za ovaj sajt u browser podešavanjima.'); return; }
   w.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Ciscenje '+fmtD(ts)+'<\/title>'
     +'<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:Arial,sans-serif;padding:26px;font-size:14px;color:#111}'
@@ -5406,18 +5424,20 @@ window.printSimple = function() {
     +'tr:nth-child(even) td{background:#f9fafb}.tot td{font-weight:700;background:#f3f4f6!important}'
     +'@media print{body{padding:14px}}<\/style><\/head><body>'
     +'<h1>Dnevni Pregled - Higijena<\/h1><div class="dt">&#128197; '+fmtD(ts)+'<\/div>'
-    +'<h2 class="cl">&#129529; CISTENJE<\/h2>'
-    +(cs.length===0?'<p style="color:#999;font-style:italic">Nema bungalova za ciscenje.<\/p>'
-      :'<table><thead><tr><th>Bungalov<\/th><th>Broj kreveta<\/th><\/tr><\/thead><tbody>'
-      +cs.map(n=>'<tr><td class="bn">B'+n+'<\/td><td>'+cb[n].beds+' kreveta<\/td><\/tr>').join('')
-      +'<tr class="tot"><td>UKUPNO: '+cs.length+' bungalova<\/td><td>'+cs.reduce((s,n)=>s+cb[n].beds,0)+' kreveta<\/td><\/tr><\/tbody><\/table>')
-    +'<h2 class="ar">&#128075; DOLASCI<\/h2>'
-    +(as.length===0?'<p style="color:#999;font-style:italic">Nema dolazaka.<\/p>'
-      :'<table><thead><tr><th>Bungalov<\/th><th>Kreveta<\/th><th>Broj osoba<\/th><\/tr><\/thead><tbody>'
-      +as.map(n=>'<tr><td class="bn" style="color:#16a34a">B'+n+'<\/td><td>'+ab[n].beds+'<\/td><td>'+ab[n].persons+'<\/td><\/tr>').join('')
-      +'<tr class="tot"><td>UKUPNO: '+as.length+' bungalova<\/td><td>'+as.reduce((s,n)=>s+ab[n].beds,0)+' kreveta<\/td><td>'+as.reduce((s,n)=>s+ab[n].persons,0)+' osoba<\/td><\/tr><\/tbody><\/table>')
+    +'<h2 class="cl">&#129529; ČIŠĆENJE ('+(cs.length)+' bungalova)<\/h2>'
+    +(cs.length===0?'<p style="color:#999;font-style:italic;padding:8px">Nema bungalova za čišćenje za '+fmtD(ts)+'.<\/p>'
+      :'<table><thead><tr><th>Bungalov<\/th><th>Gost<\/th><th>Kreveta<\/th><\/tr><\/thead><tbody>'
+      +cs.map(n=>'<tr><td class="bn">B'+n+'<\/td><td>'+escHtml(cb[n].name||'—')+'<\/td><td>'+cb[n].beds+' kr.<\/td><\/tr>').join('')
+      +'<tr class="tot"><td colspan="2">UKUPNO: '+cs.length+' bungalova<\/td><td>'+cs.reduce((s,n)=>s+cb[n].beds,0)+' kreveta<\/td><\/tr><\/tbody><\/table>')
+    +'<h2 class="ar">&#128075; DOLASCI ('+(as.length)+')<\/h2>'
+    +(as.length===0?'<p style="color:#999;font-style:italic;padding:8px">Nema dolazaka za '+fmtD(ts)+'.<\/p>'
+      :'<table><thead><tr><th>Bungalov<\/th><th>Gost<\/th><th>Kreveta<\/th><th>Osoba<\/th><\/tr><\/thead><tbody>'
+      +as.map(n=>'<tr><td class="bn" style="color:#16a34a">B'+n+'<\/td><td>'+escHtml(ab[n].name||'—')+'<\/td><td>'+ab[n].beds+'<\/td><td>'+ab[n].persons+'<\/td><\/tr>').join('')
+      +'<tr class="tot"><td colspan="2">UKUPNO: '+as.length+' bungalova<\/td><td>'+as.reduce((s,n)=>s+ab[n].beds,0)+'<\/td><td>'+as.reduce((s,n)=>s+ab[n].persons,0)+'<\/td><\/tr><\/tbody><\/table>')
     +'<\/body><\/html>');
-  w.document.close(); w.focus(); setTimeout(function(){w.print();},350);
+  w.document.close();
+  w.focus();
+  setTimeout(function(){ w.print(); }, 350);
 };
 
 window.renderResList = function() {
