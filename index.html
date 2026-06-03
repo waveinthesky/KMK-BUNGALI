@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Maja Karanfil Bungali v2.4.2</title>
+<title>Maja Karanfil Bungali v2.4.19</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh;padding:20px}
@@ -238,6 +238,12 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 .badge{padding:3px 9px;border-radius:20px;font-size:.8em;font-weight:600}
 .b-conf{background:#d4edda;color:#155724}
 .b-paid{background:#d1ecf1;color:#0c5460}
+.b-virman{background:#fff3cd;color:#856404}
+.virman-card{background:#fffaf0;border-left:5px solid #b8860b;border-radius:12px;padding:14px;margin-bottom:10px;box-shadow:0 2px 8px rgba(184,134,11,.12)}
+.virman-card.paid{border-left-color:#28a745;background:#f6fff6}
+.virman-kpi{background:white;border:1px solid #f0d8a0;border-radius:12px;padding:13px;text-align:center;box-shadow:0 1px 5px rgba(0,0,0,.05)}
+.virman-kpi strong{display:block;font-size:1.5em;color:#856404}
+.virman-kpi span{font-size:.78em;color:#666;font-weight:700}
 .b-pend{background:#fff3cd;color:#856404}
 .b-canc{background:#f8d7da;color:#721c24}
 .res-det{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:7px;font-size:.88em;margin-bottom:10px}
@@ -594,7 +600,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 .conflicts-empty .ce-ico{font-size:3em;margin-bottom:10px}
 .conflict-banner{display:none;position:fixed;top:0;left:0;right:0;z-index:9999;
   background:#dc3545;color:white;padding:10px 20px;
-  align-items:center;justify-content:space-between;
+  align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
   box-shadow:0 2px 8px rgba(0,0,0,.2);animation:slideDown .3s ease}
 .conflict-banner.show{display:flex}
 @keyframes slideDown{from{transform:translateY(-100%)}to{transform:translateY(0)}}
@@ -950,6 +956,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
   .mob-availability-card.busy{background:#fbfbfa!important;border-left-color:#a1aaa0!important;}
   .mob-status-chip{border-radius:999px!important;padding:4px 8px!important;font-weight:900!important;font-size:.72em!important;}
   .mob-chip-paid,.mob-chip-conf{background:#e9f4e7!important;color:var(--kmk-green-dark)!important;}
+.mob-chip-virman{background:#fff3cd!important;color:#856404!important;}
   .mob-chip-unpaid{background:#fff0ed!important;color:#c6453d!important;}
   .mob-chip-wait{background:#f3f4f1!important;color:#6e746b!important;}
 
@@ -1173,6 +1180,15 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
   📵 Nema internetske veze — podaci se prikazuju iz keša, ali promjene neće biti sačuvane dok se veza ne vrati.
 </div>
 
+<!-- Automatsko upozorenje za konflikte u kalendaru -->
+<div class="conflict-banner" id="conflict-banner" role="alert" aria-live="assertive">
+  <div id="conflict-banner-text" style="font-weight:700;line-height:1.35">⚠️ Konflikt u kalendaru</div>
+  <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+    <button type="button" onclick="openConflictsFromBanner()" style="background:white;color:#dc3545;border:none;border-radius:7px;padding:6px 12px;font-weight:800;cursor:pointer">Pogledaj</button>
+    <button type="button" onclick="dismissConflictBanner()" style="background:rgba(255,255,255,.18);color:white;border:1px solid rgba(255,255,255,.55);border-radius:7px;padding:6px 10px;font-weight:700;cursor:pointer">Sakrij</button>
+  </div>
+</div>
+
 
 <!-- LOGIN -->
 <div class="login-wrap" id="login-screen">
@@ -1181,7 +1197,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
       <img src="https://i.imgur.com/DzB2EDR.png" onerror="this.style.display='none'"
            id="login-logo-img" alt="Logo" style="max-width:175px;margin:0 auto 10px;display:block;border-radius:10px">
       <h1 id="login-h1"><span id="login-logo-emoji">🏡</span> Maja Karanfil Bungali</h1>
-      <p>Prijavite se u sistem — <span id="login-ver-txt">v2.4.2</span></p>
+      <p>Prijavite se u sistem — <span id="login-ver-txt">v2.4.19</span></p>
     </div>
     <div class="login-err" id="login-err">Pogrešno korisničko ime ili lozinka!</div>
     <form class="login-form" id="login-form">
@@ -1209,7 +1225,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
     </button>
     <div>
       <div class="mob-hdr-title">🏡 Maja Karanfil Bungali</div>
-      <div class="mob-hdr-sub" id="mob-hdr-sub">v2.4.2 mobile</div>
+      <div class="mob-hdr-sub" id="mob-hdr-sub">v2.4.19 mobile</div>
     </div>
   </div>
   <div class="mob-hdr-right">
@@ -1410,6 +1426,11 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
       <span>Konflikti</span>
       <span class="mob-cf-cnt" style="margin-left:auto;background:#dc3545;color:white;border-radius:10px;padding:2px 8px;font-size:.8em;font-weight:700">0</span>
     </div>
+    <div class="mob-more-item" id="mob-virman-item" onclick="mobGoTab('virman');mobCloseMore()" style="display:none;color:#856404">
+      <span class="mob-more-ico">🏦</span>
+      <span>Virman</span>
+      <span id="mob-virman-cnt" style="margin-left:auto;background:#fff3cd;color:#856404;border-radius:10px;padding:2px 8px;font-size:.8em;font-weight:700">0</span>
+    </div>
     <div class="mob-more-item" onclick="mobGoTab('stats');mobCloseMore()">
       <span class="mob-more-ico">📊</span>Statistika
     </div>
@@ -1437,7 +1458,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
   <div class="hdr">
     <div class="hdr-l">
       <h1>🏡 Maja Karanfil Bungali</h1>
-      <p id="app-version-hdr">Sistem za upravljanje rezervacijama — v2.4.2</p>
+      <p id="app-version-hdr">Sistem za upravljanje rezervacijama — v2.4.19</p>
     </div>
     <div class="hdr-r">
       <div class="user-row">
@@ -1473,6 +1494,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
     <button class="tab" data-tab="calendar" onclick="goTab('calendar',this)">📅 Kalendar</button>
     <button class="tab" data-tab="add" onclick="goTab('add',this)">➕ Nova Rezervacija</button>
     <button class="tab" data-tab="list" onclick="goTab('list',this)">📋 Rezervacije</button>
+    <button class="tab hidden" id="tab-virman" data-tab="virman" onclick="goTab('virman',this)">🏦 Virman <span id="virman-cnt" style="background:#fff3cd;color:#856404;border-radius:10px;padding:1px 7px;font-weight:800;margin-left:4px">0</span></button>
     <button class="tab hidden" id="tab-stats" data-tab="stats" onclick="goTab('stats',this)">📊 Statistika</button>
     <button class="tab hidden" id="tab-hist" data-tab="history" onclick="goTab('history',this)">📜 Istorija</button>
     <button class="tab hidden" id="tab-settings" data-tab="settings" onclick="goTab('settings',this)">⚙️ Podešavanja</button>
@@ -1739,7 +1761,8 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
           </div>
           <div style="display:flex;gap:16px;flex:1;align-items:center;flex-wrap:wrap">
             <div class="chk" style="display:flex;align-items:center;gap:5px"><input type="checkbox" id="f-confirmed" style="width:18px;height:18px"><label for="f-confirmed" style="font-weight:700;font-size:.92em">✓ Potvrđeno</label></div>
-            <div class="chk" style="display:flex;align-items:center;gap:5px"><input type="checkbox" id="f-paid" onchange="_togglePaidMeta()" style="width:18px;height:18px"><label for="f-paid" style="font-weight:700;font-size:.92em">💳 Plaćeno</label></div>
+            <div class="chk" style="display:flex;align-items:center;gap:5px"><input type="checkbox" id="f-paid" onchange="_togglePaidMeta();_syncVirmanPaidForm()" style="width:18px;height:18px"><label for="f-paid" style="font-weight:700;font-size:.92em">💳 Plaćeno</label></div>
+            <div class="chk" style="display:flex;align-items:center;gap:5px"><input type="checkbox" id="f-virman" onchange="_syncVirmanPaidForm()" style="width:18px;height:18px"><label for="f-virman" style="font-weight:700;font-size:.92em;color:#856404">🏦 Virman</label></div>
           </div>
         </div>
 
@@ -1761,7 +1784,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
       <div class="filter-row">
         <select id="fl-status" onchange="filterRes()">
           <option value="all">Sve</option><option value="confirmed">Potvrđene</option>
-          <option value="paid">Plaćene</option><option value="pending">Na čekanju</option>
+          <option value="paid">Plaćene</option><option value="virman">Virman</option><option value="pending">Na čekanju</option>
           <option value="cancelled">Otkazane</option>
         </select>
         <select id="fl-bung" onchange="filterRes()">
@@ -1776,6 +1799,19 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
       </div>
     </div>
     <div id="res-list" class="res-list"></div>
+  </div>
+
+  <!-- VIRMAN (admin only) -->
+  <div id="pane-virman" class="tab-pane">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px">
+      <div>
+        <h2 style="margin:0;color:#333">🏦 Virman / plaćanje preko računa</h2>
+        <p style="margin-top:5px;color:#666;font-size:.9em">Lista rezervacija koje čekaju uplatu virmanski. Kada novac legne, označi ih kao plaćene.</p>
+      </div>
+      <button class="btn btn-secondary" onclick="renderVirmanPane()">🔄 Osvježi</button>
+    </div>
+    <div id="virman-summary" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:16px"></div>
+    <div id="virman-list"></div>
   </div>
 
   <!-- STATS (admin only) -->
@@ -2259,7 +2295,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <!-- Trenutna verzija -->
       <div style="background:#e8f4fd;padding:14px;border-radius:8px;margin-bottom:24px;border-left:4px solid #667eea">
-        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v1.8.5</strong>
+        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v2.4.19</strong>
         <div style="font-size:.85em;color:#555;margin-top:4px">Firebase Firestore · GitHub Pages · Single-file aplikacija</div>
       </div>
 
@@ -2509,7 +2545,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
         </div>
         <div style="background:#f8f9fa;border-radius:8px;padding:10px 12px;border-top:3px solid #dc3545">
           <div style="font-weight:700;color:#333;margin-bottom:3px">Bungalovi</div>
-          <div style="color:#666">B1–B5, B10–B13: max 4 kr, 60€ osnova &nbsp;|&nbsp; B6–B9: max 6 kr, 70€ osnova &nbsp;|&nbsp; B12–B13: max 2 kr</div>
+          <div style="color:#666">B1–B5 i B10–B11: max 4 kr, 60€ osnova &nbsp;|&nbsp; B6–B9: max 6 kr, 70€ osnova &nbsp;|&nbsp; B12–B13: max 2 kr</div>
         </div>
         <div style="background:#f8f9fa;border-radius:8px;padding:10px 12px;border-top:3px solid #856404">
           <div style="font-weight:700;color:#333;margin-bottom:3px">Cjenovnik</div>
@@ -2521,6 +2557,62 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
       <h3 style="margin:24px 0 14px;color:#333;border-bottom:2px solid #667eea;padding-bottom:8px">📝 Izmjene po verzijama</h3>
 
       <div class="changelog">
+        <div class="ch-version">
+          <div class="ch-ver-header">v2.4.19 <span class="ch-date">— 02.06.2026</span></div>
+          <ul>
+            <li><strong>Kalendar/rezervacije audit:</strong> testirano pravilo check-in zauzet / check-out slobodan i preklapanje istog bungalova.</li>
+            <li><strong>Import unutar fajla:</strong> dva reda iz istog CSV/Excel importa više ne mogu zauzeti isti bungalov u preklopljenom periodu.</li>
+            <li><strong>Import bez headera:</strong> podržan i kompaktan CSV bez zaglavlja, bez preskakanja prvog reda.</li>
+            <li><strong>Finalna import zaštita:</strong> potvrda importa koristi radnu kopiju rezervacija, pa hvata duplikate čak i prije Firebase snapshot-a.</li>
+            <li><strong>Strožiji B broj:</strong> vrijednosti kao 1abc više ne prolaze validaciju bungalova.</li>
+            <li><strong>Import zaštita:</strong> import više ne može ubaciti redove koji se preklapaju sa postojećim rezervacijama.</li>
+            <li><strong>CSV import:</strong> automatski prepoznaje zarez, tačka-zarez i tab separator.</li>
+            <li><strong>Bungalov parser:</strong> popravljeno čitanje običnih brojeva kao 1, 2, 13 i B2, 3.</li>
+            <li><strong>Datumi import:</strong> evropski DD-MM-YYYY format se čita pravilno, bez američkog preokretanja mjeseca/dana.</li>
+            <li><strong>Stabilnost modula:</strong> funkcije koje se koriste iz inline dugmadi i završnog mobilnog guard-a sada su eksplicitno izložene na window, da ne pucaju u ES module režimu.</li>
+            <li><strong>Mobilni prikazi:</strong> osvježavanje dnevnog pregleda, dostupnosti, liste i kalendarskog hero prikaza sada radi stabilnije poslije promjene taba.</li>
+            <li><strong>Import datuma:</strong> parsiranje datuma iz Excel/CSV fajlova sada čuva lokalni dan i ne vraća prethodni datum zbog timezone pomjeranja.</li>
+            <li><strong>Brze akcije:</strong> dodatna zaštita od duplog klika na naplatu/dolazak i vraćanje dugmeta ako Firebase upis ne uspije.</li>
+            <li><strong>Sigurnost prikaza:</strong> ime gosta u knjizi gostiju sada se ubacuje u onclick kroz siguran JS string argument.</li>
+          </ul>
+        </div>
+        <div class="ch-version">
+          <div class="ch-ver-header">v2.4.8 <span class="ch-date">— 02.06.2026</span></div>
+          <ul>
+            <li><strong>Datumi:</strong> mobilna forma, dnevni pregled i export nazivi fajlova sada dosljedno koriste lokalni datum, bez UTC pomjeranja oko ponoći.</li>
+            <li><strong>Dnevni mobilni pregled:</strong> strelice za prethodni/sljedeći dan sada koriste centralni helper, umjesto inline računanja datuma.</li>
+            <li><strong>Prikaz historije:</strong> format datuma i vremena sada koristi lokalni datum zajedno sa lokalnim satom.</li>
+            <li><strong>Mobilna validacija:</strong> kod greške kapaciteta vraća korisnika na korak za bungalove/goste, ne na pogrešan korak.</li>
+          </ul>
+        </div>
+        <div class="ch-version">
+          <div class="ch-ver-header">v2.4.7 <span class="ch-date">— 02.06.2026</span></div>
+          <ul>
+            <li><strong>Zaštita rezervacije:</strong> desktop forma sada blokira isti bungalov ako je slučajno izabran dva puta u jednoj rezervaciji.</li>
+            <li><strong>Zaštita mobilne forme:</strong> mobilno čuvanje dodatno provjerava duple i nepoznate bungalove prije upisa u bazu.</li>
+            <li><strong>Stabilnost prikaza:</strong> naslov zauzetog bungalova u vizuelnom gridu sada se čisti kroz HTML escape, da ime gosta sa navodnicima ne pokvari atribut.</li>
+            <li><strong>Centralizacija:</strong> dodati zajednički helperi za provjeru duplog/validnog bungalova, bez promjene cijena, kapaciteta ili iCal logike.</li>
+          </ul>
+        </div>
+        <div class="ch-version">
+          <div class="ch-ver-header">v2.4.6 <span class="ch-date">— 02.06.2026</span></div>
+          <ul>
+            <li><strong>Naplate:</strong> desktop forma sada briše stare paidAt/paidBy metapodatke kada se rezervacija označi kao neplaćena.</li>
+            <li><strong>Naplate:</strong> nova plaćena rezervacija odmah dobija paidAt i paidBy, isto kao brza akcija naplate.</li>
+            <li><strong>Sigurnost prikaza:</strong> dodatno očišćeni telefon, zemlja i kanal u listi, detaljima i dnevnom pregledu.</li>
+            <li><strong>Datumi:</strong> default datumi u formi koriste lokalni datum, ne UTC, da ne pomjere dan oko ponoći.</li>
+            <li><strong>Stabilnost:</strong> nepostojeći mobilni legend elementi više ne mogu praviti grešku u konzoli.</li>
+          </ul>
+        </div>
+        <div class="ch-version">
+          <div class="ch-ver-header">v2.4.5 <span class="ch-date">— 02.06.2026</span></div>
+          <ul>
+            <li><strong>Mobilni edit:</strong> čuva postojeću ručno dogovorenu cijenu ako se period, bungalovi i struktura gostiju nijesu promijenili.</li>
+            <li><strong>Mobilni kalendar:</strong> Firebase refresh sada poziva aktivnu verziju mobilnog kalendara, umjesto stare override funkcije.</li>
+            <li><strong>Zajednički krevet:</strong> mobilni edit sada poštuje postojeću oznaku sharedBed pri validaciji kapaciteta.</li>
+            <li><strong>Čišćenje:</strong> quick akcije Plaćeno/Stigao definisane su jednom globalno, bez redefinisanja na svaki dnevni render.</li>
+          </ul>
+        </div>
         <div class="ch-version">
           <div class="ch-ver-header">v1.8.5 <span class="ch-date">— 30.03.2026</span></div>
           <ul>
@@ -2765,7 +2857,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
 import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, setDoc,
-         onSnapshot, query, orderBy, getDocs, limit, where, writeBatch
+         onSnapshot, query, orderBy, getDocs, limit, where, writeBatch, runTransaction
 , initializeFirestore, persistentLocalCache, persistentMultipleTabManager } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
 
 const FB = { apiKey:"AIzaSyCvaBrbaeijdQeVg4vQ-8Lm_SSM0inN8MI", authDomain:"rezervacije-bungalova.firebaseapp.com", projectId:"rezervacije-bungalova", storageBucket:"rezervacije-bungalova.firebasestorage.app", messagingSenderId:"349345983685", appId:"1:349345983685:web:6c1588acd201f7aa0214ac" };
@@ -2819,6 +2911,7 @@ let _resSub=null, _histSub=null, _notifSub=null; // #01 Firestore unsubscribe ha
 // neposredno prije prve upotrebe (top-level listeneri) da izbjegnemo TDZ grešku
 let _undoDeleteData=null, _undoDeleteTimer=null; // soft delete undo
 let _formSubmitting=false;            // #02 double-submit guard
+let _mobSubmitting=false;             // mobile double-submit guard
 
 // NAPOMENA: Hardcodirani USERS dict je uklonjen (#04/#10).
 // Autentifikacija sada ide ISKLJUČIVO kroz Firestore 'appUsers' kolekciju.
@@ -2912,6 +3005,7 @@ const COUNTRIES=['Albanija','Alžir','Argentina','Australija','Austrija','Azerbe
       document.getElementById('tab-stats').classList.remove('hidden');
       document.getElementById('tab-hist').classList.remove('hidden');
       document.getElementById('tab-settings').classList.remove('hidden');
+      document.getElementById('tab-virman')?.classList.remove('hidden');
       document.getElementById('bk-row').style.display = 'flex';
       document.getElementById('notif-wrap').style.display = 'block';
       lastLogin = localStorage.getItem('lastAdminLogin') || new Date().toISOString();
@@ -3008,6 +3102,7 @@ document.getElementById('login-form').addEventListener('submit', async e => {
       document.getElementById('tab-stats').classList.remove('hidden');
       document.getElementById('tab-hist').classList.remove('hidden');
       document.getElementById('tab-settings').classList.remove('hidden');
+      document.getElementById('tab-virman')?.classList.remove('hidden');
       document.getElementById('bk-row').style.display = 'flex';
       document.getElementById('notif-wrap').style.display = 'block';
       lastLogin = localStorage.getItem('lastAdminLogin') || new Date().toISOString();
@@ -3156,6 +3251,7 @@ window.logout = () => {
   document.getElementById('tab-stats')?.classList.add('hidden');
   document.getElementById('tab-hist')?.classList.add('hidden');
   document.getElementById('tab-settings')?.classList.add('hidden');
+  document.getElementById('tab-virman')?.classList.add('hidden');
   const bkRow = document.getElementById('bk-row');
   if (bkRow) bkRow.style.display = 'none';
   const notifWrap = document.getElementById('notif-wrap');
@@ -3203,12 +3299,12 @@ function init() {
     // Admin nema min ograničenje — može unijeti i prošle rezervacije
     (function() {
       var today = new Date(); today.setHours(0,0,0,0);
-      var todayStr = today.toISOString().slice(0,10);
+      var todayStr = (typeof kmkLocalDateInputValue === 'function' ? kmkLocalDateInputValue(today) : today.toISOString().slice(0,10));
       if (curRole !== 'admin') {
         if (_ciInput && !_ciInput.min) _ciInput.min = todayStr;
         if (_coInput && !_coInput.min) {
           var tmr = new Date(today); tmr.setDate(tmr.getDate()+1);
-          _coInput.min = tmr.toISOString().slice(0,10);
+          _coInput.min = kmkLocalDateInputValue(tmr);
         }
       } else {
         // Admin — bez min ograničenja
@@ -3222,7 +3318,7 @@ function init() {
       if (_ciInput.value) {
         const minCo = new Date(_ciInput.value + 'T00:00:00');
         minCo.setDate(minCo.getDate() + 1);
-        const minCoStr = minCo.toISOString().slice(0,10);
+        const minCoStr = kmkLocalDateInputValue(minCo);
         // Admin pri editu (editId postoji) — samo logički min (checkout > checkin)
         // Admin nikad nema min ograničenje na datumima
         if (typeof curRole !== 'undefined' && curRole === 'admin') {
@@ -3261,8 +3357,8 @@ function setupFirebase() {
       if (typeof renderMobDaily === 'function' && _mobCurrentTab === 'daily') renderMobDaily();
       if (typeof renderMobListFiltered === 'function' && _mobCurrentTab === 'list' && document.getElementById('mob-list-content')) renderMobListFiltered();
       if (_mobCurrentTab === 'calendar' && typeof _mobCalView !== 'undefined') {
-        if (_mobCalView === 'v2' && typeof renderMobCalV2 === 'function') _oldRenderMobCalV2();
-        else if (_mobCalView === 'v3' && typeof renderMobCalV3 === 'function') _oldRenderMobCalV3();
+        if (_mobCalView === 'v2' && typeof renderMobCalV2 === 'function') renderMobCalV2();
+        else if (_mobCalView === 'v3' && typeof renderMobCalV3 === 'function') renderMobCalV3();
       }
     } else {
       // Desktop — renderuj vidljive tabove
@@ -3272,7 +3368,12 @@ function setupFirebase() {
       renderResList(); // lista uvijek (filter state se čuva)
       if (activeId === 'pane-daily' || activeId === '') renderDaily();
       if (activeId === 'pane-stats') renderStats(); // stats samo ako je otvoren
+      if (typeof updateVirmanBadges === 'function') updateVirmanBadges();
+      if (activeId === 'pane-virman' && typeof renderVirmanPane === 'function') renderVirmanPane();
     }
+    // Virman badge/lista mora se osvježiti i na mobilnom i na desktopu.
+    if (typeof updateVirmanBadges === 'function') updateVirmanBadges();
+    if (typeof isMobile === 'function' && isMobile() && _mobCurrentTab === 'virman' && typeof renderVirmanPane === 'function') renderVirmanPane();
     // detectConflicts je O(n²) — debounce da ne puca na svakom snapshot
     if (typeof detectConflicts === 'function') {
       clearTimeout(window._detectConflictsTimer);
@@ -3572,7 +3673,7 @@ window.refreshBungVisualGrid = function() {
       onclick = `onclick="addBungFromVisualGrid('${bn}')"`;
     }
 
-    return `<div class="${cls}" title="${title}" ${onclick}>
+    return `<div class="${cls}" title="${escHtml(title)}" ${onclick}>
       ${icon}
       <div class="bvg-num">B${bn}</div>
       <div class="bvg-cap">Max ${cfg.m}</div>
@@ -3698,7 +3799,7 @@ window._updateNightsInfo = function() {
   const info = document.getElementById('nights-info');
   if (!info) return;
   if (ci && co && ci < co) {
-    const n = Math.ceil((new Date(co) - new Date(ci)) / 86400000);
+    const n = kmkNightsBetween(ci, co);
     info.textContent = `🛏️ ${n} ${n === 1 ? 'noć' : (n < 5 ? 'noći' : 'noći')} — ${fmtD(ci)} → ${fmtD(co)}`;
     info.style.display = 'block';
   } else {
@@ -3775,7 +3876,7 @@ window.validateG = function(item) {
 // Svaka odrasla osoba iznad 2 → +15€
 // Djeca 4-12g → +10€ (ako su već 2 u osnovi, svako dijete iznad je +10€)
 // Djeca <4g (bebe) → besplatno uvijek
-// Turistička taksa: 1€/osoba/noć (odrasli + djeca 4-12g, ne bebe)
+// Turistička taksa: 1€/odrasli/noć (djeca i bebe trenutno ne ulaze u taksu)
 
 function calcPrice(bungNum, adults, children, babies, numNights, activePrices) {
   const cfg = B_CFG[parseInt(bungNum)];
@@ -3841,11 +3942,279 @@ function getActivePrices(dateStr) {
   return (window.pricePeriods || []).filter(p => dateStr >= p.dateFrom && dateStr <= p.dateTo);
 }
 
+// Centralna overlap provjera: koristi se za desktop i mobilno čuvanje.
+// Pravilo smještaja: check-in je zauzet, check-out je slobodan za novog gosta.
+function kmkDateRangesOverlap(ci, co, r) {
+  return !!(ci && co && r && !r.cancelled && r.checkIn && r.checkOut && ci < r.checkOut && co > r.checkIn);
+}
+function kmkFindReservationOverlap(bungalovi, ci, co, excludeId) {
+  // Profesionalna zaštita: normalizuj i odabrani i postojeći bungalov.
+  // Stari zapisi mogu imati "1", "B1" ili broj 1; svi moraju značiti isto.
+  const selected = (bungalovi || [])
+    .map(b => kmkNormalizeBungalowNumber(b && typeof b === 'object' ? b.bungalov : b))
+    .filter(Boolean);
+  if (!selected.length || !ci || !co) return null;
+  for (const bn of selected) {
+    const ov = (reservations || []).find(r =>
+      r.id !== excludeId &&
+      kmkDateRangesOverlap(ci, co, r) &&
+      (r.bungalovi || []).some(rb => kmkNormalizeBungalowNumber(rb.bungalov) === String(bn))
+    );
+    if (ov) return { bungalov: String(bn), reservation: ov };
+  }
+  return null;
+}
+function kmkFindDuplicateSelectedBungalow(bungalovi) {
+  const seen = new Set();
+  for (const b of (bungalovi || [])) {
+    const bn = String(b && typeof b === 'object' ? b.bungalov : b).trim();
+    if (!bn) continue;
+    if (seen.has(bn)) return bn;
+    seen.add(bn);
+  }
+  return null;
+}
+function kmkNormalizeBungalowNumber(bn) {
+  const raw = String(bn ?? '').trim();
+  const m = raw.match(/^(?:B\s*)?(\d{1,2})$/i);
+  if (!m) return null;
+  const n = Number(m[1]);
+  return B_CFG[n] ? String(n) : null;
+}
+function kmkValidBungalowNumber(bn) {
+  return kmkNormalizeBungalowNumber(bn) !== null;
+}
+function kmkOverlapMessage(hit) {
+  if (!hit || !hit.reservation) return '';
+  const ov = hit.reservation;
+  const isBooking = !!ov.icalLinkId;
+  const isClosed = ov.closedManual || (typeof kmkIsClosedIcalReservation === 'function' && kmkIsClosedIcalReservation(ov));
+  const typeNote = isClosed ? ' (ZATVOREN TERMIN)' : (isBooking ? ' (BOOKING.COM / iCal)' : '');
+  const label = isClosed ? 'blokiran' : 'rezervisan';
+  return `❌ Bungalov B${hit.bungalov} je već ${label}${typeNote}!\nGost/unos: ${ov.name || '—'}\n${fmtD(ov.checkIn)} — ${fmtD(ov.checkOut)}\n\nCheck-out dan je slobodan, ali ovaj period se preklapa sa zauzetim noćima.`;
+}
+
+
+// v2.4.19: realna kontrola kalendara i novih rezervacija
+// - Jedan izvor istine za noći rezervacije (check-in zauzet, check-out slobodan)
+// - Firestore lock po bungalovu/noći, da dva uređaja ne mogu istovremeno upisati isti termin
+// - Audit funkcija za otkrivanje realnog dupliranja u kalendaru
+function kmkDateAddDays(dateStr, days) {
+  const d = new Date(String(dateStr || '') + 'T00:00:00');
+  if (Number.isNaN(d.getTime())) return '';
+  d.setDate(d.getDate() + days);
+  return (typeof kmkLocalDateInputValue === 'function') ? kmkLocalDateInputValue(d) : lDate(d);
+}
+function kmkNightsBetween(ci, co) {
+  if (!ci || !co || co <= ci) return 0;
+  let n = 0, cur = String(ci);
+  while (cur && cur < co && n < 3700) { n++; cur = kmkDateAddDays(cur, 1); }
+  return n;
+}
+function kmkReservationNightDates(ci, co) {
+  const out = [];
+  if (!ci || !co || co <= ci) return out;
+  let cur = String(ci), guard = 0;
+  while (cur < co && guard++ < 3700) { out.push(cur); cur = kmkDateAddDays(cur, 1); }
+  return out;
+}
+function kmkCleanReservationBungalows(bungalovi) {
+  const out = [];
+  const seen = new Set();
+  for (const b of (bungalovi || [])) {
+    const norm = kmkNormalizeBungalowNumber(b && typeof b === 'object' ? b.bungalov : b);
+    if (!norm || seen.has(norm)) continue;
+    seen.add(norm);
+    out.push({ ...(typeof b === 'object' ? b : {}), bungalov: String(norm) });
+  }
+  return out;
+}
+function kmkActiveReservationsUnique(list) {
+  const seen = new Set();
+  return (list || []).filter(r => {
+    if (!r || r.cancelled) return false;
+    const key = r.id || JSON.stringify([r.name, r.checkIn, r.checkOut, r.bungalovi]);
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+function kmkLockId(bn, ds) {
+  return 'B' + String(bn).replace(/[^0-9]/g,'') + '_' + String(ds).replace(/[^0-9-]/g,'');
+}
+function kmkReservationLockKeys(data) {
+  const keys = [];
+  const nights = kmkReservationNightDates(data?.checkIn, data?.checkOut);
+  for (const b of kmkCleanReservationBungalows(data?.bungalovi || [])) {
+    for (const ds of nights) keys.push({ id: kmkLockId(b.bungalov, ds), bungalov: String(b.bungalov), date: ds });
+  }
+  return keys;
+}
+function kmkPreSaveReservationGuard(data, excludeId) {
+  if (!data || !data.checkIn || !data.checkOut || data.checkOut <= data.checkIn) {
+    return { ok:false, message:'❌ Datum odlaska mora biti nakon dolaska.' };
+  }
+  const cleanBungs = kmkCleanReservationBungalows(data.bungalovi || []);
+  if (!cleanBungs.length) return { ok:false, message:'❌ Dodajte barem jedan bungalov.' };
+  const dup = kmkFindDuplicateSelectedBungalow(data.bungalovi || []);
+  if (dup) return { ok:false, message:'❌ Bungalov B' + dup + ' je izabran dva puta u istoj rezervaciji.' };
+  for (const b of (data.bungalovi || [])) {
+    const norm = kmkNormalizeBungalowNumber(b.bungalov);
+    if (!norm) return { ok:false, message:'❌ Nepoznat bungalov: B' + (b.bungalov || '') };
+  }
+  const hit = kmkFindReservationOverlap(cleanBungs, data.checkIn, data.checkOut, excludeId);
+  if (hit) return { ok:false, message: kmkOverlapMessage(hit) };
+  return { ok:true, cleanBungalows: cleanBungs };
+}
+function kmkFriendlySaveError(err) {
+  const msg = String(err?.message || err || 'Nepoznata greška');
+  if (msg.startsWith('KMK_LOCK_CONFLICT|')) {
+    const parts = msg.split('|');
+    const bn = parts[1] || '?';
+    const ds = parts[2] || '?';
+    const owner = reservations.find(r => r.id === parts[3]);
+    return '❌ Termin je u međuvremenu zauzet na drugom uređaju.\nBungalov: B' + bn + '\nDatum: ' + fmtD(ds) + (owner ? '\nPostojeća rezervacija: ' + (owner.name || '—') : '') + '\n\nOsvježite kalendar i pokušajte drugi termin.';
+  }
+  return 'Greška: ' + msg;
+}
+async function kmkSaveReservationAtomic(data, existingId) {
+  const guard = kmkPreSaveReservationGuard(data, existingId || null);
+  if (!guard.ok) throw new Error(guard.message);
+  if (typeof runTransaction !== 'function') {
+    // Siguran fallback: lokalni guard je već prošao. Ovo se ne očekuje u normalnom browseru.
+    if (existingId) { await updateDoc(doc(db,'reservations',existingId), data); return { id: existingId, fallback:true }; }
+    const ref = await addDoc(collection(db,'reservations'), data); return { id: ref.id, fallback:true };
+  }
+  const resRef = existingId ? doc(db, 'reservations', existingId) : doc(collection(db, 'reservations'));
+  const resId = existingId || resRef.id;
+  const newKeys = data.cancelled ? [] : kmkReservationLockKeys(data);
+
+  await runTransaction(db, async (tx) => {
+    let oldKeys = [];
+    if (existingId) {
+      const oldSnap = await tx.get(resRef);
+      if (oldSnap.exists()) {
+        const oldData = oldSnap.data();
+        oldKeys = oldData?.cancelled ? [] : kmkReservationLockKeys(oldData);
+      }
+    }
+
+    const lockRefs = newKeys.map(k => ({ ...k, ref: doc(db, 'reservationLocks', k.id) }));
+    const lockSnaps = [];
+    for (const lk of lockRefs) lockSnaps.push({ lk, snap: await tx.get(lk.ref) });
+    for (const { lk, snap } of lockSnaps) {
+      if (snap.exists()) {
+        const owner = snap.data()?.resId || '';
+        if (owner && owner !== resId) throw new Error('KMK_LOCK_CONFLICT|' + lk.bungalov + '|' + lk.date + '|' + owner);
+      }
+    }
+
+    if (existingId) tx.update(resRef, data);
+    else tx.set(resRef, data);
+
+    const newSet = new Set(newKeys.map(k => k.id));
+    for (const old of oldKeys) if (!newSet.has(old.id)) tx.delete(doc(db, 'reservationLocks', old.id));
+    for (const lk of newKeys) {
+      tx.set(doc(db, 'reservationLocks', lk.id), {
+        resId, bungalov: lk.bungalov, date: lk.date,
+        checkIn: data.checkIn, checkOut: data.checkOut,
+        name: data.name || '', updatedAt: new Date().toISOString(), updatedBy: curUser || ''
+      });
+    }
+  });
+  return { id: resId };
+}
+async function kmkCancelReservationAtomic(id) {
+  const res = reservations.find(r => r.id === id);
+  if (!res) { await updateDoc(doc(db,'reservations',id), { cancelled:true }); return; }
+  const resRef = doc(db, 'reservations', id);
+  const keys = kmkReservationLockKeys(res);
+  if (typeof runTransaction !== 'function') { await updateDoc(resRef, { cancelled:true }); return; }
+  await runTransaction(db, async (tx) => {
+    tx.update(resRef, { cancelled:true });
+    for (const k of keys) tx.delete(doc(db, 'reservationLocks', k.id));
+  });
+}
+
+// Hard-delete helper: svako direktno brisanje rezervacije mora obrisati i date-lockove.
+// Bez ovoga, obrisana rezervacija može ostaviti "mrtav lock" i blokirati buduću rezervaciju.
+async function kmkDeleteReservationAtomic(id) {
+  if (!id) return;
+  const local = (reservations || []).find(r => r.id === id);
+  const resRef = doc(db, 'reservations', id);
+  if (typeof runTransaction !== 'function') {
+    if (local) {
+      for (const k of kmkReservationLockKeys(local)) {
+        try { await deleteDoc(doc(db, 'reservationLocks', k.id)); } catch(_) {}
+      }
+    }
+    await deleteDoc(resRef);
+    return;
+  }
+  await runTransaction(db, async (tx) => {
+    let data = local || null;
+    if (!data) {
+      const snap = await tx.get(resRef);
+      if (snap.exists()) data = snap.data();
+    }
+    if (data) for (const k of kmkReservationLockKeys(data)) tx.delete(doc(db, 'reservationLocks', k.id));
+    tx.delete(resRef);
+  });
+}
+
+function kmkIsClosedIcalReservation(r) {
+  if (!r || !r.icalLinkId) return false;
+  return !!(window.icalLinks || []).find(l => l.id === r.icalLinkId && l.linkType === 'closed');
+}
+function kmkIsCalendarBlock(r) {
+  return !!(r && (r.closedManual || kmkIsClosedIcalReservation(r)));
+}
+function kmkConflictOverlapLabel(start, end) {
+  const nights = kmkNightsBetween(start, end);
+  if (!start || !end || nights <= 0) return fmtD(start || '') + ' → ' + fmtD(end || '');
+  const lastNight = kmkDateAddDays(end, -1);
+  return nights === 1
+    ? fmtD(start) + ' (1 noć, checkout ' + fmtD(end) + ')'
+    : fmtD(start) + ' → ' + fmtD(lastNight) + ' (' + nights + ' noći, checkout ' + fmtD(end) + ')';
+}
+function kmkAuditCalendarReservations(list = reservations) {
+  const cells = new Map();
+  const badReservations = [];
+  for (const r of kmkActiveReservationsUnique(list)) {
+    if (!r.checkIn || !r.checkOut || r.checkOut <= r.checkIn) badReservations.push({ id:r.id, name:r.name, reason:'Loš period', checkIn:r.checkIn, checkOut:r.checkOut });
+    const clean = kmkCleanReservationBungalows(r.bungalovi || []);
+    if (clean.length !== (r.bungalovi || []).length) badReservations.push({ id:r.id, name:r.name, reason:'Dupli/nepoznat bungalov u rezervaciji' });
+    for (const b of clean) {
+      for (const ds of kmkReservationNightDates(r.checkIn, r.checkOut)) {
+        const key = b.bungalov + '|' + ds;
+        if (!cells.has(key)) cells.set(key, []);
+        cells.get(key).push(r);
+      }
+    }
+  }
+  const duplicates = [];
+  for (const [key, arr] of cells.entries()) {
+    if (arr.length > 1) {
+      const [bungalov, date] = key.split('|');
+      duplicates.push({ bungalov, date, reservations: arr.map(r => ({ id:r.id, name:r.name, checkIn:r.checkIn, checkOut:r.checkOut })) });
+    }
+  }
+  return { ok: duplicates.length === 0 && badReservations.length === 0, duplicates, badReservations, checkedCells: cells.size };
+}
+window.kmkAuditCalendar = function(showAlert = true) {
+  const a = kmkAuditCalendarReservations(reservations);
+  if (showAlert) {
+    if (a.ok) alert('✅ Kontrola kalendara OK.\nNema duplih ćelija, nema loših perioda.\nProvjereno ćelija: ' + a.checkedCells);
+    else alert('⚠️ Kontrola kalendara našla probleme.\nDuplih ćelija: ' + a.duplicates.length + '\nProblematičnih rezervacija: ' + a.badReservations.length + '\nDetalji su u konzoli: kmkAuditCalendar(false)');
+  }
+  return a;
+};
+
 window.recalc = function() {
   const ci = document.getElementById('f-checkin').value;
   const co = document.getElementById('f-checkout').value;
   if (!ci||!co) return;
-  const numNights = Math.max(1, Math.ceil((new Date(co)-new Date(ci))/86400000));
+  const numNights = Math.max(1, kmkNightsBetween(ci, co));
   const items = document.querySelectorAll('.bung-item');
   const activePrices = getActivePrices(ci);
   let grand=0, allLines=[];
@@ -3949,10 +4318,15 @@ document.getElementById('res-form').addEventListener('submit', async e => {
   // ── VALIDACIJA (prije zaključavanja forme) ────────────────
   const bItems=[...document.querySelectorAll('.bung-item')];
   const bungalovi=[];
+  const seenBungalovi = new Set();
   for (const item of bItems) {
     const sel=item.querySelector('.b-sel');
     if (!sel?.value) continue;
-    const n=parseInt(sel.value);
+    const normBn = kmkNormalizeBungalowNumber(sel.value);
+    if (!normBn) { alert(`❌ Nepoznat bungalov: B${sel.value}`); return; }
+    const n = Number(normBn);
+    if (seenBungalovi.has(String(n))) { alert(`❌ Bungalov B${n} je izabran dva puta u istoj rezervaciji.`); return; }
+    seenBungalovi.add(String(n));
 
     const ad=parseInt(item.querySelector('.g-adults')?.value)||0;
     const ch=parseInt(item.querySelector('.g-children')?.value)||0;
@@ -3986,10 +4360,9 @@ document.getElementById('res-form').addEventListener('submit', async e => {
     // Admin edituje prošlu rezervaciju — samo tiho, bez blokade
   }
   for (const b of bungalovi) {
-    const ov=reservations.find(r=>r.id!==editId&&!r.cancelled&&r.bungalovi?.some(rb=>rb.bungalov==b.bungalov)&&ci<r.checkOut&&co>r.checkIn);
-    if (ov) {
-      const closedNote = ov.closedManual ? ' (ZATVOREN TERMIN)' : '';
-      alert(`❌ Bungalov ${b.bungalov} je već rezervisan${closedNote}!\nGost: ${ov.name||'—'}\n${fmtD(ov.checkIn)} — ${fmtD(ov.checkOut)}`);
+    const ovHit = kmkFindReservationOverlap([b], ci, co, editId);
+    if (ovHit) {
+      alert(kmkOverlapMessage(ovHit));
       return;
     }
     const rowPersons = Math.max(1,(parseInt(b.adults)||0)+(parseInt(b.children)||0)||(parseInt(b.beds)||0)||1);
@@ -4022,25 +4395,57 @@ document.getElementById('res-form').addEventListener('submit', async e => {
       notes: document.getElementById('f-notes').value.trim(),
       confirmed: isClosed ? false : document.getElementById('f-confirmed').checked,
       paid: isClosed ? false : document.getElementById('f-paid').checked,
+      virman: isClosed ? false : document.getElementById('f-virman')?.checked || false,
+      virmanStatus: isClosed ? '' : ((document.getElementById('f-virman')?.checked || false) ? (document.getElementById('f-paid').checked ? 'paid' : 'pending') : ''),
       cancelled: false,
       closedManual: isClosed,
     };
     if (editId) {
       const old=reservations.find(r=>r.id===editId);
       const updateData = { ...data, updatedAt: new Date().toISOString(), updatedBy: curUser };
-      // Admin može ručno promijeniti datum i operatora naplate
-      if (curRole === 'admin' && data.paid) {
+      // Metapodaci naplate moraju pratiti checkbox Plaćeno.
+      // Ako se poništi plaćanje, obriši stare paidAt/paidBy da dnevni izvještaj ne prikazuje lažnu naplatu.
+      if (data.paid) {
         const paidAtDate = document.getElementById('f-paidAt')?.value || '';
         const paidAtTime = document.getElementById('f-paidTime')?.value || '00:00';
         const paidByVal  = document.getElementById('f-paidBy')?.value || '';
-        if (paidAtDate) {
-          updateData.paidAt = paidAtDate + 'T' + paidAtTime + ':00.000Z';
+        if (curRole === 'admin' && paidAtDate) {
+          updateData.paidAt = kmkLocalDateTimeFromParts(paidAtDate, paidAtTime);
+        } else if (!old?.paidAt) {
+          updateData.paidAt = kmkLocalDateTimeISO(new Date());
         }
-        if (paidByVal) {
+        if (curRole === 'admin' && paidByVal) {
           updateData.paidBy = paidByVal;
+        } else if (!old?.paidBy) {
+          updateData.paidBy = curUser || '';
         }
+      } else {
+        updateData.paidAt = null;
+        updateData.paidBy = null;
       }
-      await updateDoc(doc(db,'reservations',editId), updateData);
+      // Virman status prati checkbox Virman. Ako je plaćeno + virman, ostaje u arhivi kao plaćen virman.
+      if (updateData.virman) {
+        if (updateData.virmanStatus === 'pending') {
+          updateData.virmanAt = old?.virmanAt || kmkLocalDateTimeISO(new Date());
+          updateData.virmanBy = old?.virmanBy || (curUser || '');
+          updateData.virmanPaidAt = null;
+          updateData.virmanPaidBy = null;
+        } else if (updateData.virmanStatus === 'paid') {
+          updateData.virmanAt = old?.virmanAt || kmkLocalDateTimeISO(new Date());
+          updateData.virmanBy = old?.virmanBy || (curUser || '');
+          updateData.virmanPaidAt = updateData.paidAt || old?.paidAt || kmkLocalDateTimeISO(new Date());
+          updateData.virmanPaidBy = updateData.paidBy || old?.paidBy || (curUser || '');
+          updateData.paidMethod = 'virman';
+        }
+      } else {
+        updateData.virmanStatus = '';
+        updateData.virmanAt = null;
+        updateData.virmanBy = null;
+        updateData.virmanPaidAt = null;
+        updateData.virmanPaidBy = null;
+        updateData.paidMethod = old?.paidMethod === 'virman' ? null : updateData.paidMethod;
+      }
+      await kmkSaveReservationAtomic(updateData, editId);
       // LOKALNO ažuriraj reservations array ODMAH
       const idx = reservations.findIndex(r => r.id === editId);
       if (idx >= 0) reservations[idx] = { ...reservations[idx], ...updateData };
@@ -4062,18 +4467,43 @@ document.getElementById('res-form').addEventListener('submit', async e => {
       editId=null; // null tek nakon što oba awaita uspiju
     } else {
       const newData = { ...data, createdAt: new Date().toISOString(), createdBy: curUser };
-      const docRef = await addDoc(collection(db,'reservations'), newData);
+      if (newData.paid) {
+        newData.paidAt = kmkLocalDateTimeISO(new Date());
+        newData.paidBy = curUser || '';
+      } else {
+        newData.paidAt = null;
+        newData.paidBy = null;
+      }
+      if (newData.virman) {
+        newData.virmanAt = kmkLocalDateTimeISO(new Date());
+        newData.virmanBy = curUser || '';
+        if (newData.virmanStatus === 'paid') {
+          newData.virmanPaidAt = newData.paidAt || kmkLocalDateTimeISO(new Date());
+          newData.virmanPaidBy = newData.paidBy || curUser || '';
+          newData.paidMethod = 'virman';
+        } else {
+          newData.virmanPaidAt = null;
+          newData.virmanPaidBy = null;
+        }
+      } else {
+        newData.virmanStatus = '';
+        newData.virmanAt = null;
+        newData.virmanBy = null;
+        newData.virmanPaidAt = null;
+        newData.virmanPaidBy = null;
+      }
+      const docRef = await kmkSaveReservationAtomic(newData, null);
       // LOKALNO dodaj u reservations array ODMAH — da kalendar prikaže bez čekanja snapshot-a
       // (Firestore SDK u backoff/offline stanju može kasniti sa onSnapshot triggerom)
       reservations.unshift({ id: docRef.id, ...newData });
-      await logH('added', newData);
+      await logH('added', { ...newData, id: docRef.id });
     }
     // Renderuj kalendar ODMAH (ne čekaj snapshot koji može kasniti)
     if (typeof renderCal === 'function') renderCal();
     if (typeof renderResList === 'function') renderResList();
     resetForm(); alert('✅ Rezervacija sačuvana!'); goTabDirect('list');
   } catch(err) {
-    console.error(err); alert('Greška: '+err.message); syncUI('er','Greška');
+    console.error(err); alert(typeof kmkFriendlySaveError === 'function' ? kmkFriendlySaveError(err) : ('Greška: '+err.message)); syncUI('er','Greška');
   } finally {
     _formSubmitting = false;
     if (_submitBtn) { _submitBtn.disabled=false; _submitBtn.textContent='💾 Sačuvaj Rezervaciju'; }
@@ -4128,6 +4558,8 @@ window.resetForm = () => {
   if (priceSec) priceSec.style.display = '';
   const guestFields = document.getElementById('f-guest-fields');
   if (guestFields) guestFields.style.display = '';
+  const virmanEl = document.getElementById('f-virman'); if (virmanEl) virmanEl.checked = false;
+  const paidMetaEl = document.getElementById('f-paid-meta'); if (paidMetaEl) paidMetaEl.style.display = 'none';
   // Ukloni guest history panel ako postoji
   const ghPanel = document.getElementById('guest-history-panel');
   if (ghPanel) ghPanel.innerHTML = '';
@@ -4135,11 +4567,11 @@ window.resetForm = () => {
   // Admin nema min ogranicenje — moze unijeti i prosle rezervacije
   (function() {
     var today = new Date(); today.setHours(0,0,0,0);
-    var todayStr = today.toISOString().slice(0,10);
+    var todayStr = (typeof kmkLocalDateInputValue === 'function' ? kmkLocalDateInputValue(today) : today.toISOString().slice(0,10));
     var ciEl = document.getElementById('f-checkin');
     var coEl = document.getElementById('f-checkout');
     var tmr = new Date(today); tmr.setDate(tmr.getDate()+1);
-    var tStr = tmr.toISOString().slice(0,10);
+    var tStr = (typeof kmkLocalDateInputValue === 'function' ? kmkLocalDateInputValue(tmr) : tmr.toISOString().slice(0,10));
     if (curRole !== 'admin') {
       if (ciEl) { ciEl.min = todayStr; if (!ciEl.value) ciEl.value = todayStr; }
       if (coEl) { coEl.min = tStr; if (!coEl.value) coEl.value = tStr; }
@@ -4234,7 +4666,7 @@ window.confirmDel = async () => {
   syncUI('sy','Otkazujem...');
   try {
     const res=reservations.find(x=>x.id===delId);
-    await updateDoc(doc(db,'reservations',delId),{cancelled:true});
+    await kmkCancelReservationAtomic(delId);
     await logH('deleted',{...res,cancelled:true},null,r);
     // Soft delete — sačuvaj za undo
     _undoDeleteData = {...res, id: delId};
@@ -4261,8 +4693,9 @@ window.restoreRes = async hId => {
   syncUI('sy','Vraćam...');
   try {
     const d={...rv,cancelled:false,createdAt:new Date().toISOString()}; delete d.id;
-    await addDoc(collection(db,'reservations'),d);
-    await logH('added',d);
+    const restoredRef = await kmkSaveReservationAtomic(d, null);
+    reservations.unshift({ id: restoredRef.id, ...d });
+    await logH('added',{...d,id:restoredRef.id});
     syncUI('ok','Sinhronizovano ✓');
     alert('✅ Rezervacija vraćena!');
   } catch(err) { console.error(err); alert('Greška: '+err.message); syncUI('er','Greška'); }
@@ -4349,6 +4782,9 @@ window.renderCal = function() {
   const closedIcalLinkIds = new Set(
     (window.icalLinks||[]).filter(l => l.linkType === 'closed').map(l => l.id)
   );
+  // v2.4.19: kalendar radi nad deduplikovanom aktivnom listom, da lokalni cache/snapshot ne prikažu istu rezervaciju dva puta.
+  const activeReservations = (typeof kmkActiveReservationsUnique === 'function') ? kmkActiveReservationsUnique(reservations) : (reservations || []).filter(r => !r.cancelled);
+  const calBungalows = Object.keys(B_CFG || {}).map(n => parseInt(n,10)).filter(Boolean).sort((a,b)=>a-b);
 
   const DNAMES_SHORT=['N','P','U','S','Č','P','S'];
   let html='<div class="cal-row cal-row-hdr"><div class="cc hdr cc-label cc-corner cal-col-bung">Bungalovi<br><span style="font-weight:400;font-size:.9em;color:#888">Datum</span></div>';
@@ -4363,19 +4799,19 @@ window.renderCal = function() {
   }
   html+='</div>';
 
-  for (let bn=1;bn<=13;bn++) {
+  for (const bn of calBungalows) {
     html+=`<div class="cal-row"><div class="cc bh cal-col-bung">B${bn}</div>`;
     let skip=0, tog=true;
     for (let d=1;d<=dim;d++) {
       if (d<skip) continue;
       const dt=new Date(yr,mo,d), ds=lDate(dt), past=dt<now;
       // Sve aktivne rezervacije za ovaj bungalov i dan
-      const allRes=reservations.filter(r=>!r.cancelled&&r.bungalovi?.some(b=>b.bungalov==bn)&&ds>=r.checkIn&&ds<r.checkOut);
+      const allRes=activeReservations.filter(r=>r.bungalovi?.some(b=>String(b.bungalov)===String(bn))&&ds>=r.checkIn&&ds<r.checkOut);
       const res=allRes[0]; // prikaži prvu, ostatak kao badge
       const dupCount = allRes.length; // broj preklapanja za isti bungalov/dan
       if (res&&ds===res.checkIn) {
         // Rezervacija počinje ovdje
-        const nights=Math.ceil((new Date(res.checkOut)-new Date(res.checkIn))/86400000);
+        const nights=kmkNightsBetween(res.checkIn, res.checkOut);
         const span=Math.min(nights, dim-d+1);
         const isIcal = !!res.icalLinkId;
         const isIcalClosed = isIcal && closedIcalLinkIds.has(res.icalLinkId);
@@ -4423,7 +4859,7 @@ window.renderCal = function() {
         skip=d+nights; if (!isIcal) tog=!tog;
       } else if (res&&ds!==res.checkIn) {
         // Rezervacija počela u prošlom mjesecu — nastavak do kraja ovog mjeseca ili do checkout-a
-        const remNights=Math.ceil((new Date(res.checkOut)-new Date(ds+'T00:00:00'))/86400000);
+        const remNights=kmkNightsBetween(ds, res.checkOut);
         const span=Math.min(remNights, dim-d+1);
         const isIcal2 = !!res.icalLinkId;
         const isIcalClosed2 = isIcal2 && closedIcalLinkIds.has(res.icalLinkId);
@@ -4524,8 +4960,13 @@ window.loadCalSettings = () => {
 function _setupCalDrag() {
   const grid = document.getElementById('cal-grid');
   if (!grid) return;
-  // Na mobu - poštuje postavku; na PC-u - uvijek radi
-  if (typeof isMobile === 'function' && isMobile() && !_calDragEnabled) return;
+  // v2.4.19: renderCal() se poziva često; listeneri se smiju zakačiti samo jednom.
+  // Inače jedan klik/prevlačenje može otvoriti formu više puta.
+  if (grid.dataset.kmkDragSetup === '1') return;
+  grid.dataset.kmkDragSetup = '1';
+  function dragAllowedNow() {
+    return !(typeof isMobile === 'function' && isMobile() && !_calDragEnabled);
+  }
 
   function cellFromPoint(x, y) {
     const el = document.elementFromPoint(x, y);
@@ -4583,6 +5024,7 @@ function _setupCalDrag() {
 
   // ── MOUSE ────────────────────────────────────────────────
   grid.addEventListener('mousedown', e => {
+    if (!dragAllowedNow()) return;
     const c = e.target.closest('.cal-free'); if (!c) return;
     e.preventDefault();
     _dragBung   = c.dataset.bung;
@@ -4610,6 +5052,7 @@ function _setupCalDrag() {
 
   // ── TOUCH ────────────────────────────────────────────────
   grid.addEventListener('touchstart', e => {
+    if (!dragAllowedNow()) return;
     const t = e.touches[0];
     const c = cellFromPoint(t.clientX, t.clientY); if (!c) return;
     _dragBung   = c.dataset.bung;
@@ -4757,7 +5200,7 @@ window.renderDaily = function(dateStr) {
   const _activeOnDay = reservations.filter(r => !r.cancelled && !r.closedManual && r.checkIn <= ts && r.checkOut > ts);
   const _unpaidActive = _activeOnDay.filter(r => !r.paid);
   const _overdueAll = reservations.filter(r => !r.cancelled && !r.closedManual && !r.paid && r.checkOut <= ts && r.checkIn < ts);
-  const _paidToday = reservations.filter(r => !r.cancelled && r.paid && (r.paidAt||'').slice(0,10) === ts);
+  const _paidToday = reservations.filter(r => !r.cancelled && r.paid && kmkPaidDateKey(r) === ts);
   const _paidTodaySum = _paidToday.reduce((s,r)=>s+(parseFloat(r.price)||0),0);
   const _unpaidSum = [..._unpaidActive, ..._overdueAll].reduce((s,r)=>s+(parseFloat(r.price)||0),0);
   const _overdueSum = _overdueAll.reduce((s,r)=>s+(parseFloat(r.price)||0),0);
@@ -4802,7 +5245,7 @@ window.renderDaily = function(dateStr) {
 
   // ══ POBOLJŠAN mkItem — sa timeline plaćanja i jačim bojama ══════════
   const mkItem=(r,badge,color,isDup)=>{
-    const nights = Math.ceil((new Date(r.checkOut)-new Date(r.checkIn))/86400000);
+    const nights = kmkNightsBetween(r.checkIn,r.checkOut);
     const bungs  = (r.bungalovi||[]).map(b=>'B'+b.bungalov).join(', ');
     const guests = (r.bungalovi||[]).reduce((s,b)=>s+(b.adults||0)+(b.children||0),0);
     const price  = parseFloat(r.price)||0;
@@ -4812,6 +5255,10 @@ window.renderDaily = function(dateStr) {
     const pTxt = r.paid ? '✔ Plaćeno' : '✗ Nije plaćeno';
     const aBg  = r.arrived ? '#1565c0' : '#9e9e9e';
     const aTxt = r.arrived ? '✈ Stigao'  : '? Nije stigao';
+    const vPend = (typeof kmkIsVirmanPending === 'function') ? kmkIsVirmanPending(r) : (!!r.virman && !r.paid);
+    const vBg  = vPend ? '#856404' : '#fff3cd';
+    const vClr = vPend ? '#fff' : '#856404';
+    const vTxt = vPend ? '🏦 Virman' : '🏦 Virman';
 
     // STAVKA 7: Jača pozadinska boja prema statusu plaćanja
     let cardBg = '#fff';
@@ -4831,7 +5278,7 @@ window.renderDaily = function(dateStr) {
     // STAVKA 2: Timeline plaćanja
     let payTimeline = '';
     if (r.paid && r.paidAt) {
-      const paidDate = r.paidAt.slice(0,10);
+      const paidDate = kmkPaidDateKey(r);
       const daysDiff = Math.floor((new Date(paidDate) - new Date(r.checkIn)) / 86400000);
       if (daysDiff < 0) {
         payTimeline = `<span style="color:#7b1fa2;font-weight:700">📌 Platio unaprijed (${Math.abs(daysDiff)} dana prije dolaska)</span>`;
@@ -4876,12 +5323,14 @@ window.renderDaily = function(dateStr) {
 
           <div style="font-size:.73em;color:#888;margin-top:1px">
             📅 ${fmtD(r.checkIn)} &rarr; ${fmtD(r.checkOut)}
-            &nbsp;&middot; ${r.channel||'—'}
-            ${r.country?' &middot; '+r.country:''}
-            ${r.phone?'<br>📞 '+r.phone:''}
+            &nbsp;&middot; ${escHtml(r.channel||'—')}
+            ${r.country?' &middot; '+escHtml(r.country):''}
+            ${r.phone?'<br>📞 '+escHtml(r.phone):''}
           </div>
 
-          ${r.paidAt?`<div style="margin-top:3px;font-size:.71em;color:#1565c0;background:#e3f2fd;padding:2px 5px;border-radius:3px;display:inline-block">💳 Naplaćeno: ${r.paidAt.slice(0,10)} ${r.paidAt.slice(11,16)}${r.paidBy?' · '+escHtml(r.paidBy):(!r.paid?'':' · <em style="color:#999">nepoznat operater</em>')}</div>`:''}
+          ${r.paidAt?`<div style="margin-top:3px;font-size:.71em;color:#1565c0;background:#e3f2fd;padding:2px 5px;border-radius:3px;display:inline-block">💳 Naplaćeno: ${kmkPaidDateKey(r)} ${kmkPaidTimeKey(r)}${r.paidBy?' · '+escHtml(r.paidBy):(!r.paid?'':' · <em style="color:#999">nepoznat operater</em>')}</div>`:''}
+          ${vPend?`<div style="margin-top:3px;font-size:.71em;color:#856404;background:#fff3cd;padding:2px 5px;border-radius:3px;display:inline-block">🏦 Čeka uplatu virmanski</div>`:''}
+          ${r.paidMethod==='virman'?`<div style="margin-top:3px;font-size:.71em;color:#1a7a3a;background:#e6f4ea;padding:2px 5px;border-radius:3px;display:inline-block">🏦 Plaćeno virmanom</div>`:''}
           ${payTimeline?`<div style="margin-top:2px;font-size:.71em">${payTimeline}</div>`:''}
           ${urgencyInfo?`<div style="margin-top:2px;font-size:.73em">${urgencyInfo}</div>`:''}
           ${r.notes?`<div style="margin-top:2px;font-size:.71em;color:#856404;background:#fffbeb;padding:2px 5px;border-radius:3px">📝 ${escHtml(r.notes)}</div>`:''}
@@ -4900,6 +5349,11 @@ window.renderDaily = function(dateStr) {
             style="padding:5px 11px;border-radius:5px;border:none;background:${aBg};color:#fff;font-weight:700;font-size:.72em;cursor:pointer;min-width:96px;text-align:center">
             ${aTxt}
           </button>
+          ${!r.closedManual && !r.cancelled && !r.paid ? `<button
+            onclick="window.kmkMarkVirman('${r.id}',this);this.style.opacity='.5';this.disabled=true;"
+            style="padding:5px 11px;border-radius:5px;border:1px solid #856404;background:${vBg};color:${vClr};font-weight:800;font-size:.72em;cursor:pointer;min-width:96px;text-align:center">
+            ${vTxt}
+          </button>` : ''}
           <div style="font-size:.65em;text-align:center;color:#aaa;margin-top:1px">${badge}</div>
         </div>
 
@@ -4977,7 +5431,7 @@ window.renderDaily = function(dateStr) {
   // Ovo je jedina ispravna definicija "naplaćeno danas" — bez obzira na boravak
   const paidOnThisDay = reservations.filter(r => {
     if (r.cancelled || !r.paid) return false;
-    const d = (r.paidAt || '').slice(0, 10);
+    const d = kmkPaidDateKey(r);
     return d === ts;
   });
   const paidOnThisDaySum = paidOnThisDay.reduce((s,r) => s+(parseFloat(r.price)||0), 0);
@@ -5003,11 +5457,11 @@ window.renderDaily = function(dateStr) {
     if (r.cancelled || !r.paid) return false;
     // Pokriva: borave na taj dan, dolaze, odlaze, ili su plaćene tog dana
     return (r.checkIn <= ts && r.checkOut >= ts) ||
-           (r.paidAt && r.paidAt.slice(0,10) === ts);
+           (r.paidAt && kmkPaidDateKey(r) === ts);
   });
   // Plaćene vezane za ovaj dan ali naplaćene DRUGOG datuma (ne ts)
   const paidRelatedEarlier = paidRelated.filter(r => {
-    const d = (r.paidAt || '').slice(0, 10);
+    const d = kmkPaidDateKey(r);
     return d !== ts;
   });
 
@@ -5061,7 +5515,7 @@ window.renderDaily = function(dateStr) {
         const bungs = (r.bungalovi||[]).map(b=>'B'+b.bungalov).join(', ');
         const price = parseFloat(r.price)||0;
         const daysSinceCheckOut = Math.floor((new Date(ts)-new Date(r.checkOut))/86400000);
-        const nights = Math.ceil((new Date(r.checkOut)-new Date(r.checkIn))/86400000);
+        const nights = kmkNightsBetween(r.checkIn,r.checkOut);
         html += `<div style="display:flex;align-items:center;padding:9px 14px;border-bottom:1px solid #fdd;gap:8px;background:${daysSinceCheckOut>=7?'#fff0f0':'#fff'}">
           <div style="flex:1;min-width:0">
             <div style="font-weight:800;font-size:.9em">${escHtml(r.name||'—')}
@@ -5069,7 +5523,7 @@ window.renderDaily = function(dateStr) {
             </div>
             <div style="font-size:.74em;color:#555;margin-top:2px">
               <span style="background:#f0f4ff;border-radius:3px;padding:1px 5px;font-weight:700">${escHtml(bungs)}</span>
-              &nbsp;${nights} noći &middot; ${fmtD(r.checkIn)} → ${fmtD(r.checkOut)} &middot; ${r.channel||'—'}
+              &nbsp;${nights} noći &middot; ${fmtD(r.checkIn)} → ${fmtD(r.checkOut)} &middot; ${escHtml(r.channel||'—')}
             </div>
             <div style="font-size:.74em;font-weight:800;color:#b71c1c;margin-top:2px">
               ⚠ Otišao ${daysSinceCheckOut===0?'danas':daysSinceCheckOut===1?'jučer':'prije '+daysSinceCheckOut+' dana'} bez plaćanja
@@ -5095,13 +5549,13 @@ window.renderDaily = function(dateStr) {
         const bungs = (r.bungalovi||[]).map(b=>'B'+b.bungalov).join(', ');
         const price = parseFloat(r.price)||0;
         const daysSince = Math.floor((new Date(ts)-new Date(r.checkIn))/86400000);
-        const nights = Math.ceil((new Date(r.checkOut)-new Date(r.checkIn))/86400000);
+        const nights = kmkNightsBetween(r.checkIn,r.checkOut);
         html += `<div style="display:flex;align-items:center;padding:9px 14px;border-bottom:1px solid #fdd;gap:8px;background:${daysSince>=3?'#fff8f8':'#fff'}">
           <div style="flex:1;min-width:0">
             <div style="font-weight:700;font-size:.88em">${escHtml(r.name||'—')}</div>
             <div style="font-size:.74em;color:#555;margin-top:2px">
               <span style="background:#f0f4ff;border-radius:3px;padding:1px 5px;font-weight:700">${escHtml(bungs)}</span>
-              &nbsp;${nights} noći &middot; ${fmtD(r.checkIn)} → ${fmtD(r.checkOut)} &middot; ${r.channel||'—'}
+              &nbsp;${nights} noći &middot; ${fmtD(r.checkIn)} → ${fmtD(r.checkOut)} &middot; ${escHtml(r.channel||'—')}
             </div>
             <div style="font-size:.74em;font-weight:700;color:${daysSince>=3?'#c62828':'#e67e22'};margin-top:2px">
               ⏱ Stigao ${daysSince===1?'jučer':'prije '+daysSince+' dana'} — ${daysSince} ${daysSince===1?'dan':'dana'} bez naplate
@@ -5125,13 +5579,13 @@ window.renderDaily = function(dateStr) {
       unpaidToday.forEach(r => {
         const bungs = (r.bungalovi||[]).map(b=>'B'+b.bungalov).join(', ');
         const price = parseFloat(r.price)||0;
-        const nights = Math.ceil((new Date(r.checkOut)-new Date(r.checkIn))/86400000);
+        const nights = kmkNightsBetween(r.checkIn,r.checkOut);
         html += `<div style="display:flex;align-items:center;padding:9px 14px;border-bottom:1px solid #fff3e0;gap:8px">
           <div style="flex:1;min-width:0">
             <div style="font-weight:700;font-size:.88em">${escHtml(r.name||'—')}</div>
             <div style="font-size:.74em;color:#555;margin-top:2px">
               <span style="background:#f0f4ff;border-radius:3px;padding:1px 5px;font-weight:700">${escHtml(bungs)}</span>
-              &nbsp;${nights} noći &middot; do ${fmtD(r.checkOut)} &middot; ${r.channel||'—'}
+              &nbsp;${nights} noći &middot; do ${fmtD(r.checkOut)} &middot; ${escHtml(r.channel||'—')}
             </div>
           </div>
           <div style="text-align:right;flex-shrink:0">
@@ -5165,12 +5619,12 @@ window.renderDaily = function(dateStr) {
         <div style="font-size:1.25em;font-weight:900;color:#1b5e20">&euro;${paidOnThisDaySum.toFixed(0)}</div>
       </div>`;
     // Sortiraj po paidAt vremenu (hronološki)
-    const sortedPaid = [...paidOnThisDay].sort((a,b) => (a.paidAt||'').localeCompare(b.paidAt||''));
+    const sortedPaid = [...paidOnThisDay].sort((a,b) => kmkPaidTimeKey(a).localeCompare(kmkPaidTimeKey(b)) || (a.name||'').localeCompare(b.name||''));
     sortedPaid.forEach(r => {
       const bungs = (r.bungalovi||[]).map(b=>'B'+b.bungalov).join(', ');
       const price = parseFloat(r.price)||0;
-      const nights = Math.ceil((new Date(r.checkOut)-new Date(r.checkIn))/86400000);
-      const paidTime = (r.paidAt||'').slice(11,16);
+      const nights = kmkNightsBetween(r.checkIn,r.checkOut);
+      const paidTime = kmkPaidTimeKey(r);
       const checkInLabel = r.checkIn === ts ? '✈ stigao danas' :
                            r.checkIn > ts  ? `dolazi ${fmtD(r.checkIn)}` :
                                              `stigao ${fmtD(r.checkIn)}`;
@@ -5186,7 +5640,7 @@ window.renderDaily = function(dateStr) {
           </div>
           <div style="font-size:.74em;color:#555;margin-top:2px">
             <span style="background:#f0f4ff;border-radius:3px;padding:1px 5px;font-weight:700">${escHtml(bungs)}</span>
-            &nbsp;${nights} noći &middot; ${fmtD(r.checkIn)}→${fmtD(r.checkOut)} &middot; ${r.channel||'—'}
+            &nbsp;${nights} noći &middot; ${fmtD(r.checkIn)}→${fmtD(r.checkOut)} &middot; ${escHtml(r.channel||'—')}
           </div>
           <div style="font-size:.72em;font-weight:700;color:${checkInColor};margin-top:1px">${checkInLabel}</div>
         </div>
@@ -5212,8 +5666,8 @@ window.renderDaily = function(dateStr) {
     paidRelatedEarlier.forEach(r => {
       const bungs = (r.bungalovi||[]).map(b=>'B'+b.bungalov).join(', ');
       const price = parseFloat(r.price)||0;
-      const paidDate = (r.paidAt||'').slice(0,10);
-      const paidTime = (r.paidAt||'').slice(11,16);
+      const paidDate = kmkPaidDateKey(r);
+      const paidTime = kmkPaidTimeKey(r);
       html += `<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 12px;border-bottom:1px solid #f0f0f0;font-size:.84em">
         <div>
           <strong>${escHtml(r.name||'—')}</strong>
@@ -5473,6 +5927,7 @@ function renderResListData(list) {
         <div class="res-name">${escHtml(r.name)}${r.country?` <span style="font-size:.82em;color:#888">🌍 ${escHtml(r.country)}</span>`:''}</div>
         <div class="badges">
           ${r.paid?'<span class="badge b-paid">💰 Plaćeno</span>':''}
+          ${r.virman && !r.paid?'<span class="badge b-virman">🏦 Virman</span>':''}
           ${r.confirmed&&!r.paid?'<span class="badge b-conf">✓ Potvrđeno</span>':''}
           ${!r.confirmed&&!r.paid?'<span class="badge b-pend">⏳ Na čekanju</span>':''}
           ${r.icalLinkId?'<span class="badge" style="background:#003580;color:white">🌐 Booking.com</span>':''}
@@ -5484,7 +5939,7 @@ function renderResListData(list) {
         <div class="di"><span class="dl">Odlazak:</span><span>${fmtD(r.checkOut)}</span></div>
         <div class="di"><span class="dl">Noćenja:</span><span>${n}</span></div>
         <div class="di"><span class="dl">Cijena:</span><span>€${parseFloat(r.price||0).toFixed(2)}</span></div>
-        ${r.phone?`<div class="di"><span class="dl">Tel:</span><span><a href="tel:${r.phone}">${r.phone}</a></span></div>`:''}
+        ${r.phone?`<div class="di"><span class="dl">Tel:</span><span><a href="${kmkSafeTelHref(r.phone)}">${escHtml(r.phone)}</a></span></div>`:''}
         ${svc?`<div class="di"><span class="dl">Usluge:</span><span>${svc}</span></div>`:''}
       </div>
       <div style="display:flex;gap:7px;flex-wrap:wrap">
@@ -5509,11 +5964,12 @@ window.filterRes = () => {
     if      (st==='all')       ms = !r.cancelled;
     else if (st==='cancelled') ms = r.cancelled;
     else if (st==='paid')      ms = r.paid && !r.cancelled;
+    else if (st==='virman')    ms = kmkIsVirmanPending(r);
     else if (st==='confirmed') ms = r.confirmed && !r.cancelled;
     else if (st==='pending')   ms = !r.confirmed && !r.paid && !r.cancelled;
     else                       ms = true;
     const mb=bn==='all'||r.bungalovi?.some(b=>b.bungalov==bn);
-    const mn=!nm||r.name.toLowerCase().includes(nm);
+    const mn=!nm||String(r.name||'').toLowerCase().includes(nm);
     return ms&&mb&&mn;
   }).sort((a,b)=>new Date(b.checkIn)-new Date(a.checkIn));
   renderResListData(filtered);
@@ -5532,13 +5988,14 @@ window.editRes = id => {
   document.getElementById('f-notes').value=r.notes||'';
   document.getElementById('f-confirmed').checked=r.confirmed;
   document.getElementById('f-paid').checked=r.paid;
+  const virmanEditEl = document.getElementById('f-virman'); if (virmanEditEl) virmanEditEl.checked = !!r.virman || r.virmanStatus === 'pending' || r.paidMethod === 'virman';
   // Admin: popuni paidAt/paidBy meta polja i prikaži sekciju
   const paidMetaEl = document.getElementById('f-paid-meta');
   if (paidMetaEl) {
     if (curRole === 'admin' && r.paid) {
       // Popuni datum naplate
-      const paidAtDate = r.paidAt ? r.paidAt.slice(0,10) : '';
-      const paidAtTime = r.paidAt ? r.paidAt.slice(11,16) : '';
+      const paidAtDate = r.paidAt ? kmkPaidDateKey(r) : '';
+      const paidAtTime = r.paidAt ? kmkPaidTimeKey(r) : '';
       const paidAtEl = document.getElementById('f-paidAt');
       if (paidAtEl) paidAtEl.value = paidAtDate;
       const paidTimeEl = document.getElementById('f-paidTime');
@@ -5618,6 +6075,7 @@ window.showDet = id => {
       <div style="margin-top:9px;display:flex;gap:7px;flex-wrap:wrap">
         ${r.cancelled?'<span class="badge b-canc">❌ Otkazano</span>':''}
         ${r.paid&&!r.cancelled?'<span class="badge b-paid">💰 Plaćeno</span>':''}
+        ${r.virman && !r.paid && !r.cancelled?'<span class="badge b-virman">🏦 Virman čeka uplatu</span>':''}
         ${r.confirmed&&!r.paid&&!r.cancelled?'<span class="badge b-conf">✓ Potvrđeno</span>':''}
         ${!r.confirmed&&!r.paid&&!r.cancelled?'<span class="badge b-pend">⏳ Na čekanju</span>':''}
         ${r.icalLinkId?'<span class="badge" style="background:#003580;color:white">🌐 Booking.com (auto)</span>':''}
@@ -5627,9 +6085,9 @@ window.showDet = id => {
       <div><strong>Bungalovi:</strong>${bl}</div>
       <div><strong>Dolazak:</strong> ${fmtD(r.checkIn)} &nbsp;→&nbsp; <strong>Odlazak:</strong> ${fmtD(r.checkOut)} &nbsp;(${n} noći)</div>
       <div><strong>Cijena:</strong> €${parseFloat(r.price||0).toFixed(2)}</div>
-      ${r.phone?`<div><strong>Telefon:</strong> <a href="tel:${r.phone}">${r.phone}</a></div>`:''}
-      ${r.country?`<div><strong>Zemlja:</strong> ${r.country}</div>`:''}
-      <div><strong>Kanal:</strong> ${r.channel}</div>
+      ${r.phone?`<div><strong>Telefon:</strong> <a href="${kmkSafeTelHref(r.phone)}">${escHtml(r.phone)}</a></div>`:''}
+      ${r.country?`<div><strong>Zemlja:</strong> ${escHtml(r.country)}</div>`:''}
+      <div><strong>Kanal:</strong> ${escHtml(r.channel || '—')}</div>
       ${svc?`<div><strong>Usluge:</strong> ${svc}</div>`:''}
       ${r.notes?`<div><strong>Napomene:</strong> ${escHtml(r.notes)}</div>`:''}
     </div>
@@ -6023,13 +6481,13 @@ function renderAccounting() {
   const totTaksa   = f.filter(r=>r.paid).reduce((s,r) => s + calcTax(r), 0);
   const totBezTakse = totNaplac - totTaksa;
   const totRez     = f.length;
-  const totNoci    = f.reduce((s,r) => s + Math.ceil((new Date(r.checkOut)-new Date(r.checkIn))/86400000), 0);
+  const totNoci    = f.reduce((s,r) => s + kmkNightsBetween(r.checkIn,r.checkOut), 0);
   const totOdrasli = f.reduce((s,r) => s + (r.bungalovi||[]).reduce((ss,b)=>ss+(b.adults||0),0), 0);
 
   // Tabela po bungalovima
   const byBung = {};
   f.forEach(r => {
-    const n = Math.ceil((new Date(r.checkOut)-new Date(r.checkIn))/86400000);
+    const n = kmkNightsBetween(r.checkIn,r.checkOut);
     const tax = calcTax(r);
     (r.bungalovi||[]).forEach(b => {
       const bn = 'B' + b.bungalov;
@@ -6058,7 +6516,7 @@ function renderAccounting() {
   // Neplaćene
   const neplacene = f.filter(r=>!r.paid).sort((a,b)=>a.checkIn.localeCompare(b.checkIn));
   const neplaceneRows = neplacene.map(r => {
-    const n = Math.ceil((new Date(r.checkOut)-new Date(r.checkIn))/86400000);
+    const n = kmkNightsBetween(r.checkIn,r.checkOut);
     const bungs = (r.bungalovi||[]).map(b=>'B'+b.bungalov).join(', ');
     return `<tr>
       <td>${escHtml(r.name)}</td>
@@ -6160,7 +6618,7 @@ function _renderAccountingCharts(resv, accFrom, accTo) {
   }
 
   function calcTaxLocal(r) {
-    const n = Math.ceil((new Date(r.checkOut)-new Date(r.checkIn))/86400000);
+    const n = kmkNightsBetween(r.checkIn,r.checkOut);
     return (r.bungalovi||[]).reduce((s,b)=>s+(b.adults||0),0) * n * 1;
   }
 
@@ -6175,7 +6633,7 @@ function _renderAccountingCharts(resv, accFrom, accTo) {
       dug:      list.filter(r=>!r.paid).reduce((s,r)=>s+(r.price||0),0),
       ugovoreno:list.reduce((s,r)=>s+(r.price||0),0),
       rez:      list.length,
-      noci:     list.reduce((s,r)=>s+Math.ceil((new Date(r.checkOut)-new Date(r.checkIn))/86400000),0),
+      noci:     list.reduce((s,r)=>s+kmkNightsBetween(r.checkIn,r.checkOut),0),
     };
   }
 
@@ -6192,7 +6650,7 @@ function _renderAccountingCharts(resv, accFrom, accTo) {
   resv.forEach(r => {
     (r.bungalovi||[]).forEach(b => {
       const bn = 'B'+b.bungalov;
-      bungData[bn] = (bungData[bn]||0) + Math.ceil((new Date(r.checkOut)-new Date(r.checkIn))/86400000);
+      bungData[bn] = (bungData[bn]||0) + kmkNightsBetween(r.checkIn,r.checkOut);
     });
   });
 
@@ -6331,7 +6789,7 @@ window.accShowChart = (type) => {
     sourceResv.forEach(r => {
       const mo = r.checkIn.substring(0,7);
       if (!moData[mo]) moData[mo] = {naplac:0,taksa:0,bezTakse:0,dug:0,rez:0,noci:0};
-      const n = Math.ceil((new Date(r.checkOut)-new Date(r.checkIn))/86400000);
+      const n = kmkNightsBetween(r.checkIn,r.checkOut);
       const adults = (r.bungalovi||[]).reduce((s,b)=>s+(b.adults||0),0);
       const tax = adults*n*1;
       if (r.paid) { moData[mo].naplac+=(r.price||0); moData[mo].taksa+=tax; moData[mo].bezTakse+=(r.price||0)-tax; }
@@ -6368,7 +6826,7 @@ window.exportAccountingXLSX = () => {
 
   // Sheet 1: Sve rezervacije
   const rows = active.map(r => {
-    const n = Math.ceil((new Date(r.checkOut)-new Date(r.checkIn))/86400000);
+    const n = kmkNightsBetween(r.checkIn,r.checkOut);
     const bungs = (r.bungalovi||[]).map(b=>'B'+b.bungalov).join(', ');
     const adults   = (r.bungalovi||[]).reduce((s,b)=>s+(b.adults||0),0);
     const children = (r.bungalovi||[]).reduce((s,b)=>s+(b.children||0),0);
@@ -6391,9 +6849,9 @@ window.exportAccountingXLSX = () => {
     { 'Stavka': 'Ukupno ugovoreno (€)', 'Vrijednost': totPrihod.toFixed(2) },
     { 'Stavka': 'Naplaćeno (€)',         'Vrijednost': totNaplac.toFixed(2) },
     { 'Stavka': 'Neplaćeno (€)',          'Vrijednost': totDug.toFixed(2) },
-    { 'Stavka': 'Boravišna taksa (1€/os/noć)', 'Vrijednost': active.filter(r=>r.paid).reduce((s,r)=>{ const n=Math.ceil((new Date(r.checkOut)-new Date(r.checkIn))/86400000); const ad=(r.bungalovi||[]).reduce((ss,b)=>ss+(b.adults||0),0); return s+ad*n*1; },0).toFixed(2) },
+    { 'Stavka': 'Boravišna taksa (1€/os/noć)', 'Vrijednost': active.filter(r=>r.paid).reduce((s,r)=>{ const n=kmkNightsBetween(r.checkIn,r.checkOut); const ad=(r.bungalovi||[]).reduce((ss,b)=>ss+(b.adults||0),0); return s+ad*n*1; },0).toFixed(2) },
     { 'Stavka': 'Broj rezervacija',        'Vrijednost': active.length },
-    { 'Stavka': 'Ukupno noćenja',          'Vrijednost': active.reduce((s,r)=>s+Math.ceil((new Date(r.checkOut)-new Date(r.checkIn))/86400000),0) },
+    { 'Stavka': 'Ukupno noćenja',          'Vrijednost': active.reduce((s,r)=>s+kmkNightsBetween(r.checkIn,r.checkOut),0) },
   ];
   const ws2 = XLSX.utils.json_to_sheet(fin);
   ws2['!cols'] = [{wch:28},{wch:16}];
@@ -6553,8 +7011,8 @@ function addNotif(msg) {
   if (notifs.some(n => n._directMsg === msg)) return;
   notifs.unshift({
     _directMsg: msg,
-    action: msg.includes('iCal') || msg.includes('sync') ? 'ical_overlap_problem' : 'worker_edit',
-    userName: msg.includes('iCal') ? 'iCal Sync' : '',
+    action: msg.includes('konflikt u kalendaru') || msg.includes('konflikta u kalendaru') || msg.includes('konflikata u kalendaru') ? 'auto_conflict' : (msg.includes('iCal') || msg.includes('sync') ? 'ical_overlap_problem' : 'worker_edit'),
+    userName: msg.includes('konflikt') ? 'Automatska kontrola' : (msg.includes('iCal') ? 'iCal Sync' : ''),
     user: msg.includes('iCal') ? 'auto' : curUser,
     reservation: null,
     reason: null,
@@ -6578,13 +7036,13 @@ function updNotif() {
   const ic = {
     added: '✅', modified: '✏️', deleted: '🗑️',
     ical_overlap_problem: '⚠️', ical_overlap_ok: 'ℹ️',
-    worker_edit: '⚙️', restored: '↩️'
+    worker_edit: '⚙️', auto_conflict: '🚨', restored: '↩️'
   };
   const lb = {
     added: 'dodao rezervaciju', modified: 'izmijenio rezervaciju',
     deleted: 'otkazao rezervaciju', restored: 'vratio rezervaciju',
     ical_overlap_problem: 'iCal PREKLAPANJE', ical_overlap_ok: 'iCal poklapanje OK',
-    worker_edit: 'izmjena od radnika'
+    worker_edit: 'izmjena od radnika', auto_conflict: 'aktivni konflikt u kalendaru'
   };
 
   // Filtriraj po aktivnom tabu
@@ -6638,11 +7096,12 @@ function updNotif() {
   body.innerHTML = sorted.map(n => {
     const isIcal = isIcalNotif(n);
     const isWorkerEdit = n.action === 'worker_edit';
-    const borderClr = n.action === 'ical_overlap_problem' ? '#dc3545'
+    const isAutoConflict = n.action === 'auto_conflict';
+    const borderClr = (n.action === 'ical_overlap_problem' || n.action === 'auto_conflict') ? '#dc3545'
                     : n.action === 'worker_edit' ? '#667eea'
                     : isIcal ? '#f59e0b'
                     : '#28a745';
-    const bgColor = n.action === 'ical_overlap_problem' ? '#fff5f5'
+    const bgColor = (n.action === 'ical_overlap_problem' || n.action === 'auto_conflict') ? '#fff5f5'
                   : n.action === 'worker_edit' ? '#f0edff'
                   : isIcal ? '#fffbeb'
                   : '#fff';
@@ -6734,16 +7193,70 @@ function fmtD(s) {
   const yy = y.slice(2); // "2026" -> "26"
   return `${d}-${mo}-${yy}`;
 }
-function fmtDT(s) { if(!s) return ''; const d=new Date(s); return `${fmtD(d.toISOString().split('T')[0])} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; }
-function nights(a,b) { return Math.max(1,Math.ceil((new Date(b)-new Date(a))/86400000)); }
+function fmtDT(s) { if(!s) return ''; const d=new Date(s); return `${fmtD(kmkLocalDateInputValue(d))} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; }
+function nights(a,b) { return Math.max(1, kmkNightsBetween(a,b)); }
 // Za statistiku i finansije — bez Math.max(1), vraća 0 za isti dan
-function nightsExact(a,b) { return Math.max(0,Math.ceil((new Date(b)-new Date(a))/86400000)); }
+function nightsExact(a,b) { return Math.max(0, kmkNightsBetween(a,b)); }
 function lDate(d) { return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+
+// v2.4.19: paidAt mora biti lokalni datum/sat, ne UTC, da dnevna naplata oko ponoći ne ode u pogrešan dan.
+function kmkLocalDateTimeISO(d) {
+  const base = d instanceof Date ? d : new Date(d || Date.now());
+  if (isNaN(base.getTime())) return kmkLocalDateTimeISO(new Date());
+  return `${lDate(base)}T${String(base.getHours()).padStart(2,'0')}:${String(base.getMinutes()).padStart(2,'0')}:${String(base.getSeconds()).padStart(2,'0')}`;
+}
+function kmkLocalDateTimeFromParts(dateStr, timeStr) {
+  const ds = String(dateStr || '').slice(0, 10);
+  const tm = String(timeStr || '00:00').match(/^(\d{1,2}):(\d{2})/);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(ds)) return kmkLocalDateTimeISO(new Date());
+  const hh = String(Math.min(23, Math.max(0, parseInt(tm?.[1] ?? '0', 10) || 0))).padStart(2,'0');
+  const mm = String(Math.min(59, Math.max(0, parseInt(tm?.[2] ?? '0', 10) || 0))).padStart(2,'0');
+  return `${ds}T${hh}:${mm}:00`;
+}
+function kmkPaidDateKey(rOrPaidAt) {
+  const v = typeof rOrPaidAt === 'string' ? rOrPaidAt : (rOrPaidAt?.paidAt || '');
+  if (!v) return '';
+  const d = new Date(v);
+  if (!isNaN(d.getTime())) return kmkLocalDateInputValue(d);
+  const m = String(v).match(/^(\d{4}-\d{2}-\d{2})/);
+  return m ? m[1] : '';
+}
+function kmkPaidTimeKey(rOrPaidAt) {
+  const v = typeof rOrPaidAt === 'string' ? rOrPaidAt : (rOrPaidAt?.paidAt || '');
+  if (!v) return '';
+  const d = new Date(v);
+  if (!isNaN(d.getTime())) return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+  const m = String(v).match(/T(\d{1,2}:\d{2})/);
+  return m ? m[1].padStart(5,'0') : '';
+}
 // #14: XSS zaštita — koristi za sve user-provided stringove u innerHTML
 function escHtml(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#x27;'); }
+// v2.4.19: siguran argument za inline onclick stringove (JSON string, bez HTML/JS pucanja na apostrof/navodnike)
+function jsArg(s) { return JSON.stringify(String(s ?? '')).replace(/</g, '\\u003C').replace(/>/g, '\\u003E').replace(/&/g, '\\u0026'); }
+function kmkSafeTelHref(phone) {
+  const clean = String(phone || '').replace(/[^\d+]/g, '');
+  if (!clean) return '#';
+  return 'tel:' + clean;
+}
+function kmkLocalDateInputValue(d) {
+  const dt = d instanceof Date ? d : new Date(d || Date.now());
+  return `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`;
+}
+function kmkAddDaysToDateInput(value, days) {
+  const base = value ? new Date(String(value).slice(0,10) + 'T00:00:00') : new Date();
+  if (isNaN(base.getTime())) return kmkLocalDateInputValue(new Date());
+  base.setDate(base.getDate() + (parseInt(days, 10) || 0));
+  return kmkLocalDateInputValue(base);
+}
+window.kmkShiftMobDailyDate = function(days) {
+  const p = document.getElementById('mob-daily-date-picker');
+  if (!p) return;
+  p.value = kmkAddDaysToDateInput(p.value || kmkLocalDateInputValue(new Date()), days);
+  if (typeof renderMobDaily === 'function') renderMobDaily(p.value);
+};
 
 // ── TAB SWITCHING ────────────────────────────────────────────
-const TAB_IDS={daily:'pane-daily',availability:'pane-availability',calendar:'pane-calendar',add:'pane-add',list:'pane-list',stats:'pane-stats',history:'pane-history',settings:'pane-settings',conflicts:'pane-conflicts'};
+const TAB_IDS={daily:'pane-daily',availability:'pane-availability',calendar:'pane-calendar',add:'pane-add',list:'pane-list',virman:'pane-virman',stats:'pane-stats',history:'pane-history',settings:'pane-settings',conflicts:'pane-conflicts'};
 window.goTab=(name,btn)=>{
   Object.values(TAB_IDS).forEach(id=>document.getElementById(id).classList.remove('active'));
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
@@ -6757,6 +7270,7 @@ window.goTab=(name,btn)=>{
     setTimeout(_setupGuestAutocomplete, 100); // Setup autocomplete pri otvaranju
   } // Auto-reset samo ako nije edit mode ili drag fill
   if(name==='list')     renderResList();
+  if(name==='virman')   renderVirmanPane();
   if(name==='stats')    renderStats();
   if(name==='history')  renderHist();
   if(name==='settings') { renderSettings(); setTimeout(_updateDelProtectUI, 50); }
@@ -6833,7 +7347,7 @@ window.mobGoTab = (tab) => {
     if (btn) btn.classList.toggle('active', t === tab);
   });
   const moreBtn = document.getElementById('mob-btn-more');
-  if (moreBtn) moreBtn.classList.toggle('active', ['stats','history','settings','conflicts'].includes(tab));
+  if (moreBtn) moreBtn.classList.toggle('active', ['stats','history','settings','conflicts','virman'].includes(tab));
   // Back dugme - prikaži kad nisi na Daily
   const backBtn = document.getElementById('mob-back-btn');
   if (backBtn) backBtn.style.display = (tab === 'daily') ? 'none' : 'inline-block';
@@ -6846,6 +7360,7 @@ window.mobGoTab = (tab) => {
     if (tab === 'list') renderMobList();
     if (tab === 'calendar') { _updateCalViewButtons(); _applyCalView(); }
     if (tab === 'conflicts') { renderConflictsPane(); }
+    if (tab === 'virman') { renderVirmanPane(); }
   }
 };
 
@@ -6894,7 +7409,11 @@ function mobGetBungGuest(b){
 }
 function mobBungCapacity(b){ return B_CFG?.[parseInt(b,10)]?.m || 0; }
 function mobGuestTotal(g){ return (parseInt(g.adults||0,10)||0) + (parseInt(g.children||0,10)||0) + (parseInt(g.babies||0,10)||0); }
-function mobBedsNeeded(g){ return (parseInt(g.adults||0,10)||0) + (parseInt(g.children||0,10)||0); }
+function mobBedsNeeded(g){
+  const adults = parseInt(g.adults||0,10)||0;
+  const children = parseInt(g.children||0,10)||0;
+  return g && g.sharedBed ? Math.max(1, adults) : Math.max(1, adults + children);
+}
 
 function mobBuildChannelOptions(currentValue='') {
   const list = [];
@@ -7095,8 +7614,8 @@ window.mobOpenQuickForm = (editResId) => {
     document.getElementById('mob-form-title').textContent = '➕ Nova rezervacija';
     const today = new Date();
     const tomorrow = new Date(today); tomorrow.setDate(tomorrow.getDate() + 1);
-    document.getElementById('mob-ci').value = today.toISOString().slice(0,10);
-    document.getElementById('mob-co').value = tomorrow.toISOString().slice(0,10);
+    document.getElementById('mob-ci').value = kmkLocalDateInputValue(today);
+    document.getElementById('mob-co').value = kmkLocalDateInputValue(tomorrow);
   }
 
   setTimeout(() => { mobRenderBungCards(); mobUpdateNights(); mobRenderReview(); }, 30);
@@ -7187,7 +7706,7 @@ function mobRenderBungCards(rebuild=true) {
   }
   const ci = document.getElementById('mob-ci')?.value;
   const co = document.getElementById('mob-co')?.value;
-  const nights = ci && co ? Math.ceil((new Date(co)-new Date(ci))/86400000) : 0;
+  const nights = ci && co ? kmkNightsBetween(ci, co) : 0;
   const activePrices = (ci && typeof getActivePrices === 'function') ? getActivePrices(ci) : [];
   let html = '<div class="mob-section-title">🏡 Raspodjela gostiju po bungalovu</div>';
   _mobSelBungs.forEach(b => {
@@ -7242,11 +7761,8 @@ function mobCheckOverlap() {
   if (!ci || !co || !_mobSelBungs.length) { warnEl.style.display='none'; return; }
   const conflicts = [];
   for (const b of _mobSelBungs) {
-    const ov = reservations.find(r =>
-      !r.cancelled && r.id !== _mobEditId &&
-      r.bungalovi?.some(bv => String(bv.bungalov) === String(b)) &&
-      ci < r.checkOut && co > r.checkIn
-    );
+    const hit = kmkFindReservationOverlap([b], ci, co, _mobEditId);
+    const ov = hit ? hit.reservation : null;
     if (ov) conflicts.push('B' + b + ': ' + escHtml(ov.name) + ' (' + fmtD(ov.checkIn) + ' → ' + fmtD(ov.checkOut) + ')');
   }
   if (conflicts.length) {
@@ -7286,7 +7802,7 @@ function mobCalcPrice() {
     ['mob-kpi-bungs','mob-kpi-guests','mob-kpi-total'].forEach((id,i)=>{ const el=document.getElementById(id); if(el) el.textContent = i===2 ? '0€' : '0'; });
     return;
   }
-  const nights = Math.ceil((new Date(co) - new Date(ci)) / 86400000);
+  const nights = kmkNightsBetween(ci, co);
   if (nights <= 0) {
     window._mobPriceBreakdown = { total:0, nights:0, totalGuests:0, totalBeds:0, lines:[], tax:0 };
     mobRenderSummaryBar(_mobFormStep || 1);
@@ -7350,7 +7866,7 @@ function mobUpdateNights() {
   const co = document.getElementById('mob-co').value;
   const el = document.getElementById('mob-nights-show');
   if (ci && co) {
-    const n = Math.ceil((new Date(co) - new Date(ci)) / 86400000);
+    const n = kmkNightsBetween(ci, co);
     el.innerHTML = n > 0 ? `<span class="mob-chip">${n} noći</span><span class="mob-chip">${fmtD(ci)} → ${fmtD(co)}</span>` : '<span class="mob-chip">❌ Neispravan period</span>';
   } else el.innerHTML = '';
   const adults = mobNum('mob-adults',2), children = mobNum('mob-children',0), babies = mobNum('mob-babies',0);
@@ -7372,7 +7888,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (mobCiEl.value) {
       const minCo = new Date(mobCiEl.value + 'T00:00:00');
       minCo.setDate(minCo.getDate() + 1);
-      const minCoStr = minCo.toISOString().slice(0,10);
+      const minCoStr = kmkLocalDateInputValue(minCo);
       if (mobCoEl) {
         mobCoEl.min = minCoStr;
         if (!mobCoEl.value || mobCoEl.value <= mobCiEl.value) mobCoEl.value = minCoStr;
@@ -7419,7 +7935,30 @@ window.mobNextStep = (step) => {
   mobCalcPrice();
 };
 
+
+function mobReservationPriceSignatureFromData(ci, co, bungalovi) {
+  return JSON.stringify({
+    checkIn: ci || '',
+    checkOut: co || '',
+    bungalovi: (bungalovi || []).map(function(b) {
+      return {
+        bungalov: String(b.bungalov || ''),
+        adults: parseInt(b.adults || 0, 10) || 0,
+        children: parseInt(b.children || 0, 10) || 0,
+        babies: parseInt(b.babies || 0, 10) || 0,
+        sharedBed: !!b.sharedBed
+      };
+    }).sort(function(a,b){ return parseInt(a.bungalov,10) - parseInt(b.bungalov,10); })
+  });
+}
+function mobShouldPreserveExistingPrice(existing, ci, co, bungalovi) {
+  if (!existing || existing.price == null) return false;
+  return mobReservationPriceSignatureFromData(existing.checkIn, existing.checkOut, existing.bungalovi || []) ===
+         mobReservationPriceSignatureFromData(ci, co, bungalovi || []);
+}
+
 window.mobSaveReservation = async () => {
+  if (_mobSubmitting) return;
   const name = document.getElementById('mob-name').value.trim();
   const phone = document.getElementById('mob-phone').value.trim();
   const channel = document.getElementById('mob-channel').value;
@@ -7431,14 +7970,21 @@ window.mobSaveReservation = async () => {
   if (!_mobSelBungs.length) { alert('Odaberite barem jedan bungalov!'); mobShowStep(2); return; }
   if (typeof isOffline === 'function' && isOffline()) { alert('❌ Nema internetske veze. Rezervacija ne može biti sačuvana dok se internet ne vrati.'); return; }
 
-  let hasOverlap = false;
-  for (const b of _mobSelBungs) {
-    const ov = reservations.find(r => !r.cancelled && r.id !== _mobEditId && r.bungalovi?.some(bv => String(bv.bungalov) === String(b)) && ci < r.checkOut && co > r.checkIn);
-    if (ov) { hasOverlap = true; break; }
-  }
-  if (hasOverlap && !confirm('⚠️ Postoji preklapanje! Svejedno sačuvati?')) return;
+  const dupBung = kmkFindDuplicateSelectedBungalow(_mobSelBungs);
+  if (dupBung) { alert('❌ Bungalov B' + dupBung + ' je izabran dva puta u istoj mobilnoj rezervaciji.'); mobShowStep(2); return; }
+  const invalidBung = (_mobSelBungs || []).find(b => !kmkValidBungalowNumber(b));
+  if (invalidBung) { alert('❌ Nepoznat bungalov: B' + invalidBung); mobShowStep(2); return; }
 
-  const nights = Math.ceil((new Date(co) - new Date(ci)) / 86400000);
+  const ovHit = kmkFindReservationOverlap(_mobSelBungs, ci, co, _mobEditId);
+  if (ovHit) {
+    alert(kmkOverlapMessage(ovHit));
+    if (typeof window._mobBuildBungGrid === 'function') window._mobBuildBungGrid();
+    if (typeof window.mobCheckOverlap === 'function') window.mobCheckOverlap();
+    mobShowStep(2);
+    return;
+  }
+
+  const nights = kmkNightsBetween(ci, co);
   const activePrices = (typeof getActivePrices === 'function') ? getActivePrices(ci) : [];
   let totalPrice = 0;
   const bungalovi = [];
@@ -7447,7 +7993,7 @@ window.mobSaveReservation = async () => {
     if (mobGuestTotal(g) <= 0) { alert('❌ B' + b + ': unesite barem jednog gosta.'); return; }
     const cap = mobBungCapacity(b);
     const beds = mobBedsNeeded(g);
-    if (cap && beds > cap) { alert('❌ B' + b + ' nema dovoljno kapaciteta. Maksimalno: ' + cap + ', uneseno za krevete: ' + beds + '.'); mobShowStep(3); return; }
+    if (cap && beds > cap) { alert('❌ B' + b + ' nema dovoljno kapaciteta. Maksimalno: ' + cap + ', uneseno za krevete: ' + beds + '.'); mobShowStep(2); return; }
     const r = calcPrice(parseInt(b,10), g.adults, g.children, g.babies, nights, activePrices);
     totalPrice += r.subtotal || 0;
     const existingB = _mobEditId ? reservations.find(x=>x.id===_mobEditId)?.bungalovi?.find(x => String(x.bungalov) === String(b)) : null;
@@ -7460,26 +8006,43 @@ window.mobSaveReservation = async () => {
   }
 
   const saveBtn = document.getElementById('mob-save-btn');
+  _mobSubmitting = true;
   if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = '⏳ Čuvam...'; }
   try {
     const existing = _mobEditId ? reservations.find(r => r.id === _mobEditId) : null;
+    const finalPrice = mobShouldPreserveExistingPrice(existing, ci, co, bungalovi)
+      ? Math.round((parseFloat(existing.price) || 0) * 100) / 100
+      : Math.round((totalPrice || 0) * 100) / 100;
     const data = {
       name, phone, country: existing?.country || '', checkIn: ci, checkOut: co,
-      channel: channel || existing?.channel || '', price: totalPrice, bungalovi,
+      channel: channel || existing?.channel || '', price: finalPrice, bungalovi,
       services: existing?.services || { polupansion: false, fullPansion: false, lunchPaket: false },
       notes, confirmed: existing ? !!existing.confirmed : true, paid: existing ? !!existing.paid : false, cancelled: existing ? !!existing.cancelled : false,
       closedManual: existing ? !!existing.closedManual : false,
       createdAt: existing?.createdAt || new Date().toISOString(), createdBy: existing?.createdBy || curUser,
       updatedAt: new Date().toISOString(), updatedBy: curUser
     };
-    if (_mobEditId) await updateDoc(doc(db, 'reservations', _mobEditId), data);
-    else await addDoc(collection(db, 'reservations'), data);
+    const finalGuard = kmkPreSaveReservationGuard(data, _mobEditId || null);
+    if (!finalGuard.ok) { alert(finalGuard.message); mobShowStep(2); return; }
+    if (_mobEditId) {
+      const old = existing ? { ...existing } : null;
+      await kmkSaveReservationAtomic(data, _mobEditId);
+      const idx = reservations.findIndex(r => r.id === _mobEditId);
+      if (idx >= 0) reservations[idx] = { ...reservations[idx], ...data };
+      if (typeof logH === 'function') await logH('modified', { ...data, id: _mobEditId }, old);
+    } else {
+      const newData = { ...data };
+      const docRef = await kmkSaveReservationAtomic(newData, null);
+      reservations.unshift({ id: docRef.id, ...newData });
+      if (typeof logH === 'function') await logH('added', { ...newData, id: docRef.id });
+    }
     document.getElementById('mob-quick-overlay').classList.remove('open');
     _mobEditId = null;
     renderMobList(); renderMobDaily(); if (_mobCurrentTab === 'availability') renderMobAvailability(); if (_mobCurrentTab === 'calendar') { if(typeof isMobile==='function'&&isMobile()&&typeof _applyCalView==='function') _applyCalView(); else renderCal(); }
   } catch(err) {
-    alert('Greška: ' + err.message);
+    alert(typeof kmkFriendlySaveError === 'function' ? kmkFriendlySaveError(err) : ('Greška: ' + err.message));
   } finally {
+    _mobSubmitting = false;
     if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = '💾 Sačuvaj rezervaciju'; }
   }
 };
@@ -7512,7 +8075,7 @@ window.renderCal = function(...args){ const r = __origRenderCal.apply(this,args)
 function mobPhoneHref(phone, mode){const clean=String(phone||'').replace(/[^\+\d]/g,'');if(!clean)return '#';return mode==='wa'?'https://wa.me/'+clean.replace(/^\+/,''):'tel:'+clean;}
 function mobBungLabel(r){return (r.bungalovi||[]).map(b=>'B'+b.bungalov).join(', ')||'—';}
 function mobPersons(r){return (r.bungalovi||[]).reduce((s,b)=>s+(parseInt(b.adults||0)+parseInt(b.children||0)+parseInt(b.babies||0)),0)||(r.bungalovi||[]).reduce((s,b)=>s+(parseInt(b.beds||0)),0)||0;}
-function mobStatusChips(r){const chips=[];if(r.closedManual)chips.push('<span class="mob-status-chip mob-chip-wait">🔒 Zatvoreno</span>');else if(r.paid)chips.push('<span class="mob-status-chip mob-chip-paid">💶 Plaćeno</span>');else chips.push('<span class="mob-status-chip mob-chip-unpaid">💶 Nije plaćeno</span>');if(r.confirmed)chips.push('<span class="mob-status-chip mob-chip-conf">✓ Potvrđeno</span>');else chips.push('<span class="mob-status-chip mob-chip-wait">⏳ Čeka</span>');if(r.icalLinkId)chips.push('<span class="mob-status-chip mob-chip-conf">🌐 iCal</span>');return chips.join(' ');}
+function mobStatusChips(r){const chips=[];if(r.closedManual)chips.push('<span class="mob-status-chip mob-chip-wait">🔒 Zatvoreno</span>');else if(r.paid)chips.push('<span class="mob-status-chip mob-chip-paid">💶 Plaćeno</span>');else chips.push('<span class="mob-status-chip mob-chip-unpaid">💶 Nije plaćeno</span>');if(r.virman && !r.paid && !r.closedManual)chips.push('<span class="mob-status-chip mob-chip-virman">🏦 Virman</span>');if(r.confirmed)chips.push('<span class="mob-status-chip mob-chip-conf">✓ Potvrđeno</span>');else chips.push('<span class="mob-status-chip mob-chip-wait">⏳ Čeka</span>');if(r.icalLinkId)chips.push('<span class="mob-status-chip mob-chip-conf">🌐 iCal</span>');return chips.join(' ');}
 function mobContactActions(r){const phone=String(r.phone||'').trim();const call=phone?`<a class="mob-action-btn call" href="${mobPhoneHref(phone,'call')}">📞 Pozovi</a>`:'';const wa=phone?`<a class="mob-action-btn wa" href="${mobPhoneHref(phone,'wa')}" target="_blank" rel="noopener">WhatsApp</a>`:'';return `${call}${wa}<button class="mob-action-btn open" onclick="showDet('${r.id}')">Otvori</button>`;}
 function mobGetAvailability(from,to,persons){
   const bungs=Object.keys(B_CFG||{}).sort((a,b)=>parseInt(a)-parseInt(b));
@@ -7543,6 +8106,36 @@ function renderMobAvailability(){
   Array.from(busy.entries()).sort((a,b)=>parseInt(a[0])-parseInt(b[0])).forEach(([bn,r])=>{html+=`<div class="mob-availability-card busy" onclick="showDet('${r.id}')"><div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start"><div><div style="font-weight:900;color:#222">B${bn} · ${escHtml(r.name||'—')}</div><div class="mob-mini-note">${fmtD(r.checkIn)} → ${fmtD(r.checkOut)} · ${escHtml(r.channel||'')}</div></div><div>${mobStatusChips(r)}</div></div></div>`;});
   pane.innerHTML=html;
 }
+
+
+// ── MOBILNE BRZE AKCIJE (Plaćeno / Stigao) ─────────────────
+// Inline dugmad u mobilnom dnevnom pregledu zovu quickPaid/quickArrived.
+// Ove funkcije su samo siguran most prema centralnom _kmkQuickUpdate helperu.
+window.quickPaid = function(id) {
+  if (!id) return;
+  const r = (reservations || []).find(x => x.id === id);
+  if (!r) { alert('Rezervacija nije pronađena.'); return; }
+  if (r.paid) {
+    if (typeof window._kmkQuickUpdate === 'function') window._kmkQuickUpdate(id, { paid: false });
+    return;
+  }
+  if (typeof window.kmkOpenOperatorPicker === 'function') {
+    window.kmkOpenOperatorPicker(id, false);
+  } else if (typeof window._kmkQuickUpdate === 'function') {
+    window._kmkQuickUpdate(id, { paid: true });
+  }
+};
+
+window.quickArrived = function(id) {
+  if (!id) return;
+  const r = (reservations || []).find(x => x.id === id);
+  if (!r) { alert('Rezervacija nije pronađena.'); return; }
+  if (typeof window._kmkQuickUpdate === 'function') window._kmkQuickUpdate(id, { arrived: !r.arrived });
+};
+window.quickVirman = function(id) {
+  if (!id) return;
+  if (typeof window.kmkMarkVirman === 'function') window.kmkMarkVirman(id);
+};
 
 // ── MOBILNI DNEVNI PREGLED ────────────────────────────
 function renderMobDaily(dateStr) {
@@ -7591,7 +8184,7 @@ function renderMobDaily(dateStr) {
     </div>
 
     <div style="margin-top:12px;display:flex;align-items:center;gap:6px;flex-wrap:wrap">
-      <button onclick="(function(){var p=document.getElementById('mob-daily-date-picker');var d=new Date(p.value||new Date());d.setDate(d.getDate()-1);p.value=d.toISOString().slice(0,10);renderMobDaily(p.value);})()"
+      <button onclick="kmkShiftMobDailyDate(-1)"
         style="background:rgba(255,255,255,.18);border:none;color:white;border-radius:8px;padding:5px 10px;font-size:1em;cursor:pointer">◀</button>
 
       <input type="date" id="mob-daily-date-picker"
@@ -7599,7 +8192,7 @@ function renderMobDaily(dateStr) {
         onchange="renderMobDaily(this.value)"
         style="border:none;background:rgba(255,255,255,.18);color:white;border-radius:8px;padding:5px 10px;font-size:.88em;font-weight:700;cursor:pointer;outline:none;flex:1;min-width:120px">
 
-      <button onclick="(function(){var p=document.getElementById('mob-daily-date-picker');var d=new Date(p.value||new Date());d.setDate(d.getDate()+1);p.value=d.toISOString().slice(0,10);renderMobDaily(p.value);})()"
+      <button onclick="kmkShiftMobDailyDate(1)"
         style="background:rgba(255,255,255,.18);border:none;color:white;border-radius:8px;padding:5px 10px;font-size:1em;cursor:pointer">▶</button>
 
       ${!isToday ? `<button onclick="(function(){var p=document.getElementById('mob-daily-date-picker');p.value='${todayStr}';renderMobDaily('today');})()"
@@ -7619,43 +8212,18 @@ function renderMobDaily(dateStr) {
   </div>`;
 
   // ── SEKCIJE ──────────────────────────────────────────────────────────────
-  // Quick action: Plaćeno toggle — koristi isti mehanizam kao editRes
-  function quickPaid(id) {
-    var r = (reservations||[]).find(function(x){ return x.id===id; });
-    if (!r) return;
-    // Koristimo window._kmkQuickUpdate ako postoji, inače direktno updateDoc
-    if (typeof window._kmkQuickUpdate === 'function') {
-      window._kmkQuickUpdate(id, { paid: !r.paid });
-    } else if (typeof updateDoc !== 'undefined' && typeof doc !== 'undefined') {
-      updateDoc(doc(db, 'reservations', id),
-        { paid: !r.paid, updatedAt: new Date().toISOString(), updatedBy: curUser||'' })
-        .then(function(){ renderMobDaily(); })
-        .catch(function(e){ alert('Greška: ' + e.message); });
-    }
-  }
-
-  // Quick action: Stigao toggle
-  function quickArrived(id) {
-    var r = (reservations||[]).find(function(x){ return x.id===id; });
-    if (!r) return;
-    if (typeof window._kmkQuickUpdate === 'function') {
-      window._kmkQuickUpdate(id, { arrived: !r.arrived });
-    } else if (typeof updateDoc !== 'undefined' && typeof doc !== 'undefined') {
-      updateDoc(doc(db, 'reservations', id),
-        { arrived: !r.arrived, updatedAt: new Date().toISOString(), updatedBy: curUser||'' })
-        .then(function(){ renderMobDaily(); })
-        .catch(function(e){ alert('Greška: ' + e.message); });
-    }
-  }
+  // Quick akcije su definisane globalno jednom (v2.4.6) — ne redefinišu se na svakom renderu.
 
   function card(r, badge, color) {
-    const nights = Math.ceil((new Date(r.checkOut) - new Date(r.checkIn)) / 86400000);
+    const nights = kmkNightsBetween(r.checkIn, r.checkOut);
     const bungs  = (r.bungalovi || []).map(b => 'B' + b.bungalov).join(', ');
     const guests = (r.bungalovi || []).reduce((s,b) => s + (b.adults||0) + (b.children||0), 0);
     const paidStyle  = r.paid    ? 'background:#e8f5e9;color:#27ae60;font-weight:800;border:1.5px solid #27ae60'
                                   : 'background:#fff3e0;color:#e67e22;font-weight:700;border:1.5px solid #e67e22';
     const arrivedStyle = r.arrived ? 'background:#e3f2fd;color:#1565c0;font-weight:800;border:1.5px solid #1565c0'
                                    : 'background:#f5f5f5;color:#888;font-weight:600;border:1.5px solid #ddd';
+    const virmanStyle = (r.virman && !r.paid) ? 'background:#856404;color:white;font-weight:800;border:1.5px solid #856404'
+                                   : 'background:#fff3cd;color:#856404;font-weight:800;border:1.5px solid #856404';
     return `<div class="mob-daily-card" style="border-left:4px solid ${color}">
       <div style="display:flex;justify-content:space-between;align-items:flex-start" onclick="showDet('${r.id}')">
         <div>
@@ -7673,6 +8241,10 @@ function renderMobDaily(dateStr) {
           style="flex:1;padding:7px 8px;border-radius:10px;border:none;cursor:pointer;font-size:.78em;${arrivedStyle}">
           ${r.arrived ? '✈ Stigao' : '○ Nije stigao'}
         </button>
+        ${!r.closedManual && !r.cancelled && !r.paid ? `<button onclick="quickVirman('${r.id}')"
+          style="flex:1;padding:7px 8px;border-radius:10px;border:none;cursor:pointer;font-size:.78em;${virmanStyle}">
+          🏦 Virman
+        </button>` : ''}
       </div>
     </div>`;
   }
@@ -7865,7 +8437,7 @@ window.mobPrintDaily = function(dateStr) {
     return list.map(r => {
       var bungs = (r.bungalovi||[]).map(b=>'B'+b.bungalov).join(', ');
       var guests = (r.bungalovi||[]).reduce((s,b)=>s+(b.adults||0)+(b.children||0),0);
-      var nights = Math.ceil((new Date(r.checkOut)-new Date(r.checkIn))/86400000);
+      var nights = kmkNightsBetween(r.checkIn,r.checkOut);
       return '<div style="border-bottom:1px solid #eee;padding:6px 0">' +
         '<strong>' + escHtml(r.name||'—') + '</strong> — ' + escHtml(bungs) + ' · ' +
         guests + ' gostiju · ' + nights + ' noći' +
@@ -7944,7 +8516,7 @@ function renderMobList() {
 function renderMobCards(list) {
   if(!list.length)return '<div style="text-align:center;padding:30px;color:#aaa">Nema rezervacija</div>';
   const today=lDate(new Date());
-  return list.map(r=>{const isBooking=!!r.icalLinkId,isClosed=!!r.closedManual,isPaid=!!r.paid;const n=r.checkIn&&r.checkOut?Math.ceil((new Date(r.checkOut)-new Date(r.checkIn))/86400000):0;const isActive=r.checkIn<=today&&r.checkOut>today,isFuture=r.checkIn>today;let cardCls='mob-res-card';if(isBooking)cardCls+=' booking';else if(isClosed)cardCls+=' closed';else if(isPaid)cardCls+=' paid';return `<div class="${cardCls}"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div style="min-width:0"><div style="font-size:.86em;color:#667eea;font-weight:900;margin-bottom:2px">${mobBungLabel(r)}</div><div class="mob-res-name">${isBooking?'🌐 ':''}${isClosed?'🔒 ':''}${escHtml(r.name||'—')}</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">${mobStatusChips(r)}</div></div><div class="mob-res-dates">📅 ${fmtD(r.checkIn)} → ${fmtD(r.checkOut)} · <strong>${n}n</strong> · ${mobPersons(r)} os.</div><div class="mob-res-meta">${r.channel?'<span>📡 '+escHtml(r.channel)+'</span>':''}${r.price?'<span>💶 '+Number(r.price).toFixed(0)+'€</span>':''}${isActive?'<span style="color:#28a745;font-weight:800">● Aktivan</span>':''}${isFuture?'<span style="color:#667eea;font-weight:800">● Nadolazeći</span>':''}</div>${r.phone?`<div class="mob-mini-note" style="margin-top:5px">📞 ${escHtml(r.phone)}</div>`:''}<div class="mob-action-row">${mobContactActions(r)}<button class="mob-action-btn more" onclick="mobOpenQuickForm('${r.id}')">✏️ Izmijeni</button></div></div>`;}).join('');
+  return list.map(r=>{const isBooking=!!r.icalLinkId,isClosed=!!r.closedManual,isPaid=!!r.paid;const n=r.checkIn&&r.checkOut?kmkNightsBetween(r.checkIn,r.checkOut):0;const isActive=r.checkIn<=today&&r.checkOut>today,isFuture=r.checkIn>today;let cardCls='mob-res-card';if(isBooking)cardCls+=' booking';else if(isClosed)cardCls+=' closed';else if(isPaid)cardCls+=' paid';return `<div class="${cardCls}"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div style="min-width:0"><div style="font-size:.86em;color:#667eea;font-weight:900;margin-bottom:2px">${mobBungLabel(r)}</div><div class="mob-res-name">${isBooking?'🌐 ':''}${isClosed?'🔒 ':''}${escHtml(r.name||'—')}</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">${mobStatusChips(r)}</div></div><div class="mob-res-dates">📅 ${fmtD(r.checkIn)} → ${fmtD(r.checkOut)} · <strong>${n}n</strong> · ${mobPersons(r)} os.</div><div class="mob-res-meta">${r.channel?'<span>📡 '+escHtml(r.channel)+'</span>':''}${r.price?'<span>💶 '+Number(r.price).toFixed(0)+'€</span>':''}${isActive?'<span style="color:#28a745;font-weight:800">● Aktivan</span>':''}${isFuture?'<span style="color:#667eea;font-weight:800">● Nadolazeći</span>':''}</div>${r.phone?`<div class="mob-mini-note" style="margin-top:5px">📞 ${escHtml(r.phone)}</div>`:''}<div class="mob-action-row">${mobContactActions(r)}<button class="mob-action-btn more" onclick="mobOpenQuickForm('${r.id}')">✏️ Izmijeni</button></div></div>`;}).join('');
 }
 
 window.renderMobListFiltered = () => {
@@ -7959,7 +8531,7 @@ window.renderMobListFiltered = () => {
 window.mobDelRes = async (id, name) => {
   if (!confirm('Otkazati rezervaciju za ' + name + '?')) return;
   try {
-    await deleteDoc(doc(db, 'reservations', id));
+    await kmkDeleteReservationAtomic(id);
     renderMobList();
     renderMobDaily();
   } catch(e) { alert('Greška: ' + e.message); }
@@ -7974,40 +8546,198 @@ window.mobDelRes = async (id, name) => {
 // ══════════════════════════════════════════════════════
 
 let _activeConflicts = []; // memorija, ne Firebase
+let _externalIcalConflicts = []; // iCal događaji koji su namjerno preskočeni jer bi pregazili postojeću rezervaciju
+let _lastConflictSignature = '';
+let _dismissedConflictSignature = '';
+let _conflictNotifSignature = '';
+let _lastConflictCount = 0;
 
-// Glavna funkcija detekcije konflikata
+function _kmkNormBungNo(v) {
+  const n = parseInt(String(v ?? '').replace(/\D/g, ''), 10);
+  return Number.isFinite(n) ? String(n) : '';
+}
+
+function _kmkOverlapStart(a, b) {
+  return a.checkIn > b.checkIn ? a.checkIn : b.checkIn;
+}
+
+function _kmkOverlapEnd(a, b) {
+  return a.checkOut < b.checkOut ? a.checkOut : b.checkOut;
+}
+
+function _kmkConflictSignature(conflicts) {
+  return (conflicts || []).map(cf => {
+    const ids = [cf.a?.id || '', cf.b?.id || ''].sort().join('~');
+    const bungs = [...new Set((cf.bungs || []).map(_kmkNormBungNo).filter(Boolean))].sort((x,y)=>Number(x)-Number(y)).join(',');
+    return ids + '|' + bungs + '|' + (cf.overlapStart || '') + '|' + (cf.overlapEnd || '');
+  }).sort().join('||');
+}
+
+function _kmkConflictShortList(conflicts, max = 3) {
+  return (conflicts || []).slice(0, max).map(cf => {
+    const bungs = [...new Set((cf.bungs || []).map(b => 'B' + _kmkNormBungNo(b)))].filter(Boolean).join(', ');
+    const aName = cf.a?.name || 'Rezervacija 1';
+    const bName = cf.b?.name || 'Rezervacija 2';
+    const ds1 = cf.overlapStart || _kmkOverlapStart(cf.a, cf.b);
+    const ds2 = cf.overlapEnd || _kmkOverlapEnd(cf.a, cf.b);
+    return `${bungs} ${kmkConflictOverlapLabel(ds1, ds2)}: ${aName} / ${bName}`;
+  });
+}
+
+function _kmkConflictBannerMessage(conflicts) {
+  const count = conflicts.length;
+  const first = _kmkConflictShortList(conflicts, 1)[0] || 'Pogledaj listu konflikata';
+  const suffix = count > 1 ? ` + još ${count - 1}` : '';
+  return `⚠️ ${count} ${count === 1 ? 'konflikt' : count < 5 ? 'konflikta' : 'konflikata'} u kalendaru: ${first}${suffix}`;
+}
+
+function _kmkIcalVirtualReservation(w, lnk) {
+  const bn = _kmkNormBungNo(lnk?.bungalov || w?.ev?.bungalov || '');
+  return {
+    id: 'external-ical-' + (lnk?.id || 'link') + '-' + (w?.ev?.uid || (w?.ev?.checkIn + '-' + w?.ev?.checkOut)),
+    externalIcal: true,
+    icalLinkId: lnk?.id || 'external',
+    icalUid: w?.ev?.uid || '',
+    name: 'Booking.com (nije uvezeno zbog konflikta)',
+    phone: '', country: '',
+    checkIn: w?.ev?.checkIn || '',
+    checkOut: w?.ev?.checkOut || '',
+    bungalovi: [{ bungalov: bn, adults: 0, children: 0, babies: 0, beds: 0 }],
+    notes: 'iCal događaj je preskočen jer bi se preklopio sa postojećom rezervacijom.'
+  };
+}
+
+function _kmkExternalIcalConflictStillValid(cf) {
+  if (!cf || !cf.externalIcal || !cf.a || !cf.b) return false;
+  const existing = (reservations || []).find(r => r.id === cf.b.id && !r.cancelled);
+  if (!existing) return false;
+  const sharedBungs = (cf.a.bungalovi || []).map(x => _kmkNormBungNo(x.bungalov)).filter(Boolean)
+    .filter(bn => (existing.bungalovi || []).some(rb => _kmkNormBungNo(rb.bungalov) === bn));
+  if (!sharedBungs.length) return false;
+  // Ako je Booking događaj već uvezen kao prava iCal rezervacija, virtualni konflikt više nije potreban.
+  if (cf.a.icalUid && (reservations || []).some(r => !r.cancelled && r.icalUid === cf.a.icalUid && r.id !== existing.id)) return false;
+  return cf.a.checkIn < existing.checkOut && cf.a.checkOut > existing.checkIn;
+}
+
+function _kmkRefreshExternalIcalConflicts() {
+  _externalIcalConflicts = (_externalIcalConflicts || []).filter(_kmkExternalIcalConflictStillValid);
+  return _externalIcalConflicts;
+}
+
+function kmkSetExternalIcalConflictsForLink(linkId, warnings, lnk) {
+  _externalIcalConflicts = (_externalIcalConflicts || []).filter(cf => cf.icalLinkId !== linkId);
+  const additions = (warnings || []).filter(w => w && w.type === 'problem' && w.ev && w.conf).map(w => {
+    const virtual = _kmkIcalVirtualReservation(w, lnk);
+    const overlapStart = virtual.checkIn > w.conf.checkIn ? virtual.checkIn : w.conf.checkIn;
+    const overlapEnd = virtual.checkOut < w.conf.checkOut ? virtual.checkOut : w.conf.checkOut;
+    const bungs = (virtual.bungalovi || []).map(b => _kmkNormBungNo(b.bungalov)).filter(Boolean);
+    return {
+      externalIcal: true,
+      icalLinkId: linkId,
+      a: virtual,
+      b: w.conf,
+      bungs,
+      overlapStart,
+      overlapEnd,
+      id: virtual.id + '_' + (w.conf.id || '') + '_' + overlapStart + '_' + overlapEnd,
+      key: virtual.id + '_' + (w.conf.id || '') + '_' + bungs.join('-') + '_' + overlapStart + '_' + overlapEnd,
+      type: 'ical-skipped-vs-existing'
+    };
+  });
+  _externalIcalConflicts.push(...additions);
+  if (typeof detectConflicts === 'function') detectConflicts();
+}
+
+function _kmkAutoNotifyConflicts(signature, conflicts) {
+  const banner = document.getElementById('conflict-banner');
+  const text = document.getElementById('conflict-banner-text');
+
+  if (!conflicts.length) {
+    if (banner) {
+      banner.classList.remove('show');
+      banner.classList.add('hidden');
+    }
+    _dismissedConflictSignature = '';
+    _lastConflictCount = 0;
+    return;
+  }
+
+  const msg = _kmkConflictBannerMessage(conflicts);
+  if (text) text.textContent = msg;
+
+  // Automatski prikaži upozorenje za novi ili promijenjen konflikt.
+  // Ako korisnik klikne "Sakrij", ne vraćaj isti banner dok se konflikt ne promijeni.
+  if (banner && signature !== _dismissedConflictSignature) {
+    banner.classList.remove('hidden');
+    banner.classList.add('show');
+  }
+
+  // U notifikacioni panel dodaj samo jednom po istom setu konflikata.
+  if (signature && signature !== _conflictNotifSignature && typeof addNotif === 'function') {
+    _conflictNotifSignature = signature;
+    addNotif(msg);
+  }
+
+  _lastConflictCount = conflicts.length;
+}
+
+window.dismissConflictBanner = function() {
+  _dismissedConflictSignature = _lastConflictSignature;
+  const banner = document.getElementById('conflict-banner');
+  if (banner) {
+    banner.classList.remove('show');
+    banner.classList.add('hidden');
+  }
+};
+
+window.openConflictsFromBanner = function() {
+  const btn = document.getElementById('tab-conflicts');
+  if (typeof goTab === 'function') goTab('conflicts', btn || undefined);
+  else if (typeof mobGoTab === 'function') mobGoTab('conflicts');
+  const banner = document.getElementById('conflict-banner');
+  if (banner) banner.classList.remove('show');
+};
+
+// Glavna funkcija detekcije konflikata — zove se automatski iz Firebase snapshot-a,
+// poslije iCal promjena i poslije lokalnog osvježavanja. Nije potrebno ručno pritiskati kontrolu.
 window.detectConflicts = function() {
-  const active = reservations.filter(r => !r.cancelled);
+  const active = (typeof kmkActiveReservationsUnique === 'function' ? kmkActiveReservationsUnique(reservations) : reservations).filter(r => !r.cancelled && r.checkIn && r.checkOut);
   const found = [];
 
   for (let i = 0; i < active.length; i++) {
     for (let j = i + 1; j < active.length; j++) {
       const a = active[i];
       const b = active[j];
+      if (!a.id || !b.id || a.id === b.id) continue;
 
-      // Provjeravamo svaki bungalov iz a prema svim bungalovima iz b
-      const bungs_a = (a.bungalovi || []).map(bv => String(bv.bungalov));
-      const bungs_b = (b.bungalovi || []).map(bv => String(bv.bungalov));
-
-      const sharedBungs = bungs_a.filter(bn => bungs_b.includes(bn));
+      const bungsA = [...new Set((a.bungalovi || []).map(x => _kmkNormBungNo(x.bungalov)).filter(Boolean))];
+      const bungsB = [...new Set((b.bungalovi || []).map(x => _kmkNormBungNo(x.bungalov)).filter(Boolean))];
+      const sharedBungs = bungsA.filter(bn => bungsB.includes(bn)).sort((x,y)=>Number(x)-Number(y));
       if (!sharedBungs.length) continue;
 
-      // Provjeri datumski overlap
+      // Pravilo smještaja: check-in je zauzet, check-out je slobodan.
       if (a.checkIn < b.checkOut && a.checkOut > b.checkIn) {
-        // Provjeri da li je isti konflikt već registrovan
-        const alreadyFound = found.some(cf =>
-          (cf.a.id === a.id && cf.b.id === b.id) ||
-          (cf.a.id === b.id && cf.b.id === a.id)
-        );
-        if (!alreadyFound) {
-          found.push({ a, b, bungs: sharedBungs, id: a.id + '_' + b.id });
+        // Ako su oba unosa samo blokade/zatvaranja istog termina, to nije gostinski konflikt.
+        if (kmkIsCalendarBlock(a) && kmkIsCalendarBlock(b)) continue;
+        const overlapStart = _kmkOverlapStart(a, b);
+        const overlapEnd = _kmkOverlapEnd(a, b);
+        const pairKey = [a.id, b.id].sort().join('_') + '_' + sharedBungs.join('-') + '_' + overlapStart + '_' + overlapEnd;
+        if (!found.some(cf => cf.key === pairKey)) {
+          found.push({ a, b, bungs: sharedBungs, overlapStart, overlapEnd, id: pairKey, key: pairKey, type: (kmkIsCalendarBlock(a)||kmkIsCalendarBlock(b)) ? 'booking-vs-block' : 'booking-vs-booking' });
         }
       }
     }
   }
 
+  const external = (typeof _kmkRefreshExternalIcalConflicts === 'function') ? _kmkRefreshExternalIcalConflicts() : [];
+  for (const cf of external) {
+    if (!found.some(x => x.key === cf.key)) found.push(cf);
+  }
+
   _activeConflicts = found;
+  _lastConflictSignature = _kmkConflictSignature(found);
   updateConflictUI();
+  _kmkAutoNotifyConflicts(_lastConflictSignature, found);
   return found;
 };
 
@@ -8043,6 +8773,7 @@ function updateConflictUI() {
 
   // Render Konflikti pane
   renderConflictsPane();
+
   // Ažuriraj mob "Više" sheet konflikt item
   const mobCfItem = document.getElementById('mob-conflicts-item');
   if (mobCfItem) {
@@ -8063,31 +8794,32 @@ function renderConflictsPane() {
   }
 
   function resType(r) {
+    if (r.externalIcal) return { label: '🌐 Booking.com (iCal — NIJE uvezeno)', cls: 'ical' };
     if (r.icalLinkId) return { label: '🌐 Booking.com (iCal)', cls: 'ical' };
     if (r.importedFromExcel) return { label: '📥 Import Excel', cls: 'import' };
     return { label: '✏️ Ručni unos', cls: 'manual' };
   }
 
   function resDetails(r) {
-    const nights = Math.ceil((new Date(r.checkOut) - new Date(r.checkIn)) / 86400000);
-    const bungs = (r.bungalovi||[]).map(b => 'B' + b.bungalov).join(', ');
-    const persons = (r.bungalovi||[]).reduce((s,b) => s + (b.adults||0) + (b.children||0) + (b.babies||0), 0);
+    const nights = kmkNightsBetween(r.checkIn, r.checkOut);
+    const bungs = (r.bungalovi||[]).map(b => 'B' + escHtml(_kmkNormBungNo(b.bungalov))).join(', ');
+    const persons = (r.bungalovi||[]).reduce((s,b) => s + (parseInt(b.adults)||0) + (parseInt(b.children)||0) + (parseInt(b.babies)||0), 0);
     return { nights, bungs, persons };
   }
 
   body.innerHTML = `
     <div style="background:#fff3cd;border-left:4px solid #ffc107;padding:12px 16px;border-radius:8px;margin-bottom:18px;font-size:.88em">
-      <strong>ℹ️ Kako riješiti:</strong> Klikni "Pogledaj" da otvoriš rezervaciju i ručno je izmijeni ili otkaži.
-      Booking.com rezervacije (🌐) se ažuriraju automatski pri sljedećem iCal sync-u.
+      <strong>Automatska kontrola je aktivna.</strong> Program sam prati preklapanja poslije svake promjene u bazi, iCal sync-a, unosa ili izmjene rezervacije. Nije potrebno ručno pritiskati kontrolu.
     </div>
     ${_activeConflicts.map(cf => {
       const ta = resType(cf.a), tb = resType(cf.b);
       const da = resDetails(cf.a), db2 = resDetails(cf.b);
+      const overlapStart = cf.overlapStart || _kmkOverlapStart(cf.a, cf.b);
+      const overlapEnd = cf.overlapEnd || _kmkOverlapEnd(cf.a, cf.b);
       return `<div class="conflict-card">
         <div class="cf-title">
-          ⚠️ Bungalov ${cf.bungs.map(b=>'B'+b).join(', ')} — 
-          ${fmtD(cf.a.checkIn > cf.b.checkIn ? cf.b.checkIn : cf.a.checkIn)} → 
-          ${fmtD(cf.a.checkOut < cf.b.checkOut ? cf.b.checkOut : cf.a.checkOut)}
+          ⚠️ Bungalov ${cf.bungs.map(b=>'B'+escHtml(_kmkNormBungNo(b))).join(', ')} — 
+          ${kmkConflictOverlapLabel(overlapStart, overlapEnd)}
         </div>
         <div class="cf-row">
           <div class="cf-box ${ta.cls}">
@@ -8106,8 +8838,8 @@ function renderConflictsPane() {
           </div>
         </div>
         <div class="cf-actions">
-          <button class="cf-btn view" onclick="editRes('${cf.a.id}')">✏️ Uredi: ${escHtml((cf.a.name||'').substring(0,15))}${(cf.a.name||'').length>15?'...':''}</button>
-          <button class="cf-btn view" onclick="editRes('${cf.b.id}')">✏️ Uredi: ${escHtml((cf.b.name||'').substring(0,15))}${(cf.b.name||'').length>15?'...':''}</button>
+          ${cf.a.externalIcal ? '<span style="font-size:.82em;color:#856404;background:#fff3cd;padding:7px 10px;border-radius:8px;font-weight:700">Booking iCal nije upisan u kalendar da ne pregazi postojeću rezervaciju.</span>' : `<button class="cf-btn view" onclick="editRes('${String(cf.a.id).replace(/'/g, '\\&#39;')}')">✏️ Uredi: ${escHtml((cf.a.name||'').substring(0,15))}${(cf.a.name||'').length>15?'...':''}</button>`}
+          ${cf.b.externalIcal ? '' : `<button class="cf-btn view" onclick="editRes('${String(cf.b.id).replace(/'/g, '\\&#39;')}')">✏️ Uredi: ${escHtml((cf.b.name||'').substring(0,15))}${(cf.b.name||'').length>15?'...':''}</button>`}
         </div>
       </div>`;
     }).join('')}
@@ -8135,7 +8867,7 @@ window.deleteManualReservations = async () => {
   syncUI('sy', 'Brišem ručne rezervacije...');
   let deleted = 0;
   for (const r of manual) {
-    try { await deleteDoc(doc(db, 'reservations', r.id)); deleted++; } catch(e) {}
+    try { await kmkDeleteReservationAtomic(r.id); deleted++; } catch(e) {}
   }
   syncUI('ok', 'Sinhronizovano ✓');
   alert('Obrisano ' + deleted + ' rucnih rezervacija. Booking.com rezervacije su zadrzane.');
@@ -8162,7 +8894,7 @@ window.deleteAllReservations = async () => {
   // Brišemo u serijama po 20 da ne preopteretimo Firebase
   for (const r of reservations) {
     try {
-      await deleteDoc(doc(db, 'reservations', r.id));
+      await kmkDeleteReservationAtomic(r.id);
       deleted++;
     } catch(e) { console.warn('Greška pri brisanju:', e); }
   }
@@ -8783,7 +9515,7 @@ window.showGuestProfile = (name) => {
   const totalSpent = active.reduce((s,r) => s+(r.price||0), 0);
   const totalNights = active.reduce((s,r) => {
     if (!r.checkIn || !r.checkOut) return s;
-    return s + Math.ceil((new Date(r.checkOut)-new Date(r.checkIn))/86400000);
+    return s + kmkNightsBetween(r.checkIn,r.checkOut);
   }, 0);
   const allBungs = [...new Set(active.flatMap(r => (r.bungalovi||[]).map(b=>'B'+b.bungalov)))];
   const lastRes = active.sort((a,b)=>b.checkIn.localeCompare(a.checkIn))[0];
@@ -8832,7 +9564,7 @@ window.showGuestProfile = (name) => {
   const sorted = [...all].sort((a,b)=>b.checkIn.localeCompare(a.checkIn));
   document.getElementById('gp-history').innerHTML = sorted.map(r => {
     const nights = r.checkIn&&r.checkOut
-      ? Math.ceil((new Date(r.checkOut)-new Date(r.checkIn))/86400000) : 0;
+      ? kmkNightsBetween(r.checkIn,r.checkOut) : 0;
     const bungs = (r.bungalovi||[]).map(b=>'B'+b.bungalov).join(', ');
     const adults = (r.bungalovi||[]).reduce((s,b)=>s+(b.adults||0),0);
     const children = (r.bungalovi||[]).reduce((s,b)=>s+(b.children||0),0);
@@ -9029,7 +9761,7 @@ window.filterGuestBook = () => {
   if (!guests.length) { listEl.innerHTML = '<p style="color:#aaa;text-align:center">Nema gostiju</p>'; return; }
   listEl.innerHTML = guests.map(g => `
     <div class="gb-history-card" style="cursor:pointer;margin-bottom:8px"
-      onclick="showGuestProfile('${escHtml(g.name)}')">
+      onclick="showGuestProfile(${jsArg(g.name)})">
       <div style="display:flex;justify-content:space-between;align-items:center">
         <div>
           <div style="font-weight:700;font-size:.9em">${escHtml(g.name)}</div>
@@ -9172,7 +9904,7 @@ async function _bulkDoCancelAll(ids, reason) {
   for (const id of ids) {
     try {
       const res = reservations.find(x => x.id === id);
-      await updateDoc(doc(db, 'reservations', id), { cancelled: true });
+      await kmkCancelReservationAtomic(id);
       await logH('deleted', { ...(res||{}), id, cancelled: true }, null, reason);
       done++;
     } catch(e) {
@@ -9292,7 +10024,12 @@ window.undoDelete = async () => {
   document.getElementById('undo-toast').classList.remove('show');
   try {
     syncUI('sy', 'Poništavam...');
-    await updateDoc(doc(db,'reservations',_undoDeleteData.id), { cancelled: false });
+    {
+      const data = { ..._undoDeleteData, cancelled:false, updatedAt:new Date().toISOString(), updatedBy:curUser||'' };
+      const restoreId = data.id;
+      delete data.id;
+      await kmkSaveReservationAtomic(data, restoreId);
+    }
     await logH('restored', _undoDeleteData, null, 'Undo delete');
     syncUI('ok', 'Sinhronizovano ✓');
   } catch(e) {
@@ -9330,7 +10067,7 @@ window.exportReservationsCSV = () => {
     const children = (r.bungalovi||[]).reduce((s,b)=>s+(b.children||0),0);
     const babies = (r.bungalovi||[]).reduce((s,b)=>s+(b.babies||0),0);
     const nights = r.checkIn&&r.checkOut
-      ? Math.ceil((new Date(r.checkOut)-new Date(r.checkIn))/86400000) : '';
+      ? kmkNightsBetween(r.checkIn,r.checkOut) : '';
     const escCsv = v => {
       const s = String(v||'').replace(/"/g,'""');
       return s.includes(',') || s.includes('"') || s.includes('\n') ? `"${s}"` : s;
@@ -9349,7 +10086,7 @@ window.exportReservationsCSV = () => {
   const blob = new Blob([bom + csvContent], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  const today = new Date().toISOString().slice(0,10);
+  const today = kmkLocalDateInputValue(new Date());
   a.href = url;
   a.download = `kmk-rezervacije-${today}.csv`;
   a.click();
@@ -9453,35 +10190,41 @@ function excelSerialToDate(n) {
   return `${yr}-${mo}-${day}`;
 }
 
+function importDateObjectToYMD(dt) {
+  if (!(dt instanceof Date) || isNaN(dt.getTime())) return null;
+  return `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`;
+}
+
 function parseImportDate(s) {
   if (s === null || s === undefined || s === '') return null;
   // Excel serijski broj (integer između 40000-60000 = godine 2009-2064)
   const n = Number(s);
   if (!isNaN(n) && n > 40000 && n < 60000) return excelSerialToDate(n);
+
   s = String(s).trim();
   if (!s) return null;
-  // YYYY-MM-DD
-  if (/^\d{4}-\d{2}-\d{2}/.test(s)) return s.substring(0,10);
-  // DD.MM.YYYY ili DD/MM/YYYY
-  const m = s.match(/^(\d{1,2})[.\/](\d{1,2})[.\/](\d{4})$/);
-  if (m) {
-    const d = m[1].padStart(2,'0'), mo = m[2].padStart(2,'0'), y = m[3];
-    return `${y}-${mo}-${d}`;
+
+  function validYMD(y, mo, d) {
+    y = Number(y); mo = Number(mo); d = Number(d);
+    if (!y || !mo || !d || y < 2000 || y > 2100 || mo < 1 || mo > 12 || d < 1 || d > 31) return null;
+    const dt = new Date(y, mo - 1, d);
+    if (dt.getFullYear() !== y || dt.getMonth() !== mo - 1 || dt.getDate() !== d) return null;
+    return `${y}-${String(mo).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
   }
-  // ISO string ili JS Date string
-  if (s.includes('T') || s.includes('GMT') || s.includes('Z') || s.includes('-')) {
-    try {
-      const dt = new Date(s);
-      if (!isNaN(dt.getTime()) && dt.getFullYear() > 2000) {
-        return dt.toISOString().substring(0,10);
-      }
-    } catch(e) {}
-  }
-  // Pokusaj genericki Date parse
+
+  // YYYY-MM-DD ili YYYY/MM/DD
+  let m = s.match(/^(\d{4})[-\/\.](\d{1,2})[-\/\.](\d{1,2})(?:\s.*)?$/);
+  if (m) return validYMD(m[1], m[2], m[3]);
+
+  // DD.MM.YYYY, DD/MM/YYYY ili DD-MM-YYYY — evropski format
+  m = s.match(/^(\d{1,2})[.\/-](\d{1,2})[.\/-](\d{4})(?:\s.*)?$/);
+  if (m) return validYMD(m[3], m[2], m[1]);
+
+  // ISO string ili JS Date string — koristi lokalni YMD dobijen iz Date objekta
   try {
     const dt = new Date(s);
     if (!isNaN(dt.getTime()) && dt.getFullYear() > 2000) {
-      return dt.toISOString().substring(0,10);
+      return importDateObjectToYMD(dt);
     }
   } catch(e) {}
   return null;
@@ -9490,39 +10233,101 @@ function parseImportDate(s) {
 // Parsiranje bungalova iz stringa — vraca niz stringova npr ['1','2','3']
 // parseImportBungalovi uklonjena — nije se pozivala
 
-// Parsiranje CSV linije — pazi na zareze unutar navodnika
-function parseCSVLine(line) {
-  const result = [];
-  let cur = '', inQ = false;
+// Parsiranje CSV/TSV/semicolon linije — pazi na separatore unutar navodnika
+function countDelimiterOutsideQuotes(line, delimiter) {
+  let count = 0, inQ = false;
+  line = String(line || '');
   for (let i = 0; i < line.length; i++) {
     const c = line[i];
-    if (c === '"') { inQ = !inQ; continue; }
-    if (c === ',' && !inQ) { result.push(cur); cur = ''; continue; }
+    if (c === '"') {
+      if (inQ && line[i+1] === '"') { i++; continue; }
+      inQ = !inQ; continue;
+    }
+    if (c === delimiter && !inQ) count++;
+  }
+  return count;
+}
+
+function detectCSVDelimiter(text) {
+  const sample = String(text || '').split(/\r?\n/).slice(0, 8).filter(Boolean);
+  const candidates = [',',';','\t'];
+  let best = ',', bestScore = -1;
+  for (const d of candidates) {
+    const score = sample.reduce((sum,line)=>sum + countDelimiterOutsideQuotes(line, d), 0);
+    if (score > bestScore) { bestScore = score; best = d; }
+  }
+  return best;
+}
+
+function parseCSVLine(line, delimiter) {
+  delimiter = delimiter || ',';
+  const result = [];
+  let cur = '', inQ = false;
+  line = String(line || '').replace(/\r$/, '');
+  for (let i = 0; i < line.length; i++) {
+    const c = line[i];
+    if (c === '"') {
+      if (inQ && line[i+1] === '"') { cur += '"'; i++; continue; }
+      inQ = !inQ; continue;
+    }
+    if (c === delimiter && !inQ) { result.push(cur.trim()); cur = ''; continue; }
     cur += c;
   }
-  result.push(cur);
+  result.push(cur.trim());
   return result;
 }
 
 // Citanje fajla i parsiranje
 // ── Parser bungalova za import ───────────────────────────────
 function parseBungaloviImport(s) {
-  if (!s) return [];
+  if (!s && s !== 0) return [];
   s = String(s).trim();
-  // SVI BUNGALI
-  if (/svi\s*bungal/i.test(s)) return ['1','2','3','4','5','6','7','8','9','10','11','12','13'];
-  // Nadji sve B<broj> ili b<broj>
-  const nums = s.match(/[Bb]\s*(\d{1,2})/g);
-  if (nums && nums.length) {
-    return [...new Set(nums.map(n => n.replace(/[Bb]\s*/,'').trim())
-      .filter(n => parseInt(n) >= 1 && parseInt(n) <= 13))];
+  if (!s) return [];
+  // SVI BUNGALOVI / svi bungali
+  if (/\bsvi\b.*\b(bungal|bungalov|bungali|bungalovi)\b/i.test(s)) {
+    return Object.keys(B_CFG).map(String).sort((a,b)=>Number(a)-Number(b));
   }
-  // Samo brojevi odvojeni zarezom/razmakom
-  const bare = s.match(/(\d{1,2})/g);
-  if (bare) {
-    return [...new Set(bare.filter(n => parseInt(n) >= 1 && parseInt(n) <= 13))];
+
+  const found = [];
+  const add = (n) => {
+    n = String(n || '').trim();
+    if (!/^\d{1,2}$/.test(n)) return;
+    const num = Number(n);
+    if (B_CFG[num] && !found.includes(String(num))) found.push(String(num));
+  };
+
+  // B1, B 1, bungalov 12, bung 3
+  let m;
+  const reNamed = /\b(?:b|bung|bungal|bungalov|bungalovi|bungali)\s*[-#:]?\s*(\d{1,2})\b/gi;
+  while ((m = reNamed.exec(s)) !== null) add(m[1]);
+
+  // Ako je tekst običan spisak brojeva: 1, 2, 13 / 1 2 13
+  // Ako ima B-prefikse, parsiraj i nastavke samo kada poslije uklanjanja B-tokena ostaju samo brojevi/separatori.
+  // Time radi "B2, 3" i "B10 B11 12", ali ne čita slučajno "B2 (3 osobe)" kao B3.
+  const withoutNamed = s.replace(/\b(?:b|bung|bungal|bungalov|bungalovi|bungali)\s*[-#:]?\s*\d{1,2}\b/gi, ' ');
+  const canReadBare = /^[\s\d,;.+\/\\-]+$/.test(s) || /^[\s\d,;.+\/\\-]+$/.test(withoutNamed);
+  if (!found.length || canReadBare) {
+    const bareSource = canReadBare && found.length ? withoutNamed : s;
+    const bare = bareSource.match(/\b\d{1,2}\b/g);
+    if (bare) bare.forEach(add);
   }
-  return [];
+
+  return found.sort((a,b)=>Number(a)-Number(b));
+}
+
+// v2.4.19: Import sigurnost — otkriva preklapanja i u samom fajlu, ne samo prema bazi.
+function importRowOverlapsReservation(row, r) {
+  if (!row || !r || r.cancelled) return false;
+  return (r.bungalovi || []).some(bv => String(bv.bungalov) === String(row.bungalov)) &&
+         row.checkIn < r.checkOut && row.checkOut > r.checkIn;
+}
+function importRowsOverlap(a, b) {
+  if (!a || !b) return false;
+  if (String(a.bungalov) !== String(b.bungalov)) return false;
+  return a.checkIn < b.checkOut && a.checkOut > b.checkIn;
+}
+function importFindOverlapInRows(row, rows) {
+  return (rows || []).find(x => x !== row && x.status !== 'overlap' && importRowsOverlap(row, x)) || null;
 }
 
 window.previewImport = async () => {
@@ -9536,7 +10341,8 @@ window.previewImport = async () => {
 
   if (name.endsWith('.csv')) {
     const text = await file.text();
-    rows = text.split('\n').map(l => parseCSVLine(l.trim())).filter(r => r.some(c => c));
+    const delimiter = detectCSVDelimiter(text);
+    rows = text.split(/\r?\n/).map(l => parseCSVLine(l, delimiter)).filter(r => r.some(c => c !== ''));
   } else if (name.endsWith('.xlsx') || name.endsWith('.xls')) {
     if (typeof XLSX === 'undefined') { alert('SheetJS nije učitan. Provjeri internet konekciju.'); return; }
     try {
@@ -9584,14 +10390,28 @@ window.previewImport = async () => {
     channel: hdr.findIndex(h => h.includes('kanal') || h.includes('channel') || h.includes('izvor')),
   };
 
-  // Ako zaglavlje nije nadj (sve -1), koristi fiksne pozicije D-L (offset 3)
+  // Ako zaglavlje nije nađeno, podrži dva realna slučaja:
+  // 1) Booking/Excel export sa praznim A-C kolonama (podaci od D-L)
+  // 2) kompaktan CSV bez headera: Ime,CheckIn,CheckOut,Bungalov,Osoba...
   const hasHeader = colIdx.name >= 0 && colIdx.ci >= 0;
   if (!hasHeader) {
-    // Fallback: SheetJS vratio sve kolone uključujuci A,B,C
-    // Kolone su D=3, E=4, F=5, G=6, H=7, I=8, J=9, K=10, L=11
-    colIdx.name = 3; colIdx.ci = 4; colIdx.co = 5;
-    colIdx.bung = 7; colIdx.person = 8; colIdx.notes = 9;
-    colIdx.phone = 10; colIdx.channel = 11;
+    const firstNonEmpty = rows.find(r => r && r.some(c => c !== '' && c !== null && c !== undefined)) || [];
+    const compactLooksValid = firstNonEmpty.length >= 4 &&
+      !!parseImportDate(firstNonEmpty[1]) && !!parseImportDate(firstNonEmpty[2]) &&
+      !!parseBungaloviImport(firstNonEmpty[3]).length;
+
+    if (compactLooksValid) {
+      // Kompaktni CSV: name, checkIn, checkOut, bungalov, osobe, notes, phone, channel
+      colIdx.name = 0; colIdx.ci = 1; colIdx.co = 2;
+      colIdx.bung = 3; colIdx.person = 4; colIdx.notes = 5;
+      colIdx.phone = 6; colIdx.channel = 7;
+    } else {
+      // Fallback: SheetJS vratio sve kolone uključujući prazne A,B,C
+      // Kolone su D=3, E=4, F=5, G=6, H=7, I=8, J=9, K=10, L=11
+      colIdx.name = 3; colIdx.ci = 4; colIdx.co = 5;
+      colIdx.bung = 7; colIdx.person = 8; colIdx.notes = 9;
+      colIdx.phone = 10; colIdx.channel = 11;
+    }
   }
 
   // ── Parsiraj redove ──────────────────────────────────────────
@@ -9599,7 +10419,8 @@ window.previewImport = async () => {
   const errors = [];
   const warnings = [];
 
-  for (let i = 1; i < rows.length; i++) {
+  const startRow = hasHeader ? 1 : 0;
+  for (let i = startRow; i < rows.length; i++) {
     const cols = rows[i];
     if (!cols || !cols.some(c => c !== '' && c !== null && c !== undefined)) continue;
 
@@ -9623,7 +10444,7 @@ window.previewImport = async () => {
     const co = parseImportDate(rawCO);
 
     if (!name) { continue; } // prazni redovi
-    if (!ci) { errors.push(`Red ${i+1} (${name}): Neispravan datum dolaska "${bungStr}"`); continue; }
+    if (!ci) { errors.push(`Red ${i+1} (${name}): Neispravan datum dolaska "${escHtml(String(rawCI||''))}"`); continue; }
     if (!co) { errors.push(`Red ${i+1} (${name}): Neispravan datum odlaska`); continue; }
     if (ci >= co) { errors.push(`Red ${i+1} (${name}): Datum dolaska mora biti prije odlaska`); continue; }
 
@@ -9631,12 +10452,28 @@ window.previewImport = async () => {
     const bungs = parseBungaloviImport(bungStr);
     if (!bungs.length) { errors.push(`Red ${i+1} (${name}): Neispravan bungalov "${bungStr}"`); continue; }
 
+    const badCapacity = bungs.find(b => personsN > (B_CFG[Number(b)]?.m || 0));
+    if (badCapacity) {
+      errors.push(`Red ${i+1} (${name}): Broj osoba (${personsN}) veći je od kapaciteta B${badCapacity} (${B_CFG[Number(badCapacity)]?.m || 0})`);
+      continue;
+    }
+
     for (const b of bungs) {
-      // Duplikat unutar fajla
-      const isDupInImport = _importRows.some(r =>
-        r.name === name && r.checkIn === ci && r.checkOut === co && r.bungalov === b
+      // Duplikat / preklapanje unutar fajla
+      const sameInImport = _importRows.find(r =>
+        r.status !== 'overlap' &&
+        r.name === name && r.checkIn === ci && r.checkOut === co && String(r.bungalov) === String(b)
       );
-      if (isDupInImport) { warnings.push(`Red ${i+1}: Duplikat u fajlu — ${name} B${b}`); continue; }
+      if (sameInImport) { warnings.push(`Red ${i+1}: Duplikat u fajlu — ${name} B${b}`); continue; }
+
+      const overlapInImport = importFindOverlapInRows({ checkIn: ci, checkOut: co, bungalov: b }, _importRows);
+      if (overlapInImport) {
+        _importRows.push({ rowNum:i+1, name, checkIn:ci, checkOut:co, bungalov:b,
+          persons:personsN, notes, phone, channel, existingId:null,
+          overlap:`⚠️ PREKLAPANJE U FAJLU sa redom ${overlapInImport.rowNum} (${overlapInImport.name}, ${overlapInImport.checkIn}→${overlapInImport.checkOut})`,
+          status:'overlap' });
+        continue;
+      }
 
       // Duplikat/update u bazi
       const existingInDB = reservations.find(r =>
@@ -9739,44 +10576,44 @@ window.confirmImport = async () => {
 
   const overlapRows = _importRows.filter(r => r.status === 'overlap');
   if (overlapRows.length) {
-    const proceed = confirm(
-      `Postoji ${overlapRows.length} rezervacija sa preklapanjem.
-
-Da li svejedno želiš uvesti SVE (uključujući preklapanja)?`
-    );
-    if (!proceed) {
-      // Uvezi samo ok redove
-      _importRows = _importRows.filter(r => r.status === 'ok');
-      if (!_importRows.length) { alert('Uvoz otkazan.'); return; }
-    }
+    alert(`⚠️ Pronađeno je ${overlapRows.length} redova sa preklapanjem.\n\nZbog zaštite od duplih rezervacija ti redovi NEĆE biti uvezeni. Uvešću samo sigurne nove rezervacije i dozvoljena ažuriranja.`);
+    _importRows = _importRows.filter(r => r.status === 'ok' || r.status === 'update');
+    if (!_importRows.length) { alert('Nema sigurnih redova za uvoz.'); return; }
   }
 
   syncUI('sy', 'Uvozim rezervacije...');
   let added = 0, updated = 0, skipped = 0;
+  // v2.4.19: koristi radnu kopiju da finalna provjera uhvati i preklapanja između redova istog importa.
+  const effectiveReservations = reservations.map(r => ({ ...r, bungalovi: (r.bungalovi || []).map(b => ({ ...b })) }));
 
   for (const row of _importRows) {
     try {
       if (row.status === 'update' && row.existingId) {
         // Ažuriraj postojeću rezervaciju — samo izmijenjene podatke
-        const existingRes = reservations.find(r => r.id === row.existingId);
+        const existingRes = effectiveReservations.find(r => r.id === row.existingId);
         if (!existingRes) { skipped++; continue; }
         const updBungalovi = (existingRes.bungalovi || []).map(bv =>
           String(bv.bungalov) === String(row.bungalov)
             ? { ...bv, adults: row.persons || 1, beds: row.persons || 1 }
             : bv
         );
-        await updateDoc(doc(db, 'reservations', row.existingId), {
+        const updPayload = {
           notes: row.notes || '',
           channel: row.channel || '',
           phone: row.phone || '',
           bungalovi: updBungalovi,
           updatedAt: new Date().toISOString(),
           updatedBy: curUser
-        });
+        };
+        await updateDoc(doc(db, 'reservations', row.existingId), updPayload);
+        const ei = effectiveReservations.findIndex(r => r.id === row.existingId);
+        if (ei >= 0) effectiveReservations[ei] = { ...effectiveReservations[ei], ...updPayload };
+        const li = reservations.findIndex(r => r.id === row.existingId);
+        if (li >= 0) reservations[li] = { ...reservations[li], ...updPayload };
         updated++;
       } else {
         // Nova rezervacija — finalna provjera duplikata
-        const isDup = reservations.some(r =>
+        const isDup = effectiveReservations.some(r =>
           !r.cancelled &&
           r.name === row.name &&
           r.checkIn === row.checkIn &&
@@ -9785,7 +10622,14 @@ Da li svejedno želiš uvesti SVE (uključujući preklapanja)?`
         );
         if (isDup) { skipped++; continue; }
 
-        await addDoc(collection(db,'reservations'), {
+        const hasOverlap = effectiveReservations.some(r =>
+          !r.cancelled &&
+          r.bungalovi?.some(bv => String(bv.bungalov) === String(row.bungalov)) &&
+          row.checkIn < r.checkOut && row.checkOut > r.checkIn
+        );
+        if (hasOverlap) { skipped++; continue; }
+
+        const newImportData = {
           name: row.name,
           phone: row.phone || '',
           country: '',
@@ -9808,7 +10652,11 @@ Da li svejedno želiš uvesti SVE (uključujući preklapanja)?`
           importedFromExcel: true,
           createdAt: new Date().toISOString(),
           createdBy: curUser
-        });
+        };
+        const importDocRef = await addDoc(collection(db,'reservations'), newImportData);
+        const localImported = { id: importDocRef.id, ...newImportData };
+        effectiveReservations.unshift(localImported);
+        reservations.unshift(localImported);
         added++;
       }
     } catch(e) {
@@ -9853,7 +10701,7 @@ window.exportToXLSX = () => {
       const children = (r.bungalovi||[]).reduce((s,b)=>s+(b.children||0),0);
       const babies = (r.bungalovi||[]).reduce((s,b)=>s+(b.babies||0),0);
       const nights = r.checkIn && r.checkOut
-        ? Math.ceil((new Date(r.checkOut)-new Date(r.checkIn))/86400000) : 0;
+        ? kmkNightsBetween(r.checkIn,r.checkOut) : 0;
       return {
         'Ime gosta': r.name || '',
         'Telefon': r.phone || '',
@@ -9898,7 +10746,7 @@ window.exportToXLSX = () => {
       byBung[bn].rezervacija++;
       byBung[bn].prihod += (r.price || 0) / (r.bungalovi?.length || 1);
       byBung[bn].noci += r.checkIn && r.checkOut
-        ? Math.ceil((new Date(r.checkOut)-new Date(r.checkIn))/86400000) : 0;
+        ? kmkNightsBetween(r.checkIn,r.checkOut) : 0;
     });
   });
   const finRows = Object.values(byBung).sort((a,b) => a.bungalov.localeCompare(b.bungalov));
@@ -9915,7 +10763,7 @@ window.exportToXLSX = () => {
   ws3['!cols'] = [{wch:12},{wch:16},{wch:20},{wch:14}];
   XLSX.utils.book_append_sheet(wb, ws3, 'Finansije po bungalovu');
 
-  const today = new Date().toISOString().slice(0,10);
+  const today = kmkLocalDateInputValue(new Date());
   XLSX.writeFile(wb, 'KMK-Bungali-Export-' + today + '.xlsx');
   console.log('Export XLSX: ' + active.length + ' aktivnih, ' + cancelled.length + ' otkazanih');
 };
@@ -9930,7 +10778,7 @@ window.exportToExcel = () => {
   const active = reservations.filter(r => !r.cancelled).sort((a,b) => a.checkIn.localeCompare(b.checkIn));
   
   active.forEach(r => {
-    const numNights = Math.ceil((new Date(r.checkOut) - new Date(r.checkIn)) / 86400000);
+    const numNights = kmkNightsBetween(r.checkIn, r.checkOut);
     const status = r.paid ? 'Plaćeno' : r.confirmed ? 'Potvrđeno' : 'Nepotvrđeno';
     
     // Agregirana statistika za SVE bungalove u rezervaciji
@@ -9969,7 +10817,7 @@ window.exportToExcel = () => {
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
   const link = document.createElement('a');
   const url = URL.createObjectURL(blob);
-  const dateStr = new Date().toISOString().split('T')[0];
+  const dateStr = kmkLocalDateInputValue(new Date());
   link.setAttribute('href', url);
   link.setAttribute('download', `Rezervacije_Maja_Karanfil_${dateStr}.csv`);
   link.style.visibility = 'hidden';
@@ -10710,7 +11558,7 @@ async function syncIcalLink(id, silent) {
           continue;
         }
         try {
-          await deleteDoc(doc(db,'reservations',loser.id));
+          await kmkDeleteReservationAtomic(loser.id);
           deduped++;
           // Ukloni iz globalUidMap i existingUids da ne blokira nova unosa
           if (loser.icalUid) {
@@ -10742,7 +11590,7 @@ async function syncIcalLink(id, silent) {
   for (const r of existing) {
     if (r.icalUid && r.checkOut >= today && !incomingFutureUids.has(r.icalUid)) {
       try {
-        await deleteDoc(doc(db,'reservations',r.id));
+        await kmkDeleteReservationAtomic(r.id);
         deleted++;
         // FIX race condition: odmah lokalno ukloni iz reservations array
         // da conflict check u istom sync-u ne vidi obrisanu rezervaciju.
@@ -10792,10 +11640,10 @@ async function syncIcalLink(id, silent) {
           try {
             // Update samo datuma, ne diramo icalLinkId, name, ostalo
             // Ako je rezervacija pod drugim linkom, ostaje pod njim
-            await updateDoc(doc(db,'reservations',old.id), {
-              checkIn: ev.checkIn, checkOut: ev.checkOut,
-              updatedAt: new Date().toISOString(), updatedBy: 'iCal sync'
-            });
+            const updatedIcalData = { ...old, checkIn: ev.checkIn, checkOut: ev.checkOut,
+              updatedAt: new Date().toISOString(), updatedBy: 'iCal sync' };
+            delete updatedIcalData.id;
+            await kmkSaveReservationAtomic(updatedIcalData, old.id);
             // Lokalno ažuriraj reservations array da naredni eventi vide nove datume
             const localIdx = reservations.findIndex(x => x.id === old.id);
             if (localIdx >= 0) {
@@ -10877,7 +11725,7 @@ async function syncIcalLink(id, silent) {
         icalLinkId: id, icalUid: ev.uid,
         createdAt: new Date().toISOString(), createdBy: curUser
       };
-      const ref = await addDoc(collection(db,'reservations'), newResData);
+      const ref = await kmkSaveReservationAtomic(newResData, null);
       // FIX E: lokalno dodaj u reservations da sljedeci eventi (conflict check + UID check)
       // u istom sync ciklusu vide novododanu rezervaciju
       const localCopy = { id: ref.id, ...newResData };
@@ -10929,6 +11777,13 @@ async function syncIcalLink(id, silent) {
   }
 
 
+  // v2.4.19: ako Booking/iCal događaj nije uvezen jer bi pregazio ručnu ili drugu rezervaciju,
+  // prikaži ga kao REALAN konflikt u tabu "Konflikti" i crvenom banneru.
+  // Ne upisujemo ga u reservations, jer bi to napravilo duplo zauzeće u kalendaru.
+  if (typeof kmkSetExternalIcalConflictsForLink === 'function') {
+    kmkSetExternalIcalConflictsForLink(id, warnings.filter(w => w.type === 'problem'), lnk);
+  }
+
   // Piši lastSync SAMO ako se nešto stvarno promijenilo (added/updated/deleted > 0)
   // Bez ovog: 13 linkova × 144 ciklusa/dan = 1.872 nepotrebnih writes/dan
   if (added || updated || deleted || deduped) {
@@ -10971,7 +11826,7 @@ window.clearAllIcalReservations = async () => {
   syncUI('sy', 'Brisem iCal rezervacije...');
   let deleted = 0;
   for (const r of icalRes) {
-    try { await deleteDoc(doc(db,'reservations',r.id)); deleted++; } catch(e) {}
+    try { await kmkDeleteReservationAtomic(r.id); deleted++; } catch(e) {}
   }
   syncUI('ok', 'Sinhronizovano ✓');
   alert('✅ Obrisano ' + deleted + ' iCal rezervacija.\n\nSada klikni Sinhronizuj Sve.');
@@ -11258,6 +12113,129 @@ window.kmkV3Book=()=>{ if(!_kmkV3Sel.bn||!_kmkV3Sel.start)return; const end=_kmk
 // Osvježi hero nakon glavnih rendera
 try{setTimeout(()=>{_updateCalViewButtons(); if(isMobile()&&_mobCurrentTab==='calendar')_applyCalView();},300);}catch(e){}
 
+// v2.4.19: ES module funkcije koje se pozivaju iz inline HTML-a ili završnog runtime guard-a
+// moraju biti eksplicitno dostupne na window. Ovo ne mijenja logiku, samo stabilizuje pozive.
+Object.assign(window, {
+  isMobile,
+  _applyCalView,
+  renderMobDaily,
+  renderMobAvailability,
+  renderMobList,
+  renderAccounting,
+  mobPrefillQuickForm,
+  kmkNextDay,
+  escHtml,
+  jsArg
+});
+// v2.4.19 dodatna eksplicitna stabilizacija za inline onclick pozive u mobilnom kalendaru
+window.kmkNextDay = kmkNextDay;
+window.mobPrefillQuickForm = mobPrefillQuickForm;
+window.escHtml = escHtml;
+window.jsArg = jsArg;
+
+
+// ── VIRMAN / PLAĆANJE PREKO RAČUNA v2.4.19 ─────────────────────────
+function kmkIsVirmanPending(r) {
+  return !!(r && !r.cancelled && !r.closedManual && !r.paid && (r.virman === true || r.virmanStatus === 'pending'));
+}
+function kmkIsVirmanPaid(r) {
+  return !!(r && !r.cancelled && r.paid && (r.virman === true || r.virmanStatus === 'paid' || r.paidMethod === 'virman'));
+}
+function kmkVirmanPendingList() {
+  return (reservations || []).filter(kmkIsVirmanPending).sort((a,b)=>String(a.checkIn||'').localeCompare(String(b.checkIn||'')));
+}
+function kmkVirmanPaidList() {
+  return (reservations || []).filter(kmkIsVirmanPaid).sort((a,b)=>String(b.paidAt||b.virmanPaidAt||b.updatedAt||'').localeCompare(String(a.paidAt||a.virmanPaidAt||a.updatedAt||'')));
+}
+window._syncVirmanPaidForm = function() {
+  const paid = document.getElementById('f-paid')?.checked;
+  const virman = document.getElementById('f-virman');
+  if (!virman) return;
+  // Plaćeno + Virman znači: plaćeno virmanski. Ne brišemo checkbox automatski, samo mijenjamo značenje iz "čeka" u "plaćeno virmanski".
+  const lbl = document.querySelector('label[for="f-virman"]');
+  if (lbl) lbl.textContent = paid && virman.checked ? '🏦 Plaćeno virmanom' : '🏦 Virman';
+};
+window.kmkMarkVirman = function(id, btn) {
+  if (!id) return;
+  const r = (reservations || []).find(x=>x.id===id);
+  if (!r) { alert('Rezervacija nije pronađena.'); return; }
+  if (r.paid) { alert('Rezervacija je već označena kao plaćena.'); return; }
+  const pending = kmkIsVirmanPending(r);
+  const fields = pending
+    ? { virman:false, virmanStatus:'', virmanAt:null, virmanBy:null, virmanPaidAt:null, virmanPaidBy:null }
+    : { virman:true, virmanStatus:'pending', paid:false };
+  if (typeof window._kmkQuickUpdate === 'function') window._kmkQuickUpdate(id, fields, btn);
+};
+window.kmkMarkVirmanPaid = function(id, btn) {
+  if (!id) return;
+  const r = (reservations || []).find(x=>x.id===id);
+  if (!r) { alert('Rezervacija nije pronađena.'); return; }
+  const ok = confirm('Označiti da je virman plaćen za:\n' + (r.name || id) + '?');
+  if (!ok) return;
+  if (typeof window._kmkQuickUpdate === 'function') window._kmkQuickUpdate(id, { paid:true, virman:true, virmanStatus:'paid', paidMethod:'virman' }, btn);
+};
+window.renderVirmanPane = function() {
+  const summary = document.getElementById('virman-summary');
+  const listEl = document.getElementById('virman-list');
+  if (!summary || !listEl) return;
+  if (curRole !== 'admin') { listEl.innerHTML = '<div class="no-data">Samo administrator može vidjeti virman listu.</div>'; return; }
+  const pending = kmkVirmanPendingList();
+  const paid = kmkVirmanPaidList();
+  const pendingSum = pending.reduce((s,r)=>s+(parseFloat(r.price)||0),0);
+  const paidSum = paid.reduce((s,r)=>s+(parseFloat(r.price)||0),0);
+  summary.innerHTML = `
+    <div class="virman-kpi"><strong>${pending.length}</strong><span>Čeka uplatu</span></div>
+    <div class="virman-kpi"><strong>€${pendingSum.toFixed(0)}</strong><span>Iznos za naplatu</span></div>
+    <div class="virman-kpi"><strong>${paid.length}</strong><span>Plaćeno virmanom</span></div>
+    <div class="virman-kpi"><strong>€${paidSum.toFixed(0)}</strong><span>Ukupno plaćeno</span></div>`;
+  function card(r, isPaid) {
+    const bungs = (r.bungalovi||[]).map(b=>'B'+b.bungalov).join(', ') || '—';
+    const price = parseFloat(r.price)||0;
+    const meta = isPaid
+      ? `Plaćeno: ${escHtml(kmkPaidDateKey(r) || r.virmanPaidAt || '')} ${escHtml(kmkPaidTimeKey(r) || '')}${r.paidBy ? ' · '+escHtml(r.paidBy) : ''}`
+      : `Označeno za virman: ${escHtml(r.virmanAt ? String(r.virmanAt).replace('T',' ').slice(0,16) : '—')}${r.virmanBy ? ' · '+escHtml(r.virmanBy) : ''}`;
+    return `<div class="virman-card ${isPaid?'paid':''}">
+      <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap">
+        <div style="min-width:220px;flex:1">
+          <div style="font-weight:900;font-size:1.05em;color:#222">${escHtml(r.name||'—')}</div>
+          <div style="font-size:.86em;color:#555;margin-top:4px">${bungs} · ${fmtD(r.checkIn)} → ${fmtD(r.checkOut)} · ${escHtml(r.channel||'—')}</div>
+          ${r.phone?`<div style="font-size:.84em;color:#555;margin-top:3px">📞 ${escHtml(r.phone)}</div>`:''}
+          <div style="font-size:.8em;color:#777;margin-top:4px">${meta}</div>
+          ${r.notes?`<div style="font-size:.8em;color:#856404;margin-top:5px;background:#fff8e1;border-radius:6px;padding:5px 7px">📝 ${escHtml(r.notes)}</div>`:''}
+        </div>
+        <div style="text-align:right;min-width:150px">
+          <div style="font-size:1.4em;font-weight:900;color:${isPaid?'#28a745':'#856404'}">€${price.toFixed(2)}</div>
+          <div style="display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap;margin-top:9px">
+            <button class="bs bs-edit" onclick="showDet('${r.id}')">Otvori</button>
+            ${!isPaid?`<button class="bs" style="background:#28a745;color:white" onclick="kmkMarkVirmanPaid('${r.id}',this)">✓ Plaćeno</button><button class="bs" style="background:#6c757d;color:white" onclick="kmkMarkVirman('${r.id}',this)">Skini virman</button>`:''}
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }
+  let html = '<h3 style="margin:0 0 10px;color:#856404">🏦 Čekaju uplatu virmanski</h3>';
+  html += pending.length ? pending.map(r=>card(r,false)).join('') : '<div class="no-data">Nema rezervacija koje trenutno čekaju virman.</div>';
+  html += '<h3 style="margin:22px 0 10px;color:#28a745">✅ Plaćeni virmani</h3>';
+  html += paid.length ? paid.slice(0,80).map(r=>card(r,true)).join('') : '<div class="no-data">Još nema označenih plaćenih virmana.</div>';
+  listEl.innerHTML = html;
+  updateVirmanBadges();
+};
+window.updateVirmanBadges = function() {
+  const pending = kmkVirmanPendingList();
+  const cnt = pending.length;
+  const tab = document.getElementById('tab-virman');
+  const cntEl = document.getElementById('virman-cnt');
+  if (cntEl) cntEl.textContent = String(cnt);
+  if (tab) {
+    if (curRole === 'admin') tab.classList.remove('hidden');
+    tab.style.color = cnt ? '#856404' : '';
+  }
+  const mobItem = document.getElementById('mob-virman-item');
+  const mobCnt = document.getElementById('mob-virman-cnt');
+  if (mobCnt) mobCnt.textContent = String(cnt);
+  if (mobItem) mobItem.style.display = (curRole === 'admin') ? 'flex' : 'none';
+};
+
 // ── KMK Desktop Vision bridge v2.4.2 ─────────────────────────
 // Exposes read-only app state and existing safe functions to the external desktop UI layer.
 try {
@@ -11278,7 +12256,7 @@ window._togglePaidMeta = function() {
   if (curRole === 'admin' && paid) {
     // Popuni sa today ako prazno
     const paidAtEl = document.getElementById('f-paidAt');
-    if (paidAtEl && !paidAtEl.value) paidAtEl.value = new Date().toISOString().slice(0,10);
+    if (paidAtEl && !paidAtEl.value) paidAtEl.value = (typeof kmkLocalDateInputValue === 'function' ? kmkLocalDateInputValue(new Date()) : new Date().toISOString().slice(0,10));
     const paidTimeEl = document.getElementById('f-paidTime');
     if (paidTimeEl && !paidTimeEl.value) paidTimeEl.value = new Date().toTimeString().slice(0,5);
     // Popuni operatore
@@ -11395,10 +12373,15 @@ window.kmkPickOperator = function(resId, operatorUsername, btn) {
 
 window._kmkQuickUpdate = function(id, fields, confirmBtn, operatorOverride) {
   if (!id || !fields) return;
-  // LOCKER: ako se poništava plaćanje (paid: false), traži potvrdu
-  if ('paid' in fields && fields.paid === false) {
-    var r = (typeof reservations !== 'undefined') ? reservations.find(function(x){ return x.id===id; }) : null;
-    var name = r ? r.name : id;
+  // v2.4.19: zaštita od duplog klika na istu brzu akciju prije nego Firebase završi upis
+  var quickKey = String(id) + '|' + JSON.stringify(fields);
+  window._kmkQuickUpdatePending = window._kmkQuickUpdatePending || new Set();
+  if (window._kmkQuickUpdatePending.has(quickKey)) return;
+  var oldRes = (typeof reservations !== 'undefined') ? reservations.find(function(x){ return x.id===id; }) : null;
+  // LOCKER: ako se stvarno poništava postojeća naplata (paid:false), traži potvrdu.
+  // Oznaka Virman šalje paid:false, ali ako rezervacija već nije plaćena ne smije nepotrebno pitati.
+  if ('paid' in fields && fields.paid === false && oldRes?.paid) {
+    var name = oldRes ? oldRes.name : id;
     var ok = confirm('Da li ste sigurni da želite PONIŠTITI naplatu za:\n' + name + '?');
     if (!ok) {
       if (confirmBtn) { confirmBtn.disabled = false; confirmBtn.style.opacity = '1'; }
@@ -11412,17 +12395,56 @@ window._kmkQuickUpdate = function(id, fields, confirmBtn, operatorOverride) {
     updatedAt: now,
     updatedBy: (typeof curUser !== 'undefined') ? (curUser || '') : ''
   });
+  // Virman: status plaćanja preko računa, odvojeno od običnog paid checkboxa.
+  if ('virmanStatus' in fields) {
+    if (fields.virmanStatus === 'pending') {
+      data.virman = true;
+      data.paid = false;
+      data.virmanAt = oldRes?.virmanAt || kmkLocalDateTimeISO(new Date());
+      data.virmanBy = oldRes?.virmanBy || user;
+      data.virmanPaidAt = null;
+      data.virmanPaidBy = null;
+    } else if (fields.virmanStatus === 'paid') {
+      data.virman = true;
+      data.virmanPaidAt = kmkLocalDateTimeISO(new Date());
+      data.virmanPaidBy = user;
+      data.paidMethod = 'virman';
+    } else {
+      data.virman = false;
+      data.virmanStatus = '';
+      data.virmanAt = null;
+      data.virmanBy = null;
+      data.virmanPaidAt = null;
+      data.virmanPaidBy = null;
+      data.paidMethod = null;
+    }
+  }
   // Bilježi datum i operatera naplate
   if ('paid' in fields) {
     if (fields.paid === true) {
-      data.paidAt = now;
+      data.paidAt = kmkLocalDateTimeISO(new Date());
       data.paidBy = user; // operator iz pickera ili curUser
+      if (fields.virman === true || fields.virmanStatus === 'paid' || oldRes?.virmanStatus === 'pending' || oldRes?.virman === true) {
+        data.virman = true;
+        data.virmanStatus = 'paid';
+        data.virmanPaidAt = data.paidAt;
+        data.virmanPaidBy = user;
+        data.paidMethod = 'virman';
+      }
     } else {
       data.paidAt = null;
       data.paidBy = null;
+      if (oldRes?.virman === true || oldRes?.virmanStatus === 'paid') {
+        data.virman = true;
+        data.virmanStatus = 'pending';
+        data.virmanPaidAt = null;
+        data.virmanPaidBy = null;
+        data.paidMethod = null;
+      }
     }
   }
   try {
+    window._kmkQuickUpdatePending.add(quickKey);
     updateDoc(doc(db, 'reservations', id), data)
       .then(function() {
         // LOKALNO ažuriraj reservations array ODMAH (ne čekaj snapshot)
@@ -11440,6 +12462,11 @@ window._kmkQuickUpdate = function(id, fields, confirmBtn, operatorOverride) {
           } else {
             changes.push('❌ Poništena naplata');
           }
+        }
+        if ('virmanStatus' in fields) {
+          if (fields.virmanStatus === 'pending') changes.push('🏦 Označeno za virman — čeka uplatu');
+          else if (fields.virmanStatus === 'paid') changes.push('✅ Virman označen kao plaćen');
+          else changes.push('↩️ Virman status uklonjen');
         }
         if ('arrived' in fields) {
           changes.push(fields.arrived ? '✅ Označen dolazak' : '↩️ Poništen dolazak');
@@ -11460,10 +12487,35 @@ window._kmkQuickUpdate = function(id, fields, confirmBtn, operatorOverride) {
             });
           } catch(he) { console.warn('history log error:', he); }
         }
-        if (typeof renderDailyView === 'function') setTimeout(renderDailyView, 400);
+        if (typeof renderDailyView === 'function') setTimeout(renderDailyView, 250);
+        if (typeof updateVirmanBadges === 'function') setTimeout(updateVirmanBadges, 120);
+        if (typeof renderVirmanPane === 'function' && document.getElementById('pane-virman')?.classList.contains('active')) setTimeout(renderVirmanPane, 250);
+        // Ako je korisnik na mobilnom, osvježi i mobilne panele odmah nakon brze akcije.
+        if (typeof isMobile === 'function' && isMobile()) {
+          setTimeout(function() {
+            try {
+              var mp = document.getElementById('mob-daily-date-picker');
+              if (typeof renderMobDaily === 'function') renderMobDaily(mp && mp.value ? mp.value : undefined);
+              if (typeof renderMobList === 'function') renderMobList();
+              if (typeof renderMobAvailability === 'function' && _mobCurrentTab === 'availability') renderMobAvailability();
+              if (_mobCurrentTab === 'calendar') {
+                if (typeof _applyCalView === 'function') _applyCalView();
+                else if (typeof renderCal === 'function') renderCal();
+              }
+            } catch(re) { console.warn('mobile quick refresh error:', re); }
+          }, 250);
+        }
       })
-      .catch(function(e) { alert('Greška: ' + e.message); });
+      .catch(function(e) {
+        if (confirmBtn) { confirmBtn.disabled = false; confirmBtn.style.opacity = '1'; }
+        alert('Greška: ' + e.message);
+      })
+      .finally(function() {
+        try { window._kmkQuickUpdatePending.delete(quickKey); } catch(_) {}
+      });
   } catch(e) {
+    try { window._kmkQuickUpdatePending.delete(quickKey); } catch(_) {}
+    if (confirmBtn) { confirmBtn.disabled = false; confirmBtn.style.opacity = '1'; }
     console.error('_kmkQuickUpdate:', e);
     alert('Greška: ' + e.message);
   }
@@ -11480,7 +12532,8 @@ window.KMK_APP_BRIDGE = {
     goTab: (typeof goTab === 'function') ? goTab : undefined,
     renderCal: (typeof renderCal === 'function') ? renderCal : undefined,
     mobPrefillQuickForm: (typeof mobPrefillQuickForm === 'function') ? mobPrefillQuickForm : undefined,
-    calcPrice: (typeof calcPrice === 'function') ? calcPrice : undefined
+    calcPrice: (typeof calcPrice === 'function') ? calcPrice : undefined,
+    renderVirmanPane: (typeof renderVirmanPane === 'function') ? renderVirmanPane : undefined
   };
 } catch(e) {
   console.warn('KMK desktop bridge init skipped:', e);
@@ -11501,23 +12554,37 @@ window.KMK_APP_BRIDGE = {
 
 
 <script>
-// KMK mobile v2.4.2 final polish runtime guard
+// KMK mobile v2.4.19 final polish runtime guard
 (function(){
-  const oldMobGoTab = window.mobGoTab;
-  if (typeof oldMobGoTab === 'function') {
+  function installMobGoTabGuard(attempt){
+    attempt = attempt || 0;
+    const oldMobGoTab = window.mobGoTab;
+    if (typeof oldMobGoTab !== 'function') {
+      if (attempt < 40) setTimeout(function(){ installMobGoTabGuard(attempt + 1); }, 50);
+      return;
+    }
+    if (oldMobGoTab._kmkGuardInstalled) return;
     window.mobGoTab = function(tab){
       const r = oldMobGoTab.apply(this, arguments);
       try {
-        if (tab === 'calendar' && typeof isMobile === 'function' && isMobile()) {
+        if (tab === 'calendar' && typeof window.isMobile === 'function' && window.isMobile()) {
           const hero = document.getElementById('mob-cal-hero'); if (hero) hero.style.display='block';
-          if (typeof _applyCalView === 'function') setTimeout(_applyCalView, 20);
+          if (typeof window._applyCalView === 'function') setTimeout(window._applyCalView, 20);
         }
-        if (tab === 'daily' && typeof renderMobDaily === 'function') setTimeout(renderMobDaily, 20);
-        if (tab === 'availability' && typeof renderMobAvailability === 'function') setTimeout(renderMobAvailability, 20);
-        if (tab === 'list' && typeof renderMobList === 'function') setTimeout(renderMobList, 20);
+        if (tab === 'daily' && typeof window.renderMobDaily === 'function') setTimeout(window.renderMobDaily, 20);
+        if (tab === 'availability' && typeof window.renderMobAvailability === 'function') setTimeout(window.renderMobAvailability, 20);
+        if (tab === 'list' && typeof window.renderMobList === 'function') setTimeout(window.renderMobList, 20);
+        if (tab === 'virman' && typeof window.renderVirmanPane === 'function') setTimeout(window.renderVirmanPane, 20);
       } catch(e) { console.warn('KMK mobile polish tab refresh skipped', e); }
       return r;
     };
+    window.mobGoTab._kmkGuardInstalled = true;
+  }
+  installMobGoTabGuard(0);
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function(){ installMobGoTabGuard(0); });
+  } else {
+    setTimeout(function(){ installMobGoTabGuard(0); }, 0);
   }
 })();
 </script>
