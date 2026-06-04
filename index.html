@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Maja Karanfil Bungali v2.4.19</title>
+<title>Maja Karanfil Bungali v2.4.21</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh;padding:20px}
@@ -1197,7 +1197,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
       <img src="https://i.imgur.com/DzB2EDR.png" onerror="this.style.display='none'"
            id="login-logo-img" alt="Logo" style="max-width:175px;margin:0 auto 10px;display:block;border-radius:10px">
       <h1 id="login-h1"><span id="login-logo-emoji">🏡</span> Maja Karanfil Bungali</h1>
-      <p>Prijavite se u sistem — <span id="login-ver-txt">v2.4.19</span></p>
+      <p>Prijavite se u sistem — <span id="login-ver-txt">v2.4.21</span></p>
     </div>
     <div class="login-err" id="login-err">Pogrešno korisničko ime ili lozinka!</div>
     <form class="login-form" id="login-form">
@@ -1225,7 +1225,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
     </button>
     <div>
       <div class="mob-hdr-title">🏡 Maja Karanfil Bungali</div>
-      <div class="mob-hdr-sub" id="mob-hdr-sub">v2.4.19 mobile</div>
+      <div class="mob-hdr-sub" id="mob-hdr-sub">v2.4.21 mobile</div>
     </div>
   </div>
   <div class="mob-hdr-right">
@@ -1458,7 +1458,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
   <div class="hdr">
     <div class="hdr-l">
       <h1>🏡 Maja Karanfil Bungali</h1>
-      <p id="app-version-hdr">Sistem za upravljanje rezervacijama — v2.4.19</p>
+      <p id="app-version-hdr">Sistem za upravljanje rezervacijama — v2.4.21</p>
     </div>
     <div class="hdr-r">
       <div class="user-row">
@@ -2295,7 +2295,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <!-- Trenutna verzija -->
       <div style="background:#e8f4fd;padding:14px;border-radius:8px;margin-bottom:24px;border-left:4px solid #667eea">
-        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v2.4.19</strong>
+        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v2.4.21</strong>
         <div style="font-size:.85em;color:#555;margin-top:4px">Firebase Firestore · GitHub Pages · Single-file aplikacija</div>
       </div>
 
@@ -2558,7 +2558,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <div class="changelog">
         <div class="ch-version">
-          <div class="ch-ver-header">v2.4.19 <span class="ch-date">— 02.06.2026</span></div>
+          <div class="ch-ver-header">v2.4.21 <span class="ch-date">— 02.06.2026</span></div>
           <ul>
             <li><strong>Kalendar/rezervacije audit:</strong> testirano pravilo check-in zauzet / check-out slobodan i preklapanje istog bungalova.</li>
             <li><strong>Import unutar fajla:</strong> dva reda iz istog CSV/Excel importa više ne mogu zauzeti isti bungalov u preklopljenom periodu.</li>
@@ -3995,7 +3995,7 @@ function kmkOverlapMessage(hit) {
 }
 
 
-// v2.4.19: realna kontrola kalendara i novih rezervacija
+// v2.4.21: realna kontrola kalendara i novih rezervacija
 // - Jedan izvor istine za noći rezervacije (check-in zauzet, check-out slobodan)
 // - Firestore lock po bungalovu/noći, da dva uređaja ne mogu istovremeno upisati isti termin
 // - Audit funkcija za otkrivanje realnog dupliranja u kalendaru
@@ -4077,9 +4077,27 @@ function kmkFriendlySaveError(err) {
   }
   return 'Greška: ' + msg;
 }
+
+// v2.4.21: Firestore ne prima undefined vrijednosti. Ovo čisti podatke prije svakog upisa.
+function kmkCleanFirestoreData(value) {
+  if (value === undefined) return undefined;
+  if (value === null) return null;
+  if (Array.isArray(value)) return value.map(v => v === undefined ? null : kmkCleanFirestoreData(v));
+  if (typeof value === 'object') {
+    const out = {};
+    for (const [k, v] of Object.entries(value)) {
+      if (v === undefined) continue;
+      out[k] = kmkCleanFirestoreData(v);
+    }
+    return out;
+  }
+  return value;
+}
+
 async function kmkSaveReservationAtomic(data, existingId) {
   const guard = kmkPreSaveReservationGuard(data, existingId || null);
   if (!guard.ok) throw new Error(guard.message);
+  data = kmkCleanFirestoreData(data);
   if (typeof runTransaction !== 'function') {
     // Siguran fallback: lokalni guard je već prošao. Ovo se ne očekuje u normalnom browseru.
     if (existingId) { await updateDoc(doc(db,'reservations',existingId), data); return { id: existingId, fallback:true }; }
@@ -4443,7 +4461,7 @@ document.getElementById('res-form').addEventListener('submit', async e => {
         updateData.virmanBy = null;
         updateData.virmanPaidAt = null;
         updateData.virmanPaidBy = null;
-        updateData.paidMethod = old?.paidMethod === 'virman' ? null : updateData.paidMethod;
+        if (old?.paidMethod === 'virman') updateData.paidMethod = null;
       }
       await kmkSaveReservationAtomic(updateData, editId);
       // LOKALNO ažuriraj reservations array ODMAH
@@ -4782,7 +4800,7 @@ window.renderCal = function() {
   const closedIcalLinkIds = new Set(
     (window.icalLinks||[]).filter(l => l.linkType === 'closed').map(l => l.id)
   );
-  // v2.4.19: kalendar radi nad deduplikovanom aktivnom listom, da lokalni cache/snapshot ne prikažu istu rezervaciju dva puta.
+  // v2.4.21: kalendar radi nad deduplikovanom aktivnom listom, da lokalni cache/snapshot ne prikažu istu rezervaciju dva puta.
   const activeReservations = (typeof kmkActiveReservationsUnique === 'function') ? kmkActiveReservationsUnique(reservations) : (reservations || []).filter(r => !r.cancelled);
   const calBungalows = Object.keys(B_CFG || {}).map(n => parseInt(n,10)).filter(Boolean).sort((a,b)=>a-b);
 
@@ -4960,7 +4978,7 @@ window.loadCalSettings = () => {
 function _setupCalDrag() {
   const grid = document.getElementById('cal-grid');
   if (!grid) return;
-  // v2.4.19: renderCal() se poziva često; listeneri se smiju zakačiti samo jednom.
+  // v2.4.21: renderCal() se poziva često; listeneri se smiju zakačiti samo jednom.
   // Inače jedan klik/prevlačenje može otvoriti formu više puta.
   if (grid.dataset.kmkDragSetup === '1') return;
   grid.dataset.kmkDragSetup = '1';
@@ -4993,7 +5011,7 @@ function _setupCalDrag() {
     // Provjeri da li odabrani opseg (ci..coStr) prekriva već zauzeti period za ovaj bungalov
     const conflict = reservations.find(r =>
       !r.cancelled &&
-      r.bungalovi?.some(b => b.bungalov == bung) &&
+      r.bungalovi?.some(b => kmkNormalizeBungalowNumber(b.bungalov) === kmkNormalizeBungalowNumber(bung)) &&
       ci < r.checkOut && coStr > r.checkIn
     );
     if (conflict) {
@@ -5828,6 +5846,10 @@ window.printDaily = function() {
   
 
 
+
+<!-- v2.4.21: Fix Firebase undefined paidMethod kod admin ručnog datuma naplate; dodato čišćenje undefined vrijednosti prije Firestore upisa. -->
+
+<!-- v2.4.21: Cold audit fix — normalizovana iCal/manual poređenja bungalova (B1 == 1), iCal atomic conflict sada ulazi u Konflikti/notification umjesto samo console.warn. -->
 </body></html>`);
   printWin.document.close();
   printWin.focus();
@@ -7199,7 +7221,7 @@ function nights(a,b) { return Math.max(1, kmkNightsBetween(a,b)); }
 function nightsExact(a,b) { return Math.max(0, kmkNightsBetween(a,b)); }
 function lDate(d) { return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
 
-// v2.4.19: paidAt mora biti lokalni datum/sat, ne UTC, da dnevna naplata oko ponoći ne ode u pogrešan dan.
+// v2.4.21: paidAt mora biti lokalni datum/sat, ne UTC, da dnevna naplata oko ponoći ne ode u pogrešan dan.
 function kmkLocalDateTimeISO(d) {
   const base = d instanceof Date ? d : new Date(d || Date.now());
   if (isNaN(base.getTime())) return kmkLocalDateTimeISO(new Date());
@@ -7231,7 +7253,7 @@ function kmkPaidTimeKey(rOrPaidAt) {
 }
 // #14: XSS zaštita — koristi za sve user-provided stringove u innerHTML
 function escHtml(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#x27;'); }
-// v2.4.19: siguran argument za inline onclick stringove (JSON string, bez HTML/JS pucanja na apostrof/navodnike)
+// v2.4.21: siguran argument za inline onclick stringove (JSON string, bez HTML/JS pucanja na apostrof/navodnike)
 function jsArg(s) { return JSON.stringify(String(s ?? '')).replace(/</g, '\\u003C').replace(/>/g, '\\u003E').replace(/&/g, '\\u0026'); }
 function kmkSafeTelHref(phone) {
   const clean = String(phone || '').replace(/[^\d+]/g, '');
@@ -8457,7 +8479,9 @@ window.mobPrintDaily = function(dateStr) {
   win.document.write('<h2>🧹 Ko Odlazi / Čišćenje (' + dep.length + ')</h2>' + rows(dep, 'odlasci'));
   win.document.write('<h2>🏠 Trenutno u Objektu (' + cur.length + ')</h2>' + rows(cur, 'boravak'));
   win.document.write('<br><hr><p style="font-size:.8em;color:#aaa">Odštampano: ' + new Date().toLocaleString('sr-Latn') + '</p>');
-  win.document.write('</body></html>');
+  win.document.write('
+<!-- v2.4.21: Cold audit fix — normalizovana iCal/manual poređenja bungalova (B1 == 1), iCal atomic conflict sada ulazi u Konflikti/notification umjesto samo console.warn. -->
+</body></html>');
   win.document.close();
   setTimeout(function(){ win.print(); }, 300);
 };
@@ -9400,7 +9424,7 @@ window.v3TouchEnd = (bn, ds, e) => {
     // Provjeri da u odabranom periodu nema zauzecih za ovaj bungalov
     const activeRes = reservations.filter(r => !r.cancelled);
     const conflict = activeRes.find(r =>
-      r.bungalovi?.some(b => String(b.bungalov) === String(_v3SelBung)) &&
+      r.bungalovi?.some(b => kmkNormalizeBungalowNumber(b.bungalov) === kmkNormalizeBungalowNumber(_v3SelBung)) &&
       _v3SelStart < r.checkOut && _v3SelEnd >= r.checkIn
     );
     if (conflict) {
@@ -10315,7 +10339,7 @@ function parseBungaloviImport(s) {
   return found.sort((a,b)=>Number(a)-Number(b));
 }
 
-// v2.4.19: Import sigurnost — otkriva preklapanja i u samom fajlu, ne samo prema bazi.
+// v2.4.21: Import sigurnost — otkriva preklapanja i u samom fajlu, ne samo prema bazi.
 function importRowOverlapsReservation(row, r) {
   if (!row || !r || r.cancelled) return false;
   return (r.bungalovi || []).some(bv => String(bv.bungalov) === String(row.bungalov)) &&
@@ -10583,7 +10607,7 @@ window.confirmImport = async () => {
 
   syncUI('sy', 'Uvozim rezervacije...');
   let added = 0, updated = 0, skipped = 0;
-  // v2.4.19: koristi radnu kopiju da finalna provjera uhvati i preklapanja između redova istog importa.
+  // v2.4.21: koristi radnu kopiju da finalna provjera uhvati i preklapanja između redova istog importa.
   const effectiveReservations = reservations.map(r => ({ ...r, bungalovi: (r.bungalovi || []).map(b => ({ ...b })) }));
 
   for (const row of _importRows) {
@@ -11618,7 +11642,7 @@ async function syncIcalLink(id, silent) {
       if (old && (old.checkIn !== ev.checkIn || old.checkOut !== ev.checkOut)) {
         // Dodatni uvjet: rezervacija MORA biti za isti bungalov da bi ažurirali datume.
         // Bez ovog, mogli bismo ažurirati pogrešnu rezervaciju iz drugog bungalova.
-        const isSameBung = old.bungalovi?.some(b => b.bungalov == lnk.bungalov);
+        const isSameBung = old.bungalovi?.some(b => kmkNormalizeBungalowNumber(b.bungalov) === kmkNormalizeBungalowNumber(lnk.bungalov));
         if (!isSameBung) {
           // UID isti, bungalov različit → vjerojatno različite rezervacije, samo preskoči
           continue;
@@ -11628,7 +11652,7 @@ async function syncIcalLink(id, silent) {
           !r.cancelled &&
           r.id !== old.id &&
           r.icalLinkId !== id &&
-          r.bungalovi?.some(b => b.bungalov == lnk.bungalov) &&
+          r.bungalovi?.some(b => kmkNormalizeBungalowNumber(b.bungalov) === kmkNormalizeBungalowNumber(lnk.bungalov)) &&
           ev.checkIn < r.checkOut && ev.checkOut > r.checkIn
         );
         if (conflicts.length > 0) {
@@ -11652,7 +11676,19 @@ async function syncIcalLink(id, silent) {
             }
             updated++;
             if (!silent) console.log('iCal update B'+lnk.bungalov+': '+old.checkIn+'->'+ev.checkIn+' / '+old.checkOut+'->'+ev.checkOut);
-          } catch(e) { console.warn('iCal update error:', e); }
+          } catch(e) {
+            console.warn('iCal update error:', e);
+            // v2.4.21: ako update datuma padne zbog lock/overlap-a, prijavi kao konflikt.
+            try {
+              const hit = (typeof kmkFindReservationOverlap === 'function')
+                ? kmkFindReservationOverlap([{ bungalov: String(lnk.bungalov) }], ev.checkIn, ev.checkOut, old.id)
+                : null;
+              if (hit && hit.reservation) {
+                warnings.push({ type:'problem', ev, conf: hit.reservation });
+                skipped++;
+              }
+            } catch(_e) {}
+          }
         }
       }
       // UID postoji — u svakom slučaju ne dodavaj ponovo
@@ -11694,7 +11730,7 @@ async function syncIcalLink(id, silent) {
     const conflicts = reservations.filter(r =>
       !r.cancelled &&
       r.icalLinkId !== id &&
-      r.bungalovi?.some(b => b.bungalov == lnk.bungalov) &&
+      r.bungalovi?.some(b => kmkNormalizeBungalowNumber(b.bungalov) === kmkNormalizeBungalowNumber(lnk.bungalov)) &&
       ev.checkIn < r.checkOut && ev.checkOut > r.checkIn
     );
 
@@ -11736,7 +11772,20 @@ async function syncIcalLink(id, silent) {
         existingUids.add(ev.uid);
       }
       added++;
-    } catch(e) { console.warn('iCal add error:', e); }
+    } catch(e) {
+      console.warn('iCal add error:', e);
+      // v2.4.21: ako atomic save blokira iCal zbog konflikta (npr. stari zapis B1 vs link 1),
+      // prikaži to kao pravi Booking/manual konflikt, ne samo kao console.warn.
+      try {
+        const hit = (typeof kmkFindReservationOverlap === 'function')
+          ? kmkFindReservationOverlap([{ bungalov: String(lnk.bungalov) }], ev.checkIn, ev.checkOut, null)
+          : null;
+        if (hit && hit.reservation) {
+          warnings.push({ type:'problem', ev, conf: hit.reservation });
+          skipped++;
+        }
+      } catch(_e) {}
+    }
   }
 
   // Notifikacije za preklapanja (i rucni i auto)
@@ -11777,7 +11826,7 @@ async function syncIcalLink(id, silent) {
   }
 
 
-  // v2.4.19: ako Booking/iCal događaj nije uvezen jer bi pregazio ručnu ili drugu rezervaciju,
+  // v2.4.21: ako Booking/iCal događaj nije uvezen jer bi pregazio ručnu ili drugu rezervaciju,
   // prikaži ga kao REALAN konflikt u tabu "Konflikti" i crvenom banneru.
   // Ne upisujemo ga u reservations, jer bi to napravilo duplo zauzeće u kalendaru.
   if (typeof kmkSetExternalIcalConflictsForLink === 'function') {
@@ -12113,7 +12162,7 @@ window.kmkV3Book=()=>{ if(!_kmkV3Sel.bn||!_kmkV3Sel.start)return; const end=_kmk
 // Osvježi hero nakon glavnih rendera
 try{setTimeout(()=>{_updateCalViewButtons(); if(isMobile()&&_mobCurrentTab==='calendar')_applyCalView();},300);}catch(e){}
 
-// v2.4.19: ES module funkcije koje se pozivaju iz inline HTML-a ili završnog runtime guard-a
+// v2.4.21: ES module funkcije koje se pozivaju iz inline HTML-a ili završnog runtime guard-a
 // moraju biti eksplicitno dostupne na window. Ovo ne mijenja logiku, samo stabilizuje pozive.
 Object.assign(window, {
   isMobile,
@@ -12127,14 +12176,14 @@ Object.assign(window, {
   escHtml,
   jsArg
 });
-// v2.4.19 dodatna eksplicitna stabilizacija za inline onclick pozive u mobilnom kalendaru
+// v2.4.21 dodatna eksplicitna stabilizacija za inline onclick pozive u mobilnom kalendaru
 window.kmkNextDay = kmkNextDay;
 window.mobPrefillQuickForm = mobPrefillQuickForm;
 window.escHtml = escHtml;
 window.jsArg = jsArg;
 
 
-// ── VIRMAN / PLAĆANJE PREKO RAČUNA v2.4.19 ─────────────────────────
+// ── VIRMAN / PLAĆANJE PREKO RAČUNA v2.4.21 ─────────────────────────
 function kmkIsVirmanPending(r) {
   return !!(r && !r.cancelled && !r.closedManual && !r.paid && (r.virman === true || r.virmanStatus === 'pending'));
 }
@@ -12373,7 +12422,7 @@ window.kmkPickOperator = function(resId, operatorUsername, btn) {
 
 window._kmkQuickUpdate = function(id, fields, confirmBtn, operatorOverride) {
   if (!id || !fields) return;
-  // v2.4.19: zaštita od duplog klika na istu brzu akciju prije nego Firebase završi upis
+  // v2.4.21: zaštita od duplog klika na istu brzu akciju prije nego Firebase završi upis
   var quickKey = String(id) + '|' + JSON.stringify(fields);
   window._kmkQuickUpdatePending = window._kmkQuickUpdatePending || new Set();
   if (window._kmkQuickUpdatePending.has(quickKey)) return;
@@ -12444,6 +12493,7 @@ window._kmkQuickUpdate = function(id, fields, confirmBtn, operatorOverride) {
     }
   }
   try {
+    data = kmkCleanFirestoreData(data);
     window._kmkQuickUpdatePending.add(quickKey);
     updateDoc(doc(db, 'reservations', id), data)
       .then(function() {
@@ -12554,7 +12604,7 @@ window.KMK_APP_BRIDGE = {
 
 
 <script>
-// KMK mobile v2.4.19 final polish runtime guard
+// KMK mobile v2.4.21 final polish runtime guard
 (function(){
   function installMobGoTabGuard(attempt){
     attempt = attempt || 0;
@@ -12590,5 +12640,7 @@ window.KMK_APP_BRIDGE = {
 </script>
 
 <!-- desktop-vision-v2.4.2.js uklonjen — fajl ne postoji (bio 404) -->
+
+<!-- v2.4.21: Cold audit fix — normalizovana iCal/manual poređenja bungalova (B1 == 1), iCal atomic conflict sada ulazi u Konflikti/notification umjesto samo console.warn. -->
 </body>
 </html>
