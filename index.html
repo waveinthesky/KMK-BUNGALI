@@ -5418,6 +5418,12 @@ window.renderDaily = function(dateStr) {
             style="padding:5px 11px;border-radius:5px;border:1px solid #856404;background:${vBg};color:${vClr};font-weight:800;font-size:.72em;cursor:pointer;min-width:96px;text-align:center">
             ${vTxt}
           </button>` : ''}
+          ${curRole==='admin'?`<button
+            onclick="window.editRes('${r.id}')"
+            title="Izmijeni rezervaciju"
+            style="padding:5px 11px;border-radius:5px;border:1px solid #667eea;background:#f0f4ff;color:#667eea;font-weight:700;font-size:.72em;cursor:pointer;min-width:96px;text-align:center">
+            ✏️ Izmijeni
+          </button>`:''}
           <div style="font-size:.65em;text-align:center;color:#aaa;margin-top:1px">${badge}</div>
         </div>
 
