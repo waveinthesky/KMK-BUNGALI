@@ -4530,6 +4530,9 @@ document.getElementById('res-form').addEventListener('submit', async e => {
   const bItems=[...document.querySelectorAll('.bung-item')];
   const bungalovi=[];
   const seenBungalovi = new Set();
+  // VAŽNO: _editOld se mora deklarisati PRIJE petlje jer ga petlja koristi
+  // (za čuvanje icalUid po bungalovu). Inače "Cannot access before initialization".
+  const _editOld = editId ? reservations.find(r => r.id === editId) : null;
   for (const item of bItems) {
     const sel=item.querySelector('.b-sel');
     if (!sel?.value) continue;
@@ -4579,7 +4582,6 @@ document.getElementById('res-form').addEventListener('submit', async e => {
   if (editId && new Date(ci+'T00:00:00') < _today && curRole === 'admin') {
     // Admin edituje prošlu rezervaciju — samo tiho, bez blokade
   }
-  const _editOld = editId ? reservations.find(r => r.id === editId) : null;
   const _adminScheduleUnchanged = !!(
     curRole === 'admin' && _editOld &&
     kmkScheduleUnchanged(_editOld, { checkIn: ci, checkOut: co, bungalovi })
