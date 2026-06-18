@@ -12358,6 +12358,7 @@ async function syncIcalLink(id, silent) {
   //   • biramo "pobjednika": prednost ima ona sa promijenjenim imenom (≠ 'Booking.com')
   //     zatim ona koja pripada ovom linku, zatim prva po createdAt
   // NIKAD ne dirajmo rezervacije bez icalLinkId — to su ručne rezervacije
+  let deduped = 0; // deklarisano IZVAN bloka jer se koristi i kasnije (lastSync provjera)
   {
     // Grupiši sve ical rezervacije za ovaj bungalov po ključu checkIn|checkOut
     const icalForThisBung = reservations.filter(r =>
@@ -12372,7 +12373,7 @@ async function syncIcalLink(id, silent) {
       if (!byPeriod[key]) byPeriod[key] = [];
       byPeriod[key].push(r);
     });
-    let deduped = 0;
+    deduped = 0;
     for (const [key, group] of Object.entries(byPeriod)) {
       if (group.length < 2) continue; // nema duplikata za ovaj period
       // Odaberi pobjednika:
