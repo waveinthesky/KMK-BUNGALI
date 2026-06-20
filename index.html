@@ -1977,6 +1977,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
       <button class="ssb" onclick="switchSetTab('prices',this)">💰 Cjenovnik</button>
       <button class="ssb" onclick="switchSetTab('channels',this)">📡 Kanali</button>
       <button class="ssb" onclick="switchSetTab('calendar-set',this)">📅 Kalendar</button>
+      <button class="ssb" onclick="switchSetTab('bungalovs',this)">🏠 Bungalovi</button>
       <button class="ssb" onclick="switchSetTab('backup',this)">💾 Backup</button>
       <button class="ssb" onclick="switchSetTab('ical',this)">🔄 iCal Sync</button>
       <button class="ssb" onclick="switchSetTab('import',this)">📥 Import</button>
@@ -2187,8 +2188,18 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
       </div>
     </div>
 
-    <!-- BACKUP TAB -->
-    <div id="set-backup" style="display:none">
+    <!-- BUNGALOVI TAB -->
+    <div id="set-bungalovs" style="display:none">
+      <h3 style="margin-bottom:8px">🏠 Upravljanje Bungalovima</h3>
+      <p style="color:#666;font-size:.88em;margin-bottom:18px;line-height:1.5">
+        Isključi bungalove koje ne izdaješ. Isključeni bungalov se <strong>ne nudi za nove rezervacije</strong> i <strong>ne računa se u statistiku popunjenosti</strong> (realna slika).<br>
+        <span style="color:#888">Režim <strong>A</strong> = potpuno sakrij (i postojeće rezervacije). Režim <strong>B</strong> = ostaje vidljiv na kalendaru ako ima rezervacija, ali se ne može novo rezervisati.</span>
+      </p>
+      <div id="bung-manage-list" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px"></div>
+      <div id="bung-manage-summary" style="margin-top:18px;padding:14px;background:#f0f4ff;border-radius:10px;font-size:.9em;color:#445"></div>
+    </div>
+
+
       <h3 style="margin-bottom:16px">💾 Backup & Export</h3>
       <div style="background:#f8f9fa;border-radius:10px;padding:16px;margin-bottom:16px;border:1px solid #e0e0e0">
         <h4 style="margin:0 0 8px;font-size:.95em">💾 Backup Firebase</h4>
@@ -2985,6 +2996,67 @@ const B_CFG = {
   10:{m:4,p:60},11:{m:4,p:60},12:{m:2,p:60},13:{m:2,p:60}
 };
 
+// ── ISKLJUČENI BUNGALOVI (ne izdaju se) ──────────────────────────────
+// window._disabledBungalovs: { "12": "A", "13": "B" }
+//   "A" = potpuno sakrij (i postojeće rezervacije nestaju sa kalendara)
+//   "B" = vidljiv na kalendaru ako ima rezervacija, ali se NE može novo rezervisati
+// Čuva se u Firebase (settings/bungalov_config) → isto na svim uređajima.
+window._disabledBungalovs = window._disabledBungalovs || {};
+
+// Da li je bungalov isključen (bilo koji režim)?
+function kmkBungIsDisabled(bn) {
+  return !!window._disabledBungalovs[String(bn)];
+}
+// Režim isključenja ('A' ili 'B'), ili null ako je aktivan
+function kmkBungDisableMode(bn) {
+  return window._disabledBungalovs[String(bn)] || null;
+}
+// Da li se bungalov MOŽE rezervisati (nije isključen)?
+function kmkBungCanBook(bn) {
+  return !kmkBungIsDisabled(bn);
+}
+// Da li se bungalov prikazuje na kalendaru?
+// Režim A: ne prikazuje se uopšte. Režim B: prikazuje se. Aktivan: prikazuje se.
+function kmkBungVisibleOnCalendar(bn) {
+  return kmkBungDisableMode(bn) !== 'A';
+}
+// Broj AKTIVNIH bungalova (za statistiku popunjenosti — ne računa isključene)
+function kmkActiveBungCount() {
+  return Object.keys(B_CFG).filter(bn => kmkBungCanBook(bn)).length;
+}
+// Lista aktivnih bungalov brojeva
+function kmkActiveBungList() {
+  return Object.keys(B_CFG).filter(bn => kmkBungCanBook(bn)).sort((a,b)=>parseInt(a)-parseInt(b));
+}
+
+// Učitaj isključene bungalove iz Firebase
+async function kmkLoadDisabledBungalovs() {
+  try {
+    const snap = await getDoc(doc(db, 'settings', 'bungalov_config'));
+    if (snap.exists()) {
+      const data = snap.data();
+      window._disabledBungalovs = data.disabled || {};
+    } else {
+      window._disabledBungalovs = {};
+    }
+  } catch(e) {
+    console.warn('Učitavanje isključenih bungalova nije uspjelo:', e);
+    window._disabledBungalovs = {};
+  }
+}
+
+// Sačuvaj isključene bungalove u Firebase
+async function kmkSaveDisabledBungalovs() {
+  try {
+    await setDoc(doc(db, 'settings', 'bungalov_config'), { disabled: window._disabledBungalovs }, { merge: true });
+    return true;
+  } catch(e) {
+    console.error('Čuvanje isključenih bungalova nije uspjelo:', e);
+    return false;
+  }
+}
+
+
 const COUNTRIES=['Albanija','Alžir','Argentina','Australija','Austrija','Azerbejdžan',
 'Bangladeš','Belgija','Bjelorusija','Bosna i Hercegovina','Brazil','Bugarska',
 'Crna Gora','Češka','Čile','Danska','Egipat','Estonija','Filipini','Finska',
@@ -3058,6 +3130,7 @@ const COUNTRIES=['Albanija','Alžir','Argentina','Australija','Austrija','Azerbe
       _gdAutoBackupOnLogin(); // Google Drive auto backup
     }
     startAutoIcalSync(); // Jedini direktni poziv — _icalLinksSub isto poziva ali guard sprječava duplikat
+    kmkLoadDisabledBungalovs(); // učitaj koje bungalove ne izdajemo
     if (typeof isMobile === 'function' && isMobile()) {
       updateMobHeader();
       setTimeout(() => mobGoTab('daily'), 200);
@@ -3156,6 +3229,7 @@ document.getElementById('login-form').addEventListener('submit', async e => {
     }
     // startAutoIcalSync — pokreni iCal sync za SVE korisnike (admin i radnici)
     startAutoIcalSync();
+    kmkLoadDisabledBungalovs(); // učitaj koje bungalove ne izdajemo
     // Mobilni init
     if (typeof isMobile === 'function' && isMobile()) {
       updateMobHeader();
@@ -3602,17 +3676,37 @@ window.desktopSwapBung = (id, newBn) => {
   if (!sel) return;
   const oldBn = sel.value;
   const newBs = String(newBn);
-  // ZAŠTITA 0: Booking bungalov (ima icalUid) NE smije se zamijeniti — Booking je
-  // izvor istine. Zamjena bi razišla tvoj kalendar sa Booking-om i izazvala duplikat.
+  // ZAŠTITA 0: Booking bungalov (ima icalUid) — radnik NE smije zamijeniti (Booking je
+  // izvor istine). Administrator SMIJE, ali UID se mora prenijeti na novi bungalov da
+  // se izbjegne duplikat pri sljedećem iCal sync-u (vidi window._swappedBungUids ispod).
+  let transferUid = null;
   if (editId && oldBn) {
     const cur = reservations.find(r => r.id === editId);
     const oldBungObj = cur?.bungalovi?.find(b => String(b.bungalov) === String(oldBn));
+    const isMergedRes = !!(cur && Array.isArray(cur.mergedUids) && cur.mergedUids.length > 1);
     const isBookingBung = (oldBungObj && oldBungObj.icalUid) || (cur && cur.icalUid && (cur.bungalovi||[]).length === 1);
     if (isBookingBung) {
-      alert('⚠️ Ovaj bungalov (B' + oldBn + ') je došao sa Booking.com i ne može se zamijeniti ovdje.\n\nPromjenu bungalova mora napraviti gost na Booking-u, da se kalendari ne raziđu.\n\nMožeš ga ukloniti ili dodati drugi bungalov ručno, ali zamjena Booking bungalova nije dozvoljena.');
-      const p = document.getElementById(`desktop-swap-panel-${id}`);
-      if (p) p.style.display = 'none';
-      return;
+      if (curRole !== 'admin') {
+        alert('⚠️ Ovaj bungalov (B' + oldBn + ') je došao sa Booking.com i ne može se zamijeniti ovdje.\n\nPromjenu bungalova mora napraviti gost na Booking-u, da se kalendari ne raziđu.\n\nMožeš ga ukloniti ili dodati drugi bungalov ručno, ali zamjena Booking bungalova nije dozvoljena. (Samo administrator može ovo premostiti.)');
+        const p = document.getElementById(`desktop-swap-panel-${id}`);
+        if (p) p.style.display = 'none';
+        return;
+      }
+      if (isMergedRes) {
+        alert('⚠️ Ovo je spojena Booking rezervacija sa više bungalova. Zamjena bungalova kod spojenih rezervacija nije podržana — prvo ukloni bungalov, pa ga ručno dodaj nazad nakon potvrde.');
+        const p = document.getElementById(`desktop-swap-panel-${id}`);
+        if (p) p.style.display = 'none';
+        return;
+      }
+      // Admin potvrđuje da razumije rizik prije nego nastavi
+      const confirmMsg = '⚠️ ADMIN AKCIJA: B' + oldBn + ' je sa Booking.com.\n\nZamjenom na B' + newBn + ' kalendar tvoje aplikacije više NEĆE odgovarati onome što gost vidi na Booking-u (gost i dalje vidi B' + oldBn + ').\n\nVeza sa Booking-om (iCal) se prenosi na B' + newBn + ' da se izbjegne duplikat, ali ručno moraš paziti da ovo radiš samo kad stvarno znaš zašto (npr. greška u unosu, fizička zamjena dogovorena sa gostom).\n\nNastaviti sa zamjenom?';
+      if (!confirm(confirmMsg)) {
+        const p = document.getElementById(`desktop-swap-panel-${id}`);
+        if (p) p.style.display = 'none';
+        return;
+      }
+      // Zapamti UID za prenos na novi bungalov broj (koristi se pri save-u)
+      transferUid = (oldBungObj && oldBungObj.icalUid) || cur.icalUid || null;
     }
   }
   // ZAŠTITA 1: novi bungalov ne smije već biti izabran u DRUGOM redu
@@ -3640,6 +3734,14 @@ window.desktopSwapBung = (id, newBn) => {
     }
   }
   sel.value = newBn;
+  // ADMIN PREMOSTI: prenesi icalUid sa starog na novi bungalov broj, da se pri save-u
+  // ne izgubi veza sa Booking-om (sprječava da iCal ponovo kreira stari bungalov).
+  if (transferUid) {
+    window._swappedBungUids = window._swappedBungUids || {};
+    window._swappedBungUids[newBs] = transferUid;
+    // Ako je stari broj imao isti transfer zapisan (re-swap), očisti ga
+    delete window._swappedBungUids[oldBn];
+  }
   // Swap mijenja bungalov. Auto-procjena se osvježi (breakdown), ALI cijenu NE
   // diramo automatski — auto je samo procjena, korisnik upisuje svoju finalnu.
   // Ako korisnik želi novu auto-cijenu za novi bungalov, klikne "= Auto" dugme.
@@ -3822,6 +3924,19 @@ window.refreshBungVisualGrid = function() {
     let icon = '';
     let title = `Max ${cfg.m} kreveta`;
     let onclick = '';
+
+    // ISKLJUČEN bungalov (ne izdaje se) — ne može se izabrati za novu rezervaciju
+    if (kmkBungIsDisabled(bn) && !isSelected) {
+      cls += ' bvg-disabled';
+      icon = '<span class="bvg-status">⛔</span>';
+      title = 'Ovaj bungalov se ne izdaje (isključen u podešavanjima)';
+      onclick = `onclick="showBungBusyToast('${bn}', 'Ne izdaje se')"`;
+      return `<div class="${cls}" title="${escHtml(title)}" ${onclick} style="opacity:.5;background:#eee;border-color:#bbb">
+        ${icon}
+        <div class="bvg-num" style="text-decoration:line-through;color:#999">B${bn}</div>
+        <div class="bvg-cap" style="color:#999">ne izdaje se</div>
+      </div>`;
+    }
 
     if (isSelected) {
       cls += ' bvg-selected';
@@ -4244,6 +4359,15 @@ function kmkPreSaveReservationGuard(data, excludeId) {
   for (const b of (data.bungalovi || [])) {
     const norm = kmkNormalizeBungalowNumber(b.bungalov);
     if (!norm) return { ok:false, message:'❌ Nepoznat bungalov: B' + (b.bungalov || '') };
+    // Blokiraj NOVU rezervaciju na isključenom bungalovu (osim ako rezervacija već postoji s njim)
+    if (typeof kmkBungIsDisabled === 'function' && kmkBungIsDisabled(norm)) {
+      // Dozvoli ako se edituje POSTOJEĆA rezervacija koja već ima taj bungalov
+      const existingRes = excludeId ? (reservations||[]).find(r => r.id === excludeId) : null;
+      const alreadyHas = existingRes && (existingRes.bungalovi||[]).some(x => kmkNormalizeBungalowNumber(x.bungalov) === norm);
+      if (!alreadyHas) {
+        return { ok:false, message:'❌ Bungalov B' + norm + ' se ne izdaje (isključen u podešavanjima). Vrati ga u upotrebu ako želiš da rezervišeš.' };
+      }
+    }
   }
   const hit = kmkFindReservationOverlap(cleanBungs, data.checkIn, data.checkOut, excludeId);
   if (hit) return { ok:false, message: kmkOverlapMessage(hit) };
@@ -4560,11 +4684,15 @@ document.getElementById('res-form').addEventListener('submit', async e => {
     if (bedsEl) bedsEl.value = bedsN;
 
     const bungObj = { bungalov:String(n), beds:bedsN, adults:ad, children:ch, babies:bb, sharedBed, notes:item.querySelector('.b-notes')?.value?.trim()||'' };
-    // Ako je bungalov dio spojene rezervacije, zadrži njegov icalUid (da iCal ne uvozi ponovo)
-    if (window._mergedBungUids && window._mergedBungUids[String(n)]) {
+    // PRIORITET 1: admin je swap-ovao Booking bungalov — prenesi UID na novi broj
+    // (sprječava da iCal ponovo kreira stari bungalov kao duplikat)
+    if (window._swappedBungUids && window._swappedBungUids[String(n)]) {
+      bungObj.icalUid = window._swappedBungUids[String(n)];
+    } else if (window._mergedBungUids && window._mergedBungUids[String(n)]) {
+      // PRIORITET 2: bungalov je dio spojene rezervacije, zadrži njegov icalUid
       bungObj.icalUid = window._mergedBungUids[String(n)];
     } else {
-      // Zadrži postojeći icalUid pri običnom editu (ne-merge)
+      // Zadrži postojeći icalUid pri običnom editu (ne-merge, ne-swap)
       const existingB = _editOld?.bungalovi?.find(x => String(x.bungalov) === String(n));
       if (existingB?.icalUid) bungObj.icalUid = existingB.icalUid;
     }
@@ -4813,9 +4941,10 @@ window.toggleClosedMode = function() {
 window.resetForm = () => {
   document.getElementById('res-form').reset();
   priceManual=false; editId=null;
-  // Očisti merge stanje da ne procuri u sljedeću rezervaciju
+  // Očisti merge i swap stanje da ne procuri u sljedeću rezervaciju
   window._mergedBungUids = null;
   window._mergedAllUids = null;
+  window._swappedBungUids = null;
   const mergeWrap = document.getElementById('merge-bung-wrap');
   if (mergeWrap) mergeWrap.style.display = 'none';
   const mergePanel = document.getElementById('merge-panel');
@@ -5064,7 +5193,9 @@ window.renderCal = function() {
   );
   // v2.4.22: kalendar radi nad deduplikovanom aktivnom listom, da lokalni cache/snapshot ne prikažu istu rezervaciju dva puta.
   const activeReservations = (typeof kmkActiveReservationsUnique === 'function') ? kmkActiveReservationsUnique(reservations) : (reservations || []).filter(r => !r.cancelled);
-  const calBungalows = Object.keys(B_CFG || {}).map(n => parseInt(n,10)).filter(Boolean).sort((a,b)=>a-b);
+  const calBungalows = Object.keys(B_CFG || {}).map(n => parseInt(n,10)).filter(Boolean)
+    .filter(bn => kmkBungVisibleOnCalendar(bn)) // režim A = sakrij sa kalendara; B i aktivni = prikaži
+    .sort((a,b)=>a-b);
 
   const DNAMES_SHORT=['N','P','U','S','Č','P','S'];
   let html='<div class="cal-row cal-row-hdr"><div class="cc hdr cc-label cc-corner cal-col-bung">Bungalovi<br><span style="font-weight:400;font-size:.9em;color:#888">Datum</span></div>';
@@ -5374,14 +5505,15 @@ function renderOccupancyDash() {
   el.style.display = 'flex';
 
   const today = lDate(new Date());
-  const TOTAL_BUNGS = 13;
+  const TOTAL_BUNGS = (typeof kmkActiveBungCount === 'function') ? kmkActiveBungCount() : 13;
+  const _canBook = (bn) => (typeof kmkBungCanBook === 'function') ? kmkBungCanBook(bn) : true;
   const active = reservations.filter(r => !r.cancelled);
 
-  // Danas zauzeto
+  // Danas zauzeto (samo aktivni bungalovi)
   const todayOcc = new Set();
   active.forEach(r => {
     if (today >= r.checkIn && today < r.checkOut) {
-      (r.bungalovi||[]).forEach(b => todayOcc.add(String(b.bungalov)));
+      (r.bungalovi||[]).forEach(b => { if (_canBook(b.bungalov)) todayOcc.add(String(b.bungalov)); });
     }
   });
 
@@ -5393,7 +5525,7 @@ function renderOccupancyDash() {
     const occ = new Set();
     active.forEach(r => {
       if (ds >= r.checkIn && ds < r.checkOut)
-        (r.bungalovi||[]).forEach(b => occ.add(String(b.bungalov)));
+        (r.bungalovi||[]).forEach(b => { if (_canBook(b.bungalov)) occ.add(String(b.bungalov)); });
     });
     next7.push(occ.size);
   }
@@ -5409,11 +5541,11 @@ function renderOccupancyDash() {
     const occ = new Set();
     active.forEach(r => {
       if (ds >= r.checkIn && ds < r.checkOut)
-        (r.bungalovi||[]).forEach(b => occ.add(String(b.bungalov)));
+        (r.bungalovi||[]).forEach(b => { if (_canBook(b.bungalov)) occ.add(String(b.bungalov)); });
     });
     moOccDays += occ.size;
   }
-  const moPct = Math.round(moOccDays / (TOTAL_BUNGS * dim) * 100);
+  const moPct = TOTAL_BUNGS > 0 ? Math.round(moOccDays / (TOTAL_BUNGS * dim) * 100) : 0;
 
   // Prihodi ovaj mjesec
   const moIncome = active
@@ -5490,10 +5622,15 @@ window.renderDaily = function(dateStr) {
   const _unpaidSum = [..._unpaidActive, ..._overdueAll].reduce((s,r)=>s+(parseFloat(r.price)||0),0);
   const _overdueSum = _overdueAll.reduce((s,r)=>s+(parseFloat(r.price)||0),0);
   const _virmanSum = _virmanActive.reduce((s,r)=>s+(parseFloat(r.price)||0),0);
-  const totalBungs = Object.keys(B_CFG||{}).length || 13;
+  // Statistika popunjenosti koristi SAMO aktivne bungalove (isključene se ne broje)
+  const totalBungs = (typeof kmkActiveBungCount === 'function') ? kmkActiveBungCount() : (Object.keys(B_CFG||{}).length || 13);
   const occupiedBungs = new Set();
-  cur.forEach(r => (r.bungalovi||[]).forEach(b => occupiedBungs.add(b.bungalov)));
-  const occPct = Math.round((occupiedBungs.size / totalBungs) * 100);
+  cur.forEach(r => (r.bungalovi||[]).forEach(b => {
+    // Ne broji isključene bungalove u popunjenost (čak i ako imaju rezervaciju u režimu B)
+    if (typeof kmkBungCanBook === 'function' && !kmkBungCanBook(b.bungalov)) return;
+    occupiedBungs.add(b.bungalov);
+  }));
+  const occPct = totalBungs > 0 ? Math.round((occupiedBungs.size / totalBungs) * 100) : 0;
   const arrPersons = arr.reduce((s,r)=>(r.bungalovi||[]).reduce((ss,b)=>ss+(b.adults||0)+(b.children||0)+(b.babies||0),s),0);
   const depBungs = new Set();
   dep.forEach(r => (r.bungalovi||[]).forEach(b => depBungs.add(b.bungalov)));
@@ -5537,6 +5674,11 @@ window.renderDaily = function(dateStr) {
   const mkItem=(r,badge,color,isDup)=>{
     const nights = kmkNightsBetween(r.checkIn,r.checkOut);
     const bungs  = (r.bungalovi||[]).map(b=>'B'+b.bungalov).join(', ');
+    // Svaki bungalov kao zaseban upadljiv "chip" — lakše prepoznatljivo na prvi pogled
+    // nego jedan spojen string, posebno kad ima više bungalova (spojena rezervacija).
+    const bungsChips = (r.bungalovi||[]).map(b =>
+      `<span style="display:inline-block;background:#667eea;color:#fff;border-radius:6px;padding:2px 8px;font-weight:800;font-size:1.05em;letter-spacing:.2px;margin:0 2px 2px 0;box-shadow:0 1px 2px rgba(102,126,234,.35)">B${b.bungalov}</span>`
+    ).join('');
     const guests = (r.bungalovi||[]).reduce((s,b)=>s+(b.adults||0)+(b.children||0),0);
     const price  = parseFloat(r.price)||0;
 
@@ -5618,8 +5760,8 @@ window.renderDaily = function(dateStr) {
             ${isDup?'<span style="color:#dc3545;font-size:.78em"> ⚠ DUPLIKAT</span>':''}
           </div>
 
-          <div style="font-size:.76em;color:#555;margin-top:2px;line-height:1.5">
-            <span style="background:#f0f4ff;border-radius:3px;padding:1px 5px;font-weight:600">${bungs}</span>
+          <div style="font-size:.76em;color:#555;margin-top:3px;line-height:1.5">
+            ${bungsChips}
             &nbsp;${nights} noći &middot; ${guests} gost.
             ${price>0?'&nbsp;&middot; <strong>&euro;'+price.toFixed(0)+'</strong>':''}
           </div>
@@ -6114,7 +6256,9 @@ window.printDaily = function() {
       td { padding: 7px 10px; border: 1px solid #dee2e6; vertical-align: top; }
       tr:nth-child(even) td { background: #f8f9fa; }
       .bnum { font-weight: 700; color: #667eea; font-size: 1.05em; }
+      .clean-count { font-weight: 900; font-size: 1.45em; background:#fff; color:#17a2b8; border-radius:8px; padding:1px 10px; margin-left:4px; vertical-align:middle; }
       .total-row td { font-weight: 700; background: #f0f2ff !important; }
+      .total-count { font-weight: 900 !important; font-size: 1.35em !important; color: #17a2b8 !important; }
       .note { color: #e67e00; font-size:.82em; font-style:italic; }
       .no-data { color:#aaa; font-style:italic; padding: 10px 0; }
       @media print { body { padding: 15px; } }
@@ -6123,7 +6267,7 @@ window.printDaily = function() {
     <h1>🏡 Maja Karanfil Bungali — Dnevni Pregled</h1>
     <div class="meta">Datum: <strong>${fmtD(ts)}</strong> &nbsp;|&nbsp; Štampano: ${new Date().toLocaleTimeString('sr')}</div>
 
-    <h2 class="clean">🧹 Bungalovi za Čišćenje Danas (Odjave)</h2>
+    <h2 class="clean">🧹 Bungalovi za Čišćenje Danas — <span class="clean-count">${Object.keys(cleaningBungs).length}</span></h2>
     ${Object.keys(cleaningBungs).length === 0
       ? '<p class="no-data">Nema odjava danas</p>'
       : `<table>
@@ -6131,7 +6275,7 @@ window.printDaily = function() {
           <tbody>
             ${Object.entries(cleaningBungs).sort((a,b)=>parseInt(a[0])-parseInt(b[0])).map(([bn,d])=>`
               <tr><td class="bnum">B${bn}</td><td>${escHtml(d.guests.join(', '))}</td><td>${d.beds}</td></tr>`).join('')}
-            <tr class="total-row"><td colspan="2">UKUPNO za čišćenje:</td><td>${Object.keys(cleaningBungs).length} bungalova</td></tr>
+            <tr class="total-row"><td colspan="2">UKUPNO za čišćenje:</td><td class="total-count">${Object.keys(cleaningBungs).length} bungalova</td></tr>
           </tbody>
         </table>`}
 
@@ -6340,9 +6484,10 @@ window.filterRes = () => {
 // ── EDIT ─────────────────────────────────────────────────────
 window.editRes = id => {
   const r=reservations.find(x=>x.id===id); if (!r) return;
-  // Očisti merge stanje od prethodne (nedovršene) operacije spajanja
+  // Očisti merge i swap stanje od prethodne (nedovršene) operacije
   window._mergedBungUids = null;
   window._mergedAllUids = null;
+  window._swappedBungUids = null;
   editId=id; priceManual=true;
   document.getElementById('f-name').value=r.name;
   document.getElementById('f-phone').value=r.phone||'';
@@ -8150,6 +8295,7 @@ window.mobOpenQuickForm = (editResId) => {
   _mobFormStep = 1;
   window._mobPriceManual = false;
   window._mobPriceValue = null;
+  window._swappedBungUids = null; // očisti swap stanje od prethodne operacije
   window._mobPriceBreakdown = { total:0, nights:0, totalGuests:0, totalBeds:0, lines:[], tax:0 };
 
   document.getElementById('mob-name').value = '';
@@ -8283,16 +8429,33 @@ window.mobSwapBung = (oldB, newB) => {
   const oldBs = String(oldB);
   const newBs = String(newB);
   if (oldBs === newBs) return;
-  // ZAŠTITA 0: Booking bungalov (ima icalUid) NE smije se zamijeniti
+  // ZAŠTITA 0: Booking bungalov (ima icalUid) — radnik NE smije zamijeniti.
+  // Administrator SMIJE, uz prenos UID-a na novi bungalov (sprječava duplikat).
+  let transferUid = null;
   if (_mobEditId) {
     const cur = reservations.find(r => r.id === _mobEditId);
     const oldBungObj = cur?.bungalovi?.find(b => String(b.bungalov) === oldBs);
+    const isMergedRes = !!(cur && Array.isArray(cur.mergedUids) && cur.mergedUids.length > 1);
     const isBookingBung = (oldBungObj && oldBungObj.icalUid) || (cur && cur.icalUid && (cur.bungalovi||[]).length === 1);
     if (isBookingBung) {
-      alert('⚠️ B' + oldB + ' je sa Booking.com i ne može se zamijeniti ovdje. Promjenu mora napraviti gost na Booking-u.');
-      const panel = document.getElementById(`mob-swap-panel-${oldBs}`);
-      if (panel) panel.style.display = 'none';
-      return;
+      if (curRole !== 'admin') {
+        alert('⚠️ B' + oldB + ' je sa Booking.com i ne može se zamijeniti ovdje. Promjenu mora napraviti gost na Booking-u. (Samo administrator može ovo premostiti.)');
+        const panel = document.getElementById(`mob-swap-panel-${oldBs}`);
+        if (panel) panel.style.display = 'none';
+        return;
+      }
+      if (isMergedRes) {
+        alert('⚠️ Spojena Booking rezervacija — zamjena bungalova nije podržana ovdje. Prvo ukloni bungalov, pa ga dodaj ručno nazad.');
+        const panel = document.getElementById(`mob-swap-panel-${oldBs}`);
+        if (panel) panel.style.display = 'none';
+        return;
+      }
+      if (!confirm('⚠️ ADMIN AKCIJA: B' + oldB + ' je sa Booking.com.\n\nZamjenom na B' + newB + ' tvoj kalendar neće odgovarati onome što gost vidi na Booking-u.\n\nNastaviti?')) {
+        const panel = document.getElementById(`mob-swap-panel-${oldBs}`);
+        if (panel) panel.style.display = 'none';
+        return;
+      }
+      transferUid = (oldBungObj && oldBungObj.icalUid) || cur.icalUid || null;
     }
   }
   // ZAŠTITA 1: novi bungalov ne smije već biti u nizu (spriječi duplikat)
@@ -8329,6 +8492,12 @@ window.mobSwapBung = (oldB, newB) => {
   // Premjesti goste
   delete _mobBungGuests[oldBs];
   _mobBungGuests[newBs] = guests;
+  // ADMIN PREMOSTI: prenesi icalUid sa starog na novi bungalov broj
+  if (transferUid) {
+    window._swappedBungUids = window._swappedBungUids || {};
+    window._swappedBungUids[newBs] = transferUid;
+    delete window._swappedBungUids[oldBs];
+  }
   // Rebuild grid i kartice
   if (typeof window._mobBuildBungGrid === 'function') window._mobBuildBungGrid();
   mobRenderBungCards();
@@ -8760,8 +8929,13 @@ window.mobSaveReservation = async () => {
       sharedBed: existingB?.sharedBed || !!g.sharedBed,
       notes: existingB?.notes || g.notes || ''
     };
-    // Zadrži icalUid po bungalovu (spojene/Booking rezervacije) — da iCal ne duplira
-    if (existingB?.icalUid) mobBungObj.icalUid = existingB.icalUid;
+    // PRIORITET 1: admin je swap-ovao Booking bungalov — prenesi UID na novi broj
+    if (window._swappedBungUids && window._swappedBungUids[String(b)]) {
+      mobBungObj.icalUid = window._swappedBungUids[String(b)];
+    } else if (existingB?.icalUid) {
+      // PRIORITET 2: zadrži postojeći icalUid po bungalovu (spojene/Booking rezervacije)
+      mobBungObj.icalUid = existingB.icalUid;
+    }
     bungalovi.push(mobBungObj);
   }
 
@@ -9008,6 +9182,10 @@ function renderMobDaily(dateStr) {
   function card(r, badge, color) {
     const nights = kmkNightsBetween(r.checkIn, r.checkOut);
     const bungs  = (r.bungalovi || []).map(b => 'B' + b.bungalov).join(', ');
+    // Svaki bungalov kao zaseban chip — prepoznatljiviji od plain teksta na malom ekranu
+    const bungsChips = (r.bungalovi || []).map(b =>
+      `<span style="display:inline-block;background:#667eea;color:#fff;border-radius:6px;padding:2px 7px;font-weight:800;font-size:1.02em;margin:1px 3px 1px 0">B${b.bungalov}</span>`
+    ).join('');
     const guests = (r.bungalovi || []).reduce((s,b) => s + (b.adults||0) + (b.children||0), 0);
     const vPend = kmkIsVirmanPending(r);
     const paidStyle  = r.paid    ? 'background:#e8f5e9;color:#27ae60;font-weight:800;border:1.5px solid #27ae60'
@@ -9025,7 +9203,7 @@ function renderMobDaily(dateStr) {
       <div style="display:flex;justify-content:space-between;align-items:flex-start" onclick="showDet('${r.id}')">
         <div>
           <div style="font-weight:800;font-size:.95em">${escHtml(r.name || '—')}</div>
-          <div style="font-size:.8em;color:#555;margin-top:2px">${escHtml(bungs)} · ${nights} noć · ${guests} gost${guests !== 1 ? 'iju' : ''}</div>
+          <div style="font-size:.8em;color:#555;margin-top:4px">${bungsChips} <span style="vertical-align:middle">· ${nights} noć · ${guests} gost${guests !== 1 ? 'iju' : ''}</span></div>
         </div>
         <span style="font-size:.72em;font-weight:700;padding:3px 8px;border-radius:12px;background:${color}22;color:${color};white-space:nowrap">${badge}</span>
       </div>
@@ -9046,8 +9224,13 @@ function renderMobDaily(dateStr) {
     </div>`;
   }
 
-  function section(title, list, emptyMsg, color) {
-    html += `<div class="mob-daily-section"><div class="mob-daily-title" style="color:${color}">${title} (${list.length})</div>`;
+  function section(title, list, emptyMsg, color, countBungs) {
+    // countBungs=true → broji UKUPNO bungalova u svim rezervacijama liste (za čišćenje),
+    // ne broj rezervacija. Spojena rezervacija sa 3 bungalova broji se kao 3.
+    const cnt = countBungs
+      ? list.reduce((s,r)=> s + ((r.bungalovi||[]).length || 1), 0)
+      : list.length;
+    html += `<div class="mob-daily-section"><div class="mob-daily-title" style="color:${color}">${title} <span style="font-weight:900;font-size:1.15em">(${cnt})</span></div>`;
     if (!list.length) {
       html += `<div class="mob-daily-card" style="color:#aaa;text-align:center;font-size:.85em">${emptyMsg}</div>`;
     } else {
@@ -9057,7 +9240,7 @@ function renderMobDaily(dateStr) {
   }
 
   section('✈️ Ko Dolazi Danas',     arrivals,   'Nema dolazaka.',             '#27ae60');
-  section('🧹 Bungalovi za Čišćenje / Ko Odlazi', departures, 'Nema odlazaka.',   '#e67e22');
+  section('🧹 Bungalovi za Čišćenje / Ko Odlazi', departures, 'Nema odlazaka.',   '#e67e22', true);
   section('🏠 Trenutno u Objektu',  occupied,   'Niko trenutno u objektu.',   '#667eea');
   if (unpaid.length) section('💶 Za Naplatu', unpaid, '', '#ffc107');
   if (virmanPending.length) section('🏦 Čeka Virman', virmanPending, '', '#b8860b');
@@ -9282,7 +9465,10 @@ window.mobPrintDaily = function(dateStr) {
   win.document.write('<h1>Katun Maja Karanfil — Dnevni Pregled</h1>');
   win.document.write('<p style="color:#555;margin-bottom:20px">' + escHtml(dayLabel) + '</p>');
   win.document.write('<h2>✈️ Ko Dolazi (' + arr.length + ')</h2>' + rows(arr, 'dolasci'));
-  win.document.write('<h2>🧹 Ko Odlazi / Čišćenje (' + dep.length + ')</h2>' + rows(dep, 'odlasci'));
+  // Broj BUNGALOVA za čišćenje (ne broj rezervacija) — spojena rezervacija sa 3
+  // bungalova računa se kao 3, ne kao 1.
+  var depBungCount = dep.reduce(function(s,r){ return s + ((r.bungalovi||[]).length || 1); }, 0);
+  win.document.write('<h2>🧹 Ko Odlazi / Čišćenje — <span style="font-size:1.25em;font-weight:900">' + depBungCount + ' bungalova</span></h2>' + rows(dep, 'odlasci'));
   win.document.write('<h2>🏠 Trenutno u Objektu (' + cur.length + ')</h2>' + rows(cur, 'boravak'));
   win.document.write('<br><hr><p style="font-size:.8em;color:#aaa">Odštampano: ' + new Date().toLocaleString('sr-Latn') + '</p>');
   win.document.write('</body></html>');
@@ -11677,10 +11863,78 @@ function renderUsersIfVisible() { if(document.getElementById('set-users').style.
 window.renderSettings = function() { renderUsers(); };
 
 // ── SETTINGS SUB-TABS ────────────────────────────────────────
+// ── UPRAVLJANJE BUNGALOVIMA (isključi/uključi) ───────────────────────
+window.renderBungManage = function() {
+  const wrap = document.getElementById('bung-manage-list');
+  if (!wrap) return;
+  const allBungs = Object.keys(B_CFG).sort((a,b)=>parseInt(a)-parseInt(b));
+  wrap.innerHTML = allBungs.map(bn => {
+    const mode = kmkBungDisableMode(bn);
+    const disabled = !!mode;
+    // Broj rezervacija za ovaj bungalov (informativno)
+    const resCount = (reservations||[]).filter(r =>
+      !r.cancelled && (r.bungalovi||[]).some(b => String(b.bungalov) === String(bn))
+    ).length;
+    const cap = B_CFG[bn].m;
+    const borderColor = disabled ? (mode==='A' ? '#c62828' : '#e67e22') : '#2e7d32';
+    const bgColor = disabled ? (mode==='A' ? '#ffebee' : '#fff3e0') : '#e8f5e9';
+    const statusLabel = !disabled ? '<span style="color:#2e7d32;font-weight:700">✅ Aktivan (izdaje se)</span>'
+      : (mode==='A' ? '<span style="color:#c62828;font-weight:700">⛔ Sakriven (režim A)</span>'
+                    : '<span style="color:#e67e22;font-weight:700">🚫 Ne izdaje se (režim B)</span>');
+    return `<div style="border:2px solid ${borderColor};background:${bgColor};border-radius:12px;padding:14px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div style="font-size:1.3em;font-weight:900;color:#222">B${bn}</div>
+        <div style="font-size:.75em;color:#777">kapacitet ${cap} · ${resCount} rezerv.</div>
+      </div>
+      <div style="margin-bottom:10px;font-size:.85em">${statusLabel}</div>
+      ${!disabled ? `
+        <div style="display:flex;gap:6px">
+          <button type="button" onclick="kmkSetBungMode('${bn}','A')" style="flex:1;padding:8px;background:#fff;border:1.5px solid #c62828;color:#c62828;border-radius:8px;font-weight:700;font-size:.78em;cursor:pointer">⛔ Sakrij (A)</button>
+          <button type="button" onclick="kmkSetBungMode('${bn}','B')" style="flex:1;padding:8px;background:#fff;border:1.5px solid #e67e22;color:#e67e22;border-radius:8px;font-weight:700;font-size:.78em;cursor:pointer">🚫 Ne izdaj (B)</button>
+        </div>
+      ` : `
+        <div style="display:flex;gap:6px;flex-direction:column">
+          <button type="button" onclick="kmkSetBungMode('${bn}',null)" style="padding:8px;background:#2e7d32;border:none;color:#fff;border-radius:8px;font-weight:700;font-size:.82em;cursor:pointer">✅ Vrati u upotrebu</button>
+          ${mode==='A' ? `<button type="button" onclick="kmkSetBungMode('${bn}','B')" style="padding:7px;background:#fff;border:1.5px solid #e67e22;color:#e67e22;border-radius:8px;font-weight:600;font-size:.76em;cursor:pointer">→ Prebaci na režim B (prikaži rezervacije)</button>` : `<button type="button" onclick="kmkSetBungMode('${bn}','A')" style="padding:7px;background:#fff;border:1.5px solid #c62828;color:#c62828;border-radius:8px;font-weight:600;font-size:.76em;cursor:pointer">→ Prebaci na režim A (sakrij sve)</button>`}
+        </div>
+      `}
+    </div>`;
+  }).join('');
+
+  // Sažetak
+  const summary = document.getElementById('bung-manage-summary');
+  if (summary) {
+    const active = kmkActiveBungCount();
+    const total = Object.keys(B_CFG).length;
+    const disabledList = Object.keys(window._disabledBungalovs).map(b=>'B'+b);
+    summary.innerHTML = `<strong>📊 Statistika koristi ${active} od ${total} bungalova</strong>` +
+      (disabledList.length ? `<br>Isključeni: ${disabledList.join(', ')} — ne računaju se u popunjenost.` : '<br>Svi bungalovi su aktivni.');
+  }
+};
+
+// Postavi režim isključenja za bungalov (mode: 'A', 'B', ili null za aktivan)
+window.kmkSetBungMode = async function(bn, mode) {
+  if (curRole !== 'admin') { alert('Samo administrator može mijenjati bungalove.'); return; }
+  const bs = String(bn);
+  if (mode === null) {
+    delete window._disabledBungalovs[bs];
+  } else {
+    window._disabledBungalovs[bs] = mode;
+  }
+  const ok = await kmkSaveDisabledBungalovs();
+  if (!ok) { alert('Greška pri čuvanju. Pokušaj ponovo.'); await kmkLoadDisabledBungalovs(); }
+  if (typeof window.renderBungManage === 'function') window.renderBungManage();
+  // Osvježi sve prikaze koji zavise od bungalova
+  if (typeof window.renderCal === 'function') window.renderCal();
+  if (typeof window.renderDaily === 'function') window.renderDaily();
+  if (typeof window.refreshBungVisualGrid === 'function') window.refreshBungVisualGrid();
+  if (typeof window.renderMobDaily === 'function') window.renderMobDaily();
+};
+
 window.switchSetTab = (tab, btn) => {
   document.querySelectorAll('#pane-settings .ssb').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
-  const tabs = ['users','guests','security','prices','channels','calendar-set','backup','ical','import','about'];
+  const tabs = ['users','guests','security','prices','channels','calendar-set','bungalovs','backup','ical','import','about'];
   tabs.forEach(t => {
     const el = document.getElementById('set-' + t);
     if (el) el.style.display = (t === tab) ? 'block' : 'none';
@@ -11690,6 +11944,7 @@ window.switchSetTab = (tab, btn) => {
   if (tab === 'channels') setTimeout(renderChannels, 50);
   if (tab === 'ical')     setTimeout(renderIcalLinks, 50);
   if (tab === 'prices')   setTimeout(renderPricePeriods, 50);
+  if (tab === 'bungalovs') setTimeout(() => window.renderBungManage && window.renderBungManage(), 50);
   if (tab === 'security') { setTimeout(_updateDelProtectUI, 50); setTimeout(_initPickerSettingUI, 50); }
   if (tab === 'guests')   setTimeout(() => {
     if (document.getElementById('guestbook-panel')?.style.display === 'block') filterGuestBook();
