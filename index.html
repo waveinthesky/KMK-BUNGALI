@@ -5143,10 +5143,16 @@ document.getElementById('res-form').addEventListener('submit', async e => {
     curRole === 'admin' && _editOld &&
     kmkScheduleUnchanged(_editOld, { checkIn: ci, checkOut: co, bungalovi })
   );
+  // Admin koji uređuje rezervaciju sa prošlim datumom dolaska smije prihvatiti
+  // bilo kakvu izmjenu (datum/bungalov/cijena), uz potvrdu — historijski podaci.
+  const _isPastEdit = !!editId && new Date(ci+'T00:00:00') < _today;
+  const _adminPastEdit = (curRole === 'admin') && _isPastEdit;
+
   for (const b of bungalovi) {
     // Ako admin mijenja samo naplatu/metapodatke, ne blokiraj ga starim historijskim overlapom.
-    // Čim se promijeni datum ili bungalov, puna kontrola ostaje obavezna.
-    if (!_adminScheduleUnchanged) {
+    // Čim se promijeni datum ili bungalov, puna kontrola ostaje obavezna —
+    // OSIM ako admin svjesno uređuje prošlu (historijsku) rezervaciju.
+    if (!_adminScheduleUnchanged && !_adminPastEdit) {
       const ovHit = kmkFindReservationOverlap([b], ci, co, editId);
       if (ovHit) {
         alert(kmkOverlapMessage(ovHit));
@@ -5159,6 +5165,11 @@ document.getElementById('res-form').addEventListener('submit', async e => {
       const ok = confirm(`⚠️ Bungalov ${b.bungalov} ima kapacitet od ${cap} osoba, a uneseno je ${rowPersons}.\nŽelite li nastaviti?`);
       if (!ok) return;
     }
+  }
+  // Ako admin uređuje prošlu rezervaciju, jednom potvrdi izmjenu prije čuvanja
+  if (_adminPastEdit) {
+    const okPast = confirm('📅 Mijenjate rezervaciju iz prošlosti (datum dolaska je već prošao).\n\nKao administrator smijete sačuvati ovu izmjenu. Nastaviti?');
+    if (!okPast) return;
   }
   const priceVal = parseFloat(document.getElementById('f-price').value)||0;
   if (priceVal < 0) { alert('❌ Cijena ne može biti negativna!'); return; }
