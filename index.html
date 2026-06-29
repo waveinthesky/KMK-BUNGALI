@@ -3886,14 +3886,34 @@ window.toggleDesktopSwapPanel = (id) => {
   const ci = ciEl?.value || '';
   const co = coEl?.value || '';
   const excl = (typeof editId !== 'undefined') ? editId : null;
+  // Rezervacija koju uređujemo — za poređenje datuma (zamjena mjesta)
+  const editingRes = excl ? (reservations||[]).find(r => r.id === excl) : null;
   const busySet = new Set();
+  // Mapa: bungalov -> rezervacija koja ga drži u tom periodu (za zamjenu mjesta)
+  const busyResByBung = {};
   if (ci && co && ci < co) {
     (reservations||[]).forEach(r => {
       if (r.cancelled || r.id === excl) return;
       if (r.checkIn < co && r.checkOut > ci)
-        (r.bungalovi||[]).forEach(bv => busySet.add(String(bv.bungalov)));
+        (r.bungalovi||[]).forEach(bv => {
+          const bs = String(bv.bungalov);
+          busySet.add(bs);
+          if (!busyResByBung[bs]) busyResByBung[bs] = r;
+        });
     });
   }
+  // Bungalov je "za zamjenu mjesta" ako ga drži rezervacija sa POTPUNO ISTIM datumima
+  const isSwappable = (bn) => {
+    if (!editingRes) return false;
+    const r = busyResByBung[bn];
+    if (!r) return false;
+    // Isti datumi = identičan check-in i check-out
+    if (r.checkIn !== editingRes.checkIn || r.checkOut !== editingRes.checkOut) return false;
+    // Ne dozvoli zamjenu sa spojenom rezervacijom (više bungalova) — komplikovano
+    if (Array.isArray(r.mergedUids) && r.mergedUids.length > 1) return false;
+    if ((r.bungalovi||[]).length > 1) return false;
+    return true;
+  };
   const otherSelected = new Set();
   document.querySelectorAll('#bungs-con .bung-item').forEach(it => {
     if (it.id === `bi-${id}`) return;
@@ -3906,10 +3926,16 @@ window.toggleDesktopSwapPanel = (id) => {
     const isBusy = busySet.has(bn) && !isCurrent;
     const isOther = otherSelected.has(bn);
     const cap = (B_CFG[bn]||{}).m || '?';
+    const canSwapPlaces = isBusy && !isOther && isSwappable(bn);
     if (isCurrent) {
       return `<div style="padding:10px 6px;border:2px solid #667eea;border-radius:8px;background:#667eea;color:#fff;text-align:center;font-weight:800;cursor:default"><div>B${bn}</div><small style="font-size:.7em">✓ Trenutni</small></div>`;
     } else if (isOther) {
       return `<div style="padding:10px 6px;border:1.5px solid #ccc;border-radius:8px;background:#f5f5f5;color:#aaa;text-align:center;font-size:.85em;cursor:not-allowed"><div>B${bn}</div><small>Izabran</small></div>`;
+    } else if (canSwapPlaces) {
+      // ROZE — bungalov sa drugom rezervacijom istih datuma → zamjena mjesta
+      const guest = (busyResByBung[bn]?.name || '').slice(0,12);
+      return `<div style="padding:10px 6px;border:1.5px solid #d6479c;border-radius:8px;background:#fce4f1;color:#a01a6b;text-align:center;font-size:.85em;font-weight:700;cursor:pointer"
+        onclick="desktopSwapPlaces(${id},'${bn}')" title="Zamijeni mjesta sa ${escHtml(busyResByBung[bn]?.name||'')}"><div>B${bn}</div><small>🔄 Zamijeni${guest?'<br>'+escHtml(guest):''}</small></div>`;
     } else if (isBusy) {
       return `<div style="padding:10px 6px;border:1.5px solid #c62828;border-radius:8px;background:#ffebee;color:#c62828;text-align:center;font-size:.85em;cursor:not-allowed"><div>B${bn}</div><small>🔴 Zauzet</small></div>`;
     } else {
@@ -4008,6 +4034,80 @@ window.desktopSwapBung = (id, newBn) => {
   t.textContent = oldBn ? `✓ B${oldBn} → B${newBn}` : `✓ Izabran B${newBn}`;
   document.body.appendChild(t);
   setTimeout(() => t.remove(), 2000);
+};
+
+// ── DESKTOP: Zamijeni MJESTA dvije rezervacije (A↔B, isti datumi) ─────
+// Atomično: rezervacija koju uređujemo (A) dobija bungalov B, a rezervacija
+// koja je bila u B (rez. B) dobija stari bungalov od A. Sve ostalo ostaje svako svoje.
+window.desktopSwapPlaces = async (id, targetBn) => {
+  const item = document.getElementById(`bi-${id}`);
+  if (!item) return;
+  const sel = item.querySelector('.b-sel');
+  if (!sel) return;
+  const myBn = String(sel.value || '');
+  const otherBn = String(targetBn);
+  if (!myBn || !otherBn || myBn === otherBn) return;
+  if (!editId) { alert('Zamjena mjesta radi samo pri izmjeni postojeće rezervacije.'); return; }
+
+  const ci = document.getElementById('f-checkin')?.value;
+  const co = document.getElementById('f-checkout')?.value;
+  const resA = reservations.find(r => r.id === editId);
+  if (!resA) { alert('Greška: rezervacija nije pronađena.'); return; }
+  // Nađi rezervaciju B koja drži ciljani bungalov sa ISTIM datumima
+  const resB = reservations.find(r =>
+    !r.cancelled && r.id !== editId &&
+    r.checkIn === resA.checkIn && r.checkOut === resA.checkOut &&
+    (r.bungalovi||[]).some(b => String(b.bungalov) === otherBn)
+  );
+  if (!resB) { alert('Greška: druga rezervacija sa istim datumima nije pronađena.'); return; }
+
+  // Sigurnost: spojene/višebungalovske ne podržavamo
+  if ((resA.bungalovi||[]).length > 1 || (resB.bungalovi||[]).length > 1) {
+    alert('⚠️ Zamjena mjesta ne radi za rezervacije sa više bungalova. Prvo razdvoji, pa zamijeni ručno.');
+    return;
+  }
+  // Booking/iCal: dozvoli samo adminu, uz upozorenje
+  const aIsBooking = !!resA.icalUid || (resA.bungalovi||[]).some(b => b.icalUid);
+  const bIsBooking = !!resB.icalUid || (resB.bungalovi||[]).some(b => b.icalUid);
+  if (aIsBooking || bIsBooking) {
+    if (curRole !== 'admin') {
+      alert('⚠️ Jedna od rezervacija je sa Booking.com (iCal). Samo administrator može zamijeniti mjesta takvim rezervacijama.');
+      return;
+    }
+    if (!confirm('⚠️ ADMIN: Jedna od rezervacija je sa Booking.com.\n\nZamjenom mjesta kalendar aplikacije može odstupiti od onog što gost vidi na Booking-u.\n\nNastaviti?')) return;
+  }
+
+  const okMsg = `🔄 Zamijeniti mjesta?\n\n• ${resA.name||'(bez imena)'} : B${myBn} → B${otherBn}\n• ${resB.name||'(bez imena)'} : B${otherBn} → B${myBn}\n\nDatumi su isti (${resA.checkIn} → ${resA.checkOut}). Obje će biti sačuvane odmah.`;
+  if (!confirm(okMsg)) return;
+
+  try {
+    // Pripremi nove bungalovi nizove — mijenja se SAMO broj bungalova, sve ostalo ostaje
+    const swapBungNum = (res, fromBn, toBn) => (res.bungalovi||[]).map(b =>
+      String(b.bungalov) === String(fromBn) ? { ...b, bungalov: String(toBn) } : b
+    );
+    const newA = swapBungNum(resA, myBn, otherBn);
+    const newB = swapBungNum(resB, otherBn, myBn);
+
+    const batch = writeBatch(db);
+    batch.update(doc(db,'reservations',resA.id), kmkCleanFirestoreData({ bungalovi: newA, updatedAt: new Date().toISOString(), updatedBy: curUser }));
+    batch.update(doc(db,'reservations',resB.id), kmkCleanFirestoreData({ bungalovi: newB, updatedAt: new Date().toISOString(), updatedBy: curUser }));
+    await batch.commit();
+
+    // Zatvori panel i formu — obje su sačuvane
+    const p = document.getElementById(`desktop-swap-panel-${id}`);
+    if (p) p.style.display = 'none';
+    const t = document.createElement('div');
+    t.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#a01a6b;color:#fff;padding:10px 22px;border-radius:20px;font-size:.88em;font-weight:600;z-index:9999;pointer-events:none;box-shadow:0 4px 12px rgba(0,0,0,.25)';
+    t.textContent = `🔄 Zamijenjena mjesta: B${myBn} ↔ B${otherBn}`;
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), 2500);
+    // Vrati na pregled (Firebase listener će osvježiti podatke)
+    if (typeof resetForm === 'function') resetForm();
+    if (typeof goTab === 'function') { const calTab = document.getElementById('tab-calendar'); if (calTab) goTab('calendar', calTab); }
+  } catch(err) {
+    console.error('Swap places error:', err);
+    alert('Greška pri zamjeni mjesta: ' + err.message + '\n\nNijedna rezervacija nije promijenjena.');
+  }
 };
 
 window.onBSel = function(sel) {
