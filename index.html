@@ -259,7 +259,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 /* Grid */
 .cal-grid{background:#ffffff;border-radius:0 0 16px 16px;overflow:hidden;min-width:1100px;border:none;gap:0}
 .cal-wrap{border-radius:16px;overflow:auto;max-height:80vh;box-shadow:0 2px 16px rgba(30,60,30,.08);border:1px solid #d4e2d0;margin-top:0}
-.cal-row{display:grid;grid-template-columns:64px repeat(31,1fr);gap:0;border-bottom:1px solid #e8ede4;background:#ffffff}
+.cal-row{display:grid;grid-template-columns:44px repeat(31,1fr);gap:0;border-bottom:1px solid #e8ede4;background:#ffffff}
 .cal-row-hdr{position:sticky;top:0;z-index:20;background:#f3f7f1;border-bottom:2px solid #d4e2d0}
 .cal-row-hdr .cc.hdr{position:sticky;top:0;z-index:20}
 .cal-col-bung{position:sticky;left:0;z-index:15;background:inherit}
@@ -268,6 +268,9 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 .cc{background:#ffffff;padding:0;width:100%;height:52px;box-sizing:border-box;
     overflow:hidden;display:flex;align-items:center;justify-content:center;
     font-size:.76em;border-right:1px solid #eef2ec;position:relative}
+/* Kad se hovera rezervacija, dozvoli ćeliji (i redu) da je prikažu prošireno */
+.cc:has(.res-bar:hover){overflow:visible;z-index:50}
+.cal-row:has(.res-bar:hover){z-index:40;position:relative}
 .cc.hdr{background:#f3f7f1;font-weight:700;color:#3d5a40;flex-direction:column;
         font-size:.74em;height:52px;padding:4px 2px;gap:1px;line-height:1.2;
         border-right:1px solid #e0e8dc}
@@ -284,11 +287,11 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
   display:flex;align-items:flex-end;justify-content:flex-start;border-right:2px solid #d4e2d0}
 /* Bungalov label ćelija */
 .cc.bh{background:#f3f7f1;color:#1a2e1a;font-weight:800;font-size:.82em;
-  position:sticky;left:0;z-index:4;height:52px;padding:0 8px;
-  display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:1px;
+  position:sticky;left:0;z-index:4;height:52px;padding:0 4px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
   border-right:2px solid #d4e2d0;gap:2px}
-.cc.bh .bh-name{font-size:1em;font-weight:900;color:#1a2e1a}
-.cc.bh .bh-cap{font-size:.78em;font-weight:500;color:#758770}
+.cc.bh .bh-name{font-size:1em;font-weight:900;color:#1a2e1a;line-height:1}
+.cc.bh .bh-cap{font-size:.66em;font-weight:500;color:#758770;line-height:1}
 .cc.bh .bh-dot{width:7px;height:7px;border-radius:50%;margin-top:1px}
 /* Slobodna ćelija */
 .cc.cal-free{cursor:crosshair}
@@ -303,11 +306,32 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 /* Bar wrapper stilovi po statusu/kanalu */
 .res-bar{position:absolute;top:7px;bottom:7px;left:2px;right:0;
   border-radius:7px;display:flex;align-items:center;padding:0 8px 0 11px;
-  box-shadow:0 1px 4px rgba(0,0,0,.08);transition:filter .15s;overflow:hidden;z-index:3}
-.res-bar:hover{filter:brightness(.93)}
-.res-bar-border{position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:7px 0 0 7px}
-.res-bar-name{font-weight:700;font-size:.8em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0}
-.res-bar-nights{font-size:.72em;font-weight:600;opacity:.7;flex-shrink:0;margin-left:4px}
+  box-shadow:0 1px 4px rgba(0,0,0,.08);overflow:hidden;z-index:3;
+  transition:box-shadow .22s cubic-bezier(.34,1.3,.5,1), transform .22s cubic-bezier(.34,1.3,.5,1), filter .15s;
+  transform-origin:left center;cursor:pointer}
+.res-bar:hover{
+  filter:brightness(.97);
+  z-index:50;
+  overflow:visible;
+  box-shadow:0 6px 20px rgba(20,40,25,.28);
+  transform:scale(1.04);
+  min-width:max-content;
+  right:auto;
+  padding-right:14px;
+}
+.res-bar:hover .res-bar-name{
+  white-space:nowrap;
+  overflow:visible;
+  text-overflow:clip;
+  padding-right:2px;
+}
+/* Pri hoveru ime dobija pozadinu da bude čitljivo i kad se prelije preko susjednih ćelija */
+.res-bar:hover .res-bar-name::after{content:'';}
+.res-bar-border{position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:7px 0 0 7px;transition:width .22s ease}
+.res-bar:hover .res-bar-border{width:4px}
+.res-bar-name{font-weight:700;font-size:.8em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0;transition:font-size .2s ease}
+.res-bar-nights{font-size:.72em;font-weight:600;opacity:.7;flex-shrink:0;margin-left:4px;transition:opacity .2s ease}
+.res-bar:hover .res-bar-nights{opacity:.9}
 /* Boje barova po statusu/kanalu */
 .cc.c1.paid .res-bar,.cc.c2.paid .res-bar{background:#e8f5ef;color:#1a4a3a}
 .cc.c1.paid .res-bar-border,.cc.c2.paid .res-bar-border{background:#3c897a}
@@ -1331,9 +1355,10 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
   <div class="login-box">
     <div class="login-hero">
       <div class="login-head">
-        <img src="https://i.imgur.com/DzB2EDR.png" onerror="this.style.display='none'"
-             id="login-logo-img" alt="Logo">
-        <h1 id="login-h1"><span id="login-logo-emoji" style="display:none">🏡</span>Maja Karanfil Bungali</h1>
+        <img src="https://i.imgur.com/DzB2EDR.png"
+             onerror="this.style.display='none'"
+             id="login-logo-img" alt="Logo" style="display:none">
+        <h1 id="login-h1"><span id="login-logo-emoji" style="font-size:1.1em;margin-right:8px">🏡</span>Maja Karanfil Bungali</h1>
         <p>Sistem za upravljanje rezervacijama</p>
       </div>
     </div>
@@ -3471,12 +3496,11 @@ function _applyLogo() {
     if (prev) { prev.src = b64; prev.style.display = 'block'; }
     if (emoji) emoji.style.display = 'none';
   } else {
-    // Nema loga - vrati emojije
-    if (loginImg) loginImg.style.display = 'none';
-    const loginEmoji = document.getElementById('login-logo-emoji');
-    if (loginEmoji) loginEmoji.style.display = '';
-    if (hdrTitle) hdrTitle.textContent = '🏡 Maja Karanfil Bungali';
-    if (mobTitle) mobTitle.textContent = '🏡 Maja Karanfil Bungali';
+    // Nema sačuvanog (localStorage) loga — NE diraj login sliku ugrađenu u HTML.
+    // Pusti HTML src + onerror da rade svoje (ako se ne učita, onerror je sakrije,
+    // ali ako se učita, ostaje vidljiva). Ovo spriječava "treperenje" loga.
+    if (hdrTitle && !hdrTitle.querySelector('img')) hdrTitle.textContent = '🏡 Maja Karanfil Bungali';
+    if (mobTitle && !mobTitle.querySelector('img')) mobTitle.textContent = '🏡 Maja Karanfil Bungali';
   }
 }
 
@@ -5759,7 +5783,7 @@ window.renderCal = function() {
     .sort((a,b)=>a-b);
 
   // HEADER ROW
-  let html='<div class="cal-row cal-row-hdr"><div class="cc hdr cc-corner cal-col-bung">Bungalov</div>';
+  let html='<div class="cal-row cal-row-hdr"><div class="cc hdr cc-corner cal-col-bung">B</div>';
   for (let d=1;d<=dim;d++) {
     const dt=new Date(yr,mo,d);
     const past=dt<now, today=dt.getTime()===now.getTime();
