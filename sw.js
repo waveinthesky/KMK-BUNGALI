@@ -1,11 +1,19 @@
 // Service Worker za Maja Karanfil Bungali — offline podrška
-// v2.4.2 — single-file deployment (GitHub Pages)
-const CACHE_NAME = 'kmk-bungali-v2.4.2';
+// v2.5.2 — single-file deployment (GitHub Pages)
+const CACHE_NAME = 'kmk-bungali-v2.5.2';
 
 const CACHE_FILES = [
   './',
   './index.html'
 ];
+
+// Glavna stranica može poslati SKIP_WAITING da odmah aktivira novu verziju
+// (rješava "stara verzija ostaje na mobilnom" bez ručnog čišćenja keša)
+self.addEventListener('message', event => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+});
 
 self.addEventListener('install', event => {
   event.waitUntil(

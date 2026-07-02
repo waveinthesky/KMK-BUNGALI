@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Maja Karanfil Bungali v2.5.1</title>
+<title>Maja Karanfil Bungali v2.5.2</title>
 
 <!-- ── PWA: manifest, ikonice, theme boja ─────────────────────────── -->
 <link rel="manifest" href="manifest.json">
@@ -1303,8 +1303,35 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
     if ('serviceWorker' in navigator && (location.protocol === 'http:' || location.protocol === 'https:')) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register(new URL('sw.js', location.href).pathname)
-          .then(reg => console.log('SW registered:', reg.scope))
+          .then(reg => {
+            console.log('SW registered:', reg.scope);
+            // Provjeri ODMAH ima li novija verzija i preuzmi je
+            reg.update();
+            // Kad se pojavi novi service worker koji je preuzeo kontrolu — osvježi stranicu jednom
+            // da korisnik uvijek vidi najnoviju verziju (rješava "stara verzija na mobilnom")
+            reg.addEventListener('updatefound', () => {
+              const newWorker = reg.installing;
+              if (!newWorker) return;
+              newWorker.addEventListener('statechange', () => {
+                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                  // Nova verzija instalirana i postoji stara koja kontroliše → aktiviraj novu
+                  if (newWorker.postMessage) { try { newWorker.postMessage({ type: 'SKIP_WAITING' }); } catch(e){} }
+                }
+              });
+            });
+          })
           .catch(() => {}); // sw.js nije obavezan — tiho ignorisati ako ne postoji
+        // Kad novi SW preuzme kontrolu, osvježi stranicu tačno jednom (spriječi petlju)
+        let _reloadedForSW = false;
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+          if (_reloadedForSW) return;
+          _reloadedForSW = true;
+          location.reload();
+        });
+        // Periodično (svakih 60s dok je otvoreno) provjeri ima li novija verzija
+        setInterval(() => {
+          navigator.serviceWorker.getRegistration().then(r => { if (r) r.update(); }).catch(()=>{});
+        }, 60000);
       });
     }
   </script>
@@ -1382,7 +1409,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
         </div>
         <button type="submit" class="login-btn">Prijavi se →</button>
       </form>
-      <div class="login-foot"><span id="login-ver-txt">v2.5.1</span></div>
+      <div class="login-foot"><span id="login-ver-txt">v2.5.2</span></div>
     </div>
   </div>
 </div>
@@ -1400,7 +1427,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
     </button>
     <div>
       <div class="mob-hdr-title">🏡 Maja Karanfil Bungali</div>
-      <div class="mob-hdr-sub" id="mob-hdr-sub">v2.5.1 mobile</div>
+      <div class="mob-hdr-sub" id="mob-hdr-sub">v2.5.2 mobile</div>
     </div>
   </div>
   <div class="mob-hdr-right">
@@ -1633,7 +1660,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
   <div class="hdr">
     <div class="hdr-l">
       <h1>🏡 Maja Karanfil Bungali</h1>
-      <p id="app-version-hdr">Sistem za upravljanje rezervacijama — v2.5.1</p>
+      <p id="app-version-hdr">Sistem za upravljanje rezervacijama — v2.5.2</p>
     </div>
     <div class="hdr-r">
       <div class="user-row">
@@ -2562,7 +2589,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <!-- Trenutna verzija -->
       <div style="background:#e8f4fd;padding:14px;border-radius:8px;margin-bottom:24px;border-left:4px solid #667eea">
-        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v2.5.1</strong>
+        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v2.5.2</strong>
         <div style="font-size:.85em;color:#555;margin-top:4px">Firebase Firestore · GitHub Pages · Single-file aplikacija</div>
       </div>
 
@@ -2825,7 +2852,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <div class="changelog">
         <div class="ch-version">
-          <div class="ch-ver-header">v2.5.1 <span class="ch-date">— 05.06.2026</span></div>
+          <div class="ch-ver-header">v2.5.2 <span class="ch-date">— 05.06.2026</span></div>
           <ul>
             <li><strong>Virman u dnevnom pregledu:</strong> rezervacije koje čekaju virman više se ne računaju kao crveno nenaplaćene/zaostale; prikazuju se odvojeno u zlatnoj Virman sekciji.</li>
             <li><strong>Mobilni dnevni pregled:</strong> Virman je odvojen od običnog duga i prikazuje se kao status „Čeka virman“, bez crvenog upozorenja.</li>
@@ -4737,7 +4764,7 @@ function kmkReservationLockKeys(data) {
   }
   return keys;
 }
-// v2.5.1: raspored rezervacije = samo datumi boravka + brojevi bungalova.
+// v2.5.2: raspored rezervacije = samo datumi boravka + brojevi bungalova.
 // Promjena naplate, cijene, imena ili napomene ne smije dirati date-lockove ako je raspored isti.
 function kmkReservationScheduleSignature(data) {
   const bungs = kmkCleanReservationBungalows(data?.bungalovi || [])
@@ -14541,4 +14568,4 @@ window.KMK_APP_BRIDGE = {
 </body>
 </html>
 
-<!-- v2.5.1: Virman je strogo isključen iz Zaostalih dugova i podržani su stari/djelimični virman zapisi; dodano Virman dugme direktno u Zaostale. -->
+<!-- v2.5.2: Virman je strogo isključen iz Zaostalih dugova i podržani su stari/djelimični virman zapisi; dodano Virman dugme direktno u Zaostale. -->
