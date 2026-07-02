@@ -610,11 +610,12 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 .mob-bung-btn small{display:block;font-size:.65em;font-weight:700;color:#7b8777;margin-top:1px}
 .mob-bung-btn.sel small{color:#e9efe8}
 .mob-bung-btn:active{transform:scale(.97)}
-.mob-counter{border:1px solid #edf1ec;border-radius:12px;padding:8px 6px;background:#fafcf9;text-align:center;box-sizing:border-box;min-width:0}
-.mob-counter label{display:block;font-size:.68em;color:#667061;font-weight:800;margin-bottom:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.mob-counter-controls{display:flex;align-items:center;justify-content:center;gap:5px}
-.mob-counter-controls button{width:26px;height:26px;border:none;border-radius:50%;background:#edf2eb;color:#50684d;font-size:1em;font-weight:800;cursor:pointer;flex-shrink:0}
-.mob-counter-controls strong{min-width:16px;display:inline-block;font-size:.95em;color:#21311f;text-align:center}
+.mob-counter{border:1px solid #edf1ec;border-radius:12px;padding:8px 4px;background:#fafcf9;text-align:center;box-sizing:border-box;min-width:0;overflow:hidden}
+.mob-counter label{display:block;font-size:.64em;color:#667061;font-weight:800;margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.1}
+.mob-counter-controls{display:flex;align-items:center;justify-content:center;gap:3px;min-width:0}
+.mob-counter-controls button{width:28px;height:28px;min-width:28px;border:none;border-radius:50%;background:#e3ebe0;color:#3f5a3b;font-size:1.05em;font-weight:800;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;line-height:1;padding:0;-webkit-tap-highlight-color:transparent}
+.mob-counter-controls button:active{transform:scale(.9);background:#d3e0cf}
+.mob-counter-controls strong{flex:1;min-width:0;font-size:1em;color:#21311f;text-align:center;font-weight:900}
 .mob-bung-price .price-main{font-size:1em;font-weight:900;color:#2f6d3d}
 .mob-section-title{font-size:.84em;font-weight:900;color:#384736;margin:10px 0 6px}
 .mob-review-block{background:#fff;border:1px solid #e9eee8;border-radius:14px;padding:12px;margin-bottom:8px;box-shadow:0 1px 6px rgba(0,0,0,.04);box-sizing:border-box;overflow:hidden}
@@ -627,6 +628,8 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 .mob-review-total .label{font-size:.75em;font-weight:800;color:#60715b;letter-spacing:.06em;text-transform:uppercase}
 .mob-review-total .amount{font-size:1.8em;font-weight:900;color:#356a42;line-height:1}
 .mob-steps-nav{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.mob-steps-nav .btn{font-size:.9em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;box-sizing:border-box}
+@media(max-width:360px){.mob-steps-nav .btn{font-size:.82em;padding:12px 6px!important}}
 .mob-btn-ghost{background:#f3f5f2!important;color:#556351!important;border:1px solid #e1e8df!important}
 .mob-bottom-summary{position:sticky;bottom:0;margin:10px -16px -20px;padding:10px 12px calc(10px + env(safe-area-inset-bottom));background:rgba(255,255,255,.96);backdrop-filter:blur(8px);border-top:1px solid #edf1ec;display:flex;align-items:center;justify-content:space-between;gap:10px;box-sizing:border-box;max-width:100%}
 .mob-summary-left{min-width:0;overflow:hidden}
@@ -968,7 +971,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 .mob-bung-title{font-size:1.04em;font-weight:900;color:#222}
 .mob-bung-sub{font-size:.76em;color:#888;margin-top:2px}
 .mob-bung-remove{border:none;background:#fce8e6;color:#c62828;border-radius:9px;padding:7px 10px;font-weight:800;cursor:pointer}
-.mob-guest-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;max-width:100%;overflow:hidden}
+.mob-guest-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;max-width:100%;overflow:hidden;box-sizing:border-box}
 .mob-guest-box label{display:block;font-size:.7em;color:#777;font-weight:800;margin-bottom:4px}
 .mob-guest-box input{width:100%;padding:10px 6px;border:1.5px solid #ddd;border-radius:10px;text-align:center;font-weight:800;font-size:.95em;background:white}
 .mob-bung-price{margin-top:10px;background:#f0fff4;color:#1a7a3a;border-radius:10px;padding:9px;font-size:.82em;font-weight:700;line-height:1.45}
@@ -1498,17 +1501,17 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
             <div style="font-size:.8em;font-weight:700;color:#555;margin-bottom:6px">👥 Podrazumijevani br. gostiju za novi bungalov</div>
             <div class="mob-guest-grid">
               <div class="mob-counter">
-                <label>Odrasli</label>
+                <label>👨 Odrasli</label>
                 <div class="mob-counter-controls"><button type="button" onclick="mobDeltaHeader('adults',-1)">−</button><strong id="mob-head-adults">2</strong><button type="button" onclick="mobDeltaHeader('adults',1)">+</button></div>
                 <input type="hidden" id="mob-adults" value="2">
               </div>
               <div class="mob-counter">
-                <label>Djeca 4–12</label>
+                <label>🧒 Djeca</label>
                 <div class="mob-counter-controls"><button type="button" onclick="mobDeltaHeader('children',-1)">−</button><strong id="mob-head-children">0</strong><button type="button" onclick="mobDeltaHeader('children',1)">+</button></div>
                 <input type="hidden" id="mob-children" value="0">
               </div>
               <div class="mob-counter">
-                <label>Bebe &lt; 4</label>
+                <label>👶 Bebe</label>
                 <div class="mob-counter-controls"><button type="button" onclick="mobDeltaHeader('babies',-1)">−</button><strong id="mob-head-babies">0</strong><button type="button" onclick="mobDeltaHeader('babies',1)">+</button></div>
                 <input type="hidden" id="mob-babies" value="0">
               </div>
@@ -3994,20 +3997,30 @@ window.desktopSwapBung = (id, newBn) => {
         return;
       }
       if (isMergedRes) {
-        alert('⚠️ Ovo je spojena Booking rezervacija sa više bungalova. Zamjena bungalova kod spojenih rezervacija nije podržana — prvo ukloni bungalov, pa ga ručno dodaj nazad nakon potvrde.');
-        const p = document.getElementById(`desktop-swap-panel-${id}`);
-        if (p) p.style.display = 'none';
-        return;
+        // Admin smije premostiti i kod spojenih Booking rezervacija, uz jasno upozorenje.
+        const mergedMsg = '⚠️ SPOJENA BOOKING REZERVACIJA\n\nB' + oldBn + ' je dio spojene rezervacije sa više bungalova i došao je sa Booking.com.\n\nAko zamijeniš B' + oldBn + ' → B' + newBn + ':\n• Veza sa Booking-om (iCal) prenosi se na B' + newBn + '\n• Ostali bungalovi u ovoj rezervaciji ostaju netaknuti\n• Kalendar aplikacije više neće odgovarati onome što gost vidi na Booking-u\n\nRadi ovo samo ako stvarno znaš zašto (greška u unosu ili fizička zamjena dogovorena sa gostom).\n\nNastaviti?';
+        if (!confirm(mergedMsg)) {
+          const p = document.getElementById(`desktop-swap-panel-${id}`);
+          if (p) p.style.display = 'none';
+          return;
+        }
+        // Prenesi iCal UID sa starog bungalova na novi da se izbjegne duplikat pri sync-u
+        transferUid = (oldBungObj && oldBungObj.icalUid) || cur.icalUid || null;
+        // Nastavi normalno (ne blokiraj) — obavijesti korisnika i preskoči zaseban single-booking confirm ispod
+        window._mergedBookingSwapConfirmed = true;
       }
-      // Admin potvrđuje da razumije rizik prije nego nastavi
-      const confirmMsg = '⚠️ ADMIN AKCIJA: B' + oldBn + ' je sa Booking.com.\n\nZamjenom na B' + newBn + ' kalendar tvoje aplikacije više NEĆE odgovarati onome što gost vidi na Booking-u (gost i dalje vidi B' + oldBn + ').\n\nVeza sa Booking-om (iCal) se prenosi na B' + newBn + ' da se izbjegne duplikat, ali ručno moraš paziti da ovo radiš samo kad stvarno znaš zašto (npr. greška u unosu, fizička zamjena dogovorena sa gostom).\n\nNastaviti sa zamjenom?';
-      if (!confirm(confirmMsg)) {
-        const p = document.getElementById(`desktop-swap-panel-${id}`);
-        if (p) p.style.display = 'none';
-        return;
+      // Admin potvrđuje da razumije rizik prije nego nastavi (preskoči ako je već potvrđeno kroz merged gran​u)
+      if (!window._mergedBookingSwapConfirmed) {
+        const confirmMsg = '⚠️ ADMIN AKCIJA: B' + oldBn + ' je sa Booking.com.\n\nZamjenom na B' + newBn + ' kalendar tvoje aplikacije više NEĆE odgovarati onome što gost vidi na Booking-u (gost i dalje vidi B' + oldBn + ').\n\nVeza sa Booking-om (iCal) se prenosi na B' + newBn + ' da se izbjegne duplikat, ali ručno moraš paziti da ovo radiš samo kad stvarno znaš zašto (npr. greška u unosu, fizička zamjena dogovorena sa gostom).\n\nNastaviti sa zamjenom?';
+        if (!confirm(confirmMsg)) {
+          const p = document.getElementById(`desktop-swap-panel-${id}`);
+          if (p) p.style.display = 'none';
+          return;
+        }
+        // Zapamti UID za prenos na novi bungalov broj (koristi se pri save-u)
+        transferUid = (oldBungObj && oldBungObj.icalUid) || cur.icalUid || null;
       }
-      // Zapamti UID za prenos na novi bungalov broj (koristi se pri save-u)
-      transferUid = (oldBungObj && oldBungObj.icalUid) || cur.icalUid || null;
+      window._mergedBookingSwapConfirmed = false; // reset za sljedeći put
     }
   }
   // ZAŠTITA 1: novi bungalov ne smije već biti izabran u DRUGOM redu
@@ -6259,7 +6272,16 @@ window.renderDaily = function(dateStr) {
     const bungsChips = (r.bungalovi||[]).map(b =>
       `<span style="display:inline-block;background:#40916c;color:#fff;border-radius:6px;padding:2px 8px;font-weight:800;font-size:1.05em;letter-spacing:.2px;margin:0 2px 2px 0;box-shadow:0 1px 2px rgba(64,145,108,.35)">B${b.bungalov}</span>`
     ).join('');
-    const guests = (r.bungalovi||[]).reduce((s,b)=>s+(b.adults||0)+(b.children||0),0);
+    const totAdults = (r.bungalovi||[]).reduce((s,b)=>s+(b.adults||0),0);
+    const totChildren = (r.bungalovi||[]).reduce((s,b)=>s+(b.children||0),0);
+    const totBabies = (r.bungalovi||[]).reduce((s,b)=>s+(b.babies||0),0);
+    const guests = totAdults + totChildren + totBabies;
+    // Čitljiva struktura gostiju: "2 odrasla · 1 dijete · 1 beba"
+    const guestParts = [];
+    if (totAdults > 0) guestParts.push(totAdults + ' ' + (totAdults===1?'odrasla osoba':(totAdults<5?'odrasle osobe':'odraslih')));
+    if (totChildren > 0) guestParts.push(totChildren + ' ' + (totChildren===1?'dijete':'djece'));
+    if (totBabies > 0) guestParts.push(totBabies + ' ' + (totBabies===1?'beba':(totBabies<5?'bebe':'beba')));
+    const guestStructure = guestParts.length ? guestParts.join(' · ') : guests + ' gost.';
     const price  = parseFloat(r.price)||0;
 
     const vPend = (typeof kmkIsVirmanPending === 'function') ? kmkIsVirmanPending(r) : (!!r.virman && !r.paid);
@@ -6342,7 +6364,7 @@ window.renderDaily = function(dateStr) {
 
           <div style="font-size:.76em;color:#555;margin-top:3px;line-height:1.5">
             ${bungsChips}
-            &nbsp;${nights} noći &middot; ${guests} gost.
+            &nbsp;${nights} noći &middot; ${guestStructure}
             ${price>0?'&nbsp;&middot; <strong>&euro;'+price.toFixed(0)+'</strong>':''}
           </div>
 
@@ -7377,7 +7399,9 @@ window.confirmMerge = async function() {
 
     // KORAK 2: glavna je sigurno sačuvana. Forma sad prikazuje spojeno stanje.
     // Popuni formu sa svim bungalovima da korisnik vidi rezultat i doradi podatke.
-    editId = editId; priceManual = true; // glavna je sačuvana, ostani u edit modu
+    // priceManual = false → dozvoli da recalc() automatski izračuna cijenu za SVE spojene
+    // bungalove sa tačnim brojem gostiju (bug fix: ranije je ostajalo na staroj cijeni).
+    editId = editId; priceManual = false;
     window._mergedBungUids = {};
     mainBungs.forEach(b => { if (b.icalUid) window._mergedBungUids[String(b.bungalov)] = b.icalUid; });
     window._mergedAllUids = allUidsFinal;
@@ -7388,16 +7412,20 @@ window.confirmMerge = async function() {
       const items = [...document.querySelectorAll('.bung-item')];
       const last = items[items.length-1];
       const sel = last.querySelector('.b-sel');
-      if (sel) { sel.value = String(b.bungalov); onBSel(sel); }
+      // VAŽNO: prvo postavi goste, PA onda onBSel (koji zove recalc) —
+      // inače recalc čita 0 gostiju i pregled/cijena ostanu netačni.
       const bi = last.querySelector('.b-beds'); if (bi) bi.value = b.beds;
       const ai = last.querySelector('.g-adults'); if (ai) ai.value = b.adults||0;
       const cChi = last.querySelector('.g-children'); if (cChi) cChi.value = b.children||0;
       const bai = last.querySelector('.g-babies'); if (bai) bai.value = b.babies||0;
       const ni = last.querySelector('.b-notes'); if (ni) ni.value = b.notes||'';
       const sbi = last.querySelector('.shared-bed-chk'); if (sbi) sbi.checked = b.sharedBed||false;
+      if (sel) { sel.value = String(b.bungalov); onBSel(sel); }
       validateG(last);
       if (typeof kmkUpdateStepTotal === 'function') kmkUpdateStepTotal(last);
     });
+    // Preračunaj UKUPNI pregled i cijenu SADA kad su svi bungalovi i gosti popunjeni
+    if (typeof recalc === 'function') recalc();
     closeMergePanel();
     updateMergeButtonVisibility();
     if (typeof window.refreshBungVisualGrid === 'function') window.refreshBungVisualGrid();
