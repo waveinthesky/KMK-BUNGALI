@@ -1,6 +1,6 @@
 // Service Worker za Maja Karanfil Bungali — offline podrška
 // v2.5.2 — single-file deployment (GitHub Pages)
-const CACHE_NAME = 'kmk-bungali-v2.5.3';
+const CACHE_NAME = 'kmk-bungali-v2.5.4';
 
 const CACHE_FILES = [
   './',

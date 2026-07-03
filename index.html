@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Maja Karanfil Bungali v2.5.3</title>
+<title>Maja Karanfil Bungali v2.5.4</title>
 
 <!-- ── PWA: manifest, ikonice, theme boja ─────────────────────────── -->
 <link rel="manifest" href="manifest.json">
@@ -1409,7 +1409,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
         </div>
         <button type="submit" class="login-btn">Prijavi se →</button>
       </form>
-      <div class="login-foot"><span id="login-ver-txt">v2.5.3</span></div>
+      <div class="login-foot"><span id="login-ver-txt">v2.5.4</span></div>
     </div>
   </div>
 </div>
@@ -1427,7 +1427,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
     </button>
     <div>
       <div class="mob-hdr-title">🏡 Maja Karanfil Bungali</div>
-      <div class="mob-hdr-sub" id="mob-hdr-sub">v2.5.3 mobile</div>
+      <div class="mob-hdr-sub" id="mob-hdr-sub">v2.5.4 mobile</div>
     </div>
   </div>
   <div class="mob-hdr-right">
@@ -1660,7 +1660,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
   <div class="hdr">
     <div class="hdr-l">
       <h1>🏡 Maja Karanfil Bungali</h1>
-      <p id="app-version-hdr">Sistem za upravljanje rezervacijama — v2.5.3</p>
+      <p id="app-version-hdr">Sistem za upravljanje rezervacijama — v2.5.4</p>
     </div>
     <div class="hdr-r">
       <div class="user-row">
@@ -2589,7 +2589,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <!-- Trenutna verzija -->
       <div style="background:#e8f4fd;padding:14px;border-radius:8px;margin-bottom:24px;border-left:4px solid #667eea">
-        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v2.5.3</strong>
+        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v2.5.4</strong>
         <div style="font-size:.85em;color:#555;margin-top:4px">Firebase Firestore · GitHub Pages · Single-file aplikacija</div>
       </div>
 
@@ -2852,7 +2852,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <div class="changelog">
         <div class="ch-version">
-          <div class="ch-ver-header">v2.5.3 <span class="ch-date">— 05.06.2026</span></div>
+          <div class="ch-ver-header">v2.5.4 <span class="ch-date">— 05.06.2026</span></div>
           <ul>
             <li><strong>Virman u dnevnom pregledu:</strong> rezervacije koje čekaju virman više se ne računaju kao crveno nenaplaćene/zaostale; prikazuju se odvojeno u zlatnoj Virman sekciji.</li>
             <li><strong>Mobilni dnevni pregled:</strong> Virman je odvojen od običnog duga i prikazuje se kao status „Čeka virman“, bez crvenog upozorenja.</li>
@@ -4764,7 +4764,7 @@ function kmkReservationLockKeys(data) {
   }
   return keys;
 }
-// v2.5.3: raspored rezervacije = samo datumi boravka + brojevi bungalova.
+// v2.5.4: raspored rezervacije = samo datumi boravka + brojevi bungalova.
 // Promjena naplate, cijene, imena ili napomene ne smije dirati date-lockove ako je raspored isti.
 function kmkReservationScheduleSignature(data) {
   const bungs = kmkCleanReservationBungalows(data?.bungalovi || [])
@@ -5304,21 +5304,20 @@ document.getElementById('res-form').addEventListener('submit', async e => {
   const ci=document.getElementById('f-checkin').value;
   const co=document.getElementById('f-checkout').value;
   if (new Date(co)<=new Date(ci)) { alert('Datum odlaska mora biti nakon dolaska!'); return; }
-  // Provjera prošlih datuma: admin može editovati prošle, worker ne
+  // Provjera prošlih datuma: admin može dodati/editovati prošle uz obavještenje, worker ne
   const _today = new Date(); _today.setHours(0,0,0,0);
-  if (!editId && new Date(ci+'T00:00:00') < _today) {
+  const _ciIsPast = new Date(ci+'T00:00:00') < _today;
+  if (!editId && _ciIsPast) {
     if (curRole !== 'admin') { alert('❌ Ne možete unositi rezervacije sa prošlim datumom dolaska.'); return; }
-  }
-  if (editId && new Date(ci+'T00:00:00') < _today && curRole === 'admin') {
-    // Admin edituje prošlu rezervaciju — samo tiho, bez blokade
   }
   const _adminScheduleUnchanged = !!(
     curRole === 'admin' && _editOld &&
     kmkScheduleUnchanged(_editOld, { checkIn: ci, checkOut: co, bungalovi })
   );
-  // Admin koji uređuje rezervaciju sa prošlim datumom dolaska smije prihvatiti
-  // bilo kakvu izmjenu (datum/bungalov/cijena), uz potvrdu — historijski podaci.
-  const _isPastEdit = !!editId && new Date(ci+'T00:00:00') < _today;
+  // Admin koji DODAJE ili UREĐUJE rezervaciju sa prošlim datumom dolaska smije to
+  // sačuvati (npr. rezervacija je pogrešno unesena pa se mora dodati/ispraviti unazad),
+  // uz obavještenje. Historijski podaci — preskačemo overlap provjeru za prošle dane.
+  const _isPastEdit = _ciIsPast;
   const _adminPastEdit = (curRole === 'admin') && _isPastEdit;
 
   for (const b of bungalovi) {
@@ -5339,9 +5338,12 @@ document.getElementById('res-form').addEventListener('submit', async e => {
       if (!ok) return;
     }
   }
-  // Ako admin uređuje prošlu rezervaciju, jednom potvrdi izmjenu prije čuvanja
+  // Admin dodaje/uređuje prošlu rezervaciju → obavještenje prije čuvanja
   if (_adminPastEdit) {
-    const okPast = confirm('📅 Mijenjate rezervaciju iz prošlosti (datum dolaska je već prošao).\n\nKao administrator smijete sačuvati ovu izmjenu. Nastaviti?');
+    const okPast = confirm((editId
+      ? '📅 Mijenjate rezervaciju iz prošlosti (datum dolaska je već prošao).'
+      : '📅 Dodajete rezervaciju u prošlost (datum dolaska je već prošao).')
+      + '\n\nKao administrator smijete ovo sačuvati (npr. ispravka pogrešnog unosa). Nastaviti?');
     if (!okPast) return;
   }
   const priceVal = parseFloat(document.getElementById('f-price').value)||0;
@@ -14572,4 +14574,4 @@ window.KMK_APP_BRIDGE = {
 </body>
 </html>
 
-<!-- v2.5.3: Virman je strogo isključen iz Zaostalih dugova i podržani su stari/djelimični virman zapisi; dodano Virman dugme direktno u Zaostale. -->
+<!-- v2.5.4: Virman je strogo isključen iz Zaostalih dugova i podržani su stari/djelimični virman zapisi; dodano Virman dugme direktno u Zaostale. -->
