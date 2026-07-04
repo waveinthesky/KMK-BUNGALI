@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Maja Karanfil Bungali v2.5.4</title>
+<title>Maja Karanfil Bungali v2.5.5</title>
 
 <!-- ── PWA: manifest, ikonice, theme boja ─────────────────────────── -->
 <link rel="manifest" href="manifest.json">
@@ -1409,7 +1409,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
         </div>
         <button type="submit" class="login-btn">Prijavi se →</button>
       </form>
-      <div class="login-foot"><span id="login-ver-txt">v2.5.4</span></div>
+      <div class="login-foot"><span id="login-ver-txt">v2.5.5</span></div>
     </div>
   </div>
 </div>
@@ -1427,7 +1427,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
     </button>
     <div>
       <div class="mob-hdr-title">🏡 Maja Karanfil Bungali</div>
-      <div class="mob-hdr-sub" id="mob-hdr-sub">v2.5.4 mobile</div>
+      <div class="mob-hdr-sub" id="mob-hdr-sub">v2.5.5 mobile</div>
     </div>
   </div>
   <div class="mob-hdr-right">
@@ -1660,7 +1660,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
   <div class="hdr">
     <div class="hdr-l">
       <h1>🏡 Maja Karanfil Bungali</h1>
-      <p id="app-version-hdr">Sistem za upravljanje rezervacijama — v2.5.4</p>
+      <p id="app-version-hdr">Sistem za upravljanje rezervacijama — v2.5.5</p>
     </div>
     <div class="hdr-r">
       <div class="user-row">
@@ -2589,7 +2589,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <!-- Trenutna verzija -->
       <div style="background:#e8f4fd;padding:14px;border-radius:8px;margin-bottom:24px;border-left:4px solid #667eea">
-        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v2.5.4</strong>
+        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v2.5.5</strong>
         <div style="font-size:.85em;color:#555;margin-top:4px">Firebase Firestore · GitHub Pages · Single-file aplikacija</div>
       </div>
 
@@ -2852,7 +2852,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <div class="changelog">
         <div class="ch-version">
-          <div class="ch-ver-header">v2.5.4 <span class="ch-date">— 05.06.2026</span></div>
+          <div class="ch-ver-header">v2.5.5 <span class="ch-date">— 05.06.2026</span></div>
           <ul>
             <li><strong>Virman u dnevnom pregledu:</strong> rezervacije koje čekaju virman više se ne računaju kao crveno nenaplaćene/zaostale; prikazuju se odvojeno u zlatnoj Virman sekciji.</li>
             <li><strong>Mobilni dnevni pregled:</strong> Virman je odvojen od običnog duga i prikazuje se kao status „Čeka virman“, bez crvenog upozorenja.</li>
@@ -3159,7 +3159,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
-import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, setDoc,
+import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, setDoc, getDoc,
          onSnapshot, query, orderBy, getDocs, limit, where, writeBatch, runTransaction
 , initializeFirestore, persistentLocalCache, persistentMultipleTabManager } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
 
@@ -4764,7 +4764,7 @@ function kmkReservationLockKeys(data) {
   }
   return keys;
 }
-// v2.5.4: raspored rezervacije = samo datumi boravka + brojevi bungalova.
+// v2.5.5: raspored rezervacije = samo datumi boravka + brojevi bungalova.
 // Promjena naplate, cijene, imena ili napomene ne smije dirati date-lockove ako je raspored isti.
 function kmkReservationScheduleSignature(data) {
   const bungs = kmkCleanReservationBungalows(data?.bungalovi || [])
@@ -14574,4 +14574,4 @@ window.KMK_APP_BRIDGE = {
 </body>
 </html>
 
-<!-- v2.5.4: Virman je strogo isključen iz Zaostalih dugova i podržani su stari/djelimični virman zapisi; dodano Virman dugme direktno u Zaostale. -->
+<!-- v2.5.5: Virman je strogo isključen iz Zaostalih dugova i podržani su stari/djelimični virman zapisi; dodano Virman dugme direktno u Zaostale. -->
