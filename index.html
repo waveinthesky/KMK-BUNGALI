@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Maja Karanfil Bungali v2.5.5</title>
+<title>Maja Karanfil Bungali v2.5.6</title>
 
 <!-- ── PWA: manifest, ikonice, theme boja ─────────────────────────── -->
 <link rel="manifest" href="manifest.json">
@@ -1409,7 +1409,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
         </div>
         <button type="submit" class="login-btn">Prijavi se →</button>
       </form>
-      <div class="login-foot"><span id="login-ver-txt">v2.5.5</span></div>
+      <div class="login-foot"><span id="login-ver-txt">v2.5.6</span></div>
     </div>
   </div>
 </div>
@@ -1427,7 +1427,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
     </button>
     <div>
       <div class="mob-hdr-title">🏡 Maja Karanfil Bungali</div>
-      <div class="mob-hdr-sub" id="mob-hdr-sub">v2.5.5 mobile</div>
+      <div class="mob-hdr-sub" id="mob-hdr-sub">v2.5.6 mobile</div>
     </div>
   </div>
   <div class="mob-hdr-right">
@@ -1660,7 +1660,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
   <div class="hdr">
     <div class="hdr-l">
       <h1>🏡 Maja Karanfil Bungali</h1>
-      <p id="app-version-hdr">Sistem za upravljanje rezervacijama — v2.5.5</p>
+      <p id="app-version-hdr">Sistem za upravljanje rezervacijama — v2.5.6</p>
     </div>
     <div class="hdr-r">
       <div class="user-row">
@@ -2589,7 +2589,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <!-- Trenutna verzija -->
       <div style="background:#e8f4fd;padding:14px;border-radius:8px;margin-bottom:24px;border-left:4px solid #667eea">
-        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v2.5.5</strong>
+        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v2.5.6</strong>
         <div style="font-size:.85em;color:#555;margin-top:4px">Firebase Firestore · GitHub Pages · Single-file aplikacija</div>
       </div>
 
@@ -2852,7 +2852,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <div class="changelog">
         <div class="ch-version">
-          <div class="ch-ver-header">v2.5.5 <span class="ch-date">— 05.06.2026</span></div>
+          <div class="ch-ver-header">v2.5.6 <span class="ch-date">— 05.06.2026</span></div>
           <ul>
             <li><strong>Virman u dnevnom pregledu:</strong> rezervacije koje čekaju virman više se ne računaju kao crveno nenaplaćene/zaostale; prikazuju se odvojeno u zlatnoj Virman sekciji.</li>
             <li><strong>Mobilni dnevni pregled:</strong> Virman je odvojen od običnog duga i prikazuje se kao status „Čeka virman“, bez crvenog upozorenja.</li>
@@ -4776,7 +4776,7 @@ function kmkReservationLockKeys(data) {
   }
   return keys;
 }
-// v2.5.5: raspored rezervacije = samo datumi boravka + brojevi bungalova.
+// v2.5.6: raspored rezervacije = samo datumi boravka + brojevi bungalova.
 // Promjena naplate, cijene, imena ili napomene ne smije dirati date-lockove ako je raspored isti.
 function kmkReservationScheduleSignature(data) {
   const bungs = kmkCleanReservationBungalows(data?.bungalovi || [])
@@ -10299,6 +10299,61 @@ let _dismissedConflictSignature = '';
 let _conflictNotifSignature = '';
 let _lastConflictCount = 0;
 
+// ── PRIHVAĆENI (RIJEŠENI) KONFLIKTI ──────────────────────────
+// Admin može označiti konflikt kao "riješeno/prihvaćeno" (npr. sam je uradio razmještaj
+// ili svjesno dozvolio preklapanje). Takav konflikt se pamti po svom ključu (pairKey koji
+// sadrži id-eve, bungalov i tačne datume preklapanja) i više se ne prijavljuje.
+// Čuva se u localStorage (per-uređaj). Ako se rezervacija naknadno promijeni (drugi datum
+// ili bungalov), ključ se mijenja pa se novi/stvarni konflikt opet ispravno javi.
+const KMK_RESOLVED_CONFLICTS_KEY = 'kmk_resolved_conflicts';
+function kmkGetResolvedConflicts() {
+  try { return JSON.parse(localStorage.getItem(KMK_RESOLVED_CONFLICTS_KEY) || '{}') || {}; }
+  catch(e) { return {}; }
+}
+function kmkIsConflictResolved(key) {
+  if (!key) return false;
+  const r = kmkGetResolvedConflicts();
+  return !!r[key];
+}
+window.kmkResolveConflict = function(key, btn) {
+  if (!key) return;
+  try {
+    const r = kmkGetResolvedConflicts();
+    r[key] = { at: new Date().toISOString() };
+    localStorage.setItem(KMK_RESOLVED_CONFLICTS_KEY, JSON.stringify(r));
+  } catch(e) {}
+  if (btn) { btn.disabled = true; btn.style.opacity = '.5'; btn.textContent = '✓ Riješeno'; }
+  // Ponovo pokreni detekciju da se odmah ukloni iz liste i banera
+  if (typeof detectConflicts === 'function') detectConflicts();
+};
+// Vrati konflikt nazad u "aktivne" (poništi prihvatanje) — za slučaj greške
+window.kmkUnresolveConflict = function(key) {
+  if (!key) return;
+  try {
+    const r = kmkGetResolvedConflicts();
+    delete r[key];
+    localStorage.setItem(KMK_RESOLVED_CONFLICTS_KEY, JSON.stringify(r));
+  } catch(e) {}
+  if (typeof detectConflicts === 'function') detectConflicts();
+};
+
+// Uredi Booking/iCal stranu konflikta. Ako rezervacija stvarno postoji u bazi
+// (ima pravi id — uvezena iCal rezervacija), otvara je za uređivanje gdje admin
+// može zamijeniti bungalov / razmjestiti. Ako je virtualna (externalIcal — Booking
+// događaj koji NIJE uvezen jer bi pregazio postojeću), objasni situaciju.
+window.kmkEditIcalConflictSide = function(resId) {
+  if (!resId) return;
+  // Da li ta rezervacija postoji u bazi?
+  const real = reservations.find(r => String(r.id) === String(resId));
+  if (real) {
+    // Prava iCal rezervacija — otvori za uređivanje (admin može zamijeniti bungalov)
+    if (typeof editRes === 'function') editRes(String(resId));
+    return;
+  }
+  // Virtualna (nije uvezena) — objasni
+  alert('🌐 Ova Booking.com rezervacija (iz iCal feed-a) NIJE upisana u kalendar — namjerno je preskočena da ne pregazi postojeću rezervaciju koja se preklapa.\n\nDa je ručno smjestiš:\n1. Prvo oslobodi ili premjesti postojeću rezervaciju na tom bungalovu, ILI\n2. Ako si već sve razmjestio i sve je u redu, klikni "✓ Riješeno / Prihvaćam".\n\nBooking rezervaciju ne možeš direktno mijenjati jer dolazi sa Booking.com — njome upravljaš na Booking.com ekstranetu.');
+};
+
 function _kmkNormBungNo(v) {
   const n = parseInt(String(v ?? '').replace(/\D/g, ''), 10);
   return Number.isFinite(n) ? String(n) : '';
@@ -10481,11 +10536,14 @@ window.detectConflicts = function() {
     if (!found.some(x => x.key === cf.key)) found.push(cf);
   }
 
-  _activeConflicts = found;
-  _lastConflictSignature = _kmkConflictSignature(found);
+  // Ukloni konflikte koje je admin već označio kao "riješeno/prihvaćeno"
+  const foundFiltered = found.filter(cf => !kmkIsConflictResolved(cf.key));
+
+  _activeConflicts = foundFiltered;
+  _lastConflictSignature = _kmkConflictSignature(foundFiltered);
   updateConflictUI();
-  _kmkAutoNotifyConflicts(_lastConflictSignature, found);
-  return found;
+  _kmkAutoNotifyConflicts(_lastConflictSignature, foundFiltered);
+  return foundFiltered;
 };
 
 // Ažuriraj UI za konflikte
@@ -10585,10 +10643,10 @@ function renderConflictsPane() {
           </div>
         </div>
         <div class="cf-actions">
-          ${cf.a.externalIcal ? '<span style="font-size:.82em;color:#856404;background:#fff3cd;padding:7px 10px;border-radius:8px;font-weight:700">Booking iCal nije upisan u kalendar da ne pregazi postojeću rezervaciju.</span>' : `<button class="cf-btn view" onclick="editRes('${String(cf.a.id).replace(/'/g, '\\&#39;')}')">✏️ Uredi: ${escHtml((cf.a.name||'').substring(0,15))}${(cf.a.name||'').length>15?'...':''}</button>`}
-          ${cf.b.externalIcal ? '' : `<button class="cf-btn view" onclick="editRes('${String(cf.b.id).replace(/'/g, '\\&#39;')}')">✏️ Uredi: ${escHtml((cf.b.name||'').substring(0,15))}${(cf.b.name||'').length>15?'...':''}</button>`}
-        </div>
-      </div>`;
+          ${cf.a.externalIcal ? `<button class="cf-btn" style="background:#e7f0ff;color:#003580" onclick="kmkEditIcalConflictSide(&quot;${String(cf.a.id||'').replace(/'/g,'\\&#39;')}&quot;)" title="Uredi Booking/iCal rezervaciju — zamijeni bungalov ili razmjesti">🌐 Uredi Booking</button>` : `<button class="cf-btn view" onclick="editRes('${String(cf.a.id).replace(/'/g, '\\&#39;')}')">✏️ Uredi: ${escHtml((cf.a.name||'').substring(0,15))}${(cf.a.name||'').length>15?'...':''}</button>`}
+          ${cf.b.externalIcal ? `<button class="cf-btn" style="background:#e7f0ff;color:#003580" onclick="kmkEditIcalConflictSide(&quot;${String(cf.b.id||'').replace(/'/g,'\\&#39;')}&quot;)" title="Uredi Booking/iCal rezervaciju — zamijeni bungalov ili razmjesti">🌐 Uredi Booking</button>` : `<button class="cf-btn view" onclick="editRes('${String(cf.b.id).replace(/'/g, '\\&#39;')}')">✏️ Uredi: ${escHtml((cf.b.name||'').substring(0,15))}${(cf.b.name||'').length>15?'...':''}</button>`}
+          <button class="cf-btn" style="background:#d4edda;color:#155724" onclick="kmkResolveConflict('${String(cf.key).replace(/'/g, '\\&#39;')}', this)" title="Označi kao riješeno — ako si sam uradio razmještaj ili prihvatio ovo preklapanje. Neće se više prijavljivati.">✓ Riješeno / Prihvaćam</button>
+        </div>`;
     }).join('')}
   `;
 }
@@ -14611,4 +14669,4 @@ window.KMK_APP_BRIDGE = {
 </body>
 </html>
 
-<!-- v2.5.5: Virman je strogo isključen iz Zaostalih dugova i podržani su stari/djelimični virman zapisi; dodano Virman dugme direktno u Zaostale. -->
+<!-- v2.5.6: Virman je strogo isključen iz Zaostalih dugova i podržani su stari/djelimični virman zapisi; dodano Virman dugme direktno u Zaostale. -->
