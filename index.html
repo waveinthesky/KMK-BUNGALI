@@ -3711,6 +3711,15 @@ function init() {
   }
 }
 
+// ╔══════════════════════════════════════════════════════════════════════════╗
+// ║  🔒 ZAKLJUČANA ZONA — FIREBASE REALTIME SINHRONIZACIJA                      ║
+// ║  NE MIJENJATI bez izričitog zahtjeva korisnika ("promijeni Firebase sync").║
+// ║                                                                            ║
+// ║  Ovdje se registruje onSnapshot realtime slušanje za sve kolekcije         ║
+// ║  (reservations, history, appUsers, pricePeriods, notifications, channels,  ║
+// ║  icalLinks). Ovo je srce prikaza u realnom vremenu — čim se nešto promijeni║
+// ║  u bazi, ovdje stiže i osvježava ekran. Diranje lako obori realtime prikaz.║
+// ╚══════════════════════════════════════════════════════════════════════════╝
 function setupFirebase() {
   syncUI('sy','Povezivanje...');
   _resetSessionTimer(); // Startaj session timeout timer
@@ -3772,6 +3781,9 @@ function setupFirebase() {
 }
 
 function syncUI(s,t) { document.getElementById('sync-ind').className='si '+s; document.getElementById('sync-txt').textContent=t; }
+// ╔══════════════════════════════════════════════════════════════════════════╗
+// ║  🔒 KRAJ ZAKLJUČANE ZONE — FIREBASE REALTIME SINHRONIZACIJA                 ║
+// ╚══════════════════════════════════════════════════════════════════════════╝
 
 // ── STEPPER za broj gostiju (+/−) ──
 window.kmkStep = function(btn, sel, delta) {
@@ -11514,6 +11526,12 @@ window.filterGuestBook = () => {
     </div>`).join('');
 };
 
+// ╔══════════════════════════════════════════════════════════════════════════╗
+// ║  🔒 ZAKLJUČANA ZONA — OFFLINE / ONLINE DETEKCIJA                            ║
+// ║  NE MIJENJATI bez izričitog zahtjeva korisnika ("promijeni offline").      ║
+// ║  Ovaj kod detektuje gubitak/povratak internet veze i blokira upis offline. ║
+// ║  Radi zajedno sa Firebase offline persistence. Testiran i stabilan.        ║
+// ╚══════════════════════════════════════════════════════════════════════════╝
 // ══════════════════════════════════════════════════════════
 // OFFLINE / ONLINE DETECTION
 // ══════════════════════════════════════════════════════════
@@ -11551,6 +11569,9 @@ if (_isOffline) _updateOfflineUI();
 
 // Izloži globalnu provjeru za save akcije
 window.isOffline = () => _isOffline;
+// ╔══════════════════════════════════════════════════════════════════════════╗
+// ║  🔒 KRAJ ZAKLJUČANE ZONE — OFFLINE / ONLINE DETEKCIJA                       ║
+// ╚══════════════════════════════════════════════════════════════════════════╝
 
 // ══════════════════════════════════════════════════════════
 // BULK SELECT — grupno otkazivanje rezervacija
@@ -13068,6 +13089,19 @@ window.deleteChannel=async id=>{
 };
 
 
+// ╔══════════════════════════════════════════════════════════════════════════╗
+// ║  🔒 ZAKLJUČANA ZONA — iCAL SYNC + BOOKING SINHRONIZACIJA                    ║
+// ║  NE MIJENJATI bez izričitog zahtjeva korisnika ("promijeni iCal/sync").    ║
+// ║                                                                            ║
+// ║  Ovdje živi: parsiranje Booking iCal feed-a, automatski uvoz rezervacija,  ║
+// ║  detekcija promjena/otkazivanja, sigurnosne mreže za spojene rezervacije,  ║
+// ║  automatski sync (svakih 5 min + 8s poslije logina), guard protiv          ║
+// ║  gomilanja sync-ova (spriječava 200.000+ Cloudflare requests / quota).     ║
+// ║                                                                            ║
+// ║  Kritične zavisnosti: reservations[], window.icalLinks, curUser,           ║
+// ║  kmkSaveReservationAtomic, kmkFindReservationOverlap, addNotif.            ║
+// ║  Testiran i stabilan. Diranje ovdje lako pokvari Booking sync.             ║
+// ╚══════════════════════════════════════════════════════════════════════════╝
 // ── iCAL SYNC ────────────────────────────────────────────────
 // iCal linkovi se cuvaju u Firestore kolekciji 'icalLinks'
 // Svaki dokument: { bungalov, name, url, createdAt, lastSync, lastSyncCount }
@@ -13899,6 +13933,9 @@ function stopAutoIcalSync() {
   const el = document.getElementById('ical-countdown');
   if (el) el.style.display = 'none';
 }
+// ╔══════════════════════════════════════════════════════════════════════════╗
+// ║  🔒 KRAJ ZAKLJUČANE ZONE — iCAL SYNC + BOOKING SINHRONIZACIJA               ║
+// ╚══════════════════════════════════════════════════════════════════════════╝
 
 // Close modals on backdrop click
 ['m-delete','m-restore','m-details'].forEach(id=>{ document.getElementById(id).addEventListener('click',e=>{ if(e.target.id===id){ if(id==='m-delete') closeDelModal(); else if(id==='m-restore') closeRestModal(); else closeDetModal(); } }); });
