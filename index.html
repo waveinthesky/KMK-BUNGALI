@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Maja Karanfil Bungali v2.5.7</title>
+<title>Maja Karanfil Bungali v2.5.8</title>
 
 <!-- ── PWA: manifest, ikonice, theme boja ─────────────────────────── -->
 <link rel="manifest" href="manifest.json">
@@ -1409,7 +1409,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
         </div>
         <button type="submit" class="login-btn">Prijavi se →</button>
       </form>
-      <div class="login-foot"><span id="login-ver-txt">v2.5.7</span></div>
+      <div class="login-foot"><span id="login-ver-txt">v2.5.8</span></div>
     </div>
   </div>
 </div>
@@ -1427,7 +1427,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
     </button>
     <div>
       <div class="mob-hdr-title">🏡 Maja Karanfil Bungali</div>
-      <div class="mob-hdr-sub" id="mob-hdr-sub">v2.5.7 mobile</div>
+      <div class="mob-hdr-sub" id="mob-hdr-sub">v2.5.8 mobile</div>
     </div>
   </div>
   <div class="mob-hdr-right">
@@ -1660,7 +1660,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
   <div class="hdr">
     <div class="hdr-l">
       <h1>🏡 Maja Karanfil Bungali</h1>
-      <p id="app-version-hdr">Sistem za upravljanje rezervacijama — v2.5.7</p>
+      <p id="app-version-hdr">Sistem za upravljanje rezervacijama — v2.5.8</p>
     </div>
     <div class="hdr-r">
       <div class="user-row">
@@ -2589,7 +2589,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <!-- Trenutna verzija -->
       <div style="background:#e8f4fd;padding:14px;border-radius:8px;margin-bottom:24px;border-left:4px solid #667eea">
-        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v2.5.7</strong>
+        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v2.5.8</strong>
         <div style="font-size:.85em;color:#555;margin-top:4px">Firebase Firestore · GitHub Pages · Single-file aplikacija</div>
       </div>
 
@@ -2852,7 +2852,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <div class="changelog">
         <div class="ch-version">
-          <div class="ch-ver-header">v2.5.7 <span class="ch-date">— 05.06.2026</span></div>
+          <div class="ch-ver-header">v2.5.8 <span class="ch-date">— 05.06.2026</span></div>
           <ul>
             <li><strong>Virman u dnevnom pregledu:</strong> rezervacije koje čekaju virman više se ne računaju kao crveno nenaplaćene/zaostale; prikazuju se odvojeno u zlatnoj Virman sekciji.</li>
             <li><strong>Mobilni dnevni pregled:</strong> Virman je odvojen od običnog duga i prikazuje se kao status „Čeka virman“, bez crvenog upozorenja.</li>
@@ -4776,7 +4776,7 @@ function kmkReservationLockKeys(data) {
   }
   return keys;
 }
-// v2.5.7: raspored rezervacije = samo datumi boravka + brojevi bungalova.
+// v2.5.8: raspored rezervacije = samo datumi boravka + brojevi bungalova.
 // Promjena naplate, cijene, imena ili napomene ne smije dirati date-lockove ako je raspored isti.
 function kmkReservationScheduleSignature(data) {
   const bungs = kmkCleanReservationBungalows(data?.bungalovi || [])
@@ -6577,7 +6577,11 @@ window.renderDaily = function(dateStr) {
     const d = kmkPaidDateKey(r);
     return d === ts;
   });
-  const paidOnThisDaySum = paidOnThisDay.reduce((s,r) => s+(parseFloat(r.price)||0), 0);
+  // Razdvoji obično plaćeno od plaćenog virmana — plaćeni virman u ZASEBNU karticu
+  const virmanPaidOnThisDay = paidOnThisDay.filter(r => kmkHasVirmanFlag(r));
+  const ordinaryPaidOnThisDay = paidOnThisDay.filter(r => !kmkHasVirmanFlag(r));
+  const paidOnThisDaySum = ordinaryPaidOnThisDay.reduce((s,r) => s+(parseFloat(r.price)||0), 0);
+  const virmanPaidOnThisDaySum = virmanPaidOnThisDay.reduce((s,r) => s+(parseFloat(r.price)||0), 0);
 
   // ── C) AKTIVNE NA TAJ DAN (borave) ────────────────────────────────────
   const activeOnDay = reservations.filter(r =>
@@ -6634,7 +6638,8 @@ window.renderDaily = function(dateStr) {
     </div>`;
   };
   html += `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:16px">
-    ${payCard('💚', 'Naplaćeno '+(isToday?'danas':fmtD(ts)), '€'+paidOnThisDaySum.toFixed(0), paidOnThisDay.length+(paidOnThisDay.length===1?' uplata':' uplata'), '#27ae60', 'pay-paid-sec', paidOnThisDay.length>0)}
+    ${payCard('💚', 'Naplaćeno '+(isToday?'danas':fmtD(ts)), '€'+paidOnThisDaySum.toFixed(0), ordinaryPaidOnThisDay.length+(ordinaryPaidOnThisDay.length===1?' uplata':' uplata'), '#27ae60', 'pay-paid-sec', ordinaryPaidOnThisDay.length>0)}
+    ${virmanPaidOnThisDay.length>0 ? payCard('🏦', 'Virman plaćeno '+(isToday?'danas':fmtD(ts)), '€'+virmanPaidOnThisDaySum.toFixed(0), virmanPaidOnThisDay.length+' rez.', '#2e8b57', 'pay-virmanpaid-sec', true) : ''}
     ${payCard('💸', 'Za naplatu', '€'+unpaidGrandSum.toFixed(0), unpaidTotalCount+' rez.', '#e67e22', 'pay-unpaid-sec', unpaidTotalCount>0)}
     ${payCard('🏦', 'Čeka virman', virmanPendingOnDay.length?'€'+virmanPendingSum.toFixed(0):'—', virmanPendingOnDay.length?virmanPendingOnDay.length+' rez.':'', '#b8860b', 'pay-virman-sec', virmanPendingOnDay.length>0)}
   </div>`;
@@ -6750,19 +6755,19 @@ window.renderDaily = function(dateStr) {
   // Rezervacije se NIKAD ne brišu — samo se filtriraju po paidAt datumu.
   html += `<div id="pay-paid-sec" style="margin-top:4px">`;
 
-  if (paidOnThisDay.length) {
-    // ── Naplaćeno ${fmtD(ts)} — GLAVNA SEKCIJA ──
+  if (ordinaryPaidOnThisDay.length) {
+    // ── Naplaćeno ${fmtD(ts)} — GLAVNA SEKCIJA (obična naplata, bez virmana) ──
     const isOpenByDefault = true; // uvijek otvoreno — ovo je primarni izvještaj
     html += `<div style="background:#fff;border:2px solid #27ae60;border-radius:8px;overflow:hidden;margin-bottom:8px">
       <div style="background:#e8f5e9;padding:9px 14px;display:flex;justify-content:space-between;align-items:center">
         <div>
-          <div style="font-weight:800;font-size:.9em;color:#1b5e20">💳 Naplaćeno ${isToday?'danas ('+fmtD(ts)+')':fmtD(ts)} — ${paidOnThisDay.length} rezervacija</div>
-          <div style="font-size:.74em;color:#388e3c;margin-top:1px">Sve rezervacije naplaćene ovog datuma, bez obzira na datum dolaska</div>
+          <div style="font-weight:800;font-size:.9em;color:#1b5e20">💳 Naplaćeno ${isToday?'danas ('+fmtD(ts)+')':fmtD(ts)} — ${ordinaryPaidOnThisDay.length} rezervacija</div>
+          <div style="font-size:.74em;color:#388e3c;margin-top:1px">Obična naplata (gotovina/kartica) ovog datuma — virman je odvojen ispod</div>
         </div>
         <div style="font-size:1.25em;font-weight:900;color:#1b5e20">&euro;${paidOnThisDaySum.toFixed(0)}</div>
       </div>`;
     // Sortiraj po paidAt vremenu (hronološki)
-    const sortedPaid = [...paidOnThisDay].sort((a,b) => kmkPaidTimeKey(a).localeCompare(kmkPaidTimeKey(b)) || (a.name||'').localeCompare(b.name||''));
+    const sortedPaid = [...ordinaryPaidOnThisDay].sort((a,b) => kmkPaidTimeKey(a).localeCompare(kmkPaidTimeKey(b)) || (a.name||'').localeCompare(b.name||''));
     sortedPaid.forEach(r => {
       const bungs = (r.bungalovi||[]).map(b=>'B'+b.bungalov).join(', ');
       const price = parseFloat(r.price)||0;
@@ -6797,6 +6802,42 @@ window.renderDaily = function(dateStr) {
     html += `<div style="background:#f9f9f9;border:1px dashed #c8e6c9;border-radius:8px;padding:12px 14px;text-align:center;color:#888;font-size:.85em;margin-bottom:8px">
       Nema naplaćenih rezervacija za ${isToday?'danas ('+fmtD(ts)+')':fmtD(ts)}
     </div>`;
+  }
+
+  // ── VIRMAN PLAĆENO — zaseban blok (plaćeno preko računa/banke) ──────
+  if (virmanPaidOnThisDay.length) {
+    html += `<div id="pay-virmanpaid-sec" style="background:#fff;border:2px solid #2e8b57;border-radius:8px;overflow:hidden;margin-bottom:8px">
+      <div style="background:#eafaf1;padding:9px 14px;display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div style="font-weight:800;font-size:.9em;color:#1b5e20">🏦 Virman plaćeno ${isToday?'danas ('+fmtD(ts)+')':fmtD(ts)} — ${virmanPaidOnThisDay.length} ${virmanPaidOnThisDay.length===1?'rezervacija':'rezervacija'}</div>
+          <div style="font-size:.74em;color:#2e8b57;margin-top:1px">Plaćeno preko računa (virman) — odvojeno od gotovinske naplate</div>
+        </div>
+        <div style="font-size:1.25em;font-weight:900;color:#1b5e20">&euro;${virmanPaidOnThisDaySum.toFixed(0)}</div>
+      </div>`;
+    const sortedVirmanPaid = [...virmanPaidOnThisDay].sort((a,b) => kmkPaidTimeKey(a).localeCompare(kmkPaidTimeKey(b)) || (a.name||'').localeCompare(b.name||''));
+    sortedVirmanPaid.forEach(r => {
+      const bungs = (r.bungalovi||[]).map(b=>'B'+b.bungalov).join(', ');
+      const price = parseFloat(r.price)||0;
+      const nights = kmkNightsBetween(r.checkIn,r.checkOut);
+      const paidTime = kmkPaidTimeKey(r);
+      html += `<div style="display:flex;align-items:center;padding:9px 14px;border-bottom:1px solid #eafaf1;gap:10px;background:#fafffb">
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+            <span style="font-weight:800;font-size:.9em">${escHtml(r.name||'—')}</span>
+            <span style="font-size:.72em;color:#fff;background:#2e8b57;padding:1px 6px;border-radius:10px;font-weight:700">🏦 virman plaćen</span>
+            ${paidTime?`<span style="font-size:.72em;color:#1565c0;font-weight:700">u ${paidTime}${r.paidBy?' · '+escHtml(r.paidBy):''}</span>`:''}
+          </div>
+          <div style="font-size:.74em;color:#555;margin-top:2px">
+            <span style="background:#e8f2ec;border-radius:3px;padding:1px 5px;font-weight:700">${escHtml(bungs)}</span>
+            &nbsp;${nights} noći &middot; ${fmtD(r.checkIn)}→${fmtD(r.checkOut)} &middot; ${escHtml(r.channel||'—')}
+          </div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div style="font-size:1em;font-weight:900;color:#2e8b57">&euro;${price.toFixed(0)}</div>
+        </div>
+      </div>`;
+    });
+    html += `</div>`;
   }
 
   // ── Plaćene vezane za ovaj dan, ali naplaćene DRUGIM datumom ────────
@@ -14675,4 +14716,4 @@ window.KMK_APP_BRIDGE = {
 </body>
 </html>
 
-<!-- v2.5.7: Virman je strogo isključen iz Zaostalih dugova i podržani su stari/djelimični virman zapisi; dodano Virman dugme direktno u Zaostale. -->
+<!-- v2.5.8: Virman je strogo isključen iz Zaostalih dugova i podržani su stari/djelimični virman zapisi; dodano Virman dugme direktno u Zaostale. -->
