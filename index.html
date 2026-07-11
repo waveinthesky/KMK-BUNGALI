@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Maja Karanfil Bungali v2.5.6</title>
+<title>Maja Karanfil Bungali v2.5.7</title>
 
 <!-- ── PWA: manifest, ikonice, theme boja ─────────────────────────── -->
 <link rel="manifest" href="manifest.json">
@@ -1409,7 +1409,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
         </div>
         <button type="submit" class="login-btn">Prijavi se →</button>
       </form>
-      <div class="login-foot"><span id="login-ver-txt">v2.5.6</span></div>
+      <div class="login-foot"><span id="login-ver-txt">v2.5.7</span></div>
     </div>
   </div>
 </div>
@@ -1427,7 +1427,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
     </button>
     <div>
       <div class="mob-hdr-title">🏡 Maja Karanfil Bungali</div>
-      <div class="mob-hdr-sub" id="mob-hdr-sub">v2.5.6 mobile</div>
+      <div class="mob-hdr-sub" id="mob-hdr-sub">v2.5.7 mobile</div>
     </div>
   </div>
   <div class="mob-hdr-right">
@@ -1660,7 +1660,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
   <div class="hdr">
     <div class="hdr-l">
       <h1>🏡 Maja Karanfil Bungali</h1>
-      <p id="app-version-hdr">Sistem za upravljanje rezervacijama — v2.5.6</p>
+      <p id="app-version-hdr">Sistem za upravljanje rezervacijama — v2.5.7</p>
     </div>
     <div class="hdr-r">
       <div class="user-row">
@@ -2589,7 +2589,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <!-- Trenutna verzija -->
       <div style="background:#e8f4fd;padding:14px;border-radius:8px;margin-bottom:24px;border-left:4px solid #667eea">
-        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v2.5.6</strong>
+        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v2.5.7</strong>
         <div style="font-size:.85em;color:#555;margin-top:4px">Firebase Firestore · GitHub Pages · Single-file aplikacija</div>
       </div>
 
@@ -2852,7 +2852,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <div class="changelog">
         <div class="ch-version">
-          <div class="ch-ver-header">v2.5.6 <span class="ch-date">— 05.06.2026</span></div>
+          <div class="ch-ver-header">v2.5.7 <span class="ch-date">— 05.06.2026</span></div>
           <ul>
             <li><strong>Virman u dnevnom pregledu:</strong> rezervacije koje čekaju virman više se ne računaju kao crveno nenaplaćene/zaostale; prikazuju se odvojeno u zlatnoj Virman sekciji.</li>
             <li><strong>Mobilni dnevni pregled:</strong> Virman je odvojen od običnog duga i prikazuje se kao status „Čeka virman“, bez crvenog upozorenja.</li>
@@ -4776,7 +4776,7 @@ function kmkReservationLockKeys(data) {
   }
   return keys;
 }
-// v2.5.6: raspored rezervacije = samo datumi boravka + brojevi bungalova.
+// v2.5.7: raspored rezervacije = samo datumi boravka + brojevi bungalova.
 // Promjena naplate, cijene, imena ili napomene ne smije dirati date-lockove ako je raspored isti.
 function kmkReservationScheduleSignature(data) {
   const bungs = kmkCleanReservationBungalows(data?.bungalovi || [])
@@ -6272,7 +6272,12 @@ window.renderDaily = function(dateStr) {
   const _unpaidActive = _activeOnDay.filter(r => kmkIsOrdinaryUnpaid(r));
   const _overdueAll = reservations.filter(r => kmkIsOrdinaryUnpaid(r) && r.checkOut <= ts && r.checkIn < ts);
   const _paidToday = reservations.filter(r => !r.cancelled && r.paid && kmkPaidDateKey(r) === ts);
-  const _paidTodaySum = _paidToday.reduce((s,r)=>s+(parseFloat(r.price)||0),0);
+  // Razdvoji obično plaćeno od plaćenog virmana — plaćeni virman ide u ZASEBNU grupu,
+  // da se ne miješa sa običnom gotovinskom/karticom naplatom u "Naplaćeno".
+  const _virmanPaidToday = _paidToday.filter(r => kmkHasVirmanFlag(r));
+  const _ordinaryPaidToday = _paidToday.filter(r => !kmkHasVirmanFlag(r));
+  const _paidTodaySum = _ordinaryPaidToday.reduce((s,r)=>s+(parseFloat(r.price)||0),0);
+  const _virmanPaidSum = _virmanPaidToday.reduce((s,r)=>s+(parseFloat(r.price)||0),0);
   const _unpaidSum = [..._unpaidActive, ..._overdueAll].reduce((s,r)=>s+(parseFloat(r.price)||0),0);
   const _overdueSum = _overdueAll.reduce((s,r)=>s+(parseFloat(r.price)||0),0);
   const _virmanSum = _virmanActive.reduce((s,r)=>s+(parseFloat(r.price)||0),0);
@@ -6306,7 +6311,8 @@ window.renderDaily = function(dateStr) {
       ${sumCard('👋','Dolazi', `${arr.length} ${arr.length===1?'gost':'gostiju'} · ${arrPersons} os.`, '#52b788', 'sec-arrivals')}
       ${sumCard('🧹','Odlazi', `${dep.length} ${dep.length===1?'gost':'gostiju'} · ${depBungs.size} za čišćenje`, '#3c897a', 'sec-departures')}
       ${sumCard('🏠','Zauzeto', `${occupiedBungs.size}/${totalBungs} · ${occPct}%`, '#40916c', 'sec-occupied')}
-      ${sumCard('💰','Naplaćeno'+(isToday?' danas':''), `€${_paidTodaySum.toFixed(0)} (${_paidToday.length})`, '#27ae60', null)}
+      ${sumCard('💰','Naplaćeno'+(isToday?' danas':''), `€${_paidTodaySum.toFixed(0)} (${_ordinaryPaidToday.length})`, '#27ae60', null)}
+      ${_virmanPaidToday.length > 0 ? sumCard('🏦','Virman plaćeno'+(isToday?' danas':''), `€${_virmanPaidSum.toFixed(0)} (${_virmanPaidToday.length})`, '#2e8b57', null) : ''}
       ${_unpaidActive.length + _overdueAll.length > 0 ? sumCard('💳','Nije naplaćeno', `€${_unpaidSum.toFixed(0)} (${_unpaidActive.length + _overdueAll.length})`, '#e67e22', 'sec-arrivals') : ''}
       ${_virmanActive.length > 0 ? sumCard('🏦','Čeka virman', `€${_virmanSum.toFixed(0)} (${_virmanActive.length})`, '#b8860b', null) : ''}
       ${_overdueAll.length > 0 ? sumCard('⚠️','Zaostali dugovi', `€${_overdueSum.toFixed(0)} (${_overdueAll.length})`, '#c62828', null) : ''}
@@ -14669,4 +14675,4 @@ window.KMK_APP_BRIDGE = {
 </body>
 </html>
 
-<!-- v2.5.6: Virman je strogo isključen iz Zaostalih dugova i podržani su stari/djelimični virman zapisi; dodano Virman dugme direktno u Zaostale. -->
+<!-- v2.5.7: Virman je strogo isključen iz Zaostalih dugova i podržani su stari/djelimični virman zapisi; dodano Virman dugme direktno u Zaostale. -->
