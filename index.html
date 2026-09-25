@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Maja Karanfil Bungali v2.6.0</title>
+<title>Maja Karanfil Bungali v2.6.1</title>
 
 <!-- ── PWA: manifest, ikonice, theme boja ─────────────────────────── -->
 <link rel="manifest" href="manifest.json">
@@ -1409,7 +1409,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
         </div>
         <button type="submit" class="login-btn">Prijavi se →</button>
       </form>
-      <div class="login-foot"><span id="login-ver-txt">v2.6.0</span></div>
+      <div class="login-foot"><span id="login-ver-txt">v2.6.1</span></div>
     </div>
   </div>
 </div>
@@ -1427,7 +1427,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
     </button>
     <div>
       <div class="mob-hdr-title">🏡 Maja Karanfil Bungali</div>
-      <div class="mob-hdr-sub" id="mob-hdr-sub">v2.6.0 mobile</div>
+      <div class="mob-hdr-sub" id="mob-hdr-sub">v2.6.1 mobile</div>
     </div>
   </div>
   <div class="mob-hdr-right">
@@ -1660,7 +1660,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
   <div class="hdr">
     <div class="hdr-l">
       <h1>🏡 Maja Karanfil Bungali</h1>
-      <p id="app-version-hdr">Sistem za upravljanje rezervacijama — v2.6.0</p>
+      <p id="app-version-hdr">Sistem za upravljanje rezervacijama — v2.6.1</p>
     </div>
     <div class="hdr-r">
       <div class="user-row">
@@ -2589,7 +2589,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <!-- Trenutna verzija -->
       <div style="background:#e8f4fd;padding:14px;border-radius:8px;margin-bottom:24px;border-left:4px solid #667eea">
-        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v2.6.0</strong>
+        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v2.6.1</strong>
         <div style="font-size:.85em;color:#555;margin-top:4px">Firebase Firestore · GitHub Pages · Single-file aplikacija</div>
       </div>
 
@@ -2852,7 +2852,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <div class="changelog">
         <div class="ch-version">
-          <div class="ch-ver-header">v2.6.0 <span class="ch-date">— 05.06.2026</span></div>
+          <div class="ch-ver-header">v2.6.1 <span class="ch-date">— 05.06.2026</span></div>
           <ul>
             <li><strong>Virman u dnevnom pregledu:</strong> rezervacije koje čekaju virman više se ne računaju kao crveno nenaplaćene/zaostale; prikazuju se odvojeno u zlatnoj Virman sekciji.</li>
             <li><strong>Mobilni dnevni pregled:</strong> Virman je odvojen od običnog duga i prikazuje se kao status „Čeka virman“, bez crvenog upozorenja.</li>
@@ -3837,6 +3837,10 @@ window.addBung = function() {
       <div class="bung-hdr">
         <strong class="bung-title" id="bung-title-${id}">🏠 Bungalov #${id} <small style="color:#888;font-weight:500">(klikni kockicu iznad da izabreš)</small></strong>
         <div style="display:flex;gap:6px">
+          <button type="button" id="spoji-btn-${id}" onclick="openMergePanel()" title="Spoji druge rezervacije istih datuma u ovu (npr. Booking je poslao više bungalova kao odvojene rezervacije)"
+            style="display:none;padding:4px 11px;background:#fff4e6;color:#b8730a;border:1.5px solid #f0a850;border-radius:6px;cursor:pointer;font-size:.82em;font-weight:600">
+            🔗 Spoji
+          </button>
           <button type="button" onclick="toggleDesktopSwapPanel(${id})"
             style="padding:4px 11px;background:#f0f4ff;color:#667eea;border:1.5px solid #667eea;border-radius:6px;cursor:pointer;font-size:.82em;font-weight:600">
             ↔ Zamijeni
@@ -4776,7 +4780,7 @@ function kmkReservationLockKeys(data) {
   }
   return keys;
 }
-// v2.6.0: raspored rezervacije = samo datumi boravka + brojevi bungalova.
+// v2.6.1: raspored rezervacije = samo datumi boravka + brojevi bungalova.
 // Promjena naplate, cijene, imena ili napomene ne smije dirati date-lockove ako je raspored isti.
 function kmkReservationScheduleSignature(data) {
   const bungs = kmkCleanReservationBungalows(data?.bungalovi || [])
@@ -7340,14 +7344,20 @@ function kmkFindMergeCandidates(currentResId, ci, co) {
 
 window.updateMergeButtonVisibility = function() {
   const wrap = document.getElementById('merge-bung-wrap');
-  if (!wrap) return;
   // Samo pri editu (editId postoji)
-  if (!editId) { wrap.style.display = 'none'; return; }
   const ci = document.getElementById('f-checkin')?.value;
   const co = document.getElementById('f-checkout')?.value;
-  const candidates = kmkFindMergeCandidates(editId, ci, co);
-  // Prikaži dugme samo ako ima barem 1 srodna rezervacija
-  wrap.style.display = candidates.length > 0 ? 'block' : 'none';
+  let show = false;
+  if (editId) {
+    const candidates = kmkFindMergeCandidates(editId, ci, co);
+    show = candidates.length > 0;
+  }
+  // Staro narandžasto dugme (ispod grida)
+  if (wrap) wrap.style.display = show ? 'block' : 'none';
+  // Nova "🔗 Spoji" dugmad u zaglavlju svakog bungalov reda
+  document.querySelectorAll('[id^="spoji-btn-"]').forEach(btn => {
+    btn.style.display = show ? 'inline-block' : 'none';
+  });
 };
 
 window.openMergePanel = function() {
@@ -7374,6 +7384,13 @@ window.openMergePanel = function() {
     }).join('');
   }
   panel.style.display = 'block';
+  // Osiguraj da je i wrapper vidljiv (panel je unutar njega)
+  const wrap = document.getElementById('merge-bung-wrap');
+  if (wrap) wrap.style.display = 'block';
+  // Skroluj panel u vidno polje
+  if (typeof panel.scrollIntoView === 'function') {
+    try { panel.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch(e) {}
+  }
 };
 
 window.closeMergePanel = function() {
@@ -14728,4 +14745,4 @@ window.KMK_APP_BRIDGE = {
 </body>
 </html>
 
-<!-- v2.6.0: Virman je strogo isključen iz Zaostalih dugova i podržani su stari/djelimični virman zapisi; dodano Virman dugme direktno u Zaostale. -->
+<!-- v2.6.1: Virman je strogo isključen iz Zaostalih dugova i podržani su stari/djelimični virman zapisi; dodano Virman dugme direktno u Zaostale. -->
