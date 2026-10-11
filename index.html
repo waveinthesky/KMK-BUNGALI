@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Maja Karanfil Bungali v2.6.1</title>
+<title>Maja Karanfil Bungali v2.7.1</title>
 
 <!-- ── PWA: manifest, ikonice, theme boja ─────────────────────────── -->
 <link rel="manifest" href="manifest.json">
@@ -1409,7 +1409,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
         </div>
         <button type="submit" class="login-btn">Prijavi se →</button>
       </form>
-      <div class="login-foot"><span id="login-ver-txt">v2.6.1</span></div>
+      <div class="login-foot"><span id="login-ver-txt">v2.7.1</span></div>
     </div>
   </div>
 </div>
@@ -1427,7 +1427,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
     </button>
     <div>
       <div class="mob-hdr-title">🏡 Maja Karanfil Bungali</div>
-      <div class="mob-hdr-sub" id="mob-hdr-sub">v2.6.1 mobile</div>
+      <div class="mob-hdr-sub" id="mob-hdr-sub">v2.7.1 mobile</div>
     </div>
   </div>
   <div class="mob-hdr-right">
@@ -1660,7 +1660,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
   <div class="hdr">
     <div class="hdr-l">
       <h1>🏡 Maja Karanfil Bungali</h1>
-      <p id="app-version-hdr">Sistem za upravljanje rezervacijama — v2.6.1</p>
+      <p id="app-version-hdr">Sistem za upravljanje rezervacijama — v2.7.1</p>
     </div>
     <div class="hdr-r">
       <div class="user-row">
@@ -2076,29 +2076,84 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
   <!-- STATS (admin only) -->
   <div id="pane-stats" class="tab-pane">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
-      <h2 style="margin:0">📊 Statistika</h2>
-      <div style="display:flex;align-items:center;gap:10px">
-        <span id="stat-timestamp" style="font-size:.75em;color:#888"></span>
+    <style>
+#pane-stats .kst-top{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+#pane-stats .kst-top h2{margin:0}
+#pane-stats .kst-period{background:#fff;border:1px solid #e3e9e5;border-radius:14px;padding:12px 14px;margin-bottom:16px}
+#pane-stats .kst-period .filter-btns{display:flex;flex-wrap:wrap;gap:6px}
+#pane-stats .kst-range{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-top:10px}
+#pane-stats .kst-range strong{font-size:1.15em;color:#1b4332}
+#pane-stats .kst-sec{background:#fff;border:1px solid #e3e9e5;border-radius:14px;padding:16px 18px;margin-bottom:16px}
+#pane-stats .kst-sec:empty{display:none}
+#pane-stats .kst-h{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:0 0 12px}
+#pane-stats .kst-h h3{margin:0;font-size:1.05em;color:#1b4332}
+#pane-stats .kst-note{font-size:.78em;color:#5f6f66}
+#pane-stats .kst-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:10px}
+#pane-stats .kst-card{border:1px solid #e6ece8;border-radius:12px;padding:11px 14px;background:#fbfdfc}
+#pane-stats .kst-card .v{font-size:1.3em;font-weight:800;color:#15231c;line-height:1.25}
+#pane-stats .kst-card .l{font-size:.8em;font-weight:700;color:#3d4e44;margin-top:3px}
+#pane-stats .kst-card .s{font-size:.74em;color:#64756b;margin-top:2px}
+#pane-stats .kst-dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:middle}
+#pane-stats .kst-hero{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-bottom:12px}
+#pane-stats .kst-hcard{border-radius:14px;padding:14px 16px;background:#f1f5f3;border:1px solid #dfe7e2}
+#pane-stats .kst-hcard.ok{background:#e8f5ec;border-color:#c5e3cf}
+#pane-stats .kst-hcard.warn{background:#fff3e8;border-color:#f3d2b4}
+#pane-stats .kst-hcard .l{font-size:.82em;font-weight:700;color:#3d4e44}
+#pane-stats .kst-hcard .v{font-size:1.75em;font-weight:800;color:#15231c;margin-top:2px}
+#pane-stats .kst-hcard .s{font-size:.78em;color:#55665c;margin-top:2px}
+#pane-stats .kst-prog{height:6px;border-radius:3px;background:#cfe5d6;overflow:hidden;margin-top:8px}
+#pane-stats .kst-prog span{display:block;height:100%;background:#2e7d32}
+#pane-stats .kst-bar{display:flex;height:14px;border-radius:7px;overflow:hidden;background:#eef2ef}
+#pane-stats .kst-bar span{display:block;height:100%}
+#pane-stats .kst-wrap{overflow-x:auto}
+#pane-stats .kst-tbl{width:100%;border-collapse:collapse;font-size:.84em}
+#pane-stats .kst-tbl th{background:#f3f7f5;color:#33443a;font-weight:700;text-align:right;padding:8px 10px;white-space:nowrap;border-bottom:1px solid #dde5e0}
+#pane-stats .kst-tbl td{padding:7px 10px;text-align:right;border-bottom:1px solid #eef2ef;white-space:nowrap}
+#pane-stats .kst-tbl th:first-child,#pane-stats .kst-tbl td:first-child{text-align:left}
+#pane-stats .kst-tbl tr.empty td{color:#98a59d}
+#pane-stats .kst-tbl tr.tot td{font-weight:800;background:#f3f7f5;border-top:2px solid #cfdad3}
+#pane-stats .kst-occ-c{min-width:110px}
+#pane-stats .kst-occ{display:inline-block;width:60px;height:6px;border-radius:3px;background:#e6ece8;overflow:hidden;vertical-align:middle;margin-right:6px}
+#pane-stats .kst-occ span{display:block;height:100%;background:#2d6a4f}
+#pane-stats .kst-occ-t{font-size:.92em;font-weight:600}
+#pane-stats .kst-tag{font-size:.8em;font-weight:700;padding:3px 8px;border-radius:999px}
+#pane-stats .kst-tag.v{background:#fff3c9;color:#5e4500}
+#pane-stats .kst-tag.d{background:#fde7d3;color:#7a330a}
+#pane-stats .kst-tag.o{background:#fbdcdc;color:#8e1c1c}
+#pane-stats .kst-btn{padding:5px 12px;border:1px solid #cfdad3;border-radius:8px;background:#fff;font:inherit;font-size:.9em;font-weight:600;cursor:pointer;min-height:32px}
+#pane-stats .kst-ok{padding:10px 14px;background:#e8f5ec;border-radius:10px;color:#1b5e20;font-size:.88em}
+@media(max-width:600px){#pane-stats .kst-hcard .v{font-size:1.4em}#pane-stats .kst-sec{padding:14px 12px}}
+</style>
+    <div class="kst-top">
+      <h2>📊 Statistika i finansije</h2>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <span id="stat-timestamp" style="font-size:.75em;color:#6b7c73"></span>
         <button onclick="renderStats()" class="btn" style="padding:6px 12px;font-size:.82em;background:#667eea;color:white">🔄 Osvježi</button>
+        <button id="kst-export-btn" onclick="exportAccountingXLSX()" class="btn btn-primary" style="padding:6px 12px;font-size:.82em;display:none">⬇ Excel izvještaj</button>
       </div>
     </div>
-    <div class="stats-filters">
-      <h3 style="margin-bottom:10px">Period</h3>
+    <div class="kst-period stats-filters">
       <div class="filter-btns">
+        <button class="fb" onclick="setPeriod('month',this)">Ovaj mjesec</button>
+        <button class="fb" onclick="setPeriod('lastmonth',this)">Prošli mjesec</button>
+        <button class="fb active" onclick="setPeriod('year',this)">Ova godina</button>
+        <button class="fb" onclick="setPeriod('lastyear',this)">Prošla godina</button>
         <button class="fb" onclick="setPeriod('all',this)">Sve</button>
-        <button class="fb active" onclick="setPeriod('today',this)">Danas</button>
-        <button class="fb" onclick="setPeriod('week',this)">7 Dana</button>
-        <button class="fb" onclick="setPeriod('month',this)">Ovaj Mjesec</button>
-        <button class="fb" onclick="setPeriod('custom',this)">Odaberi Period</button>
+        <button class="fb" onclick="setPeriod('custom',this)">Od – do</button>
       </div>
       <div class="cdr" id="cdr">
-        <div class="fg"><label>Od:</label><input type="date" id="st-from"></div>
-        <div class="fg"><label>Do:</label><input type="date" id="st-to"></div>
+        <div class="fg"><label for="st-from">Od:</label><input type="date" id="st-from"></div>
+        <div class="fg"><label for="st-to">Do:</label><input type="date" id="st-to"></div>
         <button class="btn btn-primary" onclick="applyPeriod()" style="padding:8px 14px">Primijeni</button>
       </div>
+      <div class="kst-range"><strong id="kst-range-label"></strong><span class="kst-note">Rezervacija se računa u period u kojem je dolazak (check-in).</span></div>
     </div>
-    <div class="stat-cards" id="stat-cards"></div>
+    <div class="kst-sec" id="kst-overview"></div>
+    <div class="kst-sec" id="kst-finance"></div>
+    <div class="kst-sec" id="kst-monthly"></div>
+    <div class="kst-sec" id="kst-bung"></div>
+    <div class="kst-sec" id="kst-channels"></div>
+    <div class="kst-sec" id="kst-unpaid"></div>
     <!-- OSOBA-NOĆENJA SEKCIJA -->
     <div id="st-person-nights-wrap" style="margin:18px 0 0">
       <hr class="divider" style="margin-bottom:12px">
@@ -2589,7 +2644,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <!-- Trenutna verzija -->
       <div style="background:#e8f4fd;padding:14px;border-radius:8px;margin-bottom:24px;border-left:4px solid #667eea">
-        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v2.6.1</strong>
+        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v2.7.1</strong>
         <div style="font-size:.85em;color:#555;margin-top:4px">Firebase Firestore · GitHub Pages · Single-file aplikacija</div>
       </div>
 
@@ -2852,7 +2907,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <div class="changelog">
         <div class="ch-version">
-          <div class="ch-ver-header">v2.6.1 <span class="ch-date">— 05.06.2026</span></div>
+          <div class="ch-ver-header">v2.7.1 <span class="ch-date">— 05.06.2026</span></div>
           <ul>
             <li><strong>Virman u dnevnom pregledu:</strong> rezervacije koje čekaju virman više se ne računaju kao crveno nenaplaćene/zaostale; prikazuju se odvojeno u zlatnoj Virman sekciji.</li>
             <li><strong>Mobilni dnevni pregled:</strong> Virman je odvojen od običnog duga i prikazuje se kao status „Čeka virman“, bez crvenog upozorenja.</li>
@@ -3205,7 +3260,7 @@ _pricePeriodsSub = onSnapshot(collection(db,'pricePeriods'), snap => {
 let reservations=[], hist=[], backups=[];
 let calMonth = new Date(), editId=null, delId=null;
 let curUser=null, curRole=null;
-let period='today', pFrom=null, pTo=null;
+let period='year', pFrom=null, pTo=null;
 let bungCount=1, autoBackupTimer=null, lastLogin=null, notifs=[];
 let priceManual=false;
 let _initDone=false;                  // #01 guard
@@ -4180,6 +4235,21 @@ window.desktopSwapPlaces = async (id, targetBn) => {
     const batch = writeBatch(db);
     batch.update(doc(db,'reservations',resA.id), kmkCleanFirestoreData({ bungalovi: newA, updatedAt: new Date().toISOString(), updatedBy: curUser }));
     batch.update(doc(db,'reservations',resB.id), kmkCleanFirestoreData({ bungalovi: newB, updatedAt: new Date().toISOString(), updatedBy: curUser }));
+    // v2.7.1: prebaci i vlasništvo noćnih zaključavanja (reservationLocks) zajedno sa zamjenom.
+    // Bez ovoga bi kasnija izmjena datuma bilo koje od ove dvije rezervacije lažno javljala
+    // "Termin je u međuvremenu zauzet na drugom uređaju". Datumi su isti, pa se ključevi samo mijenjaju vlasnika.
+    const _lockNow = new Date().toISOString();
+    const _swapLocks = (res, newBungs, bn) => {
+      kmkReservationLockKeys({ ...res, bungalovi: newBungs })
+        .filter(k => String(k.bungalov) === String(bn))
+        .forEach(k => batch.set(doc(db, 'reservationLocks', k.id), {
+          resId: res.id, bungalov: k.bungalov, date: k.date,
+          checkIn: res.checkIn, checkOut: res.checkOut, name: res.name || '',
+          updatedAt: _lockNow, updatedBy: curUser || ''
+        }));
+    };
+    _swapLocks(resA, newA, otherBn);
+    _swapLocks(resB, newB, myBn);
     await batch.commit();
 
     // Zatvori panel i formu — obje su sačuvane
@@ -4780,7 +4850,7 @@ function kmkReservationLockKeys(data) {
   }
   return keys;
 }
-// v2.6.1: raspored rezervacije = samo datumi boravka + brojevi bungalova.
+// v2.7.1: raspored rezervacije = samo datumi boravka + brojevi bungalova.
 // Promjena naplate, cijene, imena ili napomene ne smije dirati date-lockove ako je raspored isti.
 function kmkReservationScheduleSignature(data) {
   const bungs = kmkCleanReservationBungalows(data?.bungalovi || [])
@@ -4874,7 +4944,16 @@ async function kmkSaveReservationAtomic(data, existingId) {
     for (const { lk, snap } of lockSnaps) {
       if (snap.exists()) {
         const owner = snap.data()?.resId || '';
-        if (owner && owner !== resId) throw new Error('KMK_LOCK_CONFLICT|' + lk.bungalov + '|' + lk.date + '|' + owner);
+        if (owner && owner !== resId) {
+          // v2.7.1: provjeri da li vlasnik lock-a STVARNO zauzima ovaj bungalov te noći.
+          // Ako je vlasnik obrisan, otkazan ili premješten (npr. stara zamjena mjesta), lock je zastario
+          // i smije se preuzeti. Ako ga stvarno zauzima — blokada ostaje (zaštita od duplog bukiranja).
+          const ownerSnap = await tx.get(doc(db, 'reservations', owner));
+          const ownerData = ownerSnap.exists() ? ownerSnap.data() : null;
+          const ownerHoldsNight = !!ownerData && !ownerData.cancelled &&
+            kmkReservationLockKeys(ownerData).some(k => k.id === lk.id);
+          if (ownerHoldsNight) throw new Error('KMK_LOCK_CONFLICT|' + lk.bungalov + '|' + lk.date + '|' + owner);
+        }
       }
     }
 
@@ -7643,6 +7722,121 @@ window.showDet = id => {
 window.closeDetModal=()=>document.getElementById('m-details').classList.remove('open');
 
 // ── STATISTICS ───────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════
+// v2.7.1 — STATISTIKA I FINANSIJE: jedno jezgro za sve brojke
+// Pravilo: rezervacija pripada periodu/mjesecu u kojem je DOLAZAK (check-in).
+// Tako se nijedan iznos ne broji dva puta (npr. boravak 28.9–3.10 ide samo u septembar).
+// Kategorije naplate se međusobno isključuju i zbir im je uvijek "Ugovoreno":
+//   gotovina (plaćeno, nije virman) · virman naplaćen · virman čeka · dug (obično nenaplaćeno)
+// ══════════════════════════════════════════════════════════════════
+// NOĆENJA (dogovoreno sa vlasnikom): (odrasli + djeca) × noći — bebe se NE broje.
+// Primjer: 3 osobe u bungalovu, 2 noći = 6 noćenja. Spojena rezervacija: zbir po svakom bungalovu.
+function kmkPersonNights(r) {
+  if (!r || !r.checkIn || !r.checkOut) return 0;
+  const n = kmkNightsBetween(r.checkIn, r.checkOut);
+  return (r.bungalovi || []).reduce((s, b) => s + ((parseInt(b.adults) || 0) + (parseInt(b.children) || 0)) * n, 0);
+}
+const KMK_MONTHS = ['Januar','Februar','Mart','April','Maj','Jun','Jul','Avgust','Septembar','Oktobar','Novembar','Decembar'];
+function kmkFmtE(v) {
+  const n = Math.round((Number(v) || 0) * 100) / 100;
+  const neg = n < 0, [i, d] = Math.abs(n).toFixed(2).split('.');
+  return (neg ? '−' : '') + i.replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ',' + d + ' €';
+}
+function kmkFmtN(v, dec) { const n = Number(v) || 0; return dec ? n.toFixed(dec).replace('.', ',') : String(Math.round(n)); }
+function kmkStatsRange(p, from, to) {
+  const now = new Date(); now.setHours(0,0,0,0);
+  const y = now.getFullYear(), m = now.getMonth();
+  const D = (yy, mm, dd) => lDate(new Date(yy, mm, dd));
+  if (p === 'lastmonth') return { from: D(y, m-1, 1), to: D(y, m, 0), label: KMK_MONTHS[(m+11)%12] + ' ' + (m === 0 ? y-1 : y) };
+  if (p === 'year')      return { from: D(y, 0, 1), to: D(y, 11, 31), label: 'Godina ' + y };
+  if (p === 'lastyear')  return { from: D(y-1, 0, 1), to: D(y-1, 11, 31), label: 'Godina ' + (y-1) };
+  if (p === 'all')       return { from: null, to: null, label: 'Sve rezervacije' };
+  if (p === 'custom' && from && to) {
+    const f = s => s.split('-').reverse().join('.');
+    return { from, to, label: f(from) + ' – ' + f(to) };
+  }
+  return { from: D(y, m, 1), to: D(y, m+1, 0), label: KMK_MONTHS[m] + ' ' + y }; // 'month' i stari 'today'/'week'
+}
+function kmkStatsCompute(all, rng, today) {
+  const P = r => parseFloat(r.price) || 0;
+  const N = r => (r.checkIn && r.checkOut) ? kmkNightsBetween(r.checkIn, r.checkOut) : 0;
+  const NB = r => Math.max(1, (r.bungalovi || []).length);
+  const ppl = (r, k) => (r.bungalovi || []).reduce((s, b) => s + (parseInt(b[k]) || 0), 0);
+  const cat = r => r.paid ? (kmkHasVirmanFlag(r) ? 'virPaid' : 'cash') : (kmkHasVirmanFlag(r) ? 'virPend' : 'debt');
+  const inR = r => r.checkIn && (!rng.from || r.checkIn >= rng.from) && (!rng.to || r.checkIn <= rng.to);
+  const isAct = r => !r.cancelled && !r.closedManual && r.checkIn && r.checkOut;
+  const allAct = all.filter(isAct);
+  const inPer = all.filter(inR);
+  const act = inPer.filter(isAct);
+  const canc = inPer.filter(r => r.cancelled);
+  const blank = () => ({ rez:0, noci:0, bnoci:0, pnoci:0, odrasli:0, djeca:0, bebe:0, ugovoreno:0, cash:0, virPaid:0, virPend:0, debt:0, taksa:0, taksaSve:0, overdue:0, overdueCnt:0 });
+  const addRes = (o, r) => {
+    const n = N(r), p = P(r), c = cat(r), t = ppl(r, 'adults') * n;
+    o.rez++; o.noci += n; o.bnoci += n * NB(r); o.pnoci += kmkPersonNights(r);
+    o.odrasli += ppl(r, 'adults'); o.djeca += ppl(r, 'children'); o.bebe += ppl(r, 'babies');
+    o.ugovoreno += p; o[c] += p; o.taksaSve += t; if (r.paid) o.taksa += t;
+    if (c === 'debt' && r.checkOut <= today) { o.overdue += p; o.overdueCnt++; }
+  };
+  const fin = o => {
+    o.naplaceno = o.cash + o.virPaid; o.nenaplaceno = o.virPend + o.debt; o.virUkupno = o.virPaid + o.virPend;
+    o.bezTakse = o.naplaceno - o.taksa; o.gosti = o.odrasli + o.djeca + o.bebe;
+    o.avgNoc = o.bnoci ? o.ugovoreno / o.bnoci : 0; o.avgRez = o.rez ? o.ugovoreno / o.rez : 0;
+    o.avgBoravak = o.rez ? o.noci / o.rez : 0; o.naplataPct = o.ugovoreno ? o.naplaceno / o.ugovoreno * 100 : 0;
+    return o;
+  };
+  // Fizička popunjenost: zauzete bungalov-noći unutar [a, b] (uključivo) / (13 × dana)
+  const occupied = (a, b, onlyBung) => {
+    if (!a || !b) return { used: 0, cap: 0, pct: 0 };
+    const end = lDate(new Date(new Date(b + 'T00:00:00').getTime() + 86400000));
+    const days = kmkNightsBetween(a, end);
+    let used = 0;
+    allAct.forEach(r => {
+      const s = r.checkIn > a ? r.checkIn : a, e = r.checkOut < end ? r.checkOut : end;
+      if (e <= s) return;
+      const n = kmkNightsBetween(s, e);
+      (r.bungalovi || []).forEach(x => { if (!onlyBung || String(x.bungalov) === String(onlyBung)) used += n; });
+    });
+    const cap = days * (onlyBung ? 1 : 13);
+    return { used, cap, pct: cap ? Math.min(100, used / cap * 100) : 0 };
+  };
+  const tot = blank(); act.forEach(r => addRes(tot, r)); fin(tot);
+  tot.otkazano = canc.length; tot.otkazanoIznos = canc.reduce((s, r) => s + P(r), 0);
+  let pa = rng.from, pb = rng.to;
+  if (!pa && act.length) { pa = act.reduce((m, r) => r.checkIn < m ? r.checkIn : m, act[0].checkIn); }
+  if (!pb && act.length) { pb = act.reduce((m, r) => r.checkOut > m ? r.checkOut : m, act[0].checkOut); }
+  tot.occ = occupied(pa, pb);
+  // Po mjesecima (mjesec dolaska)
+  const mkeys = new Set(act.map(r => r.checkIn.slice(0, 7)));
+  if (rng.from && rng.to) { const d = new Date(rng.from.slice(0, 7) + '-01T00:00:00'); while (lDate(d).slice(0, 7) <= rng.to.slice(0, 7)) { mkeys.add(lDate(d).slice(0, 7)); d.setMonth(d.getMonth() + 1); } }
+  const months = [...mkeys].sort().map(k => {
+    const o = blank(); act.filter(r => r.checkIn.slice(0, 7) === k).forEach(r => addRes(o, r)); fin(o);
+    const [yy, mm] = k.split('-').map(Number);
+    o.key = k; o.label = KMK_MONTHS[mm - 1] + ' ' + yy;
+    o.occ = occupied(k + '-01', lDate(new Date(yy, mm, 0)));
+    return o;
+  });
+  // Po bungalovima (spojena rezervacija dijeli iznos na jednake dijelove)
+  const bungs = [];
+  for (let b = 1; b <= 13; b++) {
+    const o = blank();
+    act.forEach(r => (r.bungalovi || []).forEach(x => {
+      if (String(x.bungalov) !== String(b)) return;
+      const sh = 1 / NB(r), n = N(r), p = P(r) * sh, c = cat(r), t = (parseInt(x.adults) || 0) * n;
+      o.rez++; o.noci += n; o.bnoci += n; o.pnoci += ((parseInt(x.adults) || 0) + (parseInt(x.children) || 0)) * n; o.ugovoreno += p; o[c] += p; o.taksaSve += t; if (r.paid) o.taksa += t;
+      o.odrasli += parseInt(x.adults) || 0; o.djeca += parseInt(x.children) || 0; o.bebe += parseInt(x.babies) || 0;
+    }));
+    fin(o); o.label = 'B' + b; o.occ = occupied(pa, pb, b); bungs.push(o);
+  }
+  // Po kanalima
+  const chMap = {};
+  act.forEach(r => { const ch = r.channel || (r.icalLinkId ? 'Booking.com' : 'Nepoznato'); (chMap[ch] = chMap[ch] || blank()); addRes(chMap[ch], r); });
+  const channels = Object.entries(chMap).map(([k, o]) => { fin(o); o.label = k; o.udio = tot.ugovoreno ? o.ugovoreno / tot.ugovoreno * 100 : 0; return o; }).sort((a, b) => b.ugovoreno - a.ugovoreno);
+  // Nenaplaćeno — lista
+  const unpaid = act.filter(r => !r.paid).map(r => ({ r, virman: kmkHasVirmanFlag(r), overdue: r.checkOut <= today, iznos: P(r) }))
+    .sort((a, b) => (b.overdue - a.overdue) || a.r.checkIn.localeCompare(b.r.checkIn));
+  return { tot, months, bungs, channels, unpaid, range: { from: pa, to: pb } };
+}
+
 window.setPeriod=(p,btn)=>{ period=p; document.querySelectorAll('.fb').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); if(p==='custom') document.getElementById('cdr').classList.add('open'); else { document.getElementById('cdr').classList.remove('open'); renderStats(); } };
 window.applyPeriod=()=>{ pFrom=document.getElementById('st-from').value; pTo=document.getElementById('st-to').value; if(!pFrom||!pTo){alert('Unesite oba datuma!');return;} renderStats(); };
 window.switchStTab=(t,btn)=>{
@@ -7656,51 +7850,124 @@ window.switchStTab=(t,btn)=>{
 
 window.renderStats = function() {
   const now=new Date(); now.setHours(0,0,0,0);
-  let f=[...reservations];
   const ts=lDate(now);
+  const rng = kmkStatsRange(period, pFrom, pTo);
+  const isAdmin = curRole === 'admin';
+  const S = kmkStatsCompute(reservations, rng, ts);
+  const T = S.tot;
+  // Za Struktura gostiju / Države (ispod) — isti period, isto pravilo (dolazak u periodu)
+  const f = reservations.filter(r => r.checkIn && (!rng.from || r.checkIn >= rng.from) && (!rng.to || r.checkIn <= rng.to));
+  const active = f.filter(r => !r.cancelled && !r.closedManual);
 
-  if (period==='all') { /* uzmi sve */ }
-  else if (period==='today')   f=f.filter(r=>r.checkIn<=ts&&r.checkOut>ts);
-  else if (period==='week') {
-    const wa=new Date(now); wa.setDate(wa.getDate()-7);
-    const ws=lDate(wa);
-    f=f.filter(r=>(r.checkIn>=ws&&r.checkIn<=ts)||(r.checkIn<ws&&r.checkOut>ws));
-  } else if (period==='month') {
-    const fd=lDate(new Date(now.getFullYear(),now.getMonth(),1));
-    const ld=lDate(new Date(now.getFullYear(),now.getMonth()+1,0));
-    f=f.filter(r=>(r.checkIn>=fd&&r.checkIn<=ld)||(r.checkOut>fd&&r.checkOut<=ld)||(r.checkIn<=fd&&r.checkOut>ld));
-  } else if (period==='custom'&&pFrom&&pTo) {
-    f=f.filter(r=>(r.checkIn>=pFrom&&r.checkIn<=pTo)||(r.checkOut>pFrom&&r.checkOut<=pTo)||(r.checkIn<=pFrom&&r.checkOut>pTo));
-  }
-
-  const active=f.filter(r=>!r.cancelled && !r.closedManual);
-  const tot=active.length, conf=active.filter(r=>r.confirmed).length, paid=active.filter(r=>r.paid).length;
-  const rev=Math.round(active.reduce((s,r)=>s+(r.paid?parseFloat(r.price||0):0),0)*100)/100;
-  const exp=Math.round(active.reduce((s,r)=>s+parseFloat(r.price||0),0)*100)/100;
-  const totalNights=active.reduce((s,r)=>s+nightsExact(r.checkIn,r.checkOut),0);
-  const cur=active.filter(r=>r.checkIn<=ts&&r.checkOut>ts).length;
-  const upc=active.filter(r=>r.checkIn>ts).length;
-  const canc=f.filter(r=>r.cancelled).length;
-  const chs={};active.forEach(r=>chs[r.channel]=(chs[r.channel]||0)+1);
-  const topCh=Object.keys(chs).sort((a,b)=>chs[b]-chs[a])[0];
-  const bcnt={};active.forEach(r=>r.bungalovi?.forEach(b=>bcnt[b.bungalov]=(bcnt[b.bungalov]||0)+1));
-  const topB=Object.keys(bcnt).sort((a,b)=>bcnt[b]-bcnt[a])[0];
-
-  // Prikazi timestamp azuriranja
   const statTS = document.getElementById('stat-timestamp');
-  if (statTS) statTS.textContent = 'Azurirano: ' + new Date().toLocaleTimeString('sr-Latn');
-  // Prikaži računovodstvo tab samo adminu
+  if (statTS) statTS.textContent = 'Ažurirano: ' + new Date().toLocaleTimeString('sr-Latn');
   const accTab = document.getElementById('tab-accounting');
-  if (accTab) accTab.style.display = curRole === 'admin' ? 'inline-flex' : 'none';
+  if (accTab) accTab.style.display = isAdmin ? 'inline-flex' : 'none';
+  const xl = document.getElementById('kst-export-btn');
+  if (xl) xl.style.display = isAdmin ? 'inline-flex' : 'none';
+  const lbl = document.getElementById('kst-range-label');
+  if (lbl) lbl.textContent = rng.label;
 
-  document.getElementById('stat-cards').innerHTML=[
-    [tot,'Ukupno Rezervacija'],[conf,'Potvrđeno'],[paid,'Plaćeno'],[canc,'Otkazano'],
-    [`€${rev.toFixed(0)}`,'Naplaćeno'],[`€${exp.toFixed(0)}`,'Očekivano'],
-    [cur,'Trenutno u Objektu'],[upc,'Nadolazeće'],
-    [totalNights,'Ukupno Noćenja'],
-    ...(topCh?[[topCh,'Top Kanal']]:[]),
-    ...(topB?[[`B${topB}(${bcnt[topB]}x)`,'Najviše Korišten']]:[])
-  ].map(([v,l])=>`<div class="stat-card"><div class="sv">${v}</div><div class="sl">${l}</div></div>`).join('');
+  // Računovodstvo (grafici) prati isti period
+  const af = document.getElementById('acc-from'), at = document.getElementById('acc-to');
+  if (af && at && S.range.from && S.range.to) { af.value = S.range.from; at.value = rng.to || S.range.to; }
+
+  const E = kmkFmtE, esc = escHtml;
+  const card = (v, l, s, dot) => `<div class="kst-card"><div class="v">${v}</div><div class="l">${dot ? `<span class="kst-dot" style="background:${dot}"></span>` : ''}${l}</div>${s ? `<div class="s">${s}</div>` : ''}</div>`;
+  const occBar = p => `<div class="kst-occ"><span style="width:${Math.round(p)}%"></span></div><span class="kst-occ-t">${kmkFmtN(p)}%</span>`;
+
+  // ── 1. PREGLED (svi korisnici) ──
+  const allAct = reservations.filter(r => !r.cancelled && !r.closedManual && r.checkIn && r.checkOut);
+  const inHouse = allAct.filter(r => r.checkIn <= ts && r.checkOut > ts);
+  const in7 = lDate(new Date(now.getTime() + 7 * 86400000));
+  const arr7 = allAct.filter(r => r.checkIn >= ts && r.checkIn < in7);
+  const topCh = S.channels[0];
+  const topB = [...S.bungs].sort((a, b) => b.noci - a.noci)[0];
+  const ov = document.getElementById('kst-overview');
+  if (ov) ov.innerHTML = `
+    <div class="kst-h"><h3>Pregled</h3><span class="kst-note">Rezervacije sa dolaskom u izabranom periodu</span></div>
+    <div class="kst-grid">
+      ${card(T.rez, 'Rezervacija', T.otkazano ? T.otkazano + ' otkazano' : 'bez otkazivanja')}
+      ${card(T.pnoci, 'Noćenja', '(odrasli + djeca) × noći · ' + kmkFmtN(T.avgBoravak, 1) + ' noći prosj. boravak')}
+      ${card(T.gosti, 'Gostiju', T.odrasli + ' odraslih · ' + T.djeca + ' djece · ' + T.bebe + ' beba')}
+      ${card(kmkFmtN(T.occ.pct) + '%', 'Popunjenost', T.occ.used + ' od ' + T.occ.cap + ' mogućih noćenja')}
+      ${card(new Set(inHouse.flatMap(r => (r.bungalovi || []).map(b => b.bungalov))).size + ' / 13', 'Danas u objektu', inHouse.length + ' rezervacija')}
+      ${card(arr7.length, 'Dolasci narednih 7 dana', '')}
+      ${card(topCh ? esc(topCh.label) : '—', 'Najjači kanal', topCh ? topCh.rez + ' rez. · ' + kmkFmtN(topCh.udio) + '% prometa' : '')}
+      ${card(topB && topB.noci ? topB.label : '—', 'Najtraženiji bungalov', topB && topB.noci ? topB.noci + ' noći' : '')}
+      ${isAdmin ? '' : card(E(T.naplaceno), 'Naplaćeno', 'od ' + E(T.ugovoreno) + ' ugovoreno')}
+    </div>`;
+
+  // ── 2. FINANSIJE (admin) ──
+  const COL = { cash:'#2e7d32', virPaid:'#00897b', virPend:'#d4a106', debt:'#e65100', over:'#c62828' };
+  const fn = document.getElementById('kst-finance');
+  if (fn) fn.innerHTML = !isAdmin ? '' : `
+    <div class="kst-h"><h3>Finansije</h3><span class="kst-note">Iznosi rezervacija sa dolaskom u periodu · svaka rezervacija se broji jednom</span></div>
+    <div class="kst-hero">
+      <div class="kst-hcard"><div class="l">Ugovoreno ukupno</div><div class="v">${E(T.ugovoreno)}</div><div class="s">${T.rez} rezervacija · prosjek ${E(T.avgRez)}</div></div>
+      <div class="kst-hcard ok"><div class="l">Naplaćeno ukupno</div><div class="v">${E(T.naplaceno)}</div><div class="s">${kmkFmtN(T.naplataPct)}% od ugovorenog</div><div class="kst-prog"><span style="width:${Math.round(T.naplataPct)}%"></span></div></div>
+      <div class="kst-hcard warn"><div class="l">Nenaplaćeno ukupno</div><div class="v">${E(T.nenaplaceno)}</div><div class="s">dug ${E(T.debt)} · čeka virman ${E(T.virPend)}</div></div>
+    </div>
+    ${T.ugovoreno > 0 ? `<div class="kst-bar" role="img" aria-label="Struktura ugovorenog iznosa">
+      ${[['cash', T.cash], ['virPaid', T.virPaid], ['virPend', T.virPend], ['debt', T.debt]].filter(x => x[1] > 0).map(([k, v]) => `<span style="width:${v / T.ugovoreno * 100}%;background:${COL[k]}" title="${E(v)}"></span>`).join('')}
+    </div>` : ''}
+    <div class="kst-grid" style="margin-top:12px">
+      ${card(E(T.cash), 'Gotovina — naplaćeno', T.ugovoreno ? kmkFmtN(T.cash / T.ugovoreno * 100) + '% ugovorenog' : '', COL.cash)}
+      ${card(E(T.virPaid), 'Virman — naplaćen', 'novac legao na račun', COL.virPaid)}
+      ${card(E(T.virPend), 'Virman — nenaplaćen', 'čeka uplatu', COL.virPend)}
+      ${card(E(T.virUkupno), 'Virman — ukupno', 'naplaćen + nenaplaćen', '#5c6bc0')}
+      ${card(E(T.debt), 'Nenaplaćeno (gotovina)', 'gost još nije platio', COL.debt)}
+      ${card(E(T.overdue), 'Zaostali dug', T.overdueCnt + ' rez. — gost već otišao', COL.over)}
+    </div>
+    <div class="kst-grid" style="margin-top:10px">
+      ${card(E(T.taksa), 'Boravišna taksa (iz naplaćenog)', 'ukupna obaveza: ' + E(T.taksaSve))}
+      ${card(E(T.bezTakse), 'Naplaćeno bez takse', 'naplaćeno − taksa')}
+      ${card(E(T.avgNoc), 'Prosječna cijena noći', 'po bungalovu')}
+      ${card(T.otkazano, 'Otkazano', T.otkazano ? 'vrijednost ' + E(T.otkazanoIznos) : 'nema')}
+    </div>`;
+
+  // ── 3. PO MJESECIMA (admin) ──
+  const mo = document.getElementById('kst-monthly');
+  const sum = k => S.months.reduce((s, m) => s + m[k], 0);
+  if (mo) mo.innerHTML = !isAdmin ? '' : `
+    <div class="kst-h"><h3>Po mjesecima</h3><span class="kst-note">Mjesec dolaska · noćenja = (odrasli + djeca) × noći · popunjenost = zauzete noći bungalova u tom mjesecu</span></div>
+    <div class="kst-wrap"><table class="kst-tbl">
+      <thead><tr><th>Mjesec</th><th>Rez.</th><th>Noćenja</th><th>Gosti</th><th>Popunjenost</th><th>Ugovoreno</th><th>Gotovina</th><th>Virman nap.</th><th>Virman čeka</th><th>Virman ukupno</th><th>Nenaplaćeno</th><th>Taksa</th><th>€ / noć</th></tr></thead>
+      <tbody>${S.months.length ? S.months.map(m => `<tr class="${m.rez ? '' : 'empty'}">
+        <td><strong>${m.label}</strong></td><td>${m.rez}</td><td>${m.pnoci}</td><td>${m.gosti}</td><td class="kst-occ-c">${occBar(m.occ.pct)}</td>
+        <td><strong>${E(m.ugovoreno)}</strong></td><td style="color:${COL.cash}">${E(m.cash)}</td><td style="color:${COL.virPaid}">${E(m.virPaid)}</td><td style="color:#8a6a00">${E(m.virPend)}</td><td>${E(m.virUkupno)}</td>
+        <td style="color:${m.debt > 0 ? COL.debt : 'inherit'}">${E(m.debt)}</td><td>${E(m.taksa)}</td><td>${m.bnoci ? E(m.avgNoc) : '—'}</td></tr>`).join('') : '<tr class="empty"><td colspan="13" style="text-align:center">Nema rezervacija u periodu</td></tr>'}</tbody>
+      ${S.months.length ? `<tfoot><tr class="tot"><td>Ukupno</td><td>${sum('rez')}</td><td>${sum('pnoci')}</td><td>${sum('gosti')}</td><td class="kst-occ-c">${occBar(T.occ.pct)}</td><td>${E(sum('ugovoreno'))}</td><td>${E(sum('cash'))}</td><td>${E(sum('virPaid'))}</td><td>${E(sum('virPend'))}</td><td>${E(sum('virUkupno'))}</td><td>${E(sum('debt'))}</td><td>${E(sum('taksa'))}</td><td>${T.bnoci ? E(T.avgNoc) : '—'}</td></tr></tfoot>` : ''}
+    </table></div>`;
+
+  // ── 4. PO BUNGALOVIMA + 5. PO KANALIMA (admin) ──
+  const bu = document.getElementById('kst-bung');
+  if (bu) bu.innerHTML = !isAdmin ? '' : `
+    <div class="kst-h"><h3>Po bungalovima</h3><span class="kst-note">Spojena rezervacija se dijeli na jednake dijelove</span></div>
+    <div class="kst-wrap"><table class="kst-tbl">
+      <thead><tr><th>Bungalov</th><th>Rez.</th><th>Noći</th><th>Noćenja</th><th>Popunjenost</th><th>Ugovoreno</th><th>Gotovina</th><th>Virman</th><th>Nenaplaćeno</th><th>€ / noć</th></tr></thead>
+      <tbody>${S.bungs.map(b => `<tr class="${b.rez ? '' : 'empty'}"><td><strong>${b.label}</strong></td><td>${b.rez}</td><td>${b.noci}</td><td>${b.pnoci}</td><td class="kst-occ-c">${occBar(b.occ.pct)}</td><td><strong>${E(b.ugovoreno)}</strong></td><td>${E(b.cash)}</td><td>${E(b.virUkupno)}</td><td style="color:${b.nenaplaceno > 0 ? COL.debt : 'inherit'}">${E(b.nenaplaceno)}</td><td>${b.noci ? E(b.avgNoc) : '—'}</td></tr>`).join('')}</tbody>
+    </table></div>`;
+  const ch = document.getElementById('kst-channels');
+  if (ch) ch.innerHTML = !isAdmin ? '' : `
+    <div class="kst-h"><h3>Po kanalima</h3></div>
+    <div class="kst-wrap"><table class="kst-tbl">
+      <thead><tr><th>Kanal</th><th>Rez.</th><th>Noćenja</th><th>Ugovoreno</th><th>Naplaćeno</th><th>Udio u prometu</th></tr></thead>
+      <tbody>${S.channels.length ? S.channels.map(c => `<tr><td><strong>${esc(c.label)}</strong></td><td>${c.rez}</td><td>${c.pnoci}</td><td><strong>${E(c.ugovoreno)}</strong></td><td>${E(c.naplaceno)}</td><td class="kst-occ-c">${occBar(c.udio)}</td></tr>`).join('') : '<tr class="empty"><td colspan="6" style="text-align:center">Nema podataka</td></tr>'}</tbody>
+    </table></div>`;
+
+  // ── 6. NENAPLAĆENO — lista (admin) ──
+  const un = document.getElementById('kst-unpaid');
+  const fd = s => s ? s.slice(8, 10) + '.' + s.slice(5, 7) + '.' : '';
+  if (un) un.innerHTML = !isAdmin ? '' : `
+    <div class="kst-h"><h3>Nenaplaćeno — po gostima</h3><span class="kst-note">${S.unpaid.length} rezervacija · ${E(T.nenaplaceno)}</span></div>
+    ${S.unpaid.length ? `<div class="kst-wrap"><table class="kst-tbl">
+      <thead><tr><th>Gost</th><th>Bungalov</th><th>Boravak</th><th>Vrsta</th><th>Iznos</th><th></th></tr></thead>
+      <tbody>${S.unpaid.slice(0, 40).map(u => `<tr><td><strong>${esc(u.r.name || '—')}</strong></td><td>${(u.r.bungalovi || []).map(b => 'B' + b.bungalov).join(', ')}</td><td>${fd(u.r.checkIn)} – ${fd(u.r.checkOut)}</td>
+        <td>${u.virman ? '<span class="kst-tag v">Čeka virman</span>' : (u.overdue ? '<span class="kst-tag o">Zaostali dug</span>' : '<span class="kst-tag d">Nije plaćeno</span>')}</td>
+        <td><strong>${E(u.iznos)}</strong></td><td><button type="button" class="kst-btn" onclick="editRes('${String(u.r.id).replace(/'/g, '')}')">Otvori</button></td></tr>`).join('')}</tbody>
+    </table></div>${S.unpaid.length > 40 ? `<div class="kst-note" style="margin-top:8px">… i još ${S.unpaid.length - 40}</div>` : ''}` : '<div class="kst-ok">Sve rezervacije u periodu su naplaćene.</div>'}`;
+
 
   // Gosti po bungalovima
   const bd={};
@@ -7714,7 +7981,7 @@ window.renderStats = function() {
 
   // Gosti po državama
   const cd={};
-  active.forEach(r=>{ if(!r.country) return; const n=nights(r.checkIn,r.checkOut); if(!cd[r.country]) cd[r.country]={g:0,n:0}; const tg=r.bungalovi?.reduce((s,b)=>s+(b.adults||0)+(b.children||0)+(b.babies||0),0)||1; cd[r.country].g+=tg; cd[r.country].n+=n; });
+  active.forEach(r=>{ if(!r.country) return; const n=nights(r.checkIn,r.checkOut); if(!cd[r.country]) cd[r.country]={g:0,n:0}; const tg=r.bungalovi?.reduce((s,b)=>s+(b.adults||0)+(b.children||0)+(b.babies||0),0)||1; cd[r.country].g+=tg; cd[r.country].n+=kmkPersonNights(r); });
   const tg=Object.values(cd).reduce((s,d)=>s+d.g,0);
   const cRows=Object.entries(cd).sort((a,b)=>b[1].g-a[1].g).map(([c,d])=>`
     <tr><td><strong>${c}</strong></td><td>${d.g}</td><td>${d.n}</td><td>${tg?((d.g/tg)*100).toFixed(1):0}%</td></tr>`).join('');
@@ -7724,6 +7991,8 @@ window.renderStats = function() {
 
   // Ažuriraj osoba-noćenja prema aktivnom periodu
   renderPersonNights();
+  const _accSec = document.getElementById('st-accounting');
+  if (isAdmin && _accSec && _accSec.style.display === 'block' && typeof renderAccounting === 'function') renderAccounting();
 };
 
 
@@ -7946,7 +8215,7 @@ function calcPersonNights(from, to) {
         result.adults   += ad * n;
         result.children += ch * n;
         result.babies   += bb * n;
-        result.total    += (ad + ch + bb) * n;
+        result.total    += (ad + ch) * n; // bebe se ne broje u noćenja
       });
     });
   return result;
@@ -7968,7 +8237,7 @@ window.renderPersonNights = () => {
        <div class="sv">${val}</div><div class="sl">${lbl}</div>
      </div>`;
   el.innerHTML =
-    card(r.total,    'Ukupno osoba-noćenja',  'linear-gradient(135deg,#667eea,#764ba2)') +
+    card(r.total,    'Ukupno noćenja (bez beba)',  'linear-gradient(135deg,#667eea,#764ba2)') +
     card(r.adults,   '👨 Odrasli',            'linear-gradient(135deg,#20c997,#0d7a5f)') +
     card(r.children, '🧒 Djeca',              'linear-gradient(135deg,#fd7e14,#c75500)') +
     card(r.babies,   '👶 Bebe',               'linear-gradient(135deg,#6c757d,#495057)');
@@ -7996,16 +8265,16 @@ function renderAccounting() {
 
   // Filtriraj rezervacije po acc periodu (overlap logika)
   const accToIncl = lDate(new Date(new Date(accTo).getTime() + 86400000));
+  // v2.7.1: isto pravilo kao glavna statistika — rezervacija pripada periodu dolaska (bez duplog brojanja)
   let f = reservations.filter(r =>
-    !r.cancelled && !r.closedManual &&
-    r.checkIn < accToIncl && r.checkOut > accFrom
+    !r.cancelled && !r.closedManual && r.checkIn && r.checkOut &&
+    r.checkIn >= accFrom && r.checkIn <= accTo
   );
 
   // Izračunaj noći u periodu za svaku rezervaciju
   function nightsInPeriod(r) {
-    const start = r.checkIn  > accFrom   ? r.checkIn  : accFrom;
-    const end   = r.checkOut < accToIncl ? r.checkOut : accToIncl;
-    return Math.max(0, Math.ceil((new Date(end) - new Date(start)) / 86400000));
+    // v2.7.1: cijeli boravak (rezervacija je cijela u periodu dolaska) — taksa usklađena sa cijenom
+    return kmkNightsBetween(r.checkIn, r.checkOut);
   }
 
   // Boravišna taksa: odrasli × noći × 1€ (djeca i bebe = 0)
@@ -8018,11 +8287,14 @@ function renderAccounting() {
   // Ukupni sumari
   const totPrihod  = f.reduce((s,r) => s + (r.price||0), 0);
   const totNaplac  = f.filter(r=>r.paid).reduce((s,r) => s + (r.price||0), 0);
+  // v2.7.1: odvojeno virman / gotovina
+  const totNaplacVirman = f.filter(r=>r.paid && kmkHasVirmanFlag(r)).reduce((s,r) => s + (r.price||0), 0);
+  const totNaplacCash   = totNaplac - totNaplacVirman;
   const totDug     = f.filter(r=>!r.paid).reduce((s,r) => s + (r.price||0), 0);
   const totTaksa   = f.filter(r=>r.paid).reduce((s,r) => s + calcTax(r), 0);
   const totBezTakse = totNaplac - totTaksa;
   const totRez     = f.length;
-  const totNoci    = f.reduce((s,r) => s + kmkNightsBetween(r.checkIn,r.checkOut), 0);
+  const totNoci    = f.reduce((s,r) => s + kmkPersonNights(r), 0);
   const totOdrasli = f.reduce((s,r) => s + (r.bungalovi||[]).reduce((ss,b)=>ss+(b.adults||0),0), 0);
 
   // Tabela po bungalovima
@@ -8032,13 +8304,13 @@ function renderAccounting() {
     const tax = calcTax(r);
     (r.bungalovi||[]).forEach(b => {
       const bn = 'B' + b.bungalov;
-      if (!byBung[bn]) byBung[bn] = { rez:0, noci:0, prihod:0, naplaceno:0, dug:0, taksa:0 };
+      if (!byBung[bn]) byBung[bn] = { rez:0, noci:0, prihod:0, naplaceno:0, gotovina:0, virman:0, dug:0, taksa:0 };
       const share = r.bungalovi.length > 1 ? (r.price||0)/r.bungalovi.length : (r.price||0);
       const taxShare = r.bungalovi.length > 1 ? tax/r.bungalovi.length : tax;
       byBung[bn].rez++;
       byBung[bn].noci += n;
       byBung[bn].prihod += share;
-      if (r.paid) { byBung[bn].naplaceno += share; byBung[bn].taksa += taxShare; }
+      if (r.paid) { byBung[bn].naplaceno += share; byBung[bn].taksa += taxShare; if (kmkHasVirmanFlag(r)) byBung[bn].virman += share; else byBung[bn].gotovina += share; }
       else byBung[bn].dug += share;
     });
   });
@@ -8050,6 +8322,8 @@ function renderAccounting() {
       <td>${d.rez}</td><td>${d.noci}</td>
       <td>${d.prihod.toFixed(2)}€</td>
       <td style="color:#28a745;font-weight:600">${d.naplaceno.toFixed(2)}€</td>
+      <td style="color:#2e7d32">${d.gotovina.toFixed(2)}€</td>
+      <td style="color:#00695c">${d.virman.toFixed(2)}€</td>
       <td style="color:#1565c0">${d.taksa.toFixed(2)}€</td>
       <td style="color:${d.dug>0?'#dc3545':'#888'}">${d.dug.toFixed(2)}€</td>
     </tr>`).join('');
@@ -8072,6 +8346,8 @@ function renderAccounting() {
     <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px">
       ${[
         ['€'+totNaplac.toFixed(2),   'Ukupno naplaćeno',           '#28a745'],
+        ['€'+totNaplacCash.toFixed(2),  '💵 Naplaćeno gotovinom',  '#2e7d32'],
+        ['€'+totNaplacVirman.toFixed(2),'🏦 Naplaćeno virmanom',   '#00695c'],
         ['€'+totTaksa.toFixed(2),    'Boravišna taksa (1€/os/noć)','#1565c0'],
         ['€'+totBezTakse.toFixed(2), 'Prihod bez takse',           '#667eea'],
         ['€'+totDug.toFixed(2),      'Neplaćeno',                  '#dc3545'],
@@ -8090,9 +8366,9 @@ function renderAccounting() {
       <table class="stbl">
         <thead><tr>
           <th>Bungalov</th><th>Rez.</th><th>Noći</th>
-          <th>Ugovoreno</th><th>Naplaćeno</th><th>Taksa</th><th>Dug</th>
+          <th>Ugovoreno</th><th>Naplaćeno</th><th>💵 Gotovina</th><th>🏦 Virman</th><th>Taksa</th><th>Dug</th>
         </tr></thead>
-        <tbody>${bungRows||'<tr><td colspan="7" style="text-align:center;color:#aaa">Nema podataka</td></tr>'}</tbody>
+        <tbody>${bungRows||'<tr><td colspan="9" style="text-align:center;color:#aaa">Nema podataka</td></tr>'}</tbody>
       </table>
     </div>
 
@@ -8174,15 +8450,18 @@ function _renderAccountingCharts(resv, accFrom, accTo) {
       dug:      list.filter(r=>!r.paid).reduce((s,r)=>s+(r.price||0),0),
       ugovoreno:list.reduce((s,r)=>s+(r.price||0),0),
       rez:      list.length,
-      noci:     list.reduce((s,r)=>s+kmkNightsBetween(r.checkIn,r.checkOut),0),
+      noci:     list.reduce((s,r)=>s+kmkPersonNights(r),0),
     };
   }
 
   // Podaci po mjesecima za prihod chart
-  const monthlyData = {};
+  const monthlyData = {}, monthlyCash = {}, monthlyVirman = {};
   resv.filter(r=>r.paid).forEach(r => {
     const mo = r.checkIn.substring(0,7);
     monthlyData[mo] = (monthlyData[mo]||0) + (r.price||0);
+    // v2.7.1: odvojeno gotovina / virman
+    if (kmkHasVirmanFlag(r)) monthlyVirman[mo] = (monthlyVirman[mo]||0) + (r.price||0);
+    else monthlyCash[mo] = (monthlyCash[mo]||0) + (r.price||0);
   });
   const months = Object.keys(monthlyData).sort();
 
@@ -8191,7 +8470,7 @@ function _renderAccountingCharts(resv, accFrom, accTo) {
   resv.forEach(r => {
     (r.bungalovi||[]).forEach(b => {
       const bn = 'B'+b.bungalov;
-      bungData[bn] = (bungData[bn]||0) + kmkNightsBetween(r.checkIn,r.checkOut);
+      bungData[bn] = (bungData[bn]||0) + ((parseInt(b.adults)||0) + (parseInt(b.children)||0)) * kmkNightsBetween(r.checkIn,r.checkOut);
     });
   });
 
@@ -8204,7 +8483,7 @@ function _renderAccountingCharts(resv, accFrom, accTo) {
   const prevMonth   = getMetrics(filterPeriod(prevMonthFrom, prevMonthTo));
   const prevYear    = getMetrics(filterPeriod(prevYearFrom, prevYearTo));
 
-  window._accAllData = { monthlyData, months, bungData, chData, curMetrics, prevMonth, prevYear, accFrom, accTo };
+  window._accAllData = { monthlyData, monthlyCash, monthlyVirman, months, bungData, chData, curMetrics, prevMonth, prevYear, accFrom, accTo };
   window._accFilteredResv = resv; // Čuvaj filtrovane za metric_ trendove
 
   el.innerHTML = `
@@ -8252,8 +8531,11 @@ window.accShowChart = (type) => {
     const labels = (d.months||[]).map(m => { const [y,mo]=m.split('-'); return MN[parseInt(mo)-1]+' '+y.substring(2); });
     _accCharts.c = new Chart(canvas, {
       type: 'bar',
-      data: { labels, datasets: [{ label:'Naplaćeno (€)', data:(d.months||[]).map(m=>d.monthlyData[m]||0), backgroundColor:'#667eea', borderRadius:6 }] },
-      options: { responsive:true, plugins:{legend:{display:false},title:{display:true,text:'Naplaćeni prihod po mjesecima'}}, scales:{y:{beginAtZero:true,ticks:{callback:v=>'€'+v}}} }
+      data: { labels, datasets: [
+        { label:'💵 Gotovina (€)', data:(d.months||[]).map(m=>(d.monthlyCash||{})[m]||0), backgroundColor:'#2e7d32', borderRadius:4 },
+        { label:'🏦 Virman (€)',   data:(d.months||[]).map(m=>(d.monthlyVirman||{})[m]||0), backgroundColor:'#80cbc4', borderRadius:4 }
+      ] },
+      options: { responsive:true, plugins:{legend:{display:true},title:{display:true,text:'Naplaćeni prihod po mjesecima (gotovina + virman)'}}, scales:{x:{stacked:true},y:{stacked:true,beginAtZero:true,ticks:{callback:v=>'€'+v}}} }
     });
 
   // Noćenja po bungalovima
@@ -8335,7 +8617,7 @@ window.accShowChart = (type) => {
       const tax = adults*n*1;
       if (r.paid) { moData[mo].naplac+=(r.price||0); moData[mo].taksa+=tax; moData[mo].bezTakse+=(r.price||0)-tax; }
       else moData[mo].dug+=(r.price||0);
-      moData[mo].rez++; moData[mo].noci+=n;
+      moData[mo].rez++; moData[mo].noci+=kmkPersonNights(r);
     });
     const mos = Object.keys(moData).sort();
     const moLabels = mos.map(m => { const [y,mo]=m.split('-'); return MN[parseInt(mo)-1]+' '+y.substring(2); });
@@ -8359,8 +8641,8 @@ window.exportAccountingXLSX = () => {
   const accToIncl = lDate(new Date(new Date(accTo).getTime() + 86400000));
 
   const active = reservations.filter(r =>
-    !r.cancelled && !r.closedManual &&
-    r.checkIn < accToIncl && r.checkOut > accFrom
+    !r.cancelled && !r.closedManual && r.checkIn && r.checkOut &&
+    r.checkIn >= accFrom && r.checkIn <= accTo
   );
 
   const wb = XLSX.utils.book_new();
@@ -8375,11 +8657,12 @@ window.exportAccountingXLSX = () => {
       'Gost': r.name||'', 'Check-in': r.checkIn, 'Check-out': r.checkOut,
       'Noći': n, 'Bungalov': bungs, 'Odrasli': adults, 'Djeca': children,
       'Cijena (€)': r.price||0, 'Naplaćeno': r.paid?'Da':'Ne',
+      'Način plaćanja': r.paid ? (kmkHasVirmanFlag(r) ? 'Virman' : 'Gotovina') : (kmkHasVirmanFlag(r) ? 'Čeka virman' : '—'),
       'Kanal': r.channel||'', 'Napomene': r.notes||''
     };
   });
   const ws1 = XLSX.utils.json_to_sheet(rows);
-  ws1['!cols'] = [{wch:22},{wch:12},{wch:12},{wch:6},{wch:14},{wch:8},{wch:8},{wch:12},{wch:10},{wch:14},{wch:25}];
+  ws1['!cols'] = [{wch:22},{wch:12},{wch:12},{wch:6},{wch:14},{wch:8},{wch:8},{wch:12},{wch:10},{wch:14},{wch:14},{wch:25}];
   XLSX.utils.book_append_sheet(wb, ws1, 'Rezervacije');
 
   // Sheet 2: Finansijski pregled
@@ -8389,16 +8672,32 @@ window.exportAccountingXLSX = () => {
   const fin = [
     { 'Stavka': 'Ukupno ugovoreno (€)', 'Vrijednost': totPrihod.toFixed(2) },
     { 'Stavka': 'Naplaćeno (€)',         'Vrijednost': totNaplac.toFixed(2) },
+    { 'Stavka': '  — gotovinom (€)',     'Vrijednost': active.filter(r=>r.paid && !kmkHasVirmanFlag(r)).reduce((s,r)=>s+(r.price||0),0).toFixed(2) },
+    { 'Stavka': '  — virmanom (€)',      'Vrijednost': active.filter(r=>r.paid &&  kmkHasVirmanFlag(r)).reduce((s,r)=>s+(r.price||0),0).toFixed(2) },
     { 'Stavka': 'Neplaćeno (€)',          'Vrijednost': totDug.toFixed(2) },
     { 'Stavka': 'Boravišna taksa (1€/os/noć)', 'Vrijednost': active.filter(r=>r.paid).reduce((s,r)=>{ const n=kmkNightsBetween(r.checkIn,r.checkOut); const ad=(r.bungalovi||[]).reduce((ss,b)=>ss+(b.adults||0),0); return s+ad*n*1; },0).toFixed(2) },
     { 'Stavka': 'Broj rezervacija',        'Vrijednost': active.length },
-    { 'Stavka': 'Ukupno noćenja',          'Vrijednost': active.reduce((s,r)=>s+kmkNightsBetween(r.checkIn,r.checkOut),0) },
+    { 'Stavka': 'Ukupno noćenja (odrasli+djeca × noći)', 'Vrijednost': active.reduce((s,r)=>s+kmkPersonNights(r),0) },
   ];
   const ws2 = XLSX.utils.json_to_sheet(fin);
   ws2['!cols'] = [{wch:28},{wch:16}];
   XLSX.utils.book_append_sheet(wb, ws2, 'Finansijski pregled');
 
   const month = now.toLocaleString('sr-Latn',{month:'long',year:'numeric'}).replace(' ','_');
+  // v2.7.1: list "Po mjesecima"
+  try {
+    const _S = kmkStatsCompute(reservations, { from: accFrom, to: accTo }, lDate(new Date()));
+    const _r2 = v => Math.round(v * 100) / 100;
+    const _mo = _S.months.map(m => ({ 'Mjesec': m.label, 'Rezervacija': m.rez, 'Noćenja': m.pnoci, 'Gosti': m.gosti, 'Popunjenost %': _r2(m.occ.pct),
+      'Ugovoreno (€)': _r2(m.ugovoreno), 'Gotovina (€)': _r2(m.cash), 'Virman naplaćen (€)': _r2(m.virPaid), 'Virman čeka (€)': _r2(m.virPend),
+      'Virman ukupno (€)': _r2(m.virUkupno), 'Nenaplaćeno (€)': _r2(m.debt), 'Taksa (€)': _r2(m.taksa), '€ po noći': _r2(m.avgNoc) }));
+    const _t = _S.tot;
+    _mo.push({ 'Mjesec': 'UKUPNO', 'Rezervacija': _t.rez, 'Noćenja': _t.pnoci, 'Gosti': _t.gosti, 'Popunjenost %': _r2(_t.occ.pct),
+      'Ugovoreno (€)': _r2(_t.ugovoreno), 'Gotovina (€)': _r2(_t.cash), 'Virman naplaćen (€)': _r2(_t.virPaid), 'Virman čeka (€)': _r2(_t.virPend),
+      'Virman ukupno (€)': _r2(_t.virUkupno), 'Nenaplaćeno (€)': _r2(_t.debt), 'Taksa (€)': _r2(_t.taksa), '€ po noći': _r2(_t.avgNoc) });
+    const _ws = XLSX.utils.json_to_sheet(_mo);
+    XLSX.utils.book_append_sheet(wb, _ws, 'Po mjesecima');
+  } catch (e) { console.warn('[Excel] Po mjesecima:', e); }
   XLSX.writeFile(wb, `Racunovodstvo_KMK_${month}.xlsx`);
 };
 
@@ -14240,6 +14539,7 @@ try{setTimeout(()=>{_updateCalViewButtons(); if(isMobile()&&_mobCurrentTab==='ca
 // moraju biti eksplicitno dostupne na window. Ovo ne mijenja logiku, samo stabilizuje pozive.
 Object.assign(window, {
   isMobile,
+  goTabDirect,
   _applyCalView,
   renderMobDaily,
   renderMobAvailability,
@@ -14420,6 +14720,8 @@ function _initPickerSettingUI() {
   const chk = document.getElementById('setting-admin-in-picker');
   if (chk) chk.checked = getPickerAdminSetting();
 }
+// Funkcija je unutar try-bloka (block-scope u modulu) — izloži je da je vidi switchSetTab('security')
+window._initPickerSettingUI = _initPickerSettingUI;
 
 // ══════════════════════════════════════════════════════════
 // RADIAL OPERATOR PICKER
@@ -14745,4 +15047,4 @@ window.KMK_APP_BRIDGE = {
 </body>
 </html>
 
-<!-- v2.6.1: Virman je strogo isključen iz Zaostalih dugova i podržani su stari/djelimični virman zapisi; dodano Virman dugme direktno u Zaostale. -->
+<!-- v2.7.1: Virman je strogo isključen iz Zaostalih dugova i podržani su stari/djelimični virman zapisi; dodano Virman dugme direktno u Zaostale. -->
