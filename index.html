@@ -3,10 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Maja Karanfil Bungali v2.7.1</title>
+<title>Maja Karanfil Bungali v2.7.3</title>
 
 <!-- ── PWA: manifest, ikonice, theme boja ─────────────────────────── -->
 <link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+<link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://firestore.googleapis.com" crossorigin>
 <meta name="theme-color" content="#667eea">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16.png">
@@ -1296,7 +1299,8 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
   text-shadow:0 1px 4px rgba(0,0,0,.6);
 }
 </style>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <!-- v2.7.3: defer = preuzima se paralelno, ne blokira prikaz; izvršava se prije glavnog modula (isti redoslijed) -->
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script>
     // Service Worker registracija za offline podrsku
     // Napomena: Service Worker ne radi kada se HTML otvori direktno kao file://
@@ -1336,7 +1340,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
     }
   </script>
   <!-- Google Sign-In uklonjen — nije korišten u aplikaciji -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 
   <!-- desktop-vision-v2.4.2.css uklonjen — fajl ne postoji (bio 404) -->
 </head>
@@ -1409,7 +1413,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
         </div>
         <button type="submit" class="login-btn">Prijavi se →</button>
       </form>
-      <div class="login-foot"><span id="login-ver-txt">v2.7.1</span></div>
+      <div class="login-foot"><span id="login-ver-txt">v2.7.3</span></div>
     </div>
   </div>
 </div>
@@ -1427,7 +1431,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
     </button>
     <div>
       <div class="mob-hdr-title">🏡 Maja Karanfil Bungali</div>
-      <div class="mob-hdr-sub" id="mob-hdr-sub">v2.7.1 mobile</div>
+      <div class="mob-hdr-sub" id="mob-hdr-sub">v2.7.3 mobile</div>
     </div>
   </div>
   <div class="mob-hdr-right">
@@ -1660,7 +1664,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
   <div class="hdr">
     <div class="hdr-l">
       <h1>🏡 Maja Karanfil Bungali</h1>
-      <p id="app-version-hdr">Sistem za upravljanje rezervacijama — v2.7.1</p>
+      <p id="app-version-hdr">Sistem za upravljanje rezervacijama — v2.7.3</p>
     </div>
     <div class="hdr-r">
       <div class="user-row">
@@ -2055,7 +2059,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
           <option value="10">B10</option><option value="11">B11</option>
           <option value="12">B12</option><option value="13">B13</option>
         </select>
-        <input type="text" id="fl-name" placeholder="Pretraži po imenu..." onkeyup="filterRes()">
+        <input type="text" id="fl-name" placeholder="Pretraži po imenu..." onkeyup="kmkDebounceCall('flname', filterRes, 150)">
       </div>
     </div>
     <div id="res-list" class="res-list"></div>
@@ -2333,7 +2337,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
       </div>
       <div id="guestbook-panel" style="display:none;margin-bottom:20px">
         <input type="text" id="guestbook-search" placeholder="Pretraži po imenu ili telefonu..."
-          oninput="filterGuestBook()" style="width:100%;margin-bottom:10px">
+          oninput="kmkDebounceCall('guestbook', filterGuestBook, 150)" style="width:100%;margin-bottom:10px">
         <div id="guestbook-list"></div>
       </div>
     </div>
@@ -2644,7 +2648,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <!-- Trenutna verzija -->
       <div style="background:#e8f4fd;padding:14px;border-radius:8px;margin-bottom:24px;border-left:4px solid #667eea">
-        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v2.7.1</strong>
+        <strong style="color:#1565c0;font-size:1.1em">🎯 Trenutna verzija: v2.7.3</strong>
         <div style="font-size:.85em;color:#555;margin-top:4px">Firebase Firestore · GitHub Pages · Single-file aplikacija</div>
       </div>
 
@@ -2907,7 +2911,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
       <div class="changelog">
         <div class="ch-version">
-          <div class="ch-ver-header">v2.7.1 <span class="ch-date">— 05.06.2026</span></div>
+          <div class="ch-ver-header">v2.7.3 <span class="ch-date">— 05.06.2026</span></div>
           <ul>
             <li><strong>Virman u dnevnom pregledu:</strong> rezervacije koje čekaju virman više se ne računaju kao crveno nenaplaćene/zaostale; prikazuju se odvojeno u zlatnoj Virman sekciji.</li>
             <li><strong>Mobilni dnevni pregled:</strong> Virman je odvojen od običnog duga i prikazuje se kao status „Čeka virman“, bez crvenog upozorenja.</li>
@@ -4235,7 +4239,7 @@ window.desktopSwapPlaces = async (id, targetBn) => {
     const batch = writeBatch(db);
     batch.update(doc(db,'reservations',resA.id), kmkCleanFirestoreData({ bungalovi: newA, updatedAt: new Date().toISOString(), updatedBy: curUser }));
     batch.update(doc(db,'reservations',resB.id), kmkCleanFirestoreData({ bungalovi: newB, updatedAt: new Date().toISOString(), updatedBy: curUser }));
-    // v2.7.1: prebaci i vlasništvo noćnih zaključavanja (reservationLocks) zajedno sa zamjenom.
+    // v2.7.3: prebaci i vlasništvo noćnih zaključavanja (reservationLocks) zajedno sa zamjenom.
     // Bez ovoga bi kasnija izmjena datuma bilo koje od ove dvije rezervacije lažno javljala
     // "Termin je u međuvremenu zauzet na drugom uređaju". Datumi su isti, pa se ključevi samo mijenjaju vlasnika.
     const _lockNow = new Date().toISOString();
@@ -4805,8 +4809,26 @@ function kmkDateAddDays(dateStr, days) {
   d.setDate(d.getDate() + days);
   return (typeof kmkLocalDateInputValue === 'function') ? kmkLocalDateInputValue(d) : lDate(d);
 }
+const _kmkIsoDayRe = /^\d{4}-\d{2}-\d{2}$/;
+function _kmkUtcIso(ms) { if (Number.isNaN(ms)) return ''; const d = new Date(ms); if (d.getUTCFullYear() < 1000 || d.getUTCFullYear() > 9999) return ''; return d.toISOString().slice(0, 10); }
+// v2.7.3: provjera ispravnosti datuma bez pravljenja Date objekta (godina 1000–9999, stvaran dan u mjesecu)
+function _kmkValidYMD(y, m, d) {
+  if (!(y >= 1000 && y <= 9999 && m >= 1 && m <= 12 && d >= 1)) return false;
+  const leap = (y % 4 === 0 && (y % 100 !== 0 || y % 400 === 0));
+  return d <= [31, leap ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][m - 1];
+}
 function kmkNightsBetween(ci, co) {
   if (!ci || !co || co <= ci) return 0;
+  // v2.7.3 OPTIMIZACIJA: jedna računska operacija (kalendarski UTC dani — bez uticaja ljetnog vremena)
+  // umjesto petlje dan-po-dan koja je za svaki dan pravila novi Date objekat.
+  // Za svaki neobičan/nevalidan datum koristi se stari način ispod — rezultat je uvijek identičan.
+  const _a = String(ci), _b = String(co);
+  if (_kmkIsoDayRe.test(_a) && _kmkIsoDayRe.test(_b)) {
+    const ya = +_a.slice(0, 4), ma = +_a.slice(5, 7), da = +_a.slice(8, 10);
+    const yb = +_b.slice(0, 4), mb = +_b.slice(5, 7), db = +_b.slice(8, 10);
+    if (_kmkValidYMD(ya, ma, da) && _kmkValidYMD(yb, mb, db))
+      return Math.min(3700, Math.round((Date.UTC(yb, mb - 1, db) - Date.UTC(ya, ma - 1, da)) / 86400000));
+  }
   let n = 0, cur = String(ci);
   while (cur && cur < co && n < 3700) { n++; cur = kmkDateAddDays(cur, 1); }
   return n;
@@ -4850,7 +4872,7 @@ function kmkReservationLockKeys(data) {
   }
   return keys;
 }
-// v2.7.1: raspored rezervacije = samo datumi boravka + brojevi bungalova.
+// v2.7.3: raspored rezervacije = samo datumi boravka + brojevi bungalova.
 // Promjena naplate, cijene, imena ili napomene ne smije dirati date-lockove ako je raspored isti.
 function kmkReservationScheduleSignature(data) {
   const bungs = kmkCleanReservationBungalows(data?.bungalovi || [])
@@ -4945,7 +4967,7 @@ async function kmkSaveReservationAtomic(data, existingId) {
       if (snap.exists()) {
         const owner = snap.data()?.resId || '';
         if (owner && owner !== resId) {
-          // v2.7.1: provjeri da li vlasnik lock-a STVARNO zauzima ovaj bungalov te noći.
+          // v2.7.3: provjeri da li vlasnik lock-a STVARNO zauzima ovaj bungalov te noći.
           // Ako je vlasnik obrisan, otkazan ili premješten (npr. stara zamjena mjesta), lock je zastario
           // i smije se preuzeti. Ako ga stvarno zauzima — blokada ostaje (zaštita od duplog bukiranja).
           const ownerSnap = await tx.get(doc(db, 'reservations', owner));
@@ -5927,6 +5949,17 @@ window.renderCal = function() {
   const calBungalows = Object.keys(B_CFG || {}).map(n => parseInt(n,10)).filter(Boolean)
     .filter(bn => kmkBungVisibleOnCalendar(bn))
     .sort((a,b)=>a-b);
+  // v2.7.3 OPTIMIZACIJA: rezervacije se jednom razvrstaju po bungalovu (isti redoslijed kao u listi),
+  // pa svaka ćelija kalendara gleda samo rezervacije svog bungalova umjesto svih rezervacija.
+  const _resByBung = new Map();
+  // v2.7.3: samo rezervacije koje dodiruju prikazani mjesec (ili danas — za tačkicu "zauzeto danas").
+  // Isti rezultat, ali kalendar ne prolazi kroz sve godine rezervacija pri svakom crtanju.
+  const _mFirst = lDate(new Date(yr, mo, 1)), _mEndExcl = lDate(new Date(yr, mo + 1, 1));
+  activeReservations.forEach(r => {
+    if (!((r.checkIn < _mEndExcl && r.checkOut > _mFirst) || (todayStr >= r.checkIn && todayStr < r.checkOut))) return;
+    const seen = new Set();
+    (r.bungalovi || []).forEach(b => { const k = String(b && b.bungalov); if (seen.has(k)) return; seen.add(k); if (!_resByBung.has(k)) _resByBung.set(k, []); _resByBung.get(k).push(r); });
+  });
 
   // HEADER ROW
   let html='<div class="cal-row cal-row-hdr"><div class="cc hdr cc-corner cal-col-bung">B</div>';
@@ -5949,7 +5982,8 @@ window.renderCal = function() {
   for (const bn of calBungalows) {
     const cfg = B_CFG[bn] || {};
     const cap = cfg.m || '';
-    const hasRes = activeReservations.some(r=>r.bungalovi?.some(b=>String(b.bungalov)===String(bn))&&todayStr>=r.checkIn&&todayStr<r.checkOut);
+    const _bnRes = _resByBung.get(String(bn)) || [];
+    const hasRes = _bnRes.some(r=>todayStr>=r.checkIn&&todayStr<r.checkOut);
     const dotClr = hasRes ? '#c79a3e' : '#b7e4c7';
     html+=`<div class="cal-row"><div class="cc bh cal-col-bung">
       <span class="bh-name">B${bn}</span>
@@ -5959,7 +5993,7 @@ window.renderCal = function() {
     for (let d=1;d<=dim;d++) {
       if (d<skip) continue;
       const dt=new Date(yr,mo,d), ds=lDate(dt), past=dt<now, today=dt.getTime()===now.getTime();
-      const allRes=activeReservations.filter(r=>r.bungalovi?.some(b=>String(b.bungalov)===String(bn))&&ds>=r.checkIn&&ds<r.checkOut);
+      const allRes=_bnRes.filter(r=>ds>=r.checkIn&&ds<r.checkOut);
       const res=allRes[0];
       const dupCount=allRes.length;
 
@@ -7723,7 +7757,7 @@ window.closeDetModal=()=>document.getElementById('m-details').classList.remove('
 
 // ── STATISTICS ───────────────────────────────────────────────
 // ══════════════════════════════════════════════════════════════════
-// v2.7.1 — STATISTIKA I FINANSIJE: jedno jezgro za sve brojke
+// v2.7.3 — STATISTIKA I FINANSIJE: jedno jezgro za sve brojke
 // Pravilo: rezervacija pripada periodu/mjesecu u kojem je DOLAZAK (check-in).
 // Tako se nijedan iznos ne broji dva puta (npr. boravak 28.9–3.10 ide samo u septembar).
 // Kategorije naplate se međusobno isključuju i zbir im je uvijek "Ugovoreno":
@@ -7772,7 +7806,7 @@ function kmkStatsCompute(all, rng, today) {
   const blank = () => ({ rez:0, noci:0, bnoci:0, pnoci:0, odrasli:0, djeca:0, bebe:0, ugovoreno:0, cash:0, virPaid:0, virPend:0, debt:0, taksa:0, taksaSve:0, overdue:0, overdueCnt:0 });
   const addRes = (o, r) => {
     const n = N(r), p = P(r), c = cat(r), t = ppl(r, 'adults') * n;
-    o.rez++; o.noci += n; o.bnoci += n * NB(r); o.pnoci += kmkPersonNights(r);
+    o.rez++; o.noci += n; o.bnoci += n * NB(r); o.pnoci += (ppl(r, 'adults') + ppl(r, 'children')) * n;
     o.odrasli += ppl(r, 'adults'); o.djeca += ppl(r, 'children'); o.bebe += ppl(r, 'babies');
     o.ugovoreno += p; o[c] += p; o.taksaSve += t; if (r.paid) o.taksa += t;
     if (c === 'debt' && r.checkOut <= today) { o.overdue += p; o.overdueCnt++; }
@@ -7785,17 +7819,22 @@ function kmkStatsCompute(all, rng, today) {
     return o;
   };
   // Fizička popunjenost: zauzete bungalov-noći unutar [a, b] (uključivo) / (13 × dana)
-  const occupied = (a, b, onlyBung) => {
+  // v2.7.3: datumi svake rezervacije se pretvore u broj dana JEDNOM; popunjenost se zatim računa samo brojevima
+  const _dn = str => { const v = Date.UTC(+str.slice(0, 4), +str.slice(5, 7) - 1, +str.slice(8, 10)); return Math.round(v / 86400000); };
+  const _actDays = allAct.map(r => ({ s: _dn(r.checkIn), e: _dn(r.checkOut), b: (r.bungalovi || []).map(x => String(x.bungalov)) }))
+    .filter(x => !Number.isNaN(x.s) && !Number.isNaN(x.e));
+  const occupied = (a, b, onlyBung, subset) => {
     if (!a || !b) return { used: 0, cap: 0, pct: 0 };
-    const end = lDate(new Date(new Date(b + 'T00:00:00').getTime() + 86400000));
-    const days = kmkNightsBetween(a, end);
+    const A = _dn(a), E = _dn(b) + 1; // [A, E) — uključivo do b
+    const days = Math.max(0, E - A);
+    const ob = onlyBung ? String(onlyBung) : null;
     let used = 0;
-    allAct.forEach(r => {
-      const s = r.checkIn > a ? r.checkIn : a, e = r.checkOut < end ? r.checkOut : end;
-      if (e <= s) return;
-      const n = kmkNightsBetween(s, e);
-      (r.bungalovi || []).forEach(x => { if (!onlyBung || String(x.bungalov) === String(onlyBung)) used += n; });
-    });
+    for (const x of (subset || _actDays)) {
+      const s = x.s > A ? x.s : A, e = x.e < E ? x.e : E;
+      if (e <= s) continue;
+      const n = e - s;
+      if (!ob) used += n * x.b.length; else for (const bb of x.b) if (bb === ob) used += n;
+    }
     const cap = days * (onlyBung ? 1 : 13);
     return { used, cap, pct: cap ? Math.min(100, used / cap * 100) : 0 };
   };
@@ -7808,11 +7847,21 @@ function kmkStatsCompute(all, rng, today) {
   // Po mjesecima (mjesec dolaska)
   const mkeys = new Set(act.map(r => r.checkIn.slice(0, 7)));
   if (rng.from && rng.to) { const d = new Date(rng.from.slice(0, 7) + '-01T00:00:00'); while (lDate(d).slice(0, 7) <= rng.to.slice(0, 7)) { mkeys.add(lDate(d).slice(0, 7)); d.setMonth(d.getMonth() + 1); } }
+  // v2.7.3: rezervacije se razvrstaju po mjesecu dolaska JEDNOM (ranije: prolaz kroz sve za svaki mjesec)
+  const _byMonth = new Map();
+  act.forEach(r => { const k = r.checkIn.slice(0, 7); if (!_byMonth.has(k)) _byMonth.set(k, []); _byMonth.get(k).push(r); });
+  // i za popunjenost: svaka rezervacija se upiše u mjesece koje stvarno dodiruje
+  const _occByMonth = new Map();
+  _actDays.forEach(x => {
+    const d0 = new Date(x.s * 86400000), d1 = new Date((x.e - 1) * 86400000);
+    let y = d0.getUTCFullYear(), m = d0.getUTCMonth(); const y1 = d1.getUTCFullYear(), m1 = d1.getUTCMonth();
+    while (y < y1 || (y === y1 && m <= m1)) { const k = y + '-' + String(m + 1).padStart(2, '0'); if (!_occByMonth.has(k)) _occByMonth.set(k, []); _occByMonth.get(k).push(x); m++; if (m > 11) { m = 0; y++; } }
+  });
   const months = [...mkeys].sort().map(k => {
-    const o = blank(); act.filter(r => r.checkIn.slice(0, 7) === k).forEach(r => addRes(o, r)); fin(o);
+    const o = blank(); (_byMonth.get(k) || []).forEach(r => addRes(o, r)); fin(o);
     const [yy, mm] = k.split('-').map(Number);
     o.key = k; o.label = KMK_MONTHS[mm - 1] + ' ' + yy;
-    o.occ = occupied(k + '-01', lDate(new Date(yy, mm, 0)));
+    o.occ = occupied(k + '-01', lDate(new Date(yy, mm, 0)), null, _occByMonth.get(k) || []);
     return o;
   });
   // Po bungalovima (spojena rezervacija dijeli iznos na jednake dijelove)
@@ -8265,7 +8314,7 @@ function renderAccounting() {
 
   // Filtriraj rezervacije po acc periodu (overlap logika)
   const accToIncl = lDate(new Date(new Date(accTo).getTime() + 86400000));
-  // v2.7.1: isto pravilo kao glavna statistika — rezervacija pripada periodu dolaska (bez duplog brojanja)
+  // v2.7.3: isto pravilo kao glavna statistika — rezervacija pripada periodu dolaska (bez duplog brojanja)
   let f = reservations.filter(r =>
     !r.cancelled && !r.closedManual && r.checkIn && r.checkOut &&
     r.checkIn >= accFrom && r.checkIn <= accTo
@@ -8273,7 +8322,7 @@ function renderAccounting() {
 
   // Izračunaj noći u periodu za svaku rezervaciju
   function nightsInPeriod(r) {
-    // v2.7.1: cijeli boravak (rezervacija je cijela u periodu dolaska) — taksa usklađena sa cijenom
+    // v2.7.3: cijeli boravak (rezervacija je cijela u periodu dolaska) — taksa usklađena sa cijenom
     return kmkNightsBetween(r.checkIn, r.checkOut);
   }
 
@@ -8287,7 +8336,7 @@ function renderAccounting() {
   // Ukupni sumari
   const totPrihod  = f.reduce((s,r) => s + (r.price||0), 0);
   const totNaplac  = f.filter(r=>r.paid).reduce((s,r) => s + (r.price||0), 0);
-  // v2.7.1: odvojeno virman / gotovina
+  // v2.7.3: odvojeno virman / gotovina
   const totNaplacVirman = f.filter(r=>r.paid && kmkHasVirmanFlag(r)).reduce((s,r) => s + (r.price||0), 0);
   const totNaplacCash   = totNaplac - totNaplacVirman;
   const totDug     = f.filter(r=>!r.paid).reduce((s,r) => s + (r.price||0), 0);
@@ -8459,7 +8508,7 @@ function _renderAccountingCharts(resv, accFrom, accTo) {
   resv.filter(r=>r.paid).forEach(r => {
     const mo = r.checkIn.substring(0,7);
     monthlyData[mo] = (monthlyData[mo]||0) + (r.price||0);
-    // v2.7.1: odvojeno gotovina / virman
+    // v2.7.3: odvojeno gotovina / virman
     if (kmkHasVirmanFlag(r)) monthlyVirman[mo] = (monthlyVirman[mo]||0) + (r.price||0);
     else monthlyCash[mo] = (monthlyCash[mo]||0) + (r.price||0);
   });
@@ -8684,7 +8733,7 @@ window.exportAccountingXLSX = () => {
   XLSX.utils.book_append_sheet(wb, ws2, 'Finansijski pregled');
 
   const month = now.toLocaleString('sr-Latn',{month:'long',year:'numeric'}).replace(' ','_');
-  // v2.7.1: list "Po mjesecima"
+  // v2.7.3: list "Po mjesecima"
   try {
     const _S = kmkStatsCompute(reservations, { from: accFrom, to: accTo }, lDate(new Date()));
     const _r2 = v => Math.round(v * 100) / 100;
@@ -8968,13 +9017,17 @@ function updNotif() {
 function startAutoBackup() {
   autoBackupTimer=setInterval(async()=>{
     if (!reservations.length) return; // ne pravi prazan backup
-    await addDoc(collection(db,'backups'),{
-      reservations, history:hist,
-      timestamp:new Date().toISOString(), type:'automatic', createdBy:curUser
-    });
-    // N2: zadrži samo 10 najnovijih automatskih backup-ova — briši starije
     try {
-      const snap = await getDocs(query(collection(db,'backups'),orderBy('timestamp','desc')));
+      await addDoc(collection(db,'backups'),{
+        reservations, history:hist,
+        timestamp:new Date().toISOString(), type:'automatic', createdBy:curUser
+      });
+    } catch (e) { console.warn('[Auto-backup] nije uspio:', e && e.message); return; }
+    // N2: zadrži samo 10 najnovijih automatskih backup-ova — briši starije
+    // v2.7.3: čita se samo 25 najnovijih backup-a (ranije SVI — svaki sadrži sve rezervacije → MB preuzimanja).
+    // Čišćenje se radi pri svakom backup-u, pa je 25 uvijek dovoljno da se nađu automatski backup-i preko 10.
+    try {
+      const snap = await getDocs(query(collection(db,'backups'),orderBy('timestamp','desc'),limit(25)));
       const autoDocs = snap.docs.filter(d=>d.data().type==='automatic');
       if (autoDocs.length > 10) {
         for (const d of autoDocs.slice(10)) {
@@ -9123,6 +9176,17 @@ window.goTab=(name,btn)=>{
 
 // Detekcija mobilnog
 function isMobile() { return window.innerWidth <= 768; }
+
+// v2.7.3: debounce za polja pretrage — lista se osvježi kad korisnik zastane sa kucanjem (150 ms),
+// a ne na svako slovo. Rezultat pretrage je isti, samo bez zastajkivanja pri brzom kucanju.
+const _kmkDebounceTimers = {};
+window.kmkDebounceCall = function(key, fn, ms) {
+  clearTimeout(_kmkDebounceTimers[key]);
+  _kmkDebounceTimers[key] = setTimeout(() => {
+    try { const f = typeof fn === 'function' ? fn : window[fn]; if (typeof f === 'function') f(); }
+    catch (e) { console.warn('[pretraga]', e); }
+  }, ms || 150);
+};
 
 // Mob legenda toggle
 window.mobToggleLegend = () => {
@@ -10603,7 +10667,7 @@ function renderMobList() {
   html += `<div style="margin-bottom:12px">
     <input type="text" id="mob-search" placeholder="🔍 Pretraži ime, telefon, kanal..." 
       style="width:100%;padding:11px 14px;border:1.5px solid #e0e0e0;border-radius:10px;font-size:.95em"
-      oninput="renderMobListFiltered()">
+      oninput="kmkDebounceCall('mobsearch', renderMobListFiltered, 150)">
   </div>`;
   
   html += '<div id="mob-list-cards">';
@@ -10880,15 +10944,39 @@ window.openConflictsFromBanner = function() {
 window.detectConflicts = function() {
   const active = (typeof kmkActiveReservationsUnique === 'function' ? kmkActiveReservationsUnique(reservations) : reservations).filter(r => !r.cancelled && r.checkIn && r.checkOut);
   const found = [];
+  const foundKeys = new Set();
 
-  for (let i = 0; i < active.length; i++) {
-    for (let j = i + 1; j < active.length; j++) {
+  // v2.7.3 OPTIMIZACIJA (isti rezultat, isti redoslijed, isti ključevi):
+  // ranije se svaki par rezervacija poredio i za svaki par iznova pravio spisak bungalova (O(n²) uz alokacije).
+  // Sada: bungalovi se računaju jednom, a parovi se traže samo unutar istog bungalova među rezervacijama
+  // čiji se datumi preklapaju (sortirano po dolasku — čim sljedeća počne poslije odlaska, dalje se ne gleda).
+  const _bungsOf = active.map(r => [...new Set((r.bungalovi || []).map(x => _kmkNormBungNo(x.bungalov)).filter(Boolean))]);
+  const _byBung = new Map();
+  active.forEach((r, idx) => _bungsOf[idx].forEach(bn => { if (!_byBung.has(bn)) _byBung.set(bn, []); _byBung.get(bn).push(idx); }));
+  const _pairSet = new Set(), _pairs = [];
+  _byBung.forEach(list => {
+    list.sort((x, y) => (active[x].checkIn < active[y].checkIn ? -1 : active[x].checkIn > active[y].checkIn ? 1 : x - y));
+    for (let p = 0; p < list.length; p++) {
+      const A = active[list[p]];
+      for (let q = p + 1; q < list.length; q++) {
+        const B = active[list[q]];
+        if (B.checkIn >= A.checkOut) break; // dalje nema preklapanja sa A
+        const i = Math.min(list[p], list[q]), j = Math.max(list[p], list[q]);
+        const pk = i * 1048576 + j;
+        if (!_pairSet.has(pk)) { _pairSet.add(pk); _pairs.push([i, j]); }
+      }
+    }
+  });
+  _pairs.sort((x, y) => x[0] - y[0] || x[1] - y[1]); // isti redoslijed kao stara dvostruka petlja
+
+  for (const [i, j] of _pairs) {
+    {
       const a = active[i];
       const b = active[j];
       if (!a.id || !b.id || a.id === b.id) continue;
 
-      const bungsA = [...new Set((a.bungalovi || []).map(x => _kmkNormBungNo(x.bungalov)).filter(Boolean))];
-      const bungsB = [...new Set((b.bungalovi || []).map(x => _kmkNormBungNo(x.bungalov)).filter(Boolean))];
+      const bungsA = _bungsOf[i];
+      const bungsB = _bungsOf[j];
       const sharedBungs = bungsA.filter(bn => bungsB.includes(bn)).sort((x,y)=>Number(x)-Number(y));
       if (!sharedBungs.length) continue;
 
@@ -10899,7 +10987,8 @@ window.detectConflicts = function() {
         const overlapStart = _kmkOverlapStart(a, b);
         const overlapEnd = _kmkOverlapEnd(a, b);
         const pairKey = [a.id, b.id].sort().join('_') + '_' + sharedBungs.join('-') + '_' + overlapStart + '_' + overlapEnd;
-        if (!found.some(cf => cf.key === pairKey)) {
+        if (!foundKeys.has(pairKey)) {
+          foundKeys.add(pairKey);
           found.push({ a, b, bungs: sharedBungs, overlapStart, overlapEnd, id: pairKey, key: pairKey, type: (kmkIsCalendarBlock(a)||kmkIsCalendarBlock(b)) ? 'booking-vs-block' : 'booking-vs-booking' });
         }
       }
@@ -10908,7 +10997,7 @@ window.detectConflicts = function() {
 
   const external = (typeof _kmkRefreshExternalIcalConflicts === 'function') ? _kmkRefreshExternalIcalConflicts() : [];
   for (const cf of external) {
-    if (!found.some(x => x.key === cf.key)) found.push(cf);
+    if (!foundKeys.has(cf.key)) { foundKeys.add(cf.key); found.push(cf); }
   }
 
   // Ukloni konflikte koje je admin već označio kao "riješeno/prihvaćeno"
@@ -12291,6 +12380,11 @@ function renderOccupancyBar() {
   if (!el) return;
   const now = new Date(); now.setHours(0,0,0,0);
   const todayStr = lDate(now);
+  // v2.7.3: provjeravaju se samo rezervacije koje dodiruju prozor (ovaj mjesec + narednih 7 dana) — isti rezultat
+  const _w7 = new Date(now); _w7.setDate(_w7.getDate() + 7);
+  const _mF = lDate(new Date(now.getFullYear(), now.getMonth(), 1)), _mE = lDate(new Date(now.getFullYear(), now.getMonth() + 1, 1));
+  const _wS = _mF < todayStr ? _mF : todayStr, _w7s = lDate(_w7), _wE = _w7s > _mE ? _w7s : _mE;
+  const _occRel = reservations.filter(r => !r.cancelled && r.checkIn < _wE && r.checkOut > _wS);
 
   // Sljedećih 7 dana
   let occ7 = 0, total7 = 0;
@@ -12299,7 +12393,7 @@ function renderOccupancyBar() {
     const ds = lDate(d);
     for (let bn = 1; bn <= 13; bn++) {
       total7++;
-      const taken = reservations.some(r =>
+      const taken = _occRel.some(r =>
         !r.cancelled && ds >= r.checkIn && ds < r.checkOut &&
         r.bungalovi?.some(b => b.bungalov == bn)
       );
@@ -12315,7 +12409,7 @@ function renderOccupancyBar() {
     const ds = `${yr}-${String(mo+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
     for (let bn = 1; bn <= 13; bn++) {
       totalMo++;
-      const taken = reservations.some(r =>
+      const taken = _occRel.some(r =>
         !r.cancelled && ds >= r.checkIn && ds < r.checkOut &&
         r.bungalovi?.some(b => b.bungalov == bn)
       );
@@ -12326,7 +12420,7 @@ function renderOccupancyBar() {
   // Slobodni danas
   const freeToday = [];
   for (let bn = 1; bn <= 13; bn++) {
-    const taken = reservations.some(r =>
+    const taken = _occRel.some(r =>
       !r.cancelled && todayStr >= r.checkIn && todayStr < r.checkOut &&
       r.bungalovi?.some(b => b.bungalov == bn)
     );
@@ -15047,4 +15141,4 @@ window.KMK_APP_BRIDGE = {
 </body>
 </html>
 
-<!-- v2.7.1: Virman je strogo isključen iz Zaostalih dugova i podržani su stari/djelimični virman zapisi; dodano Virman dugme direktno u Zaostale. -->
+<!-- v2.7.3: Virman je strogo isključen iz Zaostalih dugova i podržani su stari/djelimični virman zapisi; dodano Virman dugme direktno u Zaostale. -->
